@@ -3529,30 +3529,88 @@ class SailingScene {
     g.setAttribute('waveSpacing',new T.Float32BufferAttribute(spacing,2));
     g.setIndex(indices);return g;
   }
+  buildIslandTerrain(island,material,{sand,grass,stone,darkGrass}){
+    const T=this.T,W=global.SailingWorld,maxEdge=105,tileSize=1100;
+    const contour=island.points.map(p=>new T.Vector2(p.x,p.y));
+    const faces=T.ShapeUtils.triangulateShape(contour,[]);
+    const positions=[],colors=[],indices=[],vertices=new Map(),tiles=new Map(),point=new T.Vector3();
+    const heightAt=(x,y)=>Math.max(0,W.islandSample(island,x,y).height);
+    const vertex=(p,height)=>{
+      const {x,y}=p,key=x+':'+y;
+      const known=vertices.get(key);
+      if(known!==undefined)return known;
+      const h=height??heightAt(x,y);
+      const shade=.5+.5*Math.sin(x*.031+y*.022)*Math.cos(x*.015-y*.026);
+      const color=sand.clone().lerp(grass,clamp(h/(1.9+1.15*shade),0,1));
+      color.lerp(h<2.6?stone:darkGrass,shade*(h<2.6?.23:.34));
+      const index=positions.length/3;
+      positions.push(x,h,-y);colors.push(color.r,color.g,color.b);
+      vertices.set(key,index);
+      return index;
+    };
+    const face=(a,b,c)=>{
+      const x=(positions[a*3]+positions[b*3]+positions[c*3])/3;
+      const z=(positions[a*3+2]+positions[b*3+2]+positions[c*3+2])/3;
+      const key=Math.floor(x/tileSize)+':'+Math.floor(z/tileSize);
+      let tile=tiles.get(key);
+      if(!tile){tile={indices:[],bounds:new T.Box3()};tiles.set(key,tile);}
+      tile.indices.push(a,b,c);indices.push(a,b,c);
+      for(const index of [a,b,c])tile.bounds.expandByPoint(point.fromArray(positions,index*3));
+    };
+    const length2=(a,b)=>(a.x-b.x)**2+(a.y-b.y)**2;
+    const divide=(a,b,c)=>{
+      const ab=length2(a,b),bc=length2(b,c),ca=length2(c,a),longest=Math.max(ab,bc,ca);
+      if(longest>maxEdge**2){
+        if(ab!==longest)return bc===longest?divide(b,c,a):divide(c,a,b);
+        const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+        divide(a,mid,c);divide(mid,b,c);
+        return;
+      }
+      const i=vertex(a),j=vertex(b),k=vertex(c);
+      if(Math.max(positions[i*3+1],positions[j*3+1],positions[k*3+1])>.0005){
+        face(i,j,k);
+        return;
+      }
+      // A triangle can have three shoreline corners while its interior is dry.
+      // Sample that interior without moving the shoreline or splitting shared edges.
+      const centre={x:(a.x+b.x+c.x)/3,y:(a.y+b.y+c.y)/3};
+      const height=heightAt(centre.x,centre.y);
+      if(height>.0005){
+        const inland=vertex(centre,height);
+        face(i,j,inland);face(j,k,inland);face(k,i,inland);
+      }else face(i,j,k);
+    };
+    for(const [a,b,c] of faces)divide(island.points[a],island.points[b],island.points[c]);
+    // Bake normals across the complete island before sharing vertex buffers
+    // between independently frustum-culled tiles.
+    const surface=new T.BufferGeometry();
+    surface.setAttribute('position',new T.Float32BufferAttribute(positions,3));
+    surface.setAttribute('color',new T.Float32BufferAttribute(colors,3));
+    surface.setIndex(indices);
+    surface.computeVertexNormals();
+    for(const tile of tiles.values()){
+      const geometry=new T.BufferGeometry();
+      for(const [name,attribute] of Object.entries(surface.attributes))geometry.setAttribute(name,attribute);
+      geometry.setIndex(tile.indices);
+      geometry.boundingBox=tile.bounds;
+      geometry.boundingSphere=tile.bounds.getBoundingSphere(new T.Sphere());
+      const land=this.mesh(geometry,material,this.coast);
+      land.receiveShadow=true;
+      land.name=island.name;
+      land.userData.islandId=island.id;
+      this.coastTerrain.push(land);
+    }
+  }
   buildCoast(){
     const T=this.T,W=global.SailingWorld;this.coast=new T.Group();this.coast.name='Fixed world coastline';this.scene.add(this.coast);this.coastTerrain=[];
     if(!W)return;
     const sand=new T.Color('#ac986c'),grass=new T.Color('#5b7541'),stone=new T.Color('#969682'),darkGrass=new T.Color('#344d2c');
     const hash=x=>{const a=Math.sin(x*127.1+311.7)*43758.5453;return a-Math.floor(a);};
     const maps=this.surfaceAssets.maps,landMaterial=global.SailingGraphics.groundMaterial(T,maps);
+    landMaterial.polygonOffset=true;
+    landMaterial.polygonOffsetUnits=-1;
     this.coast.userData.photographicMaterials=true;
-    // Triangulate each exact coastline, then subdivide it for gentle terrain.
-    // All vertices sample the same height field used by grounding.
-    for(const island of W.ISLANDS){
-      const contour=island.points.map(p=>new T.Vector2(p.x,p.y));
-      const triangles=T.ShapeUtils.triangulateShape(contour,[]),positions=[],colors=[];
-      const vertex=(x,y)=>{const h=Math.max(0,W.islandSample(island,x,y).height),q=.5+.5*Math.sin(x*.031+y*.022)*Math.cos(x*.015-y*.026),col=sand.clone().lerp(grass,clamp(h/(1.9+1.15*q),0,1));col.lerp(h<2.6?stone:darkGrass,q*(h<2.6?.23:.34));positions.push(x,h,-y);colors.push(col.r,col.g,col.b);};
-      const length2=(a,b)=>(a.x-b.x)**2+(a.y-b.y)**2;
-      const divide=(a,b,c)=>{
-        const ab=length2(a,b),bc=length2(b,c),ca=length2(c,a),longest=Math.max(ab,bc,ca);
-        if(longest<=105**2){vertex(a.x,a.y);vertex(b.x,b.y);vertex(c.x,c.y);return;}
-        if(ab!==longest)return bc===longest?divide(b,c,a):divide(c,a,b);
-        const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
-        divide(a,mid,c);divide(mid,b,c);
-      };
-      for(const t of triangles)divide(island.points[t[0]],island.points[t[1]],island.points[t[2]]);
-      const geometry=new T.BufferGeometry();geometry.setAttribute('position',new T.Float32BufferAttribute(positions,3));geometry.setAttribute('color',new T.Float32BufferAttribute(colors,3));geometry.computeVertexNormals();const land=this.mesh(geometry,landMaterial,this.coast);land.receiveShadow=true;land.name=island.name;land.userData.islandId=island.id;land.receiveShadow=true;this.coastTerrain.push(land);
-    }
+    for(const island of W.ISLANDS)this.buildIslandTerrain(island,landMaterial,{sand,grass,stone,darkGrass});
     // Farmland patches and a narrow road follow the same terrain coordinates.
     // These visual details do not alter the shoreline or seabed collision.
     const fieldVertices=[],fieldColors=[],tones=['#819456','#a6a15d','#718e56','#b4a36b','#68834e'];
@@ -5930,7 +5988,13 @@ function bind(){
 }
 function input(){if(R.active(state))return{steer:0,steerDigital:true,trim:0,crew:0,crewPose:1};const trimKeys=(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0),cfg=P.configFor(state);return {steer:clamp((keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0)+touchSteer,-1,1),steerDigital:helmPointer===null,trimFast:!!trimKeys,trim:trimKeys||clamp((sheetTarget-state.sheet)/(cfg.sheetRate*env.controlRate*P.CONFIG.fixedDt),-1,1),crew:isFoiler()?0:clamp((keys.has('KeyE')?1:0)-(keys.has('KeyQ')?1:0)+touchCrew,-1,1),crewPose:env.crewPose,spinnaker:spinCommand,downwindType:spinType};}
 function fixedStep(stepNowMs=performance.now()){
-  const control=input();previous=snapshot(state);const actual=Settings.advanceWind(state,env,P.CONFIG.fixedDt);P.step(state,control,actual,P.CONFIG.fixedDt);W.step(state,actual,P.CONFIG.fixedDt);const contact=globalThis.FriVindLobby?.step(control,stepNowMs,P.CONFIG.fixedDt);
+  const control=input();previous=snapshot(state);
+  const bearing=state.windClimate?.direction??env.direction;
+  const actual=Settings.advanceWind(state,env,P.CONFIG.fixedDt);
+  if(actual.direction!==bearing&&actual.shelter!==false&&!globalThis.SailingWind.prepare(actual.direction)){
+    state.windClimate.direction=actual.direction=bearing;
+  }
+  P.step(state,control,actual,P.CONFIG.fixedDt);W.step(state,actual,P.CONFIG.fixedDt);const contact=globalThis.FriVindLobby?.step(control,stepNowMs,P.CONFIG.fixedDt);
   if(state.recovering||previous.recovering||keys.has('KeyW')||keys.has('KeyS')||keys.has('ArrowUp')||keys.has('ArrowDown'))sheetTarget=state.sheet;
   if(!globalThis.FriVindLobby?.fleet?.inWorld||globalThis.FriVindLobby.fleet.host)raceEvents(course.update(previous,state,P.CONFIG.fixedDt,{nowMs:stepNowMs,discontinuity:!!(contact||state.recovering||previous.recovering||state.capsized||previous.capsized)}));
   synchronizeRecovery(performance.now());

@@ -45,16 +45,21 @@
   const data=new Uint8Array(N*N*4);
   const short=f=>.012+.988*Math.pow(clamp(f/1250,0,1),.67);
   const formed=f=>Math.pow(clamp(f/1370,0,1),.86);
+  const openSwell=Math.exp(-LIMIT/355);
   for(let j=0;j<N;j++)for(let i=0;i<N;i++){
    const x=B.minX+stepX*i,y=B.minY+stepY*j,fetch=centre(x,y);
    const a=left(x,y),b=right(x,y);
+   const k=(j*N+i)*4;
+   if(fetch===LIMIT&&a===LIMIT&&b===LIMIT){
+    data[k]=data[k+1]=data[k+2]=data[k+3]=255;
+    continue;
+   }
    const edge=smooth(Math.min(i,j,N-1-i,N-1-j)/5);
    // Swell already at sea is partly scattered around headlands. Sea generated
    // locally grows from the last shore, with a small off-axis contribution.
-   const swell=1-.82*(Math.exp(-fetch/355)-Math.exp(-LIMIT/355))/(1-Math.exp(-LIMIT/355));
+   const swell=1-.82*(Math.exp(-fetch/355)-openSwell)/(1-openSwell);
    const shortSea=.89*short(fetch)+.055*(short(a)+short(b));
    const longSea=swell*(.20+.80*(.92*formed(fetch)+.04*(formed(a)+formed(b))));
-   const k=(j*N+i)*4;
    data[k]=Math.round(255*mix(1,swell,edge));
    data[k+1]=Math.round(255*mix(1,shortSea,edge));
    data[k+2]=Math.round(255*mix(1,longSea,edge));

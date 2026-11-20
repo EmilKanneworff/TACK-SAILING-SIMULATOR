@@ -6,20 +6,59 @@ test('the chart, land mesh and collision use the same archipelago',async({page})
  await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
  await page.click('#startButton');await page.click('#mapExpand');await page.selectOption('#mapView','area');
  const r=await page.evaluate(()=>{const W=SailingWorld,map=SAILING_GAME.map,scene=SAILING_GAME.scene;map._worldData();
- const comparisons=W.ISLANDS.map(island=>{const coast=map._shoreCache.find(c=>c.island.id===island.id),mesh=scene.coastTerrain.find(m=>m.userData.islandId===island.id),positions=mesh.geometry.attributes.position.array;
-  let matched=0;for(const p of island.points){for(let i=0;i<positions.length;i+=3)if(Math.abs(positions[i]-p.x)<.01&&Math.abs(positions[i+2]+p.y)<.01){matched++;break;}}
-  return{id:island.id,identical:coast.points===island.points,vertices:matched,total:island.points.length};});
+ const comparisons=W.ISLANDS.map(island=>{
+  const coast=map._shoreCache.find(c=>c.island.id===island.id);
+  const tiles=scene.coastTerrain.filter(m=>m.userData.islandId===island.id);
+  const boundary=new Set(island.points.map(p=>Math.fround(p.x)+':'+Math.fround(-p.y)));
+  for(const {geometry} of tiles){
+   const p=geometry.attributes.position;
+   for(const index of geometry.index.array)if(p.getY(index)<.001)boundary.delete(p.getX(index)+':'+p.getZ(index));
+  }
+  return{id:island.id,identical:coast.points===island.points,missing:boundary.size};
+ });
  const marks=id=>W.LANDMARKS.find(mark=>mark.id===id),ferry=marks('faaborg-havn');
  const distance=id=>{const p=marks(id);return Math.hypot(p.x-ferry.x,p.y-ferry.y);};
  const fyn=map._shoreCache[0].shore;
  return{comparisons,water:W.sample(0,0),waterSouth:W.heightAt(0,-2000),mode:map.mode,version:W.version,
   harborDistances:['bjorno-havn','lyo-havn','avernako-havn'].map(distance),ends:[fyn[0].x,fyn.at(-1).x]};});
  expect(r.comparisons.map(x=>x.id)).toEqual(expect.arrayContaining(['fyn','bjorno','lyo','avernako','svelmo']));
- for(const c of r.comparisons){expect(c.identical).toBe(true);expect(c.vertices,c.id).toBe(c.total)}
+ for(const c of r.comparisons){expect(c.identical).toBe(true);expect(c.missing,c.id).toBe(0)}
  expect(r.version).toBe('faaborg-metric-1');
  for(const [measured,reference] of r.harborDistances.map((d,i)=>[d,[3080,6960,6110][i]]))expect(Math.abs(measured-reference)).toBeLessThan(20);
  expect(r.ends[0]).toBeGreaterThan(9800);expect(r.ends[1]).toBeLessThan(-8500);
  expect(r.water.height).toBeLessThan(-2);expect(r.waterSouth).toBeLessThan(-10);expect(r.mode).toBe('area');
+});
+test('dry shore triangles rise above calm water and offscreen terrain tiles are culled',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const r=await page.evaluate(()=>{
+  const {scene}=SAILING_GAME,W=SailingWorld;
+  const islands=new Map(W.ISLANDS.map(island=>[island.id,island]));
+  let flatLandArea=0,total=0,submitted=0;
+  scene.camera.position.set(0,5,0);
+  scene.camera.lookAt(200,5,900);
+  scene.camera.updateMatrixWorld();
+  const frustum=new THREE.Frustum().setFromProjectionMatrix(
+   new THREE.Matrix4().multiplyMatrices(scene.camera.projectionMatrix,scene.camera.matrixWorldInverse));
+  for(const tile of scene.coastTerrain){
+   const island=islands.get(tile.userData.islandId);
+   const p=tile.geometry.attributes.position,index=tile.geometry.index?.array,count=index?.length??p.count;
+   total+=count/3;
+   if(frustum.intersectsObject(tile))submitted+=count/3;
+   for(let i=0;i<count;i+=3){
+    const a=index?.[i]??i,b=index?.[i+1]??i+1,c=index?.[i+2]??i+2;
+    if(Math.max(p.getY(a),p.getY(b),p.getY(c))>.0005)continue;
+    const x=(p.getX(a)+p.getX(b)+p.getX(c))/3,y=-(p.getZ(a)+p.getZ(b)+p.getZ(c))/3;
+    if(W.islandSample(island,x,y).height<=.003)continue;
+    flatLandArea+=Math.abs((p.getX(b)-p.getX(a))*(p.getZ(c)-p.getZ(a))-
+      (p.getX(c)-p.getX(a))*(p.getZ(b)-p.getZ(a)))/2;
+   }
+  }
+  return {flatLandArea,submitted,total};
+ });
+ expect(r.flatLandArea).toBe(0);
+ expect(r.submitted).toBeGreaterThan(0);
+ expect(r.submitted).toBeLessThan(r.total*.55);
 });
 test('courses and their tactical envelopes stay in deep water in changing wind',async({page})=>{
  test.setTimeout(90000);await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
