@@ -1,0 +1,271 @@
+{
+  "browser": "157.0.8103.79",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "scenes": {
+    "yacht": {
+      "setup": {
+        "wind": 9,
+        "direction": 270,
+        "waves": 0.85,
+        "heading": 0.43,
+        "speed": 3.6,
+        "sheet": 0.48,
+        "camera": 2,
+        "x": -300,
+        "y": -860
+      },
+      "samples": [
+        {
+          "boat": "yacht",
+          "camera": 2,
+          "position": [
+            -296.6074514821024,
+            -858.5177129252093
+          ],
+          "heading": 0.43,
+          "time": 1.0500000000000012,
+          "wind": 9,
+          "direction": 270,
+          "waves": 0.85,
+          "weather": "clear",
+          "pose": 2,
+          "side": -1,
+          "tacks": 0,
+          "heel": 0.062187969756318844,
+          "speed": 3.4415571579687843,
+          "foil": null,
+          "wet": null
+        },
+        {
+          "boat": "yacht",
+          "camera": 2,
+          "position": [
+            -293.61816904293784,
+            -857.1830156224539
+          ],
+          "heading": 0.43,
+          "time": 2.0166666666666644,
+          "wind": 9,
+          "direction": 270,
+          "waves": 0.85,
+          "weather": "clear",
+          "pose": 2.4929166666666642,
+          "side": -1,
+          "tacks": 0,
+          "heel": 0.10091417676612448,
+          "speed": 3.349075748173529,
+          "foil": null,
+          "wet": null
+        },
+        {
+          "boat": "yacht",
+          "camera": 2,
+          "position": [
+            -287.5236855544412,
+            -854.2722994569715
+          ],
+          "heading": 0.43,
+          "time": 4.016666666666658,
+          "wind": 9,
+          "direction": 270,
+          "waves": 0.85,
+          "weather": "clear",
+          "pose": 2.99858405988523,
+          "side": -1,
+          "tacks": 0,
+          "heel": 0.06678666065434026,
+          "speed": 3.4632616414638377,
+          "foil": null,
+          "wet": null
+        },
+        {
+          "boat": "yacht",
+          "camera": 2,
+          "position": [
+            -280.94264160875855,
+            -851.4206387364427
+          ],
+          "heading": 0.43,
+          "time": 6.016666666666651,
+          "wind": 9,
+          "direction": 270,
+          "waves": 0.85,
+          "weather": "clear",
+          "pose": 3,
+          "side": -1,
+          "tacks": 0,
+          "heel": 0.07645602886118127,
+          "speed": 3.680982555961097,
+          "foil": null,
+          "wet": null
+        },
+        {
+          "boat": "yacht",
+          "camera": 2,
+          "position": [
+            -274.19325568286865,
+            -848.5473579273907
+          ],
+          "heading": 0.43,
+          "time": 8.016666666666644,
+          "wind": 9,
+          "direction": 270,
+          "waves": 0.85,
+          "weather": "clear",
+          "pose": 3,
+          "side": -1,
+          "tacks": 0,
+          "heel": 0.04733449563938413,
+          "speed": 3.596750968511878,
+          "foil": null,
+          "wet": null
+        }
+      ]
+    },
+    "six": {
+      "boats": [
+        {
+          "boat": "laser",
+          "position": [
+            23.865797561119713,
+            -4989.448609980494
+          ],
+          "screen": [
+            0.0671756311891289,
+            -0.15063414414533757
+          ],
+          "visible": true
+        },
+        {
+          "boat": "dinghy",
+          "position": [
+            -8.758630510203604,
+            -4966.230473063269
+          ],
+          "screen": [
+            -0.2837008473232427,
+            0.07771508920696259
+          ],
+          "visible": true
+        },
+        {
+          "boat": "yacht",
+          "position": [
+            29.91520547109624,
+            -4946.680804729566
+          ],
+          "screen": [
+            0.06974411228043016,
+            0.2859481331582859
+          ],
+          "visible": true
+        },
+        {
+          "boat": "ac75",
+          "position": [
+            49.305751842900364,
+            -4979.08815951449
+          ],
+          "screen": [
+            0.31356296745220524,
+            0.006241684316386021
+          ],
+          "visible": true
+        },
+        {
+          "boat": "ac72",
+          "position": [
+            -17.404849841985857,
+            -5002.855034512228
+          ],
+          "screen": [
+            -0.42003903155217925,
+            -0.3982407974546768
+          ],
+          "visible": true
+        },
+        {
+          "boat": "laser",
+          "position": [
+            40.86361722121548,
+            -5016.30789659874
+          ],
+          "screen": [
+            0.3359650345363645,
+            -0.5311038765261926
+          ],
+          "visible": true
+        }
+      ],
+      "camera": "Samme høje måleperspektiv med seks aktive både i billedet"
+    },
+    "sixNear": {
+      "boats": [
+        {
+          "boat": "laser",
+          "visible": true
+        },
+        {
+          "boat": "dinghy",
+          "visible": true
+        },
+        {
+          "boat": "yacht",
+          "visible": true
+        },
+        {
+          "boat": "ac75",
+          "visible": true
+        },
+        {
+          "boat": "ac72",
+          "visible": true
+        },
+        {
+          "boat": "laser",
+          "visible": true
+        }
+      ],
+      "reflection": false,
+      "tracks": 0
+    }
+  },
+  "performance": {
+    "one": {
+      "fps": 60.00266678519046,
+      "p95Ms": 16.799999999999272,
+      "p95SubmitMs": 1.5,
+      "draws": 505,
+      "drawsAllPassesP95": 505,
+      "triangles": 170942,
+      "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)"
+    },
+    "six": {
+      "fps": 60.00400026668446,
+      "p95Ms": 16.700000000000728,
+      "p95SubmitMs": 4.400000095367432,
+      "draws": 1089,
+      "drawsAllPassesP95": 1089,
+      "triangles": 324063,
+      "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)"
+    },
+    "sixNear": {
+      "fps": 56.44695319791992,
+      "p95Ms": 16.80000000000291,
+      "p95SubmitMs": 7.8999998569488525,
+      "draws": 1348,
+      "drawsAllPassesP95": 1347,
+      "triangles": 369153,
+      "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)"
+    }
+  },
+  "loadMs": {
+    "yacht": 584,
+    "six": 6554
+  },
+  "errors": [],
+  "revision": "34e260829958"
+}

@@ -1,0 +1,46 @@
+{
+  "name": "fri-vind",
+  "version": "1.0.0",
+  "description": "TACK · Sailing Simulator og live-tjeneste under udvikling",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "node server/static.js",
+    "realtime": "node server/index.js",
+    "build": "node server/build.js",
+    "test": "node --test tests/server.test.js tests/collisions.test.js tests/shelter-geometry.test.js tests/course-editor-model.test.js tests/weather-settings.test.js",
+    "test:browser": "playwright test tests/shelter.test.js tests/browser.test.js tests/experience-layout.test.js tests/wave-crew-experience.test.js tests/lobby.test.js tests/course.test.js tests/course-editor.test.js tests/course-pause.test.js tests/course-spectator.test.js tests/fleet.test.js tests/fleet-collision.test.js tests/latency.test.js tests/reconnect.test.js tests/trim.test.js tests/spinnaker.test.js tests/spinnaker-network.test.js tests/waves.test.js tests/sail-state.test.js tests/wave-calibration.test.js tests/sea-control.test.js tests/water-effects.test.js tests/late-wave.test.js --workers=1 --reporter=line",
+    "test:six-rigs": "playwright test tests/six-rigs.test.js --workers=1 --reporter=line",
+    "test:sails": "playwright test tests/sail-state.test.js tests/trim.test.js tests/spinnaker.test.js tests/turbaad-sejl.test.js tests/foil-respons.test.js --workers=1 --reporter=line",
+    "test:sailing": "playwright test tests/sailing.test.js --workers=1 --reporter=line",
+    "test:archipelago": "playwright test tests/archipelago.test.js --workers=1 --reporter=line",
+    "measure:archipelago": "node scripts/archipelago-routes.cjs",
+    "measure:foil-passage": "node scripts/archipelago-foil.cjs",
+    "test:surf": "playwright test tests/surf.test.js --workers=1 --reporter=line",
+    "test:long-sea": "playwright test tests/long-sea.test.js --workers=1 --reporter=line",
+    "test:shared-courses": "playwright test tests/shared-courses.test.js --workers=1 --reporter=line",
+    "test:physical-courses": "playwright test tests/physical-course.test.js --workers=1 --reporter=line",
+    "test:physical-fleet": "playwright test tests/physical-fleet.test.js --workers=1 --reporter=line",
+    "test:racer27": "playwright test tests/racer27.test.js --workers=1 --reporter=line",
+    "test:turbaad": "playwright test tests/gennaker-side.test.js tests/turbaad-sejl.test.js tests/spinnaker.test.js tests/spinnaker-network.test.js --workers=1 --reporter=line",
+    "test:foil-respons": "playwright test tests/foil-respons.test.js --workers=1 --reporter=line",
+    "test:ui-balance": "playwright test tests/sailing-ui-balance.test.js --workers=1 --reporter=line",
+    "test:physics": "playwright test tests/physics-consistency.test.js tests/physics-voyages.test.js tests/racer27.test.js tests/manoeuvres.test.js --workers=1 --reporter=line",
+    "measure:physics": "node scripts/physics-calibration.cjs",
+    "test:shelter": "playwright test tests/shelter.test.js --workers=1 --reporter=line",
+    "test:shelter:geometry": "node --test tests/shelter-geometry.test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "ws": "^8.23.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1"
+  },
+  "private": true
+}

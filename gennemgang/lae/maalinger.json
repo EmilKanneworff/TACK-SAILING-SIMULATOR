@@ -1,0 +1,235 @@
+{
+  "charts": {
+    "nord": {
+      "before": "21,0 % af vandmålepunkterne har mindst 90 % af grundvinden.",
+      "after": "89,3 % af vandmålepunkterne har mindst 90 % af grundvinden.",
+      "contributions": 401
+    },
+    "oest": {
+      "before": "58,6 % af vandmålepunkterne har mindst 90 % af grundvinden.",
+      "after": "94,9 % af vandmålepunkterne har mindst 90 % af grundvinden.",
+      "contributions": 200
+    },
+    "syd": {
+      "before": "65,2 % af vandmålepunkterne har mindst 90 % af grundvinden.",
+      "after": "97,8 % af vandmålepunkterne har mindst 90 % af grundvinden.",
+      "contributions": 136
+    },
+    "vest": {
+      "before": "63,1 % af vandmålepunkterne har mindst 90 % af grundvinden.",
+      "after": "96,5 % af vandmålepunkterne har mindst 90 % af grundvinden.",
+      "contributions": 157
+    }
+  },
+  "calibration": {
+    "config": {
+      "referenceHeight": 2,
+      "gridStep": 10,
+      "directionStep": 5,
+      "maxDeficit": 0.56,
+      "terrainHeightScale": 0.8,
+      "terrainMemory": 140,
+      "landFetch": 56,
+      "minRecovery": 33,
+      "maxRecovery": 102,
+      "edgeFade": 65,
+      "seed": 2647
+    },
+    "transect": [
+      {
+        "distance": 0,
+        "x": 366,
+        "y": -142,
+        "depth": 2.449795660146084,
+        "wind": 4.51764705882353
+      },
+      {
+        "distance": 25,
+        "x": 341.7260458712602,
+        "y": -147.98123323034957,
+        "depth": 4.853312243899633,
+        "wind": 4.974655514745071
+      },
+      {
+        "distance": 50,
+        "x": 317.45209174252045,
+        "y": -153.96246646069912,
+        "depth": 6.928014548301404,
+        "wind": 5.289686037532509
+      },
+      {
+        "distance": 75,
+        "x": 293.1781376137807,
+        "y": -159.9436996910487,
+        "depth": 9.027309701565,
+        "wind": 5.506845380822839
+      },
+      {
+        "distance": 100,
+        "x": 268.90418348504096,
+        "y": -165.92493292139824,
+        "depth": 11.130661587785292,
+        "wind": 5.666156625767805
+      },
+      {
+        "distance": 125,
+        "x": 244.6302293563012,
+        "y": -171.9061661517478,
+        "depth": 11.237908228592975,
+        "wind": 5.7709310763274
+      },
+      {
+        "distance": 150,
+        "x": 220.3562752275614,
+        "y": -177.88739938209736,
+        "depth": 9.475403623734882,
+        "wind": 5.853014409775379
+      },
+      {
+        "distance": 200,
+        "x": 171.8083669700819,
+        "y": -189.84986584279648,
+        "depth": 6.012712499795975,
+        "wind": 5.929347882905654
+      }
+    ],
+    "windward": [
+      {
+        "x": -830,
+        "y": -510,
+        "direction": 270,
+        "depth": 2.939032999122437,
+        "wind": 6
+      },
+      {
+        "x": 740,
+        "y": -530,
+        "direction": 90,
+        "depth": 2.695615699612991,
+        "wind": 6
+      },
+      {
+        "x": 366,
+        "y": -142,
+        "direction": 270,
+        "depth": 2.449795660146084,
+        "wind": 6
+      },
+      {
+        "x": 660,
+        "y": -470,
+        "direction": 180,
+        "depth": 2.9007260754345428,
+        "wind": 5.976470588235294
+      }
+    ]
+  },
+  "voyage": [
+    {
+      "time": 0.19999999999999998,
+      "x": 348.29452066218545,
+      "y": -152.09809895223825,
+      "mean": 4.889117237129984,
+      "speed": 3.7457213874965354,
+      "exposure": 0.8148528728549973,
+      "indicated": 3.745721387496535,
+      "boatSpeed": 1.9760271955341193,
+      "load": 0.10880223820040619,
+      "camera": 0,
+      "contact": false
+    },
+    {
+      "time": 5.016666666666654,
+      "x": 339.742460882586,
+      "y": -154.29813010169863,
+      "mean": 5.035281528126497,
+      "speed": 3.818410262898125,
+      "exposure": 0.8392135880210827,
+      "indicated": 3.818410262898125,
+      "boatSpeed": 1.731096260922816,
+      "load": 0.12811427980354995,
+      "camera": 0,
+      "contact": false
+    },
+    {
+      "time": 10.000000000000076,
+      "x": 331.2171690531993,
+      "y": -156.3955819857827,
+      "mean": 5.158405765280757,
+      "speed": 4.596696090061054,
+      "exposure": 0.8597342942134595,
+      "indicated": 4.596696090061054,
+      "boatSpeed": 1.8583873160103839,
+      "load": 0.20694469528285545,
+      "camera": 0,
+      "contact": false
+    },
+    {
+      "time": 15.000000000000325,
+      "x": 321.3378963292273,
+      "y": -158.79466229451265,
+      "mean": 5.27547406490106,
+      "speed": 5.524360028266588,
+      "exposure": 0.8792456774835099,
+      "indicated": 5.524360028266587,
+      "boatSpeed": 2.187204723349491,
+      "load": 0.3001015566168504,
+      "camera": 0,
+      "contact": false
+    },
+    {
+      "time": 20.000000000000146,
+      "x": 309.983021988224,
+      "y": -161.58236033370054,
+      "mean": 5.3920846609465105,
+      "speed": 6.065292822024764,
+      "exposure": 0.8986807768244184,
+      "indicated": 6.065292822024764,
+      "boatSpeed": 2.453218322267601,
+      "load": 0.36138377848209174,
+      "camera": 0,
+      "contact": false
+    },
+    {
+      "time": 25.016666666666527,
+      "x": 297.8953830953048,
+      "y": -164.52544141797173,
+      "mean": 5.492734827056664,
+      "speed": 6.25691568038773,
+      "exposure": 0.9154558045094439,
+      "indicated": 6.2569156803877295,
+      "boatSpeed": 2.5177733435187566,
+      "load": 0.3817348301119846,
+      "camera": 0,
+      "contact": false
+    },
+    {
+      "time": 30.016666666666243,
+      "x": 285.5386007686318,
+      "y": -167.53064780326295,
+      "mean": 5.578623165876159,
+      "speed": 6.27071234425152,
+      "exposure": 0.9297705276460265,
+      "indicated": 6.270712344251519,
+      "boatSpeed": 2.507099127898123,
+      "load": 0.3859303682281516,
+      "camera": 0,
+      "contact": false
+    },
+    {
+      "time": 32.01666666666613,
+      "x": 280.65264016490175,
+      "y": -168.71912274797424,
+      "mean": 5.615908711184162,
+      "speed": 6.259497474542464,
+      "exposure": 0.9359847851973604,
+      "indicated": 6.2594974745424645,
+      "boatSpeed": 2.5332340285566057,
+      "load": 0.3806016838794538,
+      "camera": 0,
+      "contact": false
+    }
+  ],
+  "errors": [],
+  "revision": "ed4ea8b02e98"
+}

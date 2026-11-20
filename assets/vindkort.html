@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vindfeltet i TACK</title>
+<style>
+  :root{color-scheme:dark;font:16px system-ui,sans-serif;background:#0b232c;color:#ebf3ee}
+  body{width:min(76rem,calc(100% - 2rem));margin:1.5rem auto}
+  h1{font-size:clamp(1.65rem,4vw,2.4rem);margin:.5rem 0}
+  p{color:#b4ccca;margin:.45rem 0;line-height:1.5}
+  a{color:#a6e9d9}
+  .heading{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.25rem 1rem}
+  .toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:.55rem;margin:1rem 0}
+  button{font:inherit;font-size:.9rem;background:#133642;border:1px solid #40747d;color:#edf5ed;border-radius:.45rem;min-height:2.4rem;padding:.35rem .75rem;cursor:pointer}
+  button[aria-pressed=true]{background:#236770;border-color:#a6e9d9}
+  .toolbar label{margin-left:.4rem}
+  figure{margin:0;background:#10323d;border:1px solid #325663;padding:.65rem;border-radius:.65rem;min-width:0}
+  canvas{width:100%;display:block;height:auto}
+  canvas:focus-visible{outline:2px solid #f3c986}
+  output{display:block;min-height:1.5em;font-variant-numeric:tabular-nums;color:#e6eee7;padding:.6rem .2rem}
+  .legend{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;color:#cadbd8;font-size:.87rem}
+  .legend span{display:inline-flex;gap:.35rem;align-items:center}
+  .legend i{display:inline-block;width:.9rem;height:.62rem;border-radius:.15rem}
+  iframe{position:absolute;width:1px;height:1px;visibility:hidden;border:0}
+</style>
+</head>
+<body>
+<div class="heading"><h1>Vindfeltet i TACK</h1><a href="../?proeve=lae">Sejl ud af læ</a></div>
+<p>Grundvind 8,5 m/s i 2 m højde. Farven viser middelvinden i procent. Pilene peger den vej, vinden blæser.</p>
+<div class="toolbar" aria-label="Vindretning">
+  <button type="button" data-direction="0" aria-pressed="true">Nord</button>
+  <button type="button" data-direction="90" aria-pressed="false">Øst</button>
+  <button type="button" data-direction="180" aria-pressed="false">Syd</button>
+  <button type="button" data-direction="270" aria-pressed="false">Vest</button>
+  <label><input type="checkbox" id="gusts"> Vis pust i pilene</label>
+</div>
+<figure><canvas width="1000" height="680" aria-label="Vindfelt i farvandet omkring Faaborg"></canvas></figure>
+<output id="point">Flyt markøren over vandet for at måle vinden.</output>
+<div class="legend" id="legend"></div>
+<p><a href="https://www.openstreetmap.org/copyright">© OpenStreetMap-bidragydere</a> · <a href="https://doi.org/10.5270/ESA-c5d3d65">Copernicus DEM</a></p>
+<iframe title="Spillets terræn og vindfelt" id="source"></iframe>
+<script>
+'use strict';
+const canvas=document.querySelector('canvas'),base=document.createElement('canvas'),ctx=canvas.getContext('2d');
+const buttons=[...document.querySelectorAll('[data-direction]')],gustControl=document.querySelector('#gusts');
+const source=document.querySelector('#source'),readout=document.querySelector('#point'),legend=document.querySelector('#legend');
+const speed=8.5,values=[.3,.5,.7,.9,1],colors=[[170,57,51],[204,107,55],[184,147,72],[65,131,111],[26,93,119]];
+const number=value=>value.toLocaleString('da-DK',{maximumFractionDigits:2});
+let world,wind,bounds,rangeX,rangeY,direction=0,pointer=null,probes=[],start=0,previous=0;
+
+function ratioColor(ratio){
+  const i=values.findIndex(v=>v>=ratio);
+  if(i<0)return colors.at(-1);
+  if(i===0)return colors[0];
+  const t=(ratio-values[i-1])/(values[i]-values[i-1]);
+  return colors[i].map((v,k)=>Math.round(colors[i-1][k]+(v-colors[i-1][k])*t));
+}
+for(const v of values){
+  const label=document.createElement('span'),key=document.createElement('i');
+  key.style.background='rgb('+ratioColor(v).join(',')+')';
+  label.append(key,v*100+' %');legend.append(label);
+}
+const project=(x,y)=>[(x-bounds.minX)/rangeX*canvas.width,(bounds.maxY-y)/rangeY*canvas.height];
+function build(){
+  const land=base.getContext('2d'),resolution=32,layer=document.createElement('canvas');
+  layer.width=Math.ceil(rangeX/resolution);layer.height=Math.ceil(rangeY/resolution);
+  const background=layer.getContext('2d'),pixels=background.createImageData(layer.width,layer.height);
+  const grid=wind.field(direction).a;
+  for(let j=0;j<layer.height;j++)for(let i=0;i<layer.width;i++){
+    const x=bounds.minX+rangeX*(i+.5)/layer.width,y=bounds.maxY-rangeY*(j+.5)/layer.height;
+    const color=ratioColor(wind.terrain(x,y,direction).exposure);
+    pixels.data.set([...color,255],(j*layer.width+i)*4);
+  }
+  background.putImageData(pixels,0,0);
+  land.drawImage(layer,0,0,base.width,base.height);
+  for(const island of world.ISLANDS){
+    land.beginPath();
+    island.points.forEach((p,i)=>i?land.lineTo(...project(p.x,p.y)):land.moveTo(...project(p.x,p.y)));
+    land.closePath();land.fillStyle='#344641';land.fill();land.strokeStyle='#8e9d87';land.stroke();
+  }
+  land.fillStyle='#ffe2a0';
+  for(const p of grid.shore.filter(p=>p.deficit>.28)){
+    const [x,y]=project(p.x,p.y);
+    land.fillRect(x,y,1.6,1.6);
+  }
+  const labels=world.LANDMARKS.filter(p=>['faaborg','dyreborg','lyo-town','bjorno-town','avernak-town'].includes(p.id))
+    .map(p=>({...p,name:p.id==='avernak-town'?'Avernakø':p.name.replace(' By','')}));
+  for(const island of world.ISLANDS.filter(p=>p.id==='svelmo'))labels.push({x:island.cx,y:island.cy,name:island.name});
+  land.font='600 14px system-ui';land.textAlign='center';land.textBaseline='middle';land.lineWidth=3;
+  for(const p of labels){
+    const [x,y]=project(p.x,p.y);
+    land.strokeStyle='#263932';land.fillStyle='#edf7ed';land.strokeText(p.name,x,y);land.fillText(p.name,x,y);
+  }
+  land.strokeStyle=land.fillStyle='#edf7ed';land.textAlign='left';
+  land.beginPath();land.moveTo(20,canvas.height-21);land.lineTo(20+2000/rangeX*canvas.width,canvas.height-21);land.stroke();
+  land.fillText('2 km',20,canvas.height-32);land.fillText('↑ N',18,20);
+}
+function draw(time=0){
+  ctx.drawImage(base,0,0);
+  ctx.strokeStyle='rgba(244,252,238,.83)';ctx.lineWidth=1.3;ctx.beginPath();
+  for(const p of probes){
+    const w=wind.at(p.x,p.y,time,{speed,direction,gusts:gustControl.checked?.27:0});
+    const dx=w.vx*2.5,dy=-w.vy*2.5,h=Math.atan2(dy,dx),x=p.px+dx*.5,y=p.py+dy*.5;
+    ctx.moveTo(p.px-dx*.5,p.py-dy*.5);ctx.lineTo(x,y);
+    ctx.lineTo(x-4*Math.cos(h-.54),y-4*Math.sin(h-.54));
+    ctx.moveTo(x,y);ctx.lineTo(x-4*Math.cos(h+.54),y-4*Math.sin(h+.54));
+  }
+  ctx.stroke();
+  if(pointer){
+    ctx.strokeStyle='#fff9e9';ctx.beginPath();ctx.arc(pointer.px,pointer.py,4,0,2*Math.PI);ctx.stroke();
+  }
+}
+function describe(){
+  if(!pointer){readout.textContent='Flyt markøren over vandet for at måle vinden.';return;}
+  const {x,y}=pointer,terrain=world.sample(x,y);
+  if(terrain.height>0){readout.textContent='Terrænhøjde '+number(terrain.height)+' m';return;}
+  const low=wind.terrain(x,y,direction).exposure*speed;
+  const high=wind.terrain(x,y,direction,true,10).exposure*speed;
+  const distance=terrain.distance>=900?'over 900 m':Math.round(terrain.distance)+' m';
+  readout.textContent=number(low)+' m/s i 2 m højde · '+number(high)+' m/s i 10 m højde · '+distance+' til kysten';
+}
+buttons.forEach(button=>button.addEventListener('click',()=>{
+  direction=Number(button.dataset.direction);
+  buttons.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+  if(world){build();draw();describe();}
+}));
+canvas.addEventListener('pointermove',event=>{
+  if(!world)return;
+  const rect=canvas.getBoundingClientRect(),u=(event.clientX-rect.left)/rect.width,v=(event.clientY-rect.top)/rect.height;
+  pointer={x:bounds.minX+rangeX*u,y:bounds.maxY-rangeY*v,px:u*canvas.width,py:v*canvas.height};
+  if(!gustControl.checked)draw();
+  describe();
+});
+canvas.addEventListener('pointerleave',()=>{if(!world)return;pointer=null;draw();describe();});
+function animate(now){
+  if(!gustControl.checked||!world)return;
+  if(now-previous>=100){draw((now-start)/1000);previous=now;}
+  requestAnimationFrame(animate);
+}
+gustControl.addEventListener('change',()=>{
+  start=performance.now();
+  if(gustControl.checked)requestAnimationFrame(animate);else if(world)draw();
+});
+source.addEventListener('load',()=>{
+  world=source.contentWindow.SailingWorld;wind=source.contentWindow.SailingWind;
+  if(!world||!wind){readout.textContent='Spillets vindfelt kunne ikke indlæses.';return;}
+  bounds=world.bounds;rangeX=bounds.maxX-bounds.minX;rangeY=bounds.maxY-bounds.minY;
+  base.width=canvas.width;base.height=canvas.height=Math.round(canvas.width*rangeY/rangeX);
+  probes=[];
+  for(let x=bounds.minX+350;x<bounds.maxX;x+=680)for(let y=bounds.minY+350;y<bounds.maxY;y+=680){
+    if(world.heightAt(x,y)>=0)continue;
+    const [px,py]=project(x,y);probes.push({x,y,px,py});
+  }
+  build();draw();describe();
+  if(gustControl.checked)requestAnimationFrame(animate);
+});
+source.src='../index.html?vinddata';
+</script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+{
+  "url": "http://localhost:5173/",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "chrome": "157.0.8103.79",
+  "platform": "darwin",
+  "quality": "high",
+  "load": {
+    "sha256": "aa77b54aca2d0a2601bc5142a9275958cdd1d0685f772d37815b3bef6148df5b",
+    "headers": {
+      "cache-control": "no-store",
+      "connection": "keep-alive",
+      "content-type": "text/html; charset=utf-8",
+      "date": "Fri, 20 Nov 2026 11:17:37 GMT",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+    },
+    "served": [
+      {
+        "url": "http://localhost:5173/",
+        "status": 200,
+        "serviceWorker": false
+      },
+      {
+        "url": "http://localhost:5173/assets/model-laser.webp",
+        "status": 200,
+        "serviceWorker": false
+      },
+      {
+        "url": "http://localhost:5173/assets/model-dinghy.webp",
+        "status": 200,
+        "serviceWorker": false
+      },
+      {
+        "url": "http://localhost:5173/assets/model-ac75.webp",
+        "status": 200,
+        "serviceWorker": false
+      },
+      {
+        "url": "http://localhost:5173/assets/model-yacht.webp",
+        "status": 200,
+        "serviceWorker": false
+      },
+      {
+        "url": "http://localhost:5173/assets/model-ac72.webp",
+        "status": 200,
+        "serviceWorker": false
+      },
+      {
+        "url": "http://localhost:5173/assets/archipelago.js",
+        "status": 200,
+        "serviceWorker": false
+      },
+      {
+        "url": "http://localhost:5173/assets/collisions.js",
+        "status": 200,
+        "serviceWorker": false
+      },
+      {
+        "url": "http://localhost:5173/assets/shelter.js",
+        "status": 200,
+        "serviceWorker": false
+      },
+      {
+        "url": "http://localhost:5173/assets/config.js",
+        "status": 200,
+        "serviceWorker": false
+      },
+      {
+        "url": "http://localhost:5173/assets/fleet.js",
+        "status": 200,
+        "serviceWorker": false
+      },
+      {
+        "url": "http://localhost:5173/assets/lobby.js",
+        "status": 200,
+        "serviceWorker": false
+      }
+    ],
+    "version": null,
+    "activeWorker": null,
+    "registrations": [],
+    "storageKeys": [],
+    "onPage": "http://localhost:5173/",
+    "images": [
+      {
+        "src": "assets/model-laser.webp",
+        "loaded": true
+      },
+      {
+        "src": "assets/model-dinghy.webp",
+        "loaded": true
+      },
+      {
+        "src": "assets/model-yacht.webp",
+        "loaded": true
+      },
+      {
+        "src": "assets/model-ac75.webp",
+        "loaded": true
+      },
+      {
+        "src": "assets/model-ac72.webp",
+        "loaded": true
+      }
+    ]
+  },
+  "captures": {
+    "sejlads": {
+      "boat": "laser",
+      "camera": 0,
+      "x": 1.4463816207906366,
+      "y": -2.9170539523430583,
+      "heading": -1.1,
+      "time": 2.1833333333333305,
+      "wind": 5,
+      "direction": 0,
+      "waves": 0.35,
+      "sea": 0.35,
+      "heave": 0.02585118443704116,
+      "pitch": 0.011048148329878804,
+      "crewPose": 2,
+      "waterTime": 2.175999999999997,
+      "quality": "high",
+      "revision": "160",
+      "triangles": 149542,
+      "draws": 301
+    },
+    "vejr": {
+      "boat": "laser",
+      "camera": 0,
+      "x": 1.4946477839098322,
+      "y": -3.027462161558578,
+      "heading": -1.1,
+      "time": 2.2666666666666635,
+      "wind": 5,
+      "direction": 0,
+      "waves": 0.35,
+      "sea": 0.35,
+      "heave": 0.03255127851285183,
+      "pitch": 0.012955820870310374,
+      "crewPose": 2,
+      "waterTime": 2.2626666666666635,
+      "quality": "high",
+      "revision": "160",
+      "triangles": 149542,
+      "draws": 301
+    },
+    "stort-kort": {
+      "boat": "laser",
+      "camera": 0,
+      "x": 1.5528737487015318,
+      "y": -3.1587294204076315,
+      "heading": -1.1,
+      "time": 2.366666666666663,
+      "wind": 5,
+      "direction": 0,
+      "waves": 0.35,
+      "sea": 0.35,
+      "heave": 0.041854723897926376,
+      "pitch": 0.014901882458225608,
+      "crewPose": 2,
+      "waterTime": 2.3619999999999965,
+      "quality": "high",
+      "revision": "160",
+      "triangles": 149542,
+      "draws": 301
+    },
+    "boelger": {
+      "calm": {
+        "boat": "yacht",
+        "camera": 2,
+        "x": -276.3320267901403,
+        "y": -851.9577333058767,
+        "heading": 0.36,
+        "time": 8.500000000000002,
+        "wind": 8.5,
+        "direction": 270,
+        "waves": 0,
+        "sea": 0.17726347925765207,
+        "heave": 0.11435561452932141,
+        "pitch": -0.025450034117336207,
+        "crewPose": 2,
+        "waterTime": 8.499733333333335,
+        "quality": "high",
+        "revision": "160",
+        "triangles": 175254,
+        "draws": 437
+      },
+      "fresh": {
+        "boat": "yacht",
+        "camera": 2,
+        "x": -251.68129491911012,
+        "y": -842.7978486399289,
+        "heading": 0.36,
+        "time": 16.60000000000034,
+        "wind": 8.5,
+        "direction": 270,
+        "waves": 0.85,
+        "sea": 0.9093048209988466,
+        "heave": 0.38189617715258733,
+        "pitch": -0.04899455422941742,
+        "crewPose": 2,
+        "waterTime": 16.599633333333674,
+        "quality": "high",
+        "revision": "160",
+        "triangles": 175254,
+        "draws": 436
+      }
+    },
+    "besaetning": [
+      {
+        "boat": "dinghy",
+        "camera": 0,
+        "x": 1.0321916462338305,
+        "y": -2.0815275855184003,
+        "heading": -1.1,
+        "time": 1.566666666666666,
+        "wind": 5,
+        "direction": 0,
+        "waves": 0.35,
+        "sea": 0.35,
+        "heave": 0.002976207854982561,
+        "pitch": -0.0133076387690331,
+        "crewPose": 1.0697936605972185,
+        "waterTime": 1.5500333333333327,
+        "quality": "high",
+        "revision": "160",
+        "triangles": 162576,
+        "draws": 395
+      },
+      {
+        "boat": "dinghy",
+        "camera": 0,
+        "x": 2.207219976916119,
+        "y": -4.603967339668215,
+        "heading": -1.1,
+        "time": 3.5333333333333257,
+        "wind": 5,
+        "direction": 0,
+        "waves": 0.35,
+        "sea": 0.35,
+        "heave": 0.1721420628732421,
+        "pitch": -0.012318045857899754,
+        "crewPose": 1.931179820054818,
+        "waterTime": 3.5332333333333255,
+        "quality": "high",
+        "revision": "160",
+        "triangles": 162548,
+        "draws": 394
+      },
+      {
+        "boat": "dinghy",
+        "camera": 0,
+        "x": 3.444222340462597,
+        "y": -6.721501724076645,
+        "heading": -1.1,
+        "time": 5.33333333333332,
+        "wind": 5,
+        "direction": 0,
+        "waves": 0.35,
+        "sea": 0.35,
+        "heave": 0.09016880889734077,
+        "pitch": -0.01827386650276865,
+        "crewPose": 2.933137214597847,
+        "waterTime": 5.33313333333332,
+        "quality": "high",
+        "revision": "160",
+        "triangles": 162536,
+        "draws": 394
+      },
+      {
+        "boat": "dinghy",
+        "camera": 0,
+        "x": 4.119831566722524,
+        "y": -8.159333640256355,
+        "heading": -1.1,
+        "time": 6.499999999999982,
+        "wind": 5,
+        "direction": 0,
+        "waves": 0.35,
+        "sea": 0.35,
+        "heave": -0.0030298696726315365,
+        "pitch": -0.005441676309266702,
+        "crewPose": 2.0684749837835863,
+        "waterTime": 6.499733333333316,
+        "quality": "high",
+        "revision": "160",
+        "triangles": 162536,
+        "draws": 394
+      }
+    ]
+  },
+  "errors": [],
+  "performance": {
+    "fps": 60.002659397646426,
+    "p95Ms": 16.700000000000728,
+    "sampleMs": 6016.400000000001,
+    "draws": 478,
+    "triangles": 177830,
+    "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)"
+  }
+}

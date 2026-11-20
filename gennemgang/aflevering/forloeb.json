@@ -1,0 +1,1381 @@
+{
+  "standardbaner": [
+    {
+      "type": "gates",
+      "variant": "short",
+      "finished": true,
+      "time": 736.1975777873143,
+      "visits": 6,
+      "landContacts": 0,
+      "recoveries": 0,
+      "log": [
+        {
+          "time": 60,
+          "visit": 0,
+          "x": -244,
+          "y": -1110,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 59
+        },
+        {
+          "time": 120,
+          "visit": 0,
+          "x": -226,
+          "y": -1004,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 59
+        },
+        {
+          "time": 180,
+          "visit": 0,
+          "x": -228,
+          "y": -898,
+          "target": 3,
+          "tag": "Indgang 1",
+          "count": 59
+        },
+        {
+          "time": 240,
+          "visit": 0,
+          "x": -235,
+          "y": -825,
+          "target": 7,
+          "tag": "1",
+          "count": 59
+        },
+        {
+          "time": 300,
+          "visit": 1,
+          "x": -297,
+          "y": -827,
+          "target": 14,
+          "tag": "Indgang 1a",
+          "count": 59
+        },
+        {
+          "time": 360,
+          "visit": 2,
+          "x": -272,
+          "y": -1019,
+          "target": 24,
+          "tag": "Før gate",
+          "count": 59
+        },
+        {
+          "time": 420,
+          "visit": 2,
+          "x": -265,
+          "y": -1080,
+          "target": 28,
+          "tag": "Gate 2",
+          "count": 59
+        },
+        {
+          "time": 480,
+          "visit": 3,
+          "x": -221,
+          "y": -1032,
+          "target": 35,
+          "tag": "Før 1",
+          "count": 59
+        },
+        {
+          "time": 540,
+          "visit": 3,
+          "x": -218,
+          "y": -926,
+          "target": 35,
+          "tag": "Før 1",
+          "count": 59
+        },
+        {
+          "time": 600,
+          "visit": 3,
+          "x": -225,
+          "y": -836,
+          "target": 40,
+          "tag": "1",
+          "count": 59
+        },
+        {
+          "time": 660,
+          "visit": 4,
+          "x": -276,
+          "y": -835,
+          "target": 46,
+          "tag": "Før 1a",
+          "count": 59
+        },
+        {
+          "time": 720,
+          "visit": 5,
+          "x": -311,
+          "y": -959,
+          "target": 57,
+          "tag": "Før mål",
+          "count": 59
+        }
+      ],
+      "events": [
+        "start",
+        "mark",
+        "mark",
+        "mark",
+        "mark",
+        "mark",
+        "finish"
+      ],
+      "boatId": "laser"
+    },
+    {
+      "type": "gates",
+      "variant": "long",
+      "finished": true,
+      "time": 1114.6352416618379,
+      "visits": 9,
+      "landContacts": 0,
+      "recoveries": 0,
+      "log": [
+        {
+          "time": 60,
+          "visit": 0,
+          "x": -244,
+          "y": -1110,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 92
+        },
+        {
+          "time": 120,
+          "visit": 0,
+          "x": -226,
+          "y": -1004,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 92
+        },
+        {
+          "time": 180,
+          "visit": 0,
+          "x": -228,
+          "y": -898,
+          "target": 3,
+          "tag": "Indgang 1",
+          "count": 92
+        },
+        {
+          "time": 240,
+          "visit": 0,
+          "x": -235,
+          "y": -825,
+          "target": 7,
+          "tag": "1",
+          "count": 92
+        },
+        {
+          "time": 300,
+          "visit": 1,
+          "x": -297,
+          "y": -827,
+          "target": 14,
+          "tag": "Indgang 1a",
+          "count": 92
+        },
+        {
+          "time": 360,
+          "visit": 2,
+          "x": -272,
+          "y": -1019,
+          "target": 24,
+          "tag": "Før gate",
+          "count": 92
+        },
+        {
+          "time": 420,
+          "visit": 2,
+          "x": -265,
+          "y": -1080,
+          "target": 28,
+          "tag": "Gate 2",
+          "count": 92
+        },
+        {
+          "time": 480,
+          "visit": 3,
+          "x": -221,
+          "y": -1032,
+          "target": 35,
+          "tag": "Før 1",
+          "count": 92
+        },
+        {
+          "time": 540,
+          "visit": 3,
+          "x": -218,
+          "y": -926,
+          "target": 35,
+          "tag": "Før 1",
+          "count": 92
+        },
+        {
+          "time": 600,
+          "visit": 3,
+          "x": -225,
+          "y": -836,
+          "target": 40,
+          "tag": "1",
+          "count": 92
+        },
+        {
+          "time": 660,
+          "visit": 4,
+          "x": -276,
+          "y": -835,
+          "target": 46,
+          "tag": "Før 1a",
+          "count": 92
+        },
+        {
+          "time": 720,
+          "visit": 5,
+          "x": -304,
+          "y": -957,
+          "target": 57,
+          "tag": "Før gate",
+          "count": 92
+        },
+        {
+          "time": 780,
+          "visit": 5,
+          "x": -281,
+          "y": -1090,
+          "target": 60,
+          "tag": "Gate 2",
+          "count": 92
+        },
+        {
+          "time": 840,
+          "visit": 6,
+          "x": -269,
+          "y": -1065,
+          "target": 68,
+          "tag": "Før 1",
+          "count": 92
+        },
+        {
+          "time": 900,
+          "visit": 6,
+          "x": -204,
+          "y": -958,
+          "target": 68,
+          "tag": "Før 1",
+          "count": 92
+        },
+        {
+          "time": 960,
+          "visit": 6,
+          "x": -217,
+          "y": -858,
+          "target": 71,
+          "tag": "1",
+          "count": 92
+        },
+        {
+          "time": 1020,
+          "visit": 6,
+          "x": -237,
+          "y": -811,
+          "target": 75,
+          "tag": "1",
+          "count": 92
+        },
+        {
+          "time": 1080,
+          "visit": 8,
+          "x": -336,
+          "y": -895,
+          "target": 90,
+          "tag": "Før mål",
+          "count": 92
+        },
+        {
+          "time": 1140,
+          "visit": 8,
+          "x": -258,
+          "y": -1103,
+          "target": 91,
+          "tag": "Mål",
+          "count": 92
+        }
+      ],
+      "events": [
+        "start",
+        "mark",
+        "mark",
+        "mark",
+        "mark",
+        "mark",
+        "mark",
+        "mark",
+        "mark",
+        "finish"
+      ],
+      "boatId": "laser"
+    },
+    {
+      "type": "triangle",
+      "variant": "short",
+      "finished": true,
+      "time": 547.7328820163087,
+      "visits": 4,
+      "landContacts": 0,
+      "recoveries": 0,
+      "log": [
+        {
+          "time": 60,
+          "visit": 0,
+          "x": -202,
+          "y": -1110,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 37
+        },
+        {
+          "time": 120,
+          "visit": 0,
+          "x": -184,
+          "y": -1004,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 37
+        },
+        {
+          "time": 180,
+          "visit": 0,
+          "x": -186,
+          "y": -898,
+          "target": 3,
+          "tag": "Indgang 1",
+          "count": 37
+        },
+        {
+          "time": 240,
+          "visit": 0,
+          "x": -197,
+          "y": -822,
+          "target": 7,
+          "tag": "1",
+          "count": 37
+        },
+        {
+          "time": 300,
+          "visit": 1,
+          "x": -293,
+          "y": -860,
+          "target": 13,
+          "tag": "Før 2",
+          "count": 37
+        },
+        {
+          "time": 360,
+          "visit": 2,
+          "x": -350,
+          "y": -1011,
+          "target": 24,
+          "tag": "Før gate",
+          "count": 37
+        },
+        {
+          "time": 420,
+          "visit": 2,
+          "x": -253,
+          "y": -1077,
+          "target": 33,
+          "tag": "Gate 3",
+          "count": 37
+        },
+        {
+          "time": 480,
+          "visit": 3,
+          "x": -217,
+          "y": -983,
+          "target": 35,
+          "tag": "Før mål",
+          "count": 37
+        },
+        {
+          "time": 540,
+          "visit": 3,
+          "x": -219,
+          "y": -876,
+          "target": 35,
+          "tag": "Før mål",
+          "count": 37
+        }
+      ],
+      "events": [
+        "start",
+        "mark",
+        "mark",
+        "mark",
+        "finish"
+      ],
+      "boatId": "laser"
+    },
+    {
+      "type": "triangle",
+      "variant": "long",
+      "finished": true,
+      "time": 807.5494606789157,
+      "visits": 6,
+      "landContacts": 0,
+      "recoveries": 0,
+      "log": [
+        {
+          "time": 60,
+          "visit": 0,
+          "x": -202,
+          "y": -1110,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 59
+        },
+        {
+          "time": 120,
+          "visit": 0,
+          "x": -184,
+          "y": -1004,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 59
+        },
+        {
+          "time": 180,
+          "visit": 0,
+          "x": -186,
+          "y": -898,
+          "target": 3,
+          "tag": "Indgang 1",
+          "count": 59
+        },
+        {
+          "time": 240,
+          "visit": 0,
+          "x": -197,
+          "y": -822,
+          "target": 7,
+          "tag": "1",
+          "count": 59
+        },
+        {
+          "time": 300,
+          "visit": 1,
+          "x": -293,
+          "y": -860,
+          "target": 13,
+          "tag": "Før 2",
+          "count": 59
+        },
+        {
+          "time": 360,
+          "visit": 2,
+          "x": -350,
+          "y": -1011,
+          "target": 24,
+          "tag": "Før gate",
+          "count": 59
+        },
+        {
+          "time": 420,
+          "visit": 2,
+          "x": -253,
+          "y": -1077,
+          "target": 33,
+          "tag": "Gate 3",
+          "count": 59
+        },
+        {
+          "time": 480,
+          "visit": 3,
+          "x": -179,
+          "y": -983,
+          "target": 35,
+          "tag": "Før 1",
+          "count": 59
+        },
+        {
+          "time": 540,
+          "visit": 3,
+          "x": -170,
+          "y": -876,
+          "target": 36,
+          "tag": "Indgang 1",
+          "count": 59
+        },
+        {
+          "time": 600,
+          "visit": 4,
+          "x": -260,
+          "y": -870,
+          "target": 45,
+          "tag": "1",
+          "count": 59
+        },
+        {
+          "time": 660,
+          "visit": 4,
+          "x": -223,
+          "y": -1077,
+          "target": 48,
+          "tag": "Gate 3",
+          "count": 59
+        },
+        {
+          "time": 720,
+          "visit": 5,
+          "x": -228,
+          "y": -1017,
+          "target": 57,
+          "tag": "Før mål",
+          "count": 59
+        },
+        {
+          "time": 780,
+          "visit": 5,
+          "x": -226,
+          "y": -911,
+          "target": 57,
+          "tag": "Før mål",
+          "count": 59
+        }
+      ],
+      "events": [
+        "start",
+        "mark",
+        "mark",
+        "mark",
+        "mark",
+        "mark",
+        "finish"
+      ],
+      "boatId": "laser"
+    },
+    {
+      "boatId": "dinghy",
+      "type": "triangle",
+      "variant": "short",
+      "finished": true,
+      "time": 1064.7403967725434,
+      "visits": 4,
+      "landContacts": 0,
+      "recoveries": 0,
+      "log": [
+        {
+          "time": 60,
+          "visit": 0,
+          "x": -1162,
+          "y": -891,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 37
+        },
+        {
+          "time": 120,
+          "visit": 0,
+          "x": -1095,
+          "y": -771,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 37
+        },
+        {
+          "time": 180,
+          "visit": 0,
+          "x": -1104,
+          "y": -651,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 37
+        },
+        {
+          "time": 240,
+          "visit": 0,
+          "x": -1084,
+          "y": -536,
+          "target": 5,
+          "tag": "1",
+          "count": 37
+        },
+        {
+          "time": 300,
+          "visit": 0,
+          "x": -1127,
+          "y": -491,
+          "target": 8,
+          "tag": "1",
+          "count": 37
+        },
+        {
+          "time": 360,
+          "visit": 0,
+          "x": -1176,
+          "y": -502,
+          "target": 9,
+          "tag": "1",
+          "count": 37
+        },
+        {
+          "time": 420,
+          "visit": 1,
+          "x": -1181,
+          "y": -493,
+          "target": 10,
+          "tag": "1",
+          "count": 37
+        },
+        {
+          "time": 480,
+          "visit": 1,
+          "x": -1195,
+          "y": -522,
+          "target": 12,
+          "tag": "1",
+          "count": 37
+        },
+        {
+          "time": 540,
+          "visit": 1,
+          "x": -1175,
+          "y": -533,
+          "target": 12,
+          "tag": "1",
+          "count": 37
+        },
+        {
+          "time": 600,
+          "visit": 1,
+          "x": -1382,
+          "y": -631,
+          "target": 14,
+          "tag": "Indgang 2",
+          "count": 37
+        },
+        {
+          "time": 660,
+          "visit": 2,
+          "x": -1294,
+          "y": -774,
+          "target": 24,
+          "tag": "Før gate",
+          "count": 37
+        },
+        {
+          "time": 720,
+          "visit": 2,
+          "x": -1156,
+          "y": -835,
+          "target": 26,
+          "tag": "Gate 3",
+          "count": 37
+        },
+        {
+          "time": 780,
+          "visit": 3,
+          "x": -1203,
+          "y": -858,
+          "target": 32,
+          "tag": "Gate 3",
+          "count": 37
+        },
+        {
+          "time": 840,
+          "visit": 3,
+          "x": -1206,
+          "y": -844,
+          "target": 34,
+          "tag": "Gate 3",
+          "count": 37
+        },
+        {
+          "time": 900,
+          "visit": 3,
+          "x": -1169,
+          "y": -761,
+          "target": 35,
+          "tag": "Før mål",
+          "count": 37
+        },
+        {
+          "time": 960,
+          "visit": 3,
+          "x": -1156,
+          "y": -641,
+          "target": 35,
+          "tag": "Før mål",
+          "count": 37
+        },
+        {
+          "time": 1020,
+          "visit": 3,
+          "x": -1145,
+          "y": -519,
+          "target": 35,
+          "tag": "Før mål",
+          "count": 37
+        },
+        {
+          "time": 1080,
+          "visit": 3,
+          "x": -1167,
+          "y": -525,
+          "target": 36,
+          "tag": "Mål",
+          "count": 37
+        }
+      ],
+      "events": [
+        "start",
+        "mark",
+        "mark",
+        "mark",
+        "finish"
+      ]
+    },
+    {
+      "boatId": "yacht",
+      "type": "triangle",
+      "variant": "short",
+      "finished": true,
+      "time": 1629.8230920592282,
+      "visits": 4,
+      "landContacts": 0,
+      "recoveries": 0,
+      "log": [
+        {
+          "time": 60,
+          "visit": 0,
+          "x": -594,
+          "y": -1548,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 37
+        },
+        {
+          "time": 120,
+          "visit": 0,
+          "x": -433,
+          "y": -1442,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 37
+        },
+        {
+          "time": 180,
+          "visit": 0,
+          "x": -444,
+          "y": -1327,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 37
+        },
+        {
+          "time": 240,
+          "visit": 0,
+          "x": -454,
+          "y": -1214,
+          "target": 2,
+          "tag": "Før 1",
+          "count": 37
+        },
+        {
+          "time": 300,
+          "visit": 0,
+          "x": -428,
+          "y": -1103,
+          "target": 3,
+          "tag": "Indgang 1",
+          "count": 37
+        },
+        {
+          "time": 360,
+          "visit": 0,
+          "x": -463,
+          "y": -994,
+          "target": 3,
+          "tag": "Indgang 1",
+          "count": 37
+        },
+        {
+          "time": 420,
+          "visit": 0,
+          "x": -455,
+          "y": -936,
+          "target": 5,
+          "tag": "1",
+          "count": 37
+        },
+        {
+          "time": 480,
+          "visit": 0,
+          "x": -474,
+          "y": -916,
+          "target": 6,
+          "tag": "1",
+          "count": 37
+        },
+        {
+          "time": 540,
+          "visit": 0,
+          "x": -560,
+          "y": -819,
+          "target": 9,
+          "tag": "1",
+          "count": 37
+        },
+        {
+          "time": 600,
+          "visit": 1,
+          "x": -741,
+          "y": -881,
+          "target": 13,
+          "tag": "Før 2",
+          "count": 37
+        },
+        {
+          "time": 660,
+          "visit": 1,
+          "x": -908,
+          "y": -980,
+          "target": 14,
+          "tag": "Indgang 2",
+          "count": 37
+        },
+        {
+          "time": 720,
+          "visit": 1,
+          "x": -1068,
+          "y": -1090,
+          "target": 16,
+          "tag": "2",
+          "count": 37
+        },
+        {
+          "time": 780,
+          "visit": 1,
+          "x": -1099,
+          "y": -1256,
+          "target": 20,
+          "tag": "2",
+          "count": 37
+        },
+        {
+          "time": 840,
+          "visit": 2,
+          "x": -949,
+          "y": -1355,
+          "target": 24,
+          "tag": "Før gate",
+          "count": 37
+        },
+        {
+          "time": 900,
+          "visit": 2,
+          "x": -729,
+          "y": -1365,
+          "target": 24,
+          "tag": "Før gate",
+          "count": 37
+        },
+        {
+          "time": 960,
+          "visit": 2,
+          "x": -599,
+          "y": -1437,
+          "target": 25,
+          "tag": "Gate",
+          "count": 37
+        },
+        {
+          "time": 1020,
+          "visit": 2,
+          "x": -621,
+          "y": -1440,
+          "target": 26,
+          "tag": "Gate 3",
+          "count": 37
+        },
+        {
+          "time": 1080,
+          "visit": 2,
+          "x": -682,
+          "y": -1492,
+          "target": 31,
+          "tag": "Gate 3",
+          "count": 37
+        },
+        {
+          "time": 1140,
+          "visit": 2,
+          "x": -695,
+          "y": -1480,
+          "target": 32,
+          "tag": "Gate 3",
+          "count": 37
+        },
+        {
+          "time": 1200,
+          "visit": 2,
+          "x": -711,
+          "y": -1488,
+          "target": 33,
+          "tag": "Gate 3",
+          "count": 37
+        },
+        {
+          "time": 1260,
+          "visit": 3,
+          "x": -734,
+          "y": -1451,
+          "target": 34,
+          "tag": "Gate 3",
+          "count": 37
+        },
+        {
+          "time": 1320,
+          "visit": 3,
+          "x": -587,
+          "y": -1353,
+          "target": 35,
+          "tag": "Før mål",
+          "count": 37
+        },
+        {
+          "time": 1380,
+          "visit": 3,
+          "x": -623,
+          "y": -1244,
+          "target": 35,
+          "tag": "Før mål",
+          "count": 37
+        },
+        {
+          "time": 1440,
+          "visit": 3,
+          "x": -594,
+          "y": -1134,
+          "target": 35,
+          "tag": "Før mål",
+          "count": 37
+        },
+        {
+          "time": 1500,
+          "visit": 3,
+          "x": -603,
+          "y": -1021,
+          "target": 35,
+          "tag": "Før mål",
+          "count": 37
+        },
+        {
+          "time": 1560,
+          "visit": 3,
+          "x": -615,
+          "y": -908,
+          "target": 35,
+          "tag": "Før mål",
+          "count": 37
+        },
+        {
+          "time": 1620,
+          "visit": 3,
+          "x": -606,
+          "y": -897,
+          "target": 35,
+          "tag": "Før mål",
+          "count": 37
+        }
+      ],
+      "events": [
+        "start",
+        "mark",
+        "mark",
+        "mark",
+        "finish"
+      ]
+    }
+  ],
+  "seksBaade": {
+    "elapsed": 963.7999999994521,
+    "rows": [
+      {
+        "finished": true,
+        "time": 613.7439246406947,
+        "index": 4,
+        "phase": "finished",
+        "target": 36,
+        "tag": "Mål",
+        "count": 37,
+        "rank": 1
+      },
+      {
+        "finished": true,
+        "time": 670.076808371779,
+        "index": 4,
+        "phase": "finished",
+        "target": 36,
+        "tag": "Mål",
+        "count": 37,
+        "rank": 2
+      },
+      {
+        "finished": true,
+        "time": 727.8267716564965,
+        "index": 4,
+        "phase": "finished",
+        "target": 36,
+        "tag": "Mål",
+        "count": 37,
+        "rank": 3
+      },
+      {
+        "finished": true,
+        "time": 757.9316593489932,
+        "index": 4,
+        "phase": "finished",
+        "target": 36,
+        "tag": "Mål",
+        "count": 37,
+        "rank": 4
+      },
+      {
+        "finished": true,
+        "time": 929.5590944400203,
+        "index": 4,
+        "phase": "finished",
+        "target": 36,
+        "tag": "Mål",
+        "count": 37,
+        "rank": 5
+      },
+      {
+        "finished": true,
+        "time": 934.3005723698474,
+        "index": 4,
+        "phase": "finished",
+        "target": 36,
+        "tag": "Mål",
+        "count": 37,
+        "rank": 6
+      }
+    ]
+  },
+  "manoeuvrerVed5_5_ms": [
+    {
+      "boatId": "laser",
+      "manoeuvre": "stagvending",
+      "before": {
+        "theta": 0.5585053606381855,
+        "boom": 0.5817182396897101,
+        "speed": 2.8700429059205126
+      },
+      "finish": {
+        "theta": 2.5655882021321297,
+        "boom": -0.5817182396897101,
+        "speed": 2.782153341999752
+      },
+      "headingError": 0.0026240492722056554,
+      "crossed": true,
+      "capped": false,
+      "maxHeel": 10.257389549182518
+    },
+    {
+      "boatId": "laser",
+      "manoeuvre": "bomning",
+      "before": {
+        "theta": -0.8552113334772216,
+        "boom": 1.242668830931018,
+        "speed": 3.2992523628289536
+      },
+      "finish": {
+        "theta": -2.286334518207405,
+        "boom": -1.2426016599643923,
+        "speed": 3.300691996019915
+      },
+      "headingError": 0.0026815516392109714,
+      "crossed": true,
+      "capped": false,
+      "maxHeel": 25.146818965305076
+    },
+    {
+      "boatId": "dinghy",
+      "manoeuvre": "stagvending",
+      "before": {
+        "theta": 0.5585053606381855,
+        "boom": 0.5293583621298802,
+        "speed": 3.3778339115860416
+      },
+      "finish": {
+        "theta": 2.564730922837676,
+        "boom": -0.5293583621298802,
+        "speed": 3.2693142721673256
+      },
+      "headingError": 0.051742534708354035,
+      "crossed": true,
+      "capped": false,
+      "maxHeel": 9.933304959389709
+    },
+    {
+      "boatId": "dinghy",
+      "manoeuvre": "bomning",
+      "before": {
+        "theta": -0.8552113334772216,
+        "boom": 1.188320802957429,
+        "speed": 3.1359652336104467
+      },
+      "finish": {
+        "theta": -2.2856864796300025,
+        "boom": -1.1889150463938167,
+        "speed": 3.1152379266380152
+      },
+      "headingError": 0.039811427086041164,
+      "crossed": true,
+      "capped": false,
+      "maxHeel": 7.159656948177338
+    },
+    {
+      "boatId": "yacht",
+      "manoeuvre": "stagvending",
+      "before": {
+        "theta": 0.5585053606381855,
+        "boom": 0.5116803730200271,
+        "speed": 2.96479059743734
+      },
+      "finish": {
+        "theta": 2.563756367539815,
+        "boom": -0.5118113332263765,
+        "speed": 2.6954564447313087
+      },
+      "headingError": 0.10758044017789471,
+      "crossed": true,
+      "capped": false,
+      "maxHeel": 7.886924581341114
+    },
+    {
+      "boatId": "yacht",
+      "manoeuvre": "bomning",
+      "before": {
+        "theta": -0.8552113334772216,
+        "boom": 1.1517562271420043,
+        "speed": 2.805234889786625
+      },
+      "finish": {
+        "theta": -2.2850473815022267,
+        "boom": -1.1543735086253073,
+        "speed": 2.5670570780966013
+      },
+      "headingError": 0.07642905250230363,
+      "crossed": true,
+      "capped": false,
+      "maxHeel": 5.483998477857482
+    },
+    {
+      "boatId": "ac75",
+      "manoeuvre": "stagvending",
+      "before": {
+        "theta": 0.5582026290444788,
+        "boom": 0.4725319569207785,
+        "speed": 4.087194653943605
+      },
+      "finish": {
+        "theta": 2.5655764219400603,
+        "boom": -0.46932088922570037,
+        "speed": 4.030600109778719
+      },
+      "headingError": 0.003299004559634452,
+      "crossed": true,
+      "capped": false,
+      "maxHeel": 8.001388806532475
+    },
+    {
+      "boatId": "ac75",
+      "manoeuvre": "bomning",
+      "before": {
+        "theta": -0.855210928545829,
+        "boom": 1.1241112892561784,
+        "speed": 3.2554532291530878
+      },
+      "finish": {
+        "theta": -2.286328632056522,
+        "boom": -1.1241564230651526,
+        "speed": 3.2521780763816333
+      },
+      "headingError": 0.0030188032423926576,
+      "crossed": true,
+      "capped": false,
+      "maxHeel": 7.193712295754926
+    },
+    {
+      "boatId": "ac72",
+      "manoeuvre": "stagvending",
+      "before": {
+        "theta": 0.5577865941913924,
+        "boom": 0.4601105880084947,
+        "speed": 4.2843986163798595
+      },
+      "finish": {
+        "theta": 2.5654466281868733,
+        "boom": -0.45823711656314714,
+        "speed": 4.246517019511286
+      },
+      "headingError": 0.010735638824412341,
+      "crossed": true,
+      "capped": false,
+      "maxHeel": 3.4231484858958616
+    },
+    {
+      "boatId": "ac72",
+      "manoeuvre": "bomning",
+      "before": {
+        "theta": -0.8552314346927559,
+        "boom": 1.1359289643859527,
+        "speed": 3.164472871927277
+      },
+      "finish": {
+        "theta": -2.286222471104693,
+        "boom": -1.136023722814982,
+        "speed": 3.149405865601739
+      },
+      "headingError": 0.00910137773128114,
+      "crossed": true,
+      "capped": false,
+      "maxHeel": 2.881882310135293
+    }
+  ],
+  "brugerbane": {
+    "boatId": "laser",
+    "type": "gates",
+    "variant": "island",
+    "finished": true,
+    "time": 584.4717723108487,
+    "visits": 6,
+    "landContacts": 0,
+    "recoveries": 0,
+    "log": [
+      {
+        "time": 60,
+        "visit": 0,
+        "x": 17,
+        "y": -230,
+        "target": 3,
+        "tag": "Indgang Vest",
+        "count": 59
+      },
+      {
+        "time": 120,
+        "visit": 1,
+        "x": 79,
+        "y": -431,
+        "target": 13,
+        "tag": "Før Syd",
+        "count": 59
+      },
+      {
+        "time": 180,
+        "visit": 2,
+        "x": 236,
+        "y": -533,
+        "target": 24,
+        "tag": "Før Øst",
+        "count": 59
+      },
+      {
+        "time": 240,
+        "visit": 2,
+        "x": 411,
+        "y": -505,
+        "target": 28,
+        "tag": "Øst",
+        "count": 59
+      },
+      {
+        "time": 300,
+        "visit": 3,
+        "x": 416,
+        "y": -441,
+        "target": 35,
+        "tag": "Før Nordøst",
+        "count": 59
+      },
+      {
+        "time": 360,
+        "visit": 3,
+        "x": 416,
+        "y": -335,
+        "target": 35,
+        "tag": "Før Nordøst",
+        "count": 59
+      },
+      {
+        "time": 420,
+        "visit": 3,
+        "x": 417,
+        "y": -257,
+        "target": 40,
+        "tag": "Nordøst",
+        "count": 59
+      },
+      {
+        "time": 480,
+        "visit": 4,
+        "x": 408,
+        "y": -244,
+        "target": 44,
+        "tag": "Nordøst",
+        "count": 59
+      },
+      {
+        "time": 540,
+        "visit": 4,
+        "x": 294,
+        "y": -194,
+        "target": 46,
+        "tag": "Før Nord",
+        "count": 59
+      },
+      {
+        "time": 600,
+        "visit": 5,
+        "x": 113,
+        "y": -138,
+        "target": 57,
+        "tag": "Før mål",
+        "count": 59
+      }
+    ],
+    "events": [
+      "start",
+      "mark",
+      "mark",
+      "mark",
+      "mark",
+      "mark",
+      "finish"
+    ]
+  },
+  "opretningSekunder": {
+    "laser": 3.12,
+    "dinghy": 3.127,
+    "yacht": 3.12,
+    "ac75": 3.12,
+    "ac72": 4.41
+  },
+  "netvaerk150ms": {
+    "speedJump": 0.19635525029422132,
+    "displayJump": 0.5253830971775016,
+    "offset": 0.3710566402139826,
+    "timeGap": 0.09999999999999964,
+    "pending": 13
+  }
+}

@@ -1,0 +1,22 @@
+# Grafikressourcer i TACK
+
+| Ressource og ophav | Licens | Lokal fil og tilpasning |
+| --- | --- | --- |
+| [MakeHuman basismodel](https://github.com/makehumancommunity/makehuman/blob/master/makehuman/data/3dobjs/base.obj), MakeHuman Team | [CC0 for basismodellen](https://github.com/makehumancommunity/makehuman/blob/master/LICENSE.md) | `assets/crew-human.glb.js` indeholder et indlejret GLB. Hoved og greb er skåret ud, normaliseret til meter og forenklet til to detaljegrader. Fingrene er bøjet til et arbejds­greb. `scripts/prepare-crew.py` pakker geometrien med Blender. |
+| [Sunflowers (Pure Sky)](https://polyhaven.com/a/sunflowers_puresky), Sergej Majboroda og Jarod Guest | [CC0](https://polyhaven.com/license) | `assets/sky-daylight.js`. Nedskaleret til 2048 × 1024 JPEG og drejet, så den lyse del af panoramaet følger spillets lysretning. Bruges til himmel, refleksioner og miljølys. |
+| [Kloofendal Overcast, Pure Sky](https://polyhaven.com/a/kloofendal_overcast_puresky), Greg Zaal | [CC0](https://polyhaven.com/license) | `assets/surface-textures.js`, `overcast`. Tone-mapped panorama nedskaleret til 2048 × 1024 WebP. Bruges til himmel, refleksioner i vandet og miljølys på modellerne. |
+| [Coast Sand 02](https://polyhaven.com/a/coast_sand_02), Rob Tuytel | [CC0](https://polyhaven.com/license) | `assets/surface-textures.js`, `sand`. 512 px WebP-farvetekstur. Dæmpes i de laveste dele af stranden. |
+| [Aerial Grass Rock](https://polyhaven.com/a/aerial_grass_rock) og [Dirt Aerial 02](https://polyhaven.com/a/dirt_aerial_02), Rob Tuytel | [CC0](https://polyhaven.com/license) | `assets/surface-textures.js`, `grass` og `earth`. 512 px WebP-farveteksturer, blandet i verdenskoordinater efter højde og variation i terrænet. |
+| [Coast Land Rocks 01](https://polyhaven.com/a/coast_land_rocks_01), Rob Tuytel og Rico Cilliers | [CC0](https://polyhaven.com/license) | `assets/surface-textures.js`, `stone`. 512 px WebP-farvetekstur til kyststen og stejlere jord. |
+| [Teak Veneer](https://polyhaven.com/a/teak_veneer), Jenelle van Heerden | [CC0](https://polyhaven.com/license) | `assets/surface-textures.js`, `teak`. 512 px WebP-farvetekstur til træflader i cockpit og på moler. |
+| [Denim Fabric](https://polyhaven.com/a/denim_fabric), Rob Tuytel | [CC0](https://polyhaven.com/license) | `assets/surface-textures.js`, `fabricNormal`. 192 px OpenGL-normalkort behandlet som lineære data. Bruges dæmpet som mikrotekstur til sejlertøj, vest og sejldug. |
+| Skummønstre, genereret i TACK | Projektets ISC-licens | `assets/hull-water.js` genererer en delt 128 × 128 tekstur med periodiske mønstre for dækning, bobler og variation. Kølvandets teksturkoordinater følger de registrerede overfladepunkter. |
+
+`assets/crew-rig.js`, `assets/crew-motion.js` og `assets/scene-resources.js` former sejldragt, vest og fodtøj og kobler ressourcerne til spillets rig og sædestillinger. Grundstillinger, balance, ledsving og greb er lavet til bådenes egne støttepunkter. Kystens sten, vegetation og havnedetaljer genbruger spillets geometri og steddata. Originalfilerne til modeller og fotos indgår kun i klargøringen. Browseren indlæser de optimerede filer fra projektets egne assets.
+
+## Kort og terræn
+
+- Kystlinjer, vejforløb og steddata © OpenStreetMap-bidragydere. Det bearbejdede udtræk i `assets/archipelago.js` er under ODbL 1.0. Det er projiceret til lokale øst- og nordmeter omkring 55,09265° N, 10,24020° Ø. Kystlinjerne er forenklet med 3–12 m tolerance. Afgrænsningen samler Avernak og Korshavn langs vejdæmningen Drejet. [OpenStreetMaps kreditering og licens](https://www.openstreetmap.org/copyright) · [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/)
+- Terrænhøjder i `assets/archipelago-relief.js` kommer fra Copernicus GLO-30, feltnavn `Copernicus_DSM_COG_10_N55_00_E010_00_DEM`, interpoleret til et 40 m gitter med 0,5 m vertikale trin. [Copernicus DEM og licensvilkår](https://doi.org/10.5270/ESA-c5d3d65) · [AWS-kildedata](https://registry.opendata.aws/copernicus-dem/)
+
+Produced using Copernicus WorldDEM-30 © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018 provided under COPERNICUS by the European Union and ESA. All rights reserved. Organisationerne, der er ansvarlige for Copernicus-programmet i henhold til lov eller delegation, påtager sig intet ansvar for brugen af Copernicus WorldDEM-30.

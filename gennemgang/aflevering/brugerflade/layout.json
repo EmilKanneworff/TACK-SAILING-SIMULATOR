@@ -1,0 +1,550 @@
+{
+  "layout": [
+    {
+      "name": "1366x768",
+      "zoom": 1,
+      "sizes": [
+        {
+          "size": "lille",
+          "innerWidth": 1366,
+          "innerHeight": 768,
+          "dpr": 1,
+          "card": {
+            "x": 1068,
+            "y": 12,
+            "width": 286,
+            "height": 216.203125,
+            "top": 12,
+            "right": 1354,
+            "bottom": 228.203125,
+            "left": 1068
+          },
+          "dock": {
+            "x": 177,
+            "y": 677,
+            "width": 1012,
+            "height": 79,
+            "top": 677,
+            "right": 1189,
+            "bottom": 756,
+            "left": 177
+          },
+          "rail": {
+            "x": 1202,
+            "y": 516,
+            "width": 152,
+            "height": 240,
+            "top": 516,
+            "right": 1354,
+            "bottom": 756,
+            "left": 1202
+          },
+          "railHidden": false,
+          "sizeButtonHit": true,
+          "mode": "follow",
+          "scale": 0.16,
+          "pageWidth": 1366
+        },
+        {
+          "size": "mellem",
+          "innerWidth": 1366,
+          "innerHeight": 768,
+          "dpr": 1,
+          "card": {
+            "x": 884,
+            "y": 12,
+            "width": 470,
+            "height": 353.265625,
+            "top": 12,
+            "right": 1354,
+            "bottom": 365.265625,
+            "left": 884
+          },
+          "dock": {
+            "x": 177,
+            "y": 677,
+            "width": 1012,
+            "height": 79,
+            "top": 677,
+            "right": 1189,
+            "bottom": 756,
+            "left": 177
+          },
+          "rail": {
+            "x": 1202,
+            "y": 516,
+            "width": 152,
+            "height": 240,
+            "top": 516,
+            "right": 1354,
+            "bottom": 756,
+            "left": 1202
+          },
+          "railHidden": false,
+          "sizeButtonHit": true,
+          "mode": "follow",
+          "scale": 0.16,
+          "pageWidth": 1366
+        },
+        {
+          "size": "stor",
+          "innerWidth": 1366,
+          "innerHeight": 768,
+          "dpr": 1,
+          "card": {
+            "x": 12,
+            "y": 12,
+            "width": 1178,
+            "height": 614,
+            "top": 12,
+            "right": 1190,
+            "bottom": 626,
+            "left": 12
+          },
+          "dock": {
+            "x": 177,
+            "y": 677,
+            "width": 1012,
+            "height": 79,
+            "top": 677,
+            "right": 1189,
+            "bottom": 756,
+            "left": 177
+          },
+          "rail": {
+            "x": 1202,
+            "y": 516,
+            "width": 152,
+            "height": 240,
+            "top": 516,
+            "right": 1354,
+            "bottom": 756,
+            "left": 1202
+          },
+          "railHidden": false,
+          "sizeButtonHit": true,
+          "mode": "follow",
+          "scale": 0.16,
+          "pageWidth": 1366
+        }
+      ],
+      "menu": {
+        "bottomVisible": true,
+        "closeVisible": true,
+        "scroll": 0,
+        "paused": true,
+        "hudInert": true
+      }
+    },
+    {
+      "name": "1920x1080",
+      "zoom": 1,
+      "sizes": [
+        {
+          "size": "lille",
+          "innerWidth": 1920,
+          "innerHeight": 1080,
+          "dpr": 1,
+          "card": {
+            "x": 1622,
+            "y": 12,
+            "width": 286,
+            "height": 216.203125,
+            "top": 12,
+            "right": 1908,
+            "bottom": 228.203125,
+            "left": 1622
+          },
+          "dock": {
+            "x": 400,
+            "y": 989,
+            "width": 1120,
+            "height": 79,
+            "top": 989,
+            "right": 1520,
+            "bottom": 1068,
+            "left": 400
+          },
+          "rail": {
+            "x": 1756,
+            "y": 828,
+            "width": 152,
+            "height": 240,
+            "top": 828,
+            "right": 1908,
+            "bottom": 1068,
+            "left": 1756
+          },
+          "railHidden": false,
+          "sizeButtonHit": true,
+          "mode": "follow",
+          "scale": 0.16,
+          "pageWidth": 1920
+        },
+        {
+          "size": "mellem",
+          "innerWidth": 1920,
+          "innerHeight": 1080,
+          "dpr": 1,
+          "card": {
+            "x": 1438,
+            "y": 12,
+            "width": 470,
+            "height": 496.796875,
+            "top": 12,
+            "right": 1908,
+            "bottom": 508.796875,
+            "left": 1438
+          },
+          "dock": {
+            "x": 400,
+            "y": 989,
+            "width": 1120,
+            "height": 79,
+            "top": 989,
+            "right": 1520,
+            "bottom": 1068,
+            "left": 400
+          },
+          "rail": {
+            "x": 1756,
+            "y": 828,
+            "width": 152,
+            "height": 240,
+            "top": 828,
+            "right": 1908,
+            "bottom": 1068,
+            "left": 1756
+          },
+          "railHidden": false,
+          "sizeButtonHit": true,
+          "mode": "follow",
+          "scale": 0.16,
+          "pageWidth": 1920
+        },
+        {
+          "size": "stor",
+          "innerWidth": 1920,
+          "innerHeight": 1080,
+          "dpr": 1,
+          "card": {
+            "x": 12,
+            "y": 12,
+            "width": 1732,
+            "height": 926,
+            "top": 12,
+            "right": 1744,
+            "bottom": 938,
+            "left": 12
+          },
+          "dock": {
+            "x": 400,
+            "y": 989,
+            "width": 1120,
+            "height": 79,
+            "top": 989,
+            "right": 1520,
+            "bottom": 1068,
+            "left": 400
+          },
+          "rail": {
+            "x": 1756,
+            "y": 828,
+            "width": 152,
+            "height": 240,
+            "top": 828,
+            "right": 1908,
+            "bottom": 1068,
+            "left": 1756
+          },
+          "railHidden": false,
+          "sizeButtonHit": true,
+          "mode": "follow",
+          "scale": 0.16,
+          "pageWidth": 1920
+        }
+      ],
+      "menu": {
+        "bottomVisible": true,
+        "closeVisible": true,
+        "scroll": 0,
+        "paused": true,
+        "hudInert": true
+      }
+    },
+    {
+      "name": "mobil",
+      "zoom": 1,
+      "sizes": [
+        {
+          "size": "lille",
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "dpr": 1,
+          "card": {
+            "x": 127,
+            "y": 8,
+            "width": 255,
+            "height": 216.203125,
+            "top": 8,
+            "right": 382,
+            "bottom": 224.203125,
+            "left": 127
+          },
+          "dock": {
+            "x": 8,
+            "y": 711,
+            "width": 374,
+            "height": 125,
+            "top": 711,
+            "right": 382,
+            "bottom": 836,
+            "left": 8
+          },
+          "rail": {
+            "x": 264,
+            "y": 463,
+            "width": 118,
+            "height": 240,
+            "top": 463,
+            "right": 382,
+            "bottom": 703,
+            "left": 264
+          },
+          "railHidden": false,
+          "sizeButtonHit": true,
+          "mode": "follow",
+          "scale": 0.16,
+          "pageWidth": 390
+        },
+        {
+          "size": "mellem",
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "dpr": 1,
+          "card": {
+            "x": 38.8125,
+            "y": 8,
+            "width": 343.1875,
+            "height": 388.234375,
+            "top": 8,
+            "right": 382,
+            "bottom": 396.234375,
+            "left": 38.8125
+          },
+          "dock": {
+            "x": 8,
+            "y": 711,
+            "width": 374,
+            "height": 125,
+            "top": 711,
+            "right": 382,
+            "bottom": 836,
+            "left": 8
+          },
+          "rail": {
+            "x": 264,
+            "y": 463,
+            "width": 118,
+            "height": 240,
+            "top": 463,
+            "right": 382,
+            "bottom": 703,
+            "left": 264
+          },
+          "railHidden": false,
+          "sizeButtonHit": true,
+          "mode": "follow",
+          "scale": 0.16,
+          "pageWidth": 390
+        },
+        {
+          "size": "stor",
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "dpr": 1,
+          "card": {
+            "x": 8,
+            "y": 8,
+            "width": 374,
+            "height": 659,
+            "top": 8,
+            "right": 382,
+            "bottom": 667,
+            "left": 8
+          },
+          "dock": {
+            "x": 8,
+            "y": 711,
+            "width": 374,
+            "height": 125,
+            "top": 711,
+            "right": 382,
+            "bottom": 836,
+            "left": 8
+          },
+          "rail": {
+            "x": 264,
+            "y": 463,
+            "width": 118,
+            "height": 240,
+            "top": 463,
+            "right": 382,
+            "bottom": 703,
+            "left": 264
+          },
+          "railHidden": true,
+          "sizeButtonHit": true,
+          "mode": "follow",
+          "scale": 0.16,
+          "pageWidth": 390
+        }
+      ],
+      "menu": {
+        "bottomVisible": true,
+        "closeVisible": true,
+        "scroll": 0,
+        "paused": true,
+        "hudInert": true
+      }
+    },
+    {
+      "name": "zoom-200",
+      "zoom": 2,
+      "sizes": [
+        {
+          "size": "lille",
+          "innerWidth": 683,
+          "innerHeight": 384,
+          "dpr": 2,
+          "card": {
+            "x": 420,
+            "y": 8,
+            "width": 255,
+            "height": 132,
+            "top": 8,
+            "right": 675,
+            "bottom": 140,
+            "left": 420
+          },
+          "dock": {
+            "x": 8,
+            "y": 250.5,
+            "width": 667,
+            "height": 125.5,
+            "top": 250.5,
+            "right": 675,
+            "bottom": 376,
+            "left": 8
+          },
+          "rail": {
+            "x": 557,
+            "y": 149,
+            "width": 118,
+            "height": 93,
+            "top": 149,
+            "right": 675,
+            "bottom": 242,
+            "left": 557
+          },
+          "railHidden": false,
+          "sizeButtonHit": true,
+          "mode": "follow",
+          "scale": 0.16,
+          "pageWidth": 683
+        },
+        {
+          "size": "mellem",
+          "innerWidth": 683,
+          "innerHeight": 384,
+          "dpr": 2,
+          "card": {
+            "x": 205,
+            "y": 8,
+            "width": 470,
+            "height": 174,
+            "top": 8,
+            "right": 675,
+            "bottom": 182,
+            "left": 205
+          },
+          "dock": {
+            "x": 8,
+            "y": 250.5,
+            "width": 667,
+            "height": 125.5,
+            "top": 250.5,
+            "right": 675,
+            "bottom": 376,
+            "left": 8
+          },
+          "rail": {
+            "x": 557,
+            "y": 191,
+            "width": 118,
+            "height": 51,
+            "top": 191,
+            "right": 675,
+            "bottom": 242,
+            "left": 557
+          },
+          "railHidden": false,
+          "sizeButtonHit": true,
+          "mode": "follow",
+          "scale": 0.16,
+          "pageWidth": 683
+        },
+        {
+          "size": "stor",
+          "innerWidth": 683,
+          "innerHeight": 384,
+          "dpr": 2,
+          "card": {
+            "x": 8,
+            "y": 8,
+            "width": 667,
+            "height": 198,
+            "top": 8,
+            "right": 675,
+            "bottom": 206,
+            "left": 8
+          },
+          "dock": {
+            "x": 8,
+            "y": 250.5,
+            "width": 667,
+            "height": 125.5,
+            "top": 250.5,
+            "right": 675,
+            "bottom": 376,
+            "left": 8
+          },
+          "rail": {
+            "x": 557,
+            "y": 8,
+            "width": 118,
+            "height": 234,
+            "top": 8,
+            "right": 675,
+            "bottom": 242,
+            "left": 557
+          },
+          "railHidden": true,
+          "sizeButtonHit": true,
+          "mode": "follow",
+          "scale": 0.16,
+          "pageWidth": 683
+        }
+      ],
+      "menu": {
+        "bottomVisible": true,
+        "closeVisible": true,
+        "scroll": 332,
+        "paused": true,
+        "hudInert": true
+      }
+    }
+  ],
+  "errors": [],
+  "revision": "d7534a86b8ac"
+}

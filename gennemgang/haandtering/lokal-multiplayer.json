@@ -1,0 +1,42 @@
+{
+  "revision": "e154e3f55297",
+  "freeSailingTrial": {
+    "set": 8.5,
+    "from": 0,
+    "local": 1.4776021341442156,
+    "ground": false,
+    "position": [
+      224.70478098897036,
+      -71.44658590389872
+    ],
+    "revision": "e154e3f55297"
+  },
+  "multiplayer": {
+    "wind": 8,
+    "waveHeight": 0.35,
+    "rendererSawSharedDucking": true,
+    "duckSamples": 92,
+    "recordedDuckRange": [
+      0.8580212370557304,
+      1
+    ],
+    "authoritativeHeadRange": [
+      0.7582404119321625,
+      0.8137713079469855
+    ],
+    "interpolatedHeadRange": [
+      0.7582404119321625,
+      0.8623182742451821
+    ],
+    "after": [
+      {
+        "id": "laser",
+        "side": -1,
+        "blend": -0.9445921120621175,
+        "cap": false,
+        "pose": 3
+      }
+    ]
+  },
+  "browserErrors": []
+}

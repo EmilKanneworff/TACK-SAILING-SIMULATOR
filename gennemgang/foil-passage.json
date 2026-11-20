@@ -1,0 +1,38 @@
+{
+  "boat": "ac72",
+  "windMetresPerSecond": 8,
+  "windDirection": 0,
+  "gusts": 0,
+  "waves": 0.35,
+  "control": "automatiske ror- og triminput gennem den normale fysik",
+  "out": [
+    {
+      "waypoint": 0,
+      "time": 43.51666666667433,
+      "x": 29.8807013092511,
+      "y": -280.0170285580808,
+      "contacts": 0
+    },
+    {
+      "waypoint": 1,
+      "time": 97.33333333332698,
+      "x": 87.26854043809925,
+      "y": -482.1219412453549,
+      "contacts": 0
+    },
+    {
+      "waypoint": 2,
+      "time": 128.5666666666319,
+      "x": 302.10847394318637,
+      "y": -587.2090432899744,
+      "contacts": 0
+    }
+  ],
+  "k": 3,
+  "time": 128.5666666666319,
+  "touch": 0,
+  "foilSeconds": 25.08333333333319,
+  "maxSpeed": 9.360390173773352,
+  "x": 302.10847394318637,
+  "y": -587.2090432899744
+}

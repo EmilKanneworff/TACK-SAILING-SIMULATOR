@@ -1,0 +1,142 @@
+const { test, expect } = require('@playwright/test');
+const path = require('node:path');
+const { pathToFileURL } = require('node:url');
+
+test.use({ launchOptions: { executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', args: ['--enable-unsafe-swiftshader'] } });
+
+test('open-water height is significant height and light tracks an independent blend',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const data=await page.evaluate(()=>{
+  const P=SailPhysics,env=SAILING_GAME.env;
+  const levels=[0,.45,1.5].flatMap(waveHeight=>[0,6,20].map(speed=>{
+   const e={...env,waveHeight,speed,shelter:false};
+   return {waveHeight,model:P.seaTarget(e)*P.waveHeightUnit(P.waveProfileFor(e).short*P.windWaveTarget(e))};
+  }));
+  const sample={...env,waveHeight:.45,speed:6,shelter:false};
+  const shape=P.waveProfileFor(sample);
+  sample.waveProfile={from:shape,to:shape,start:-10};
+  const heights=Array.from({length:2048},(_,i)=>P.waveAt((i*373)%911,-5000+(i*619)%977,i*.378,sample).height);
+  const mean=heights.reduce((a,b)=>a+b,0)/heights.length;
+  const measured=4*Math.sqrt(heights.reduce((a,b)=>a+(b-mean)**2,0)/heights.length);
+  const lighting=[0,.4,1].map(daylight=>SailingWeather.target({...env,daylight,clouds:.37,fog:0,rain:0}));
+  const gusts=[0,.23,.24,.25].map(gusts=>P.windAt(10,-5000,13,{...env,gusts,shelter:false}).speed);
+  return {levels,measured,lighting,gusts,wind:env.speed};
+ });
+ for(const {waveHeight,model} of data.levels)expect(model).toBeCloseTo(waveHeight,8);
+ expect(data.measured).toBeCloseTo(.45,1);
+ const [day,middle,evening]=data.lighting;
+ expect(middle.sunElevation).toBeCloseTo(day.sunElevation+.4*(evening.sunElevation-day.sunElevation),8);
+ expect(middle.sunColor[1]).toBeCloseTo(day.sunColor[1]+.4*(evening.sunColor[1]-day.sunColor[1]),8);
+ expect(data.lighting.map(a=>[a.clouds,a.fogDensity,a.rain])).toEqual(Array(3).fill([.37,0,0]));
+ expect(data.gusts[0]).toBe(data.wind);
+ expect(new Set(data.gusts).size).toBe(4);
+ expect(data.gusts[3]-data.gusts[2]).toBeCloseTo(data.gusts[2]-data.gusts[1],8);
+});
+
+test('default sea is moderate, moving continuously, and larger seas remain selectable', async ({ page }) => {
+  await page.goto(pathToFileURL(path.resolve('index.html')).href);
+  await page.waitForFunction(() => window.SAILING_GAME);
+  const result = await page.evaluate(() => {
+    const P = SailPhysics, env = { ...SAILING_GAME.env, speed: 5 };
+    const height = waves => P.waveHeightUnit(P.waveProfileFor(env).short*P.windWaveTarget(env)) * P.seaTarget({ ...env, waves });
+    const samples = [];
+    for (let i = 0; i < 1200; i++) {
+      const t = i / 60, a = P.waveAt(23, -5000, t, env), b = P.waveAt(23, -5000, t + .001, env);
+      samples.push({ h: a.height, slope: Math.hypot(a.dx, a.dy), derivativeError: Math.abs((b.height - a.height) / .001 - a.velocity) });
+    }
+    return { calm: height(0), small: height(.35), large: height(.85), range: Math.max(...samples.map(s => s.h)) - Math.min(...samples.map(s => s.h)), maxSlope: Math.max(...samples.map(s => s.slope)), derivativeError: Math.max(...samples.map(s => s.derivativeError)) };
+  });
+  expect(result.calm).toBe(0);
+  expect(result.small).toBeGreaterThan(.18);
+  expect(result.small).toBeLessThan(.27);
+  expect(result.large).toBeGreaterThan(result.small * 2);
+  expect(result.range).toBeGreaterThan(.1);
+  expect(result.maxSlope).toBeLessThan(.15);
+  expect(result.derivativeError).toBeLessThan(.001);
+});
+
+test('long waves carry most of the energy while shorter waves respond to wind up to 20 m/s',async({page})=>{
+  await page.goto(pathToFileURL(path.resolve('index.html')).href);
+  await page.waitForFunction(()=>window.SAILING_GAME);
+  const result=await page.evaluate(()=>{
+    const P=SailPhysics,base={...SAILING_GAME.env,waves:.85,speed:5,direction:270,shelter:false};
+    const windWaves=P.WAVE_COMPONENTS.filter(w=>w.windSea);
+    const lengths=windWaves.map(w=>2*Math.PI/Math.hypot(w.kx,w.ky));
+    const energy=w=>w.reduce((sum,c)=>sum+c.amplitude**2,0);
+    const windy=P.WAVE_COMPONENTS.indexOf(windWaves[1]);
+    const sample=(wavePeriod,waveComponent)=>P.waveAt(16,-5003,7.9,{...base,wavePeriod,waveComponent}).height;
+    const height=speed=>{
+      const env={...base,speed},profile=P.waveProfileFor(env);
+      return P.waveHeightUnit(profile.short*P.windWaveTarget(env))*P.seaTarget(env);
+    };
+    const shape=P.waveProfileFor(base),waveProfile={from:shape,to:shape,start:0,wind:{from:1,to:P.windWaveTarget({...base,speed:20}),start:4}};
+    const changing={...base,speed:20,waveCurrent:.7,waveComponent:windy,waveProfile};
+    const t=5,dt=.0001,y=P.waveAt(16,-5003,t,changing);
+    const slope=(P.waveAt(16,-5003,t+dt,changing).height-P.waveAt(16,-5003,t-dt,changing).height)/(2*dt);
+    const longWaves=P.WAVE_COMPONENTS.filter(w=>!w.windSea);
+    const energeticWind=P.windWaveTarget({...base,speed:12});
+    const longEnergy=energy(longWaves)/(energy(longWaves)+energy(windWaves)*energeticWind**2);
+    const slopeEnergy=waves=>waves.reduce((sum,w)=>sum+(w.amplitude*w.k)**2,0);
+    const shortSlopes=slopeEnergy(windWaves)*energeticWind**2/slopeEnergy(longWaves);
+    const mainAngle=Math.atan2(longWaves[0].ky,longWaves[0].kx);
+    const maxSpread=Math.max(...P.WAVE_COMPONENTS.map(w=>Math.abs(Math.atan2(w.ky,w.kx)-mainAngle)/P.DEG));
+    return {lengths,longLengths:longWaves.map(w=>2*Math.PI/w.k),longEnergy,shortSlopes,maxSpread,
+      short:[sample(3,windy),sample(11,windy)],long:[sample(3,0),sample(11,0)],
+      heights:[height(5),height(12),height(20)],velocityError:Math.abs(slope-y.velocity)};
+  });
+  expect(Math.min(...result.lengths)).toBeGreaterThanOrEqual(4);
+  expect(Math.max(...result.lengths)).toBeLessThan(10);
+  expect(result.longLengths.filter(length=>length>20)).toHaveLength(3);
+  expect(result.longEnergy).toBeGreaterThan(.85);
+  expect(result.longEnergy).toBeLessThan(.90);
+  expect(result.shortSlopes).toBeLessThan(1);
+  expect(result.maxSpread).toBeGreaterThan(0);
+  expect(result.maxSpread).toBeLessThan(5.001);
+  expect(result.short[0]).toBeCloseTo(result.short[1],10);
+  expect(Math.abs(result.long[0]-result.long[1])).toBeGreaterThan(.02);
+  expect(result.heights[0]).toBeLessThan(result.heights[1]);
+  expect(result.heights[1]).toBeLessThan(result.heights[2]);
+  expect(result.heights[2]).toBeLessThan(1.5);
+  expect(result.velocityError).toBeLessThan(.00001);
+});
+
+test('wave fronts stay coherent across the chosen direction and pass spaced probes in sequence',async({page})=>{
+  await page.goto(pathToFileURL(path.resolve('index.html')).href);
+  await page.waitForFunction(()=>window.SAILING_GAME);
+  const readings=await page.evaluate(()=>{
+    const P=SailPhysics;
+    const env={...SAILING_GAME.env,waves:.85,speed:12,direction:270,shelter:false};
+    return [[270,env],[35,{...env,swellDirection:35}]].map(([from,conditions])=>{
+      const bearing=from*P.DEG,forwardX=-Math.sin(bearing),forwardY=-Math.cos(bearing);
+      const sample=(along,across,t,profile=conditions)=>P.waveAt(
+        along*forwardX-across*forwardY,-5000+along*forwardY+across*forwardX,t,profile).height;
+      let acrossChange=0,alongChange=0;
+      for(let along=-40;along<=40;along+=2){
+        const height=sample(along,0,7);
+        for(const across of [-36,36])acrossChange+=(height-sample(along,across,7))**2;
+        for(const ahead of [-5,5])alongChange+=(height-sample(along+ahead,0,7))**2;
+      }
+      const main={...conditions,waveComponent:0},wave=P.WAVE_COMPONENTS[0],stretch=P.waveProfileFor(main).period;
+      const spacing=6,lag=spacing*wave.k/(wave.omega*stretch);
+      const errors=Array.from({length:40},(_,i)=>{
+        const time=i*.2,height=sample(0,0,time,main);
+        return {across:Math.abs(height-sample(0,32,time,main)),
+          delayed:Math.abs(height-sample(spacing,0,time+lag,main)),
+          simultaneous:Math.abs(height-sample(spacing,0,time,main))};
+      });
+      return {shape:Math.sqrt(acrossChange/alongChange),lag,
+        across:Math.max(...errors.map(e=>e.across)),delayed:Math.max(...errors.map(e=>e.delayed)),
+        simultaneous:Math.max(...errors.map(e=>e.simultaneous))};
+    });
+  });
+  for(const reading of readings){
+    expect(reading.shape).toBeGreaterThan(.04);
+    expect(reading.shape).toBeLessThan(.55);
+    expect(reading.lag).toBeGreaterThan(.8);
+    expect(reading.lag).toBeLessThan(1.1);
+    expect(reading.across).toBeLessThan(1e-8);
+    expect(reading.delayed).toBeLessThan(1e-8);
+    expect(reading.simultaneous).toBeGreaterThan(.15);
+  }
+});

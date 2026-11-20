@@ -1,0 +1,26 @@
+{
+  "phase": "trapez-foil",
+  "boat": "laser",
+  "browser": "157.0.8103.79",
+  "platform": "darwin",
+  "diagnostics": {
+    "threeRevision": "160",
+    "quality": "high",
+    "viewport": [
+      1280,
+      720
+    ],
+    "pixelRatio": 1,
+    "webglRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+    "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "frames": 481,
+    "durationMs": 8016.399999999999,
+    "averageFps": 60.00199590838781,
+    "frameTimeMedianMs": 16.699999999999818,
+    "frameTimeP95Ms": 16.700000000000728,
+    "drawCalls": 192,
+    "triangles": 229039
+  },
+  "maneuvers": [],
+  "errors": []
+}

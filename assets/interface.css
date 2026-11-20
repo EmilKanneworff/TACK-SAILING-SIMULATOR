@@ -1,0 +1,152 @@
+:root{
+ --rail-stack:244px;
+ --chart-room:calc(100dvh - var(--rail-bottom) - var(--rail-stack) - 2 * var(--edge));
+ --small-chart-height:max(156px,min(295px,var(--chart-room)));
+ --medium-chart-height:min(46dvh,max(174px,var(--chart-room)));
+}
+#panelShade{position:fixed;inset:0;z-index:9;background:#051a2373;pointer-events:auto}
+#settings.drawer{z-index:22;left:auto;right:var(--edge);top:var(--edge);bottom:auto;
+ width:min(400px,calc(100vw - 2 * var(--edge)));max-height:calc(100dvh - 2 * var(--edge));
+ box-sizing:border-box;padding:16px 19px 13px;background:#102f3b;overscroll-behavior:contain;
+ border:1px solid #60838c;border-radius:14px;color:#f2f5ee;overflow:auto}
+#settings.drawer{padding-top:0;scroll-padding-top:60px}
+.settings-header{position:sticky;z-index:4;top:0;display:flex;justify-content:space-between;align-items:center;
+ gap:10px;background:#102f3b;padding:9px 0 6px;border-bottom:1px solid #88b4bc36}
+#settings .close{position:static;width:44px;height:44px;min-width:44px;flex:none;margin:0;
+ background:#214651;border:1px solid #60838c;border-radius:9px}
+#settings h2{margin:0;font-size:1.36rem;line-height:1.3;letter-spacing:0}
+#settings h3{font-size:.93rem;line-height:1.2;margin:14px 0 5px;color:#b8e1dd}
+#settings .weather-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 9px;align-items:center;
+ min-height:44px;padding:4px 0;border-top:1px solid #88b4bc2c;font-size:.83rem;line-height:1.2}
+.weather-row output{justify-self:end;color:#e9f3ef;text-align:right;font-variant-numeric:tabular-nums;min-width:5ch}
+.weather-row:has(input[type=range]) output{white-space:normal;max-width:16ch}
+.weather-row input[type=range]{grid-column:1/-1;margin:0;min-height:31px;width:100%;accent-color:#8de5d6}
+.weather-row select,.map-tools select{border:1px solid #70939a;border-radius:7px;color:#f5f7f1;background:#1b414c;min-height:44px;padding:2px 7px;font-size:inherit}
+#settings.drawer:has(#weatherControls:not([hidden])){
+ width:min(500px,calc(100vw - 2 * var(--edge)));padding-inline:clamp(14px,4vw,22px)
+}
+#weatherControls{--weather-thumb:22px;display:grid;gap:15px;padding-block:15px 5px}
+#weatherControls .weather-section{min-width:0}
+#weatherControls .weather-section + .weather-section{border-top:1px solid #88b4bc36;padding-top:14px}
+#weatherControls h3{margin:0 0 10px;font-size:1.05rem;color:#bae2df;font-weight:650}
+#weatherControls .weather-range{
+ display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:baseline;
+ margin-top:6px;font-size:1rem;line-height:1.2
+}
+#weatherControls .weather-range label{min-width:0;overflow-wrap:anywhere;font-weight:580}
+#weatherControls .weather-range output{
+ min-width:6ch;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;color:#a7efdf;font-weight:650
+}
+#weatherControls .weather-range input{
+ --weather-track:linear-gradient(to right,#81dfcc var(--range-fill,0%),#436874 var(--range-fill,0%));
+ grid-column:1/-1;appearance:none;-webkit-appearance:none;min-width:0;width:100%;height:38px;
+ margin:0;padding:0;border:0;background:transparent;border-radius:8px;cursor:pointer
+}
+#weatherControls .weather-range input:focus-visible{outline:2px solid #f5dd99;outline-offset:1px}
+#weatherControls .weather-range input:disabled{opacity:.66;cursor:default}
+#weatherControls .weather-range input::-webkit-slider-runnable-track{
+ height:6px;border-radius:6px;background:var(--weather-track)
+}
+#weatherControls .weather-range input::-webkit-slider-thumb{
+ appearance:none;-webkit-appearance:none;width:var(--weather-thumb);height:var(--weather-thumb);margin-top:-8px;
+ border:2px solid #102f3b;border-radius:50%;background:#eefcf6;box-shadow:0 0 0 1px #9ee6d9
+}
+#weatherControls .weather-range input::-moz-range-track{
+ height:6px;border-radius:6px;background:var(--weather-track)
+}
+#weatherControls .weather-range input::-moz-range-thumb{
+ box-sizing:border-box;width:var(--weather-thumb);height:var(--weather-thumb);
+ border:2px solid #102f3b;border-radius:50%;background:#eefcf6;box-shadow:0 0 0 1px #9ee6d9
+}
+#weatherControls .weather-compass,#weatherControls .weather-scale{
+ grid-column:1/-1;color:#bdd5da;font-size:.76rem;line-height:1.15;margin-top:-2px
+}
+#weatherControls .weather-compass{
+ display:flex;justify-content:space-between;padding-inline:calc(var(--weather-thumb) / 2);margin-bottom:6px
+}
+#weatherControls .weather-compass span{display:grid;place-content:center;width:0;white-space:nowrap}
+#weatherControls .weather-endpoints{display:flex;justify-content:space-between}
+#weatherControls .weather-note{
+ margin:0;font-size:.82rem;line-height:1.35;color:#c4dbdf
+}
+#weatherControls #windAtBoat{
+ display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 12px;
+ margin-top:12px;padding:8px 10px;border-radius:7px;background:#193f4a
+}
+#weatherControls #windAtBoat b{color:#f2f9f5;white-space:nowrap}
+#weatherControls #windShelter{white-space:nowrap}
+@media(pointer:coarse){#weatherControls .weather-range input{height:44px}}
+#hud .course-card{top:var(--edge);right:var(--edge);left:auto;width:min(286px,calc(100vw - 2 * var(--edge)));
+ max-height:var(--small-chart-height);display:flex;flex-direction:column;overflow:auto}
+#hud .course-card[hidden]{display:none}
+#hud .course-card #map{width:100%;height:142px;min-height:66px;flex:1 1 auto}
+#hud .course-card.map-medium{width:min(470px,88vw);height:var(--medium-chart-height);max-height:none}
+#hud .course-card.map-expanded{right:calc(var(--rail-width) + 2 * var(--edge));left:var(--edge);width:auto;
+ height:calc(100dvh - var(--water-bottom,126px) - 2 * var(--edge));min-height:160px;max-height:none}
+#hud .course-card.map-expanded #map,#hud .course-card.map-medium #map{height:auto;min-height:72px}
+#hud .map-tools{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px;align-items:center;padding:4px 6px;background:#173744;
+ flex:none;position:sticky;bottom:0;z-index:1}
+#hud .map-tools button,#hud .map-tools select{min-height:38px;white-space:normal;font-size:.68rem;line-height:1.15;padding:3px 6px}
+.map-zoom{display:flex;border-radius:7px}
+#hud .map-zoom button{min-width:27px}
+#hud .map-zoom button:first-child{border-radius:7px 0 0 7px}
+#hud .map-zoom button:last-child{border-radius:0 7px 7px 0}
+#hud .map-tools select{width:100%;text-overflow:ellipsis}
+.map-note{margin:0;padding:2px 8px 5px;color:#bcd2d5;font-size:.66rem;line-height:1.25}
+.sailing-dock,#settings,.map-tools{font-variant-numeric:tabular-nums}
+#hud .tools .icon{min-height:44px}
+#hud .tools{max-height:calc(100dvh - var(--rail-bottom) - var(--small-chart-height) - var(--edge) - 9px)}
+body.clear-view #hud .course-card{display:none}
+@media(max-width:850px){
+ :root{--rail-stack:240px}
+ #hud .course-card:not(.map-expanded):not(.map-medium){width:min(255px,calc(100vw - 2 * var(--edge)))}
+ #hud .course-card.map-expanded{right:var(--edge)}
+ #hud:has(.map-expanded) .tools{visibility:hidden}
+}
+@media(max-width:450px),(max-height:480px){
+ :root{--small-chart-height:max(132px,min(220px,var(--chart-room)))}
+ #settings.drawer{padding:0 12px 10px}
+ #settings .weather-row{grid-template-columns:minmax(0,1fr) minmax(0,62%);column-gap:5px}
+ .segmented span{padding:3px 4px}
+ #hud .map-tools{grid-template-columns:auto minmax(0,1fr) auto}
+ #hud .course-card #map{min-height:53px}
+}
+@media(max-width:450px){
+ #hud .brand{max-width:calc(100vw - 255px - 2 * var(--edge) - 8px)}
+ #hud .brand>div{min-width:0}
+ #hud .brand svg{display:none}
+ #hud .brand strong{display:block;white-space:normal;overflow-wrap:anywhere;line-height:1.15}
+}
+#settings .weather-row{grid-template-columns:minmax(0,1fr) minmax(0,62%)}
+.weather-row input[type=range]{
+ appearance:none;-webkit-appearance:none;background:transparent;border:0;
+ height:37px;min-height:37px;padding:0;box-shadow:none}
+.weather-row input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:4px;background:#65878d}
+.weather-row input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;
+ width:19px;height:19px;margin-top:-7.5px;border-radius:50%;background:#def7ee;border:2px solid #356167}
+.weather-row input[type=range]::-moz-range-track{height:4px;border-radius:4px;background:#65878d}
+.weather-row input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#def7ee;border:2px solid #356167}
+#hud:has(.map-medium) .tools{max-height:calc(100dvh - var(--rail-bottom) - var(--medium-chart-height) - var(--edge) - 9px)}
+#hud:has(.map-expanded) .tools{max-height:calc(100dvh - var(--rail-bottom) - var(--edge))}
+#hud .map-tools #mapExpand,#hud .map-tools #mapView{min-height:44px}
+
+@media(min-width:601px){#hud .course-card.map-expanded .map-tools{grid-template-columns:auto minmax(0,142px) auto;justify-content:start}}
+.tools #raceButton[aria-pressed=true]::after{content:'✓';margin-left:auto;color:#9ceadd}
+
+#courseEditor .modal{width:min(800px,calc(100vw - 26px));padding:20px;max-height:calc(100dvh - 24px);overflow:auto}
+.editor-setup{display:grid;gap:10px}
+.editor-setup[hidden]{display:none}
+.editor-setup button{justify-self:start}
+.editor-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.editor-fields label{display:grid;gap:4px;min-width:0}
+.editor-fields input,.editor-fields select{width:100%;min-height:44px}
+#editorMap{display:block;width:100%;height:clamp(175px,41dvh,385px);border:1px solid #64858d;border-radius:8px}
+#editorAdvice,#editorStatus,#editorMapHelp{font-size:.82rem;line-height:1.4;margin:9px 0}
+.editor-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:end;margin:6px 0}
+.editor-actions button,.editor-extra select{min-height:40px}
+.editor-actions button:not(.primary){padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:#20434c}
+.editor-actions label,.editor-extra>label{display:grid;gap:3px}
+.editor-extra{margin:8px 0;border-top:1px solid var(--line);padding:6px 0;font-size:.85rem}
+.editor-extra summary{cursor:pointer;padding:5px 0}
+#editorImport{max-width:100%}
+@media(max-width:440px){.editor-fields{grid-template-columns:1fr}#courseEditor .modal{padding:13px}}

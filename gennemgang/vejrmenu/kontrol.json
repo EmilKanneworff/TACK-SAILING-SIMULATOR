@@ -1,0 +1,165 @@
+{
+  "efter": {
+    "revision": "52511ce8207f",
+    "viewport": [
+      1366,
+      900
+    ],
+    "scale": 1,
+    "panel": [
+      500,
+      799.15625
+    ],
+    "padding": "22px",
+    "horizontalOverflow": 0,
+    "verticalOverflow": 0,
+    "tracks": [
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ]
+    ]
+  },
+  "mobil": {
+    "revision": "52511ce8207f",
+    "viewport": [
+      390,
+      844
+    ],
+    "scale": 2,
+    "panel": [
+      370,
+      828
+    ],
+    "padding": "15.6px",
+    "horizontalOverflow": 0,
+    "verticalOverflow": 16,
+    "tracks": [
+      [
+        336.8125,
+        44
+      ],
+      [
+        336.8125,
+        44
+      ],
+      [
+        336.8125,
+        44
+      ],
+      [
+        336.8125,
+        44
+      ],
+      [
+        336.8125,
+        44
+      ],
+      [
+        336.8125,
+        44
+      ],
+      [
+        336.8125,
+        44
+      ],
+      [
+        336.8125,
+        44
+      ]
+    ]
+  },
+  "multiplayer": {
+    "target": {
+      "speed": 6,
+      "direction": 90,
+      "waveHeight": 0.45,
+      "gusts": 0.37,
+      "clouds": 0.37,
+      "rain": 0.2,
+      "fog": 0.1,
+      "daylight": 0.4,
+      "windSeed": 2647
+    },
+    "dragInputs": 61,
+    "extraSnapshotsDuringDrag": 0,
+    "snapshotsAtRelease": 1
+  },
+  "zoom-200": {
+    "revision": "52511ce8207f",
+    "viewport": [
+      683,
+      450
+    ],
+    "scale": 2,
+    "panel": [
+      500,
+      434
+    ],
+    "padding": "22px",
+    "horizontalOverflow": 0,
+    "verticalOverflow": 362,
+    "tracks": [
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ],
+      [
+        454,
+        38
+      ]
+    ]
+  }
+}

@@ -1,0 +1,116 @@
+'use strict';
+const {test,expect}=require('@playwright/test');
+const path=require('node:path');
+const {pathToFileURL}=require('node:url');
+test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
+
+test('a saved edited course is the same in the map, 3D and race after a weather change',async({page})=>{
+ const url=pathToFileURL(path.resolve('index.html')).href;
+ await page.setViewportSize({width:900,height:680});
+ await page.goto(url);
+ await page.click('#startButton');
+ const menu=async()=>{await page.click('#preferencesButton');await page.click('#raceSetup');};
+ await menu();
+ await page.click('[data-racetype=triangle]');
+ await page.click('#editCourse');
+ await expect(page.locator('#editorPlacement')).toBeHidden();
+ await page.fill('#editorWind','245');
+ await page.click('#editorDraft');
+ await page.fill('#editorName','Trekant ved Faaborg');
+ await page.selectOption('#editorPoint','mark-1');
+ await page.locator('#editorMap').press('ArrowRight');
+ await expect(page.locator('#editorSave')).toBeEnabled();
+ await page.click('#editorSave');
+ await expect(page.locator('#editCourse')).toBeFocused();
+ await expect(page.locator('#previewRules')).toContainText('245°');
+ const read=()=>page.evaluate(()=>{
+  const library=JSON.parse(localStorage.getItem('fri-vind.courses.v2'));
+  return library.courses.find(course=>course.id===library.selected);
+ });
+ const saved=await read();
+ expect(saved.weather.direction).toBe(245);
+ await page.reload();
+ await page.click('#startButton');
+ await menu();
+ await page.selectOption('#courseVariant','custom');
+ await page.click('#beginRace');
+ await page.waitForFunction(()=>SAILING_GAME.scene.courseVisualAudit?.buoys?.some(buoy=>buoy.id==='mark-1'));
+ const placement=()=>page.evaluate(()=>{
+  const game=SAILING_GAME,model=game.course.model;
+  return {phase:game.course.phase,variant:model.variant,marks:model.buoys.map(({id,x,y})=>({id,x,y})),
+   painted:game.scene.courseVisualAudit.buoys.map(({id,x,y})=>({id,x,y})),mapMatches:game.map.model===model};
+ });
+ const before=await placement();
+ expect(before.variant).toBe('custom');
+ expect(before.phase).toBe('countdown');
+ expect(before.painted).toEqual(before.marks);
+ expect(before.mapMatches).toBe(true);
+ const {id,x,y}=saved.marks.find(mark=>mark.id==='mark-1');
+ expect(before.marks.find(mark=>mark.id===id)).toEqual({id,x,y});
+ await page.click('#settingsButton');
+ await page.fill('#windDirection','110');
+ await page.keyboard.press('Escape');
+ expect((await placement()).marks).toEqual(before.marks);
+ expect(await read()).toEqual(saved);
+});
+
+test('course files round-trip and a manual change can be undone',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.click('#startButton');
+ await page.click('#preferencesButton');
+ await page.click('#raceSetup');
+ await page.click('#editCourse');
+ await page.click('#editorDraft');
+ await page.selectOption('#editorPoint','mark-1');
+ await page.locator('#editorMap').press('ArrowRight');
+ await expect(page.locator('#editorUndo')).toBeEnabled();
+ await page.click('#editorUndo');
+ await expect(page.locator('#editorUndo')).toBeDisabled();
+ await page.locator('.editor-extra summary').filter({hasText:'Gemte baner og filer'}).click();
+ const saved=page.waitForEvent('download');
+ await page.click('#editorExport');
+ const file=await saved;
+ await page.locator('#editorImport').setInputFiles(await file.path());
+ await expect(page.locator('#editorFileStatus')).toHaveText('Banen er åbnet som et udkast.');
+ await page.click('#editorDuplicate');
+ await expect(page.locator('#editorName')).toHaveValue(/kopi$/);
+ await page.click('#editorSave');
+ await expect(page.locator('#courseVariant')).toHaveValue('custom');
+});
+
+test('a blank chart lets the player place both lines and a mark after choosing wind',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.click('#startButton');
+ await page.click('#preferencesButton');
+ await page.click('#raceSetup');
+ await page.click('#editCourse');
+ await page.fill('#editorWind','0');
+ await page.click('#editorBlank');
+ const map=page.locator('#editorMap');
+ const place=(x,y)=>map.evaluate((canvas,{x,y})=>{
+  const rect=canvas.getBoundingClientRect(),bounds=SailingWorld.bounds;
+  const w=Math.round(rect.width),h=Math.round(rect.height);
+  const scale=Math.min((w-50)/(bounds.maxX-bounds.minX),(h-91)/(bounds.maxY-bounds.minY));
+  const at={x:w/2+(x-(bounds.minX+bounds.maxX)/2)*scale,y:(h+7)/2-(y-(bounds.minY+bounds.maxY)/2)*scale};
+  return {x:at.x*rect.width/w,y:at.y*rect.height/h};
+ },{x,y}).then(position=>map.click({position,timeout:4000}));
+ await expect(page.locator('#editorPoint')).toHaveValue('start-a');
+ await place(-650,-885);
+ await expect(page.locator('#editorPoint')).toHaveValue('start-b');
+ await place(-490,-885);
+ await expect(page.locator('#editorPoint')).toHaveValue(/^mark-/);
+ await place(-560,-740);
+ await expect(page.locator('#editorPoint')).toHaveValue('finish-a');
+ await place(-650,-990);
+ await expect(page.locator('#editorPoint')).toHaveValue('finish-b');
+ await place(-490,-990);
+ await expect(page.locator('#editorAdvice')).toContainText('kryds');
+ await expect(page.locator('#editorSave')).toBeEnabled();
+ const image=()=>map.evaluate(canvas=>canvas.toDataURL());
+ const beforeZoom=await image(),box=await map.boundingBox();
+ await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
+ await page.mouse.wheel(0,-300);
+ await expect.poll(image).not.toBe(beforeZoom);
+ await page.click('#editorSave');
+ await expect(page.locator('#previewRoute')).toHaveText('Start → 1 → Mål');
+});

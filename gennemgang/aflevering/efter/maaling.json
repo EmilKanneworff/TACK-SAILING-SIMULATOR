@@ -1,0 +1,134 @@
+{
+  "browser": "157.0.8103.79",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "scenes": {
+    "six": {
+      "boats": [
+        {
+          "boat": "laser",
+          "position": [
+            91.57720323580752,
+            -4959.131969777666
+          ],
+          "screen": [
+            0.0669287931613788,
+            -0.15065034421211643
+          ],
+          "visible": true
+        },
+        {
+          "boat": "dinghy",
+          "position": [
+            58.04991677342505,
+            -4935.825951981901
+          ],
+          "screen": [
+            -0.29294574821811825,
+            0.0777526073502531
+          ],
+          "visible": true
+        },
+        {
+          "boat": "yacht",
+          "position": [
+            81.41816408433714,
+            -4923.121046400683
+          ],
+          "screen": [
+            -0.06916015562154046,
+            0.21746912113288194
+          ],
+          "visible": true
+        },
+        {
+          "boat": "ac75",
+          "position": [
+            118.71883071736438,
+            -4947.296766254395
+          ],
+          "screen": [
+            0.32641596198801387,
+            0.024614641857517706
+          ],
+          "visible": true
+        },
+        {
+          "boat": "ac72",
+          "position": [
+            56.20445241381114,
+            -4972.869570388303
+          ],
+          "screen": [
+            -0.34852272612902896,
+            -0.3819098158251894
+          ],
+          "visible": true
+        },
+        {
+          "boat": "laser",
+          "position": [
+            109.1388032305828,
+            -4985.820836473749
+          ],
+          "screen": [
+            0.3423463824827796,
+            -0.5270496015614585
+          ],
+          "visible": true
+        }
+      ],
+      "camera": "Samme høje måleperspektiv med seks aktive både i billedet"
+    }
+  },
+  "performance": {
+    "oneVisible": [
+      {
+        "fps": 60.00221410384147,
+        "p95Ms": 16.799999999999272,
+        "p95SubmitMs": 1.2000000476837158,
+        "draws": 123,
+        "drawsAllPassesP95": 123,
+        "triangles": 128239,
+        "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)"
+      },
+      {
+        "fps": 60.00266678519046,
+        "p95Ms": 16.700000000000728,
+        "p95SubmitMs": 1.2000000476837158,
+        "draws": 123,
+        "drawsAllPassesP95": 123,
+        "triangles": 128755,
+        "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)"
+      }
+    ],
+    "six": [
+      {
+        "fps": 60.00221410384147,
+        "p95Ms": 16.700000000000728,
+        "p95SubmitMs": 3.5999999046325684,
+        "draws": 1090,
+        "drawsAllPassesP95": 1090,
+        "triangles": 325429,
+        "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)"
+      },
+      {
+        "fps": 60.00266678519046,
+        "p95Ms": 16.700000000000728,
+        "p95SubmitMs": 4.200000047683716,
+        "draws": 1090,
+        "drawsAllPassesP95": 1090,
+        "triangles": 325453,
+        "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)"
+      }
+    ]
+  },
+  "loadMs": {
+    "six": 7175
+  },
+  "errors": [],
+  "revision": "ab3e87a05828",
+  "measurement": "Værtens visning, 1440 × 900, Lav, seks aktive simulationsbåde, samme kamera og miljø. Gæsterne er forbundet, og deres rendering er sat i bero. Én, seks, seks og én synlig båd, 4,5 sekunder pr. interval."
+}
