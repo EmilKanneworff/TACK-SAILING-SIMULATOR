@@ -1,6 +1,6 @@
 # Besætning, vandkontakt og omgivelser
 
-Den kørende udgave har revision `05a743a7679e`. Vælg **Fri sejlads**. Brug **Både** og **Kamera** i højremenuen til at skifte båd og vinkel. Bølgeprøven starter Fri sejlads i Turbåd 43's cockpit i frisk sø. [Åbn FRI VIND](http://localhost:5173/) · [Åbn bølgeprøven](http://localhost:5173/?proeve=boelger)
+Denne gennemgang beskriver revision `05a743a7679e`. Vælg **Fri sejlads**. Brug **Både** og **Kamera** i højremenuen til at skifte båd og vinkel. Bølgeprøven starter Fri sejlads i Turbåd 43's cockpit i frisk sø. [Åbn TACK](http://localhost:5173/) · [Åbn bølgeprøven](http://localhost:5173/?proeve=boelger) · [Senere måling af vandgrafik og billedtid](ydelse.md)
 
 ## Billeder og bevægelse i spillet
 

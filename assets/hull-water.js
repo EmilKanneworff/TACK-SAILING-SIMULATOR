@@ -272,6 +272,11 @@ class HullWater {
     if(near)this.sample(id,actor,s,env);
   }
 
+  forget(actor){
+    for(const [id,fx] of this.actors)if(fx.actor===actor)this.actors.delete(id);
+    this.lastReflection=-Infinity;
+  }
+
   publish(s,camera){
     const {contactCentres,contactShapes,contactWake,contactWindows,contactWaveCount,contactWindowCount,contactWaveBounds,contactWindowBounds}=this.uniforms;
     let waves=0,windows=0;
@@ -342,10 +347,13 @@ class HullWater {
     // This pass shares a single viewport for all boats and renders the sails
     // and shells only. The above-water clipping plane excludes appendages.
     const now=s.time;
-    if(this.reflectionMode===this.scene.cameraMode&&now>=this.lastReflection&&now-this.lastReflection<(quality==='low'?.131:.031))return;
+    const aspect=camera.aspect;
+    if(this.reflectionMode===this.scene.cameraMode&&this.reflectionQuality===quality&&this.reflectionAspect===aspect&&now>=this.lastReflection&&now-this.lastReflection<(quality==='low'?.055:.028))return;
     this.reflectionMode=this.scene.cameraMode;
+    this.reflectionQuality=quality;this.reflectionAspect=aspect;
     const width=quality==='low'?320:640;
-    if(this.target.width!==width)this.target.setSize(width,width*9/16);
+    const height=Math.round(limit(width/aspect,160,512));
+    if(this.target.width!==width||this.target.height!==height)this.target.setSize(width,height);
     this.lastReflection=now;
     const mirror=this.mirror,sea=this.scene.P.waveAt(s.x,s.y,s.time,env).height;
     camera.getWorldDirection(this.look);mirror.position.copy(camera.position);

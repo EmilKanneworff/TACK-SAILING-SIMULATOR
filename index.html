@@ -396,6 +396,9 @@ and application hashes so results can be matched to this deliverable.
 .sailing-dock .helm-feedback .rudder-track{display:none}
 #downwindControls{bottom:var(--sails-bottom,105px)!important}
 .coach,.toast{bottom:var(--notice-bottom,147px)!important;overflow-wrap:anywhere;pointer-events:none}
+#graphicsStatus{position:fixed;inset:0;z-index:70;display:grid;place-items:center;pointer-events:none}
+#graphicsStatus[hidden]{display:none}
+#graphicsStatus span{max-width:90vw;padding:.7em 1em;text-align:center;border-radius:12px;background:#102c37;color:#f3f9f8}
 #hud:has(#toast:not([hidden])) #coach{visibility:hidden}
 .telemetry-panel{bottom:calc(var(--footer-height,100px) + 8px)}
 .course-card.map-medium,.ac75-mode .course-card.map-medium,
@@ -453,6 +456,7 @@ and application hashes so results can be matched to this deliverable.
 </head>
 <body>
 <canvas id="sea" tabindex="-1" aria-label="3D-sejlads. Venstre og højre styrer. Op og ned trimmer sejlet."></canvas><div id="vignette"></div>
+<div id="graphicsStatus" role="status" hidden><span>Gendanner grafikken…</span></div>
 <div class="hud" id="hud" hidden>
   <header class="topbar">
     <div class="brand"><svg viewBox="0 0 36 44" aria-hidden="true"><path d="M21 3L5 32h16V3Zm3 10v19h9L24 13ZM3 36h30l-4 5H8l-5-5Z"></path></svg><div><strong>TACK</strong><small id="brandBoat">LASERJOLLE</small></div></div>
@@ -3262,6 +3266,7 @@ class SailingScene {
     const sky=this.sky.material.uniforms;
     this.waterUniforms={...this.hullWater.uniforms,skyPhoto:sky.skyPhoto,skyOvercast:sky.skyOvercast,overcastMix:sky.overcastMix,photoMix:sky.photoMix,skyBlue:sky.top,skyCloud:sky.cloudColor,cloudCover:sky.cover,windFieldFrom:{value:null},windFieldTo:{value:null},windFieldBlend:{value:0},windFieldEnabled:{value:0},windSeedPhase:{value:0},waveShelterEnabled:{value:0},waveExposureFrom:{value:null},waveExposureTo:{value:null},waveFrom:{value:new T.Vector3(0,1,1)},waveTo:{value:new T.Vector3(0,1,1)},waveBlend:{value:1},waveWindAngles:{value:new T.Vector2()},waveSpread:{value:new T.Vector2(1,1)},seaRipples:{value:1},waveCoupled:{value:new T.Vector2()},windWaveScale:{value:1},waveFlow:{value:new T.Vector2(0,1)},rippleNormals:{value:this.buildRippleNormals()},bathymetryMap:{value:bathymetryMap},waterView:{value:0},time:{value:0},sea:{value:.4},windSpeed:{value:5},windDirection:{value:0},gustStrength:{value:.2},rain:{value:0},fogDensity:{value:.0018},sunStrength:{value:1},sunTint:{value:new T.Color('#fff0d6')},
       sunDir:{value:this.V(-.45,.72,-.52).normalize()},nearColor:{value:new T.Color('#138c96')},deepColor:{value:new T.Color('#277b98')},horizonColor:{value:new T.Color('#c1e1e6')},hullInverse:{value:new T.Matrix4()},hullBounds:{value:new T.Vector4(-2.1,2.2,.685,.222)},hullShape:{value:new T.Vector4(.34,.08,1.7,.04)},hullStations:{value:Array.from({length:16},()=>new T.Vector2(0,0))},hullStationCount:{value:0},hullCount:{value:1},hullOffsets:{value:new T.Vector2(0,0)},cockpitBox:{value:new T.Vector4(-1.25,.32,.35,.015)},cockpitWet:{value:0},cockpitRadius:{value:.12},cockpitTaper:{value:1}};
+    this.waterUniforms.windChopDrift={value:new T.Vector2()};
     const wc=this.P.WAVE_COMPONENTS,n=x=>'('+Number(x).toFixed(9)+')';
     const wavesGLSL=`
       ${depth.shader}
@@ -3316,7 +3321,8 @@ class SailingScene {
         vec2 travel=vec2(forward.x,-forward.y);
         // A long, narrow triangle only needs high resolution along the phase gradient.
         vec2 projected=vec2(dot(travel,radial),dot(travel,tangent))*spacing;
-        float lod=1.-smoothstep(.15,.34,length(projected)*k/6.28318530718);
+        float samples=length(projected)*k/6.28318530718;
+        float lod=exp(-11.*samples*samples)*(1.-smoothstep(.34,.57,samples));
         if(lod>0.){
           float q=k*dot(p,travel)-omega*time+${n(w.phase)},sn=sin(q),cs=cos(q);
           vec3 exposure=${exposure};
@@ -3343,6 +3349,7 @@ class SailingScene {
       ${global.SailingWind.shader}
       ${global.SailingShelter.shader}
       uniform float waveBlend,seaRipples;uniform vec2 waveCoupled;
+      uniform vec2 windChopDrift;
       uniform mat4 hullInverse;uniform vec4 hullBounds;uniform vec4 hullShape;uniform vec2 hullStations[16];uniform int hullStationCount;uniform int hullCount;uniform vec2 hullOffsets;uniform vec4 cockpitBox;uniform float cockpitWet;uniform float cockpitRadius;uniform float cockpitTaper;
       uniform sampler2D boatReflection;uniform mat4 boatReflectionMatrix;uniform float boatReflectionEnabled,boatReflectionHeight;
       uniform int contactWindowCount;uniform vec4 contactWindows[12],contactWindowBounds;
@@ -3371,11 +3378,15 @@ class SailingScene {
       }
       float hashWater(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
       vec2 chopSlope(vec2 p,vec3 air,float distanceToEye){
-        vec2 across=vec2(-waveFlow.y,waveFlow.x),windAcross=vec2(-air.y,air.x);
+        if(distanceToEye>=185.)return vec2(0.);
+        vec2 across=vec2(-waveFlow.y,waveFlow.x);
         vec2 waveUV=vec2(dot(p,waveFlow)-time*1.83,dot(p,across)+time*.17);
-        vec2 windUV=vec2(dot(p,air.xy)-time*.97,dot(p,windAcross)+time*.22);
-        vec2 rough=texture2D(rippleNormals,waveUV*vec2(.095,.148)).rg*2.-1.;
-        vec2 fine=texture2D(rippleNormals,windUV*vec2(.274,.493)+vec2(.37,.19)).rg*2.-1.;
+        // Local wind controls strength while the texture moves in world space.
+        // Rotating its coordinates per pixel stretches ripples across gusts.
+        vec2 windUV=p*.25-windChopDrift+vec2(.37,.19);
+        float mipBias=mix(.10,1.25,smoothstep(15.,145.,distanceToEye));
+        vec2 rough=texture2D(rippleNormals,waveUV*vec2(.095,.148),mipBias).rg*2.-1.;
+        vec2 fine=texture2D(rippleNormals,windUV,mipBias).rg*2.-1.;
         float seaDetail=smoothstep(.025,.79,sea)*(1.-smoothstep(53.,185.,distanceToEye));
         float windDetail=smoothstep(.05,7.,air.z)*(1.-smoothstep(23.,112.,distanceToEye));
         vec3 a=waveBlend<1.?coastExposure(waveExposureFrom,p):vec3(1.);
@@ -3383,7 +3394,7 @@ class SailingScene {
         float longExposure=mix(mix(a.r,a.b,waveCoupled.x),mix(b.r,b.b,waveCoupled.y),waveBlend);
         float fetch=mix(a.g,b.g,waveBlend);
         return (waveFlow*rough.x+across*rough.y)*(.28*seaDetail*longExposure)
-          +(air.xy*fine.x+windAcross*fine.y)*(.23*windDetail*mix(.30,1.,fetch)*seaRipples);
+          +fine*(.23*windDetail*mix(.30,1.,fetch)*seaRipples);
       }
       float sunGlint(vec3 normal,vec3 eye,float roughness){
         vec3 halfVector=normalize(sunDir+eye);
@@ -3399,7 +3410,7 @@ class SailingScene {
       }
       void main(){
         float depth=seaDepth(vWorld.xz);
-        if(depth<-.24||maskHull(vWorld))discard;
+        if(maskHull(vWorld))discard;
         vec3 eye=normalize(cameraPosition-vWorld);
         float distanceToEye=length(cameraPosition-vWorld);
         float nearDetail=1.-smoothstep(16.,70.,distanceToEye);
@@ -3408,11 +3419,15 @@ class SailingScene {
         vec2 slope=vSlope*(1.-.74*smoothstep(90.,500.,distanceToEye));
         vec3 optical=normalize(vec3(-slope.x-small.x,1.,-slope.y-small.y));
 
-        vec2 drops=floor(vWorld.xz*.7),within=fract(vWorld.xz*.7)-.5;
-        float seed=hashWater(drops),age=fract(time*1.3+seed*7.);
-        vec2 fromDrop=within-(vec2(seed,hashWater(drops+31.7))-.5)*.32;
-        float radius=length(fromDrop), ring=sin((radius-age*.34)*75.)*exp(-abs(radius-age*.34)*32.)*(1.-age)*rain*nearDetail;
-        optical=normalize(optical+vec3(fromDrop.x,0.,fromDrop.y)*ring*.027/max(radius,.025));
+        if(rain>.004){
+          vec2 drops=floor(vWorld.xz*.7),within=fract(vWorld.xz*.7)-.5;
+          float seed=hashWater(drops),age=fract(time*1.3+seed*7.);
+          vec2 fromDrop=within-(vec2(seed,hashWater(drops+31.7))-.5)*.32;
+          float radius=length(fromDrop),distanceFromRing=radius-age*.34;
+          float phase=distanceFromRing*75.,pixelFilter=1.-smoothstep(.7,3.14,fwidth(phase));
+          float ring=sin(phase)*exp(-abs(distanceFromRing)*32.)*(1.-age)*rain*nearDetail*pixelFilter;
+          optical=normalize(optical+vec3(fromDrop.x,0.,fromDrop.y)*ring*.027/max(radius,.025));
+        }
 
         vec3 reflected=reflect(-eye,optical);
         float elevation=max(0.,reflected.y);
@@ -3497,13 +3512,12 @@ class SailingScene {
     // Concentric LOD: sub-metre triangles around the hull, coarser far offshore.
     // The previous 7m grid could visibly disagree with the analytic hull waves.
     const T=this.T,radii=[];
-    for(let r=.33;r<18;r+=.33)radii.push(r);
-    for(let r=18;r<48;r+=Math.min(1.2,.42+(r-18)*.035))radii.push(r);
-    for(let r=48;r<104;r+=Math.min(3,1.25+(r-48)*.052))radii.push(r);
-    for(let r=104;r<=205;r+=6)radii.push(r);
-    for(let r=215;r<=420;r+=14)radii.push(r);
-    radii.push(448,482,530,590,670,780,920,1100,1380,1800,2600,3800,6000);
-    const n=256,vertices=[0,0,0],spacing=[radii[0],radii[0]],indices=[];
+    for(let r=.33;r<6000;){
+      radii.push(r);
+      r+=.33+.033*Math.max(0,r-14)+.038*Math.max(0,r-75)+.13*Math.max(0,r-380);
+    }
+    radii.push(6000);
+    const n=192,vertices=[0,0,0],spacing=[radii[0],radii[0]],indices=[];
     for(const [i,r] of radii.entries()){
       const previous=radii[i-1]||0,next=radii[i+1]??r;
       const radialStep=(next-previous)*.54,tangentStep=r*TAU/n;
@@ -3605,14 +3619,68 @@ class SailingScene {
     }
     const hedgeMesh=new T.InstancedMesh(new T.SphereGeometry(1,5,4),this.mat('#536f43',{roughness:1}),hedges.length),hm=new T.Matrix4(),hp=this.V(),hs=this.V(),hq=new T.Quaternion();
     hedges.forEach((q,i)=>{hp.set(q.x,q.h+.75,-q.y);hs.set(4,1.1,1.4);hm.compose(hp,hq,hs);hedgeMesh.setMatrixAt(i,hm);});this.coast.add(hedgeMesh);
-    this.shoreFoamSamples=[];const shorePositions=[],shoreAlpha=[];
-    for(const island of W.ISLANDS)for(let i=0;i<240;i++){
-      const a=i/240*TAU,b=(i+.64)/240*TAU,qa=W.shorePoint(island,a,1.6),qb=W.shorePoint(island,b,1.6),phase=(i*2.399+island.phase)%TAU;
-      this.shoreFoamSamples.push({a:qa,b:qb,phase});shorePositions.push(qa.x,.05,-qa.y,qb.x,.05,-qb.y);shoreAlpha.push(.2,.2);
+    this.buildShoreFoam(W.ISLANDS);
+  }
+  buildShoreFoam(islands){
+    const T=this.T,tiles=new Map(),tileSize=220;
+    this.shoreFoam=new T.Group();
+    this.shoreFoam.name='Fixed breaking shoreline';
+    this.coast.add(this.shoreFoam);
+    for(const island of islands){
+      const coast=island.chartCoast?[...island.chartCoast].reverse():[...island.points,island.points[0]];
+      for(let i=1;i<coast.length;i++){
+        const a=coast[i-1],b=coast[i],dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy);
+        if(length<.03)continue;
+        const count=Math.ceil(length/7),ox=dy/length*1.4,oy=-dx/length*1.4;
+        for(let j=0;j<count;j++){
+          const from=(j+.12)/count,to=(j+.75)/count;
+          const x=a.x+dx*from+ox,y=a.y+dy*from+oy;
+          const column=Math.floor(x/tileSize),row=Math.floor(y/tileSize),key=column+':'+row;
+          let tile=tiles.get(key);
+          if(!tile){
+            tile={x:(column+.5)*tileSize,y:(row+.5)*tileSize,positions:[],variation:[]};
+            tiles.set(key,tile);
+          }
+          tile.positions.push(x,0,-y,a.x+dx*to+ox,0,-(a.y+dy*to+oy));
+          const breakup=.30+.70*(.5+.5*Math.sin(x*.63+y*.37))**2;
+          tile.variation.push(breakup,breakup);
+        }
+      }
     }
-    const foamGeometry=new T.BufferGeometry();foamGeometry.setAttribute('position',new T.Float32BufferAttribute(shorePositions,3));foamGeometry.setAttribute('alpha',new T.Float32BufferAttribute(shoreAlpha,1));
-    this.shoreFoam=new T.LineSegments(foamGeometry,new T.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{density:{value:.00013}},vertexShader:'attribute float alpha;varying float a;varying float distanceToEye;void main(){vec4 w=modelMatrix*vec4(position,1.);a=alpha;distanceToEye=length(cameraPosition-w.xyz);gl_Position=projectionMatrix*viewMatrix*w;}',fragmentShader:'uniform float density;varying float a;varying float distanceToEye;void main(){gl_FragColor=vec4(.84,.91,.82,a*exp(-density*density*distanceToEye*distanceToEye));}'}));this.shoreFoam.name='Fixed breaking shoreline';this.shoreFoam.frustumCulled=false;this.coast.add(this.shoreFoam);
-
+    const material=new T.ShaderMaterial({
+      uniforms:this.waterUniforms,transparent:true,depthWrite:false,
+      vertexShader:`uniform float time,sea;uniform vec2 waveFlow;attribute float variation;varying float foamAlpha;
+        ${this.waveShader}
+        void main(){
+          vec4 p=modelMatrix*vec4(position,1.);
+          float distanceToEye=distance(cameraPosition,p.xyz);
+          vec4 surface=wave(p.xz);
+          p.y=surface.x+.045;
+          float rising=-dot(surface.yz,waveFlow);
+          foamAlpha=variation*smoothstep(.008,.065,rising)*(1.-smoothstep(85.,290.,distanceToEye));
+          gl_Position=projectionMatrix*viewMatrix*p;
+        }`,
+      fragmentShader:`varying float foamAlpha;
+        void main(){gl_FragColor=vec4(.80,.88,.81,foamAlpha*.58);
+          #include <colorspace_fragment>
+        }`
+    });
+    this.shoreFoamTiles=[];
+    for(const tile of tiles.values()){
+      const geometry=new T.BufferGeometry();
+      geometry.setAttribute('position',new T.Float32BufferAttribute(tile.positions,3));
+      geometry.setAttribute('variation',new T.Float32BufferAttribute(tile.variation,1));
+      geometry.computeBoundingSphere();geometry.boundingSphere.radius+=1;
+      const mesh=new T.LineSegments(geometry,material);
+      mesh.renderOrder=2;mesh.visible=false;this.shoreFoam.add(mesh);
+      this.shoreFoamTiles.push({x:tile.x,y:tile.y,mesh});
+    }
+  }
+  updateShoreFoam(){
+    const {x,z}=this.camera.position,origin=this.shoreFoamEye;
+    if(origin&&Math.hypot(x-origin.x,z-origin.z)<18)return;
+    this.shoreFoamEye={x,z};
+    for(const tile of this.shoreFoamTiles)tile.mesh.visible=(tile.x-x)**2+(tile.y+z)**2<475**2;
   }
   buildShoreDetails(){
     const T=this.T,W=global.SailingWorld;this.moored=[];this.landmarkNodes=[];this.shoreWindowMaterial=this.mat('#d4e2de',{emissive:'#f2b875',emissiveIntensity:.05,roughness:.28});
@@ -3699,21 +3767,9 @@ class SailingScene {
     this.materials.white.envMapIntensity=.18+.24*photoMix;
     this.materials.metal.envMapIntensity=.32+.70*photoMix;if(this.deckMaterial)this.deckMaterial.roughness=(this.isFoiler?.38:.72)-.2*a.rain;
     this.shoreWindowMaterial.emissiveIntensity=.02+.7*a.sunWarmth+.04*a.clouds;this.lighthouseLamp.material.emissiveIntensity=.22+1.5*a.sunWarmth+a.fog*(.3+.7*Math.pow(Math.max(0,Math.sin(s.time*1.6)),6));
-    if(this.shoreFoam&&s.time!==(this.lastShoreFoamTime??-1)){
-      const p=this.shoreFoam.geometry.attributes.position.array,a=this.shoreFoam.geometry.attributes.alpha.array;this.shoreFoam.material.uniforms.density.value=this.scene.fog.density;
-      for(let i=0;i<this.shoreFoamSamples.length;i++){
-        const q=this.shoreFoamSamples[i];
-        const first=this.P.waveAt(q.a.x,q.a.y,s.time,env);
-        const second=this.P.waveAt(q.b.x,q.b.y,s.time,env);
-        const rising=(first.velocity+second.velocity)*.5;
-        const broken=.32+.68*Math.pow(.5+.5*Math.sin(q.phase),2);
-        const strength=clamp((rising-.025)*1.5,0,.6)*broken;
-        p[i*6+1]=first.height+.04;p[i*6+4]=second.height+.04;
-        a[i*2]=a[i*2+1]=strength;
-      }
-      this.shoreFoam.geometry.attributes.position.needsUpdate=true;this.shoreFoam.geometry.attributes.alpha.needsUpdate=true;this.lastShoreFoamTime=s.time;
+    for(const b of this.moored){
+      if((b.x-s.x)**2+(b.z+s.y)**2<460**2)b.group.position.y=this.P.waveAt(b.x,-b.z,s.time,env).height+.1;
     }
-    for(const b of this.moored)b.group.position.y=this.P.waveAt(b.x+this.coast.position.x,-b.z-this.coast.position.z,s.time,env).height+.1;
     if(this.farCoast){this.farCoast.visible=!!this.isFoiler;for(const o of this.farCoast.children){o.material.opacity=.20*(1-a.fog)*Math.max(.18,1-a.rain*.65);o.material.color.copy(this.scene.fog.color).lerp(new this.T.Color('#688d8c'),.38);}}
     const p=this.birds.geometry.attributes.position.array;let k=0;
     for(let i=0;i<8;i++){const a0=s.time*(.045+i*.002)+i*1.7,x=this.birdAnchor.x+Math.cos(a0)*135,y=this.birdAnchor.height+Math.sin(a0*2+i)*4,z=-this.birdAnchor.y+Math.sin(a0)*75,flap=Math.sin(s.time*4.4+i*2)*.44;const dx=-Math.sin(a0),dz=Math.cos(a0),rx=dz,rz=-dx;
@@ -3947,6 +4003,25 @@ class SailingScene {
     }return false;
   }
   foilKeys(s){return global.FoilingPhysics?.foilKeys?.(s)||(this.isCat?['port','starboard','rudderPort','rudderStarboard']:['port','starboard','rudder']);}
+  disposeBoat(){
+    const root=this.boatRoot;
+    if(!root)return;
+    this.scene.remove(root);
+    this.hullWater.forget(this);
+    const geometries=new Set(),materials=new Set(),textures=new Set();
+    root.traverse(node=>{
+      node.skeleton?.dispose();
+      if(node.geometry)geometries.add(node.geometry);
+      for(const material of [].concat(node.material||[])){
+        materials.add(material);
+        for(const key of ['map','bumpMap','normalMap'])if(material[key])textures.add(material[key]);
+      }
+    });
+    for(const geometry of geometries)if(!geometry.userData.sharedGraphics)geometry.dispose();
+    for(const texture of textures)if(!texture.userData.sharedGraphics)texture.dispose();
+    for(const material of materials)material.dispose();
+    this.boatRoot=null;
+  }
   buildBoat(id='laser'){
     const T=this.T,m=this.model=this.modelFor(id),c=this.cockpitFor(m);
     // Laser's moulded well tapers towards the mast, unlike the rounded
@@ -3954,14 +4029,16 @@ class SailingScene {
     // existing physical cockpit and retain the same floor and deck heights.
     const cockpitPath=(x0,x1,z0,z1,r)=>{if(m.id!=='laser')return this.roundedPath(x0,x1,z0,z1,r);const p=new T.Path(),mid=(z0+z1)*.5,half=(z1-z0)*.5,front=half*.82,corner=Math.min(r,.09);p.moveTo(x0+corner,z0);p.lineTo(x1-corner,mid-front);p.quadraticCurveTo(x1,mid-front,x1,mid-front+corner);p.lineTo(x1,mid+front-corner);p.quadraticCurveTo(x1,mid+front,x1-corner,mid+front);p.lineTo(x0+corner,z1);p.quadraticCurveTo(x0,z1,x0,z1-corner);p.lineTo(x0,z0+corner);p.quadraticCurveTo(x0,z0,x0+corner,z0);p.closePath();return p;};
     this.boatId=m.id||id;this.isFoiler=m.kind==='foiler';this.isCat=m.hullType==='catamaran';this.isYacht=m.kind==='keelboat';this.mastX=m.mastX;
-    if(this.boatRoot){this.scene.remove(this.boatRoot);const geometries=new Set(),materials=new Set(),textures=new Set();this.boatRoot.traverse(o=>{if(o.skeleton)o.skeleton.dispose();if(o.geometry)geometries.add(o.geometry);for(const a of [].concat(o.material||[])){materials.add(a);for(const key of ['map','bumpMap','normalMap'])if(a[key])textures.add(a[key]);}});for(const x of geometries)if(!x.userData.sharedGraphics)x.dispose();for(const x of textures)if(!x.userData.sharedGraphics)x.dispose();for(const x of materials)x.dispose();}
+    this.disposeBoat();
     this.crewBalance=null;this.crewBuilt=0;
     this.daggerboard=this.keel=this.catHulls=this.catRudders=this.foilVisuals=this.rudderElevator=this.laserStripe=null;
     this.boatRoot=new T.Group();this.scene.add(this.boatRoot);this.heading=new T.Group();this.boatRoot.add(this.heading);this.hull=new T.Group();this.heading.add(this.hull);
     this.hull.rotation.order='ZXY';
-    // Land is one fixed world for every boat. Only camera framing follows scale.
-    this.coast.position.set(0,0,0);this.sky.scale.setScalar(5);this.camera.far=8000;this.camera.updateProjectionMatrix();
-    if(!this.isRemoteActor){const shadow=this.sun.shadow.camera,frustum=this.isCat?46:this.isFoiler?31:this.isYacht?21:8;shadow.left=-frustum;shadow.right=frustum;shadow.top=this.isCat?46:this.isFoiler?34:this.isYacht?23:9;shadow.bottom=-frustum;shadow.updateProjectionMatrix();}
+    if(!this.isRemoteActor){
+      this.coast.position.set(0,0,0);this.sky.scale.setScalar(5);this.camera.far=8000;this.camera.updateProjectionMatrix();
+      const shadow=this.sun.shadow.camera,frustum=this.isCat?46:this.isFoiler?31:this.isYacht?21:8;
+      shadow.left=-frustum;shadow.right=frustum;shadow.top=this.isCat?46:this.isFoiler?34:this.isYacht?23:9;shadow.bottom=-frustum;shadow.updateProjectionMatrix();
+    }
     const white=this.mat(this.isFoiler?'#15343d':'#f4f5ef',{roughness:this.isFoiler?.29:.33,metalness:this.isFoiler?.36:.08}),under=new T.MeshPhysicalMaterial({color:this.isFoiler?'#0b202b':m.racingDinghy?'#1c526e':'#dce9e8',roughness:m.racingDinghy?.27:.36,metalness:this.isFoiler?.28:m.racingDinghy?.18:0,clearcoat:.48,clearcoatRoughness:.24,side:T.DoubleSide}),black=this.mat('#263c43'),metal=this.mat('#becbd1',{metalness:.72,roughness:.25}),dark=this.mat('#30434a'),orange=this.mat('#ed663f');
     this.materials={white,black,metal,dark,orange};
     const sections=m.hullSections,sx=m.length/4.23,sz=m.beam/1.37,deck=m.deckY;
@@ -5167,8 +5244,13 @@ class SailingScene {
   update(s,env,course,dt,options={}){
     const modelChanged=(s.boatId||'laser')!==this.boatId;if(modelChanged)this.buildBoat(s.boatId||'laser');
     dt=clamp(dt||1/60,0,.1);env={...env,waveCurrent:s.seaState??env.waveCurrent??env.waves,waveCurrentRate:s.seaStateRate||0,waveProfile:s.waveProfile};const reset=modelChanged||this.lastTime<0||s.time<this.lastTime-.02||Math.hypot((this.lastX??s.x)-s.x,(this.lastY??s.y)-s.y)>80;
+    const waveDt=reset?0:Math.max(0,s.time-this.lastTime);
     this.lastTime=s.time;this.lastX=s.x;this.lastY=s.y;
-    const q=options.quality||'high';if(q!==this.quality){this.quality=q;this.renderer.setPixelRatio(q==='low'?1:Math.min(global.devicePixelRatio||1,1.75));this.renderer.shadowMap.enabled=q!=='low';this.resize();}
+    const quality=options.quality||'high',baseRatio=Math.min(global.devicePixelRatio||1,quality==='low'?1:1.75);
+    const ratio=baseRatio*(options.renderScale??(quality==='low'?.78:1));
+    this.quality=quality;
+    this.renderer.shadowMap.enabled=quality!=='low';
+    if(Math.abs(this.renderer.getPixelRatio()-ratio)>.001)this.renderer.setPixelRatio(ratio);
     this.water.position.x=s.x;this.water.position.z=-s.y;
     const wp=s.waveProfile,to=wp?.to||this.P.waveProfileFor(env),from=wp?.from||to;
     const shelter=global.SailingShelter,wind=global.SailingWind,uniforms=this.waterUniforms;
@@ -5191,8 +5273,7 @@ class SailingScene {
     if(enabled){
       const waveTexture=p=>{
         const f=this.P.waveExposureField(p);
-        const key='wave:'+shelter.waveDirection(p.angle).toFixed(4)+':'+shelter.waveDirection(p.windAngle??p.angle).toFixed(4);
-        return textureFor(key,f,f.size,f.size);
+        return textureFor(f.data,f,f.size,f.size);
       };
       uniforms.waveExposureFrom.value=waveTexture(from);
       uniforms.waveExposureTo.value=waveTexture(to);
@@ -5211,9 +5292,13 @@ class SailingScene {
     uniforms.waveCoupled.value.set(Number(!!from.coupled),Number(!!to.coupled));
     const opticalBearing=shelter.waveDirection(from.angle+this.P.wrap(to.angle-from.angle)*uniforms.waveBlend.value)*Math.PI/180;
     uniforms.waveFlow.value.set(-Math.sin(opticalBearing),Math.cos(opticalBearing));
+    const windBearing=(env.direction??0)*Math.PI/180,drift=uniforms.windChopDrift.value;
+    const driftStep=waveDt*(.12+.016*(env.speed??5));
+    if(reset)drift.set(0,0);
+    drift.set((drift.x-Math.sin(windBearing)*driftStep)%1,(drift.y+Math.cos(windBearing)*driftStep)%1);
     this.waterUniforms.windWaveScale.value=this.P.windWaveAt(s.time,wp,env).scale;
     this.waterUniforms.time.value=s.time;this.waterUniforms.sea.value=env.waveCurrent??env.waves??.4;this.waterUniforms.windSpeed.value=env.speed??5;this.waterUniforms.windDirection.value=env.direction??0;this.waterUniforms.gustStrength.value=env.gusts??.2;
-    this.updateAtmosphere(s,env);this.updateBoat(s,env,dt);this.updateEffects(s,env,dt,reset);this.surfaceFoam.update(s,env,reset);this.updateWaterSamples(s,env);this.updateRain(s,env);this.updateCamera(s,dt,options.cameraMode||0,reset,env);this.updateWindStrokes(s,env,reset,options.windArrows!==false);this.updateMarks(s,env,course||{marks:[]},options);
+    this.updateAtmosphere(s,env);this.updateBoat(s,env,dt);this.updateEffects(s,env,dt,reset);this.surfaceFoam.update(s,env,reset);this.updateWaterSamples(s,env);this.updateRain(s,env);this.updateCamera(s,dt,options.cameraMode||0,reset,env);this.updateShoreFoam();this.updateWindStrokes(s,env,reset,options.windArrows!==false);this.updateMarks(s,env,course||{marks:[]},options);
     this.foamPoints.material.uniforms.pointScale.value=this.renderer.domElement.height/(2*Math.tan(this.camera.fov*Math.PI/360));
     this.hullWater.publish(s,this.camera);this.hullWater.reflect(s,env);
     this.renderer.render(this.scene,this.camera);
@@ -5272,7 +5357,8 @@ if(dinghyTrial)Object.assign(env,{boatId:'laser',speed:6.2,direction:215,waveHei
 if(windTrial)Object.assign(env,{speed:8.5,direction:0,waveHeight:.35,gusts:0});
 let state,previous,world,course,raceMap,previewMap,editor,started=false,paused=false,modalPaused=false,mode='free',
   cameraMode=dinghyTrial?3:waveTrial?2:personal.camera,quality=personal.quality,effectiveQuality=quality==='auto'?'high':quality,debug=false;
-let acc=0,lastFrame=0,lastUi=0,frames=0,fps=60,fpsWindow=0,toastTime=0,slowTime=0,coursePauseAt=null;
+let acc=0,lastFrame=0,lastUi=0,frames=0,fps=60,fpsWindow=0,toastTime=0,coursePauseAt=null;
+let renderScale=quality==='low'?.78:1,slowWindows=0,steadyWindows=0;
 let mapSize=0;
 const savePreferences=()=>Settings.save(settingsStorage,{weather:localWeather,personal,mapHelpSeen:saved.mapHelpSeen});
 const liveEnv=(s=state)=>Settings.live(env,s);
@@ -5290,6 +5376,7 @@ const isYacht=(s=state)=>B.get(s?.boatId||env.boatId).kind==='keelboat';
 const assisted=()=>!!state?.helmAssist?.active;
 const FOIL_STATUS={waterborne:'I vandet',displacement:'Accelererer',accelerating:'Accelererer',lifting:'Løfter',takeoff:'Løfter',foiling:'Foiler',lowLift:'Lavt løft','low-lift':'Lavt løft',touchdown:'Vandkontakt',capsized:'Kæntret',recovering:'Opretning'};
 const keys=new Set();let touchSteer=0,touchCrew=0,helmPointer=null,sheetPointer=null,spinCommand=false,spinType='spinnaker',sheetTarget=.62,track=[],lastTrack=-1,lastRenderAt=0,crashed=false;
+let graphicsUnavailable=false;
 const copyAtmosphere=a=>a?Object.fromEntries(Object.entries(a).map(([k,v])=>[k,Array.isArray(v)?v.slice():v])):a;
 const copyTree=v=>Array.isArray(v)?v.map(copyTree):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,n])=>[k,copyTree(n)])):v;
 const blendTree=(a,b,t)=>typeof b==='number'&&typeof a==='number'?lerp(a,b,t):Array.isArray(b)?b.map((v,j)=>blendTree(a?.[j],v,t)):b&&typeof b==='object'?Object.fromEntries(Object.entries(b).map(([k,v])=>[k,blendTree(a?.[k],v,t)])):b;
@@ -5561,7 +5648,7 @@ function recover(){
   // Kept as a compatible internal entry point; recovery needs no click.
   synchronizeRecovery(performance.now());
 }
-function switchCamera(){cameraMode=(cameraMode+1)%CAMERAS.length;personal.camera=cameraMode;savePreferences();updateUI();}
+function switchCamera(){cameraMode=(cameraMode+1)%CAMERAS.length;lastRenderAt=0;personal.camera=cameraMode;savePreferences();updateUI();}
 function openSettings(view,opener){
   const personal=view==='personal';
   const switching=!$('settings').hidden&&$('weatherControls').hidden!==personal;
@@ -5766,7 +5853,11 @@ function bind(){
   layoutHud();
   $('autoBalance').onchange=()=>{env.autoBalance=$('autoBalance').checked;settingChanged();};$('helpers').onchange=()=>{env.helpers=$('helpers').checked;settingChanged();};
   $('ironsHelp').onchange=()=>{env.ironsHelp=$('ironsHelp').checked;settingChanged();};
-  $('quality').onchange=()=>{quality=$('quality').value;personal.quality=quality;slowTime=0;effectiveQuality=quality==='auto'?(fps<35?'low':'high'):quality;savePreferences();};
+  $('quality').onchange=()=>{
+    quality=personal.quality=$('quality').value;
+    effectiveQuality=quality==='low'?'low':'high';renderScale=quality==='low'?.78:1;
+    steadyWindows=slowWindows=0;lastRenderAt=0;savePreferences();
+  };
   $('windArrows').onchange=()=>{personal.windArrows=$('windArrows').value==='on';savePreferences();};
   // A slider sets the desired sheet length. Physical sheeting speed stays finite,
   // so even a quick touch drag cannot teleport the boom through its sheet stop.
@@ -5817,10 +5908,23 @@ function bind(){
   document.addEventListener('focusin',e=>{if(e.target.matches('input, select, textarea, [contenteditable=true]'))clearInput();});
   window.addEventListener('blur',()=>pauseForFocus('Sat på pause ved faneskift'));
   window.addEventListener('focus',resumeFromFocus);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseForFocus('Fanen er skjult');else resumeFromFocus();lastFrame=0;acc=0;});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseForFocus('Fanen er skjult');else resumeFromFocus();lastFrame=lastRenderAt=0;acc=0;});
   $('sea').addEventListener('pointerdown',()=>{audio.start();$('sea').focus({preventScroll:true});});
-  window.addEventListener('resize',()=>{world.resize();raceMap?.resize();previewMap?.resize();updateUI();});
-  $('sea').addEventListener('webglcontextlost',e=>{e.preventDefault();setPause(true);fatal(new Error('WebGL-forbindelsen blev afbrudt. Genindlæs filen.'));});
+  $('rudderValue').title='Faktisk rorvinkel. En positiv vinkel drejer stævnen mod styrbord ved fremadsejlads.';
+  window.addEventListener('resize',()=>{if(!graphicsUnavailable)world.resize();raceMap?.resize();previewMap?.resize();updateUI();});
+  $('sea').addEventListener('webglcontextlost',e=>{
+    e.preventDefault();
+    graphicsUnavailable=true;
+    clearInput();
+    $('graphicsStatus').hidden=false;
+  });
+  $('sea').addEventListener('webglcontextrestored',()=>{
+    world.resize();
+    world.hullWater.lastReflection=-Infinity;
+    lastRenderAt=0;
+    graphicsUnavailable=false;
+    $('graphicsStatus').hidden=true;
+  });
   $('debugButton').onclick=()=>{closePanel('details');debug=true;$('debug').hidden=false;};
   $('selfTest').onclick=()=>showTests('testResults');$('detailsTests').onclick=()=>showTests('detailsTestResults');
 }
@@ -5843,14 +5947,38 @@ function interpolate(alpha){
   else{s.crewJoints=B.crewPoseAt(s);s.crewCG=s.crewJoints.cg;s.crew=s.crewCG.z;}
   return s;
 }
+function updateRenderBudget(seconds,active){
+  if(!active||document.hidden){
+    frames=fpsWindow=steadyWindows=slowWindows=0;
+    return;
+  }
+  frames++;fpsWindow+=seconds;
+  if(fpsWindow<1)return;
+  fps=frames/fpsWindow;frames=fpsWindow=0;
+  if(quality!=='auto')return;
+  slowWindows=fps<48?slowWindows+1:0;
+  steadyWindows=fps>=57?steadyWindows+1:0;
+  if(slowWindows>=2){
+    if(renderScale>.75)renderScale=Math.max(.75,renderScale-.125);
+    else if(effectiveQuality==='high')effectiveQuality='low';
+    else renderScale=Math.max(.60,renderScale-.075);
+    slowWindows=0;
+  }else if(steadyWindows>=8){
+    if(renderScale<.75)renderScale=Math.min(.75,renderScale+.05);
+    else if(effectiveQuality==='low')effectiveQuality='high';
+    else renderScale=Math.min(1,renderScale+.05);
+    steadyWindows=0;
+  }
+}
 function frame(now){
-  if(crashed)return;requestAnimationFrame(frame);const elapsed=lastFrame?Math.min((now-lastFrame)/1000,.12):1/60;lastFrame=now;
-  synchronizeRecovery(now);
-  frames++;fpsWindow+=elapsed;if(fpsWindow>=1){fps=frames/fpsWindow;frames=0;fpsWindow=0;if(quality==='auto'){if(fps<32)slowTime++;else slowTime=Math.max(0,slowTime-1);if(slowTime>2)effectiveQuality='low';}}
+  if(crashed)return;requestAnimationFrame(frame);
+  const seconds=lastFrame?Math.max(0,(now-lastFrame)/1000):1/60,elapsed=Math.min(seconds,.12);
+  lastFrame=now;synchronizeRecovery(now);
   const multiplayer=!!globalThis.FriVindLobby?.fleet?.inWorld;
   if(multiplayer!==wasMultiplayer){wasMultiplayer=multiplayer;updatePanelPause();}
   if(receivedWeather&&!multiplayer){Object.assign(env,localWeather);receivedWeather=false;syncSettings();}
-  const active=started&&!paused&&!modalPaused&&(!course.finished||multiplayer)&&(!multiplayer||globalThis.FriVindLobby.fleet.ready());
+  const active=started&&!paused&&!modalPaused&&(!graphicsUnavailable||multiplayer)&&(!course.finished||multiplayer)&&(!multiplayer||globalThis.FriVindLobby.fleet.ready());
+  updateRenderBudget(seconds,active&&!graphicsUnavailable);
   // Freeze the solo race clock over a pause, including a hidden browser tab.
   const fleet=globalThis.FriVindLobby?.fleet;
   if(mode==='course'&&course.phase!=='preview'&&(!course.finished||(multiplayer&&fleet.host&&fleet.raceActive))){
@@ -5858,16 +5986,21 @@ function frame(now){
     if(active&&coursePauseAt!==null){const gap=Math.max(0,now-coursePauseAt),races=[course,...(multiplayer&&fleet.host?[...fleet.races.values()]:[])];for(const race of races){if(race.finished)continue;for(const k of ['gunAtMs','countdownAtMs','_clockMs','startedAtMs'])if(Number.isFinite(race[k]))race[k]+=gap;}coursePauseAt=null;}
   }
   if(active){acc+=elapsed;let steps=0;while(acc+1e-12>=P.CONFIG.fixedDt&&steps<7&&!paused){fixedStep(now-(acc-P.CONFIG.fixedDt)*1000);acc=Math.max(0,acc-P.CONFIG.fixedDt);steps++;}if(steps>=7)acc=Math.min(acc,P.CONFIG.fixedDt);}else acc=0;
-  if(active&&(!multiplayer||globalThis.FriVindLobby.fleet.host))raceEvents(course.advanceClock?.(now,state));updateRaceUI();
-  const render=active?interpolate(clamp(acc/P.CONFIG.fixedDt,0,1)):{...state};
-  if(multiplayer&&!fleet.host){const decay=Math.exp(-elapsed/.20);networkView.x*=decay;networkView.y*=decay;networkView.theta*=decay;render.x+=networkView.x;render.y+=networkView.y;render.theta+=networkView.theta;}
-  // Low graphics spends less time rendering, but still processes every RAF,
-  // fixed physics step and network input above at the same simulation rate.
-  const renderDue=effectiveQuality!=='low'||!lastRenderAt||now-lastRenderAt>=45;
+  if(active&&(!multiplayer||fleet.host))raceEvents(course.advanceClock?.(now,state));
+  if(multiplayer&&!fleet.host){
+    const decay=Math.exp(-elapsed/.20);networkView.x*=decay;networkView.y*=decay;networkView.theta*=decay;
+  }
+  // Graphics quality changes drawing work, not camera cadence or input.
+  const renderDue=!graphicsUnavailable&&(active||!lastRenderAt||now-lastRenderAt>=85);
   if(renderDue){const renderDt=lastRenderAt?Math.min(.12,(now-lastRenderAt)/1000):elapsed;lastRenderAt=now;
-    globalThis.FriVindLobby?.render(renderDt);world.update(render,liveEnv(),course,renderDt,{cameraMode,quality:effectiveQuality,helpers:env.helpers,windArrows:personal.windArrows,paused:!active});
-    if(raceMap)raceMap.remoteBoats=globalThis.FriVindLobby?.fleet?.mapBoats()||[];
-    if(started)raceMap?.update(render,liveEnv(),course,track,renderDt);
+    const render=active?interpolate(clamp(acc/P.CONFIG.fixedDt,0,1)):{...state};
+    if(multiplayer&&!fleet.host){render.x+=networkView.x;render.y+=networkView.y;render.theta+=networkView.theta;}
+    const weather=liveEnv();
+    globalThis.FriVindLobby?.render(renderDt);world.update(render,weather,course,renderDt,{cameraMode,quality:effectiveQuality,renderScale,helpers:env.helpers,windArrows:personal.windArrows,paused:!active});
+    if(started&&raceMap&&!$('courseCard').hidden){
+      raceMap.remoteBoats=fleet?.mapBoats()||[];
+      raceMap.update(render,weather,course,track,renderDt);
+    }
     if(!$('racePreview').hidden&&previewMap?.course)previewMap.update(previewMap.state,previewMap.env,previewMap.course,[],renderDt);
   }
   audio.update(state,active);
@@ -5878,27 +6011,36 @@ function frame(now){
 /* Fast feedback is independent of the slower compass/minimap redraw. It shows
  * raw desired input separately from the actual latest physical actuator state.
  * No extra input smoothing or rendering timer delays the keys/angle/trim. */
+function setText(element,value){
+  if(element.textContent!==value)element.textContent=value;
+}
 function updateLiveControls(){
   if(!state)return;
   const left=keys.has('ArrowLeft')||keys.has('KeyA')||touchSteer<-.02,right=keys.has('ArrowRight')||keys.has('KeyD')||touchSteer>.02;
   const up=keys.has('ArrowUp')||keys.has('KeyW'),down=keys.has('ArrowDown')||keys.has('KeyS');
   for(const [id,on] of [['steerLeftKey',left],['steerRightKey',right],['trimInKey',up],['trimOutKey',down]])$(id).classList.toggle('input-active',on);
-  $('helmIntent').textContent=left===right?(Math.abs(state.omega)>.7*DEG?'Bremser drejning':'Ingen drejning'):left?'Mod bagbord':'Mod styrbord';
-  const r=state.rudder/DEG,c=P.configFor(state);$('rudderValue').textContent=(r<-.005?'−':r>.005?'+':'')+fmt(Math.abs(r)).replace('.',',')+'°';
-  $('rudderValue').title='Faktisk rorvinkel. Positiv = rorpinden mod bagbord; ved fremadsejlads drejer stævnen mod styrbord. Ved bakning kompenserer styringen.';
-  $('rudderDot').style.left=(50+clamp(state.rudder/c.rudderMax,-1,1)*48)+'%';
-  $('downwindControls').hidden=!started||state.boatId!=='yacht';
+  setText($('helmIntent'),left===right?(Math.abs(state.omega)>.7*DEG?'Bremser drejning':'Ingen drejning'):left?'Mod bagbord':'Mod styrbord');
+  const r=state.rudder/DEG,c=P.configFor(state);
+  setText($('rudderValue'),(r<-.005?'−':r>.005?'+':'')+fmt(Math.abs(r)).replace('.',',')+'°');
+  $('rudderDot').style.left=(50+clamp(state.rudder/c.rudderMax,-1,1)*48).toFixed(2)+'%';
+  setText($('sheetValue'),fmt(state.sheet*100).replace('.',',')+' %');
+  if(sheetPointer===null){
+    const slider=$('sheetControl'),value=String(sheetTarget*100);
+    if(slider.value!==value)slider.value=value;
+  }
+}
+function updateRigControls(){
+  const controls=$('downwindControls');
+  controls.hidden=!started||state.boatId!=='yacht';
   const sail=state.spinnaker;
-  for(const [id,type,name,courseHint] of [['spinnakerButton','spinnaker','spiler','Til dybt slør og læns'],['gennakerButton','code0','Code 0','Til halvvind og slør']]){
+  if(!controls.hidden)for(const [id,type,name,courseHint] of [['spinnakerButton','spinnaker','spiler','Til dybt slør og læns'],['gennakerButton','code0','Code 0','Til halvvind og slør']]){
     const button=$(id),selected=spinCommand&&spinType===type;
     const waiting=selected&&sail?.selected===type&&(sail.phase==='waiting'||sail.type!==type);
-    button.textContent=selected?(waiting?'Annullér '+name:'Tag '+name+' ned'):'Sæt '+name;
+    setText(button,selected?(waiting?'Annullér '+name:'Tag '+name+' ned'):'Sæt '+name);
     button.title=waiting&&sail.waitingFor?cruiserSailHint(sail.waitingFor,type):courseHint;
     button.setAttribute('aria-pressed',String(selected));
   }
-  $('sheetValue').textContent=fmt(state.sheet*100).replace('.',',')+' %';
-  if(sheetPointer===null)$('sheetControl').value=String(sheetTarget*100);
-  $('boomValue').textContent=fmt(Math.abs(state.boom)/DEG,1).replace('.',',')+'° · '+(Math.abs(state.boom)<DEG?'midt':state.boom>0?'styrbord':'bagbord');
+  setText($('boomValue'),fmt(Math.abs(state.boom)/DEG,1).replace('.',',')+'° · '+(Math.abs(state.boom)<DEG?'midt':state.boom>0?'styrbord':'bagbord'));
   updateSteeringDetails();
 }
 
@@ -6015,7 +6157,7 @@ function updateUI(){if(!state||!course)return;
   $('recoveryDescription').textContent=phase==='unload'?'Sejlet aflastes, og rotationen bremses.':phase==='stabilize'?'Skrog, besætning og sejl bringes roligt tilbage til sejlads.':'Besætningen får hjælp til at rejse båden. Du behøver ikke trykke på noget.';
   $('recoveryProgress').hidden=!state.recovering;$('recoveryLabel').hidden=!state.recovering;$('recoveryProgress').value=clamp(state.recovery||0,0,1);$('recoveryLabel').textContent=fmt(rescue?.elapsed||0,1).replace('.',',')+' s · fuld kontrol senest ved 5,0 s';
   $('speed').textContent=fmt(i.waterKnots);$('speed').title='Fart over grunden '+fmt(i.knots)+' knob';$('heading').textContent=bearing(i.heading);$('heel').textContent=fmt(Math.abs(state.heel)/DEG,0)+'° '+(state.heel>=0?'SB':'BB');$('heelDot').style.left=(50+clamp(state.heel/DEG,-45,45)/45*48)+'%';$('heelDot').style.background=Math.abs(state.heel)>25*DEG?'var(--orange)':'var(--teal)';
-  updateLiveControls();$('crewControl').hidden=foiler||env.autoBalance||!started;
+  updateRigControls();$('crewControl').hidden=foiler||env.autoBalance||!started;
   $('vmgLabel').textContent=m?'VMG mod mærke':'Afdrift';$('vmg').textContent=m?fmt(i.vmg*1.943844)+' kn':ang(i.leeway);
   updateRaceUI();
   const c=coachText();$('coachText').textContent=c[0];$('coachSub').textContent=c[1];$('coach').classList.toggle('warn',c[2]);$('coach').classList.toggle('quiet',!c[2]&&!assisted()&&!state.recovering&&!state.capsized);

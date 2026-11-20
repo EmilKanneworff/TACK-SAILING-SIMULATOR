@@ -2,13 +2,45 @@
 (() => {
 'use strict';
 const P=globalThis.SailPhysics,W=globalThis.SailingWeather,R=globalThis.SailingRecovery;
-const clone=x=>JSON.parse(JSON.stringify(x));
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+function blendFields(from,to,fraction,keys){
+ if(!to)return to;
+ const result={...to};
+ for(const key of keys)if(Number.isFinite(from?.[key])&&Number.isFinite(to[key]))result[key]=from[key]+(to[key]-from[key])*fraction;
+ return result;
+}
+function visualPose(view,now){
+ const {from,to,at,duration}=view,t=clamp((now-at)/duration,0,1);
+ if(from===to||t===1)return to;
+ const draw=blendFields(from,to,t,[
+  'x','y','vx','vy','omega','heave','heaveVelocity','heel','heelRate','pitch','pitchRate',
+  'rudder','boom','boomRate','crewPoseBlend','crewSideBlend','crewPoseVelocity','crewSideVelocity','crewDuck','crewSwim'
+ ]);
+ if(Number.isFinite(from.theta)&&Number.isFinite(to.theta))draw.theta=from.theta+P.wrap(to.theta-from.theta)*t;
+ draw.rig=blendFields(from.rig,to.rig,t,['sideBlend','camber','twist','fill','reef','sheetEase']);
+ draw.wing=blendFields(from.wing,to.wing,t,['angle','flap','twist','jibAngle','load']);
+ draw.spinnaker=blendFields(from.spinnaker,to.spinnaker,t,['hoist','fill','sideBlend']);
+ if(to.foils)draw.foils=Object.fromEntries(Object.entries(to.foils).map(([key,foil])=>[key,
+  blendFields(from.foils?.[key],foil,t,['arm','armRate','flap','flapInner','flapOuter','deployment'])]));
+ if(to.sail){
+  draw.sail=blendFields(from.sail,to.sail,t,['load','luff','stall','twist','camber','fill']);
+  for(const key of ['main','jib']){
+   const part=to.sail[key],old=from.sail?.[key];
+   if(!part)continue;
+   draw.sail[key]=blendFields(old,part,t,['angle','alpha','load','luff','stall','twist','camber','fill']);
+   if(old?.sections&&part.sections)draw.sail[key].sections=part.sections.map((section,i)=>
+    blendFields(old.sections[i],section,t,['alpha','luff','stall','airForward','airRight','localAirSpeed']));
+  }
+ }
+ draw.crewJoints=undefined;
+ return draw;
+}
 class Fleet {
  constructor(bridge,send){this.bridge=bridge;this.send=send;this.players=[];this.boats=new Map();this.actors=new Map();this.controls=new Map();this.views=new Map();this.seq=0;this.inputSeq=0;this.lastSend=0;this.lastInput=0;this.session=null;this.id=null;this.host=false;this.inWorld=false;this.synced=false;this.lastSnapshot=-1;this.pending=[];this.acks={};this.races=new Map();this.raceSerial=0;}
  joined(room,players){const resuming=this.session===room.session&&this.inWorld;if(this.session!==room.session)this.clear();Object.assign(this,{session:room.session,id:room.id,host:room.host});if(resuming&&!room.host){this.synced=false;this.pending=[];}this.roster(players);}
- roster(players){this.players=players||[];if(this.host&&this.inWorld)this.ensure();let ids=new Set(this.players.map(p=>p.id));for(const [id] of this.boats)if(!ids.has(id)){this.boats.delete(id);this.races.delete(id);this.controls.delete(id);delete this.acks[id];}for(const [id,a] of this.actors)if(!ids.has(id)){a.scene.remove(a.boatRoot);this.actors.delete(id);}}
+ roster(players){this.players=players||[];if(this.host&&this.inWorld)this.ensure();let ids=new Set(this.players.map(p=>p.id));for(const [id] of this.boats)if(!ids.has(id)){this.boats.delete(id);this.races.delete(id);this.controls.delete(id);this.views.delete(id);delete this.acks[id];}for(const [id,a] of this.actors)if(!ids.has(id)){a.disposeBoat();this.actors.delete(id);}}
  enter(){if(!this.session)return;this.bridge.enter();this.inWorld=true;this.synced=this.host;if(this.host){this.ensure();this.broadcast();}}
- ensure(){let env=this.bridge.env(),base=this.bridge.state();for(const [i,p] of this.players.entries()){if(p.id===this.id)continue;let b=this.boats.get(p.id);if(!b||b.boatId!==p.boat){let s=P.createState({boatId:p.boat,x:b?.x??base.x+(i+1)*25,y:b?.y??base.y-(i+1)*25,time:base.time,vx:0,vy:0}, {...env,boatId:p.boat});const safe=R.safeLocation(s,globalThis.SailingBoats.get(p.boat),s.theta);s.x=safe.x;s.y=safe.y;s.seaState=base.seaState;s.waveProfile=clone(base.waveProfile);W.initialize(s,env);this.boats.set(p.id,s);}}}
+ ensure(){let env=this.bridge.env(),base=this.bridge.state();for(const [i,p] of this.players.entries()){if(p.id===this.id)continue;let b=this.boats.get(p.id);if(!b||b.boatId!==p.boat){let s=P.createState({boatId:p.boat,x:b?.x??base.x+(i+1)*25,y:b?.y??base.y-(i+1)*25,time:base.time,vx:0,vy:0}, {...env,boatId:p.boat});const safe=R.safeLocation(s,globalThis.SailingBoats.get(p.boat),s.theta);s.x=safe.x;s.y=safe.y;s.seaState=base.seaState;s.waveProfile=base.waveProfile;W.initialize(s,env);this.boats.set(p.id,s);}}}
  onMessage(m){if(!this.session||m.session!==this.session)return;
   if(m.type==='input'&&this.host){this.controls.set(m.id,{steer:m.steer,trim:m.trim,crew:m.crew??0,crewPose:m.crewPose,spinnaker:!!m.spinnaker,downwindType:m.downwindType||'spinnaker',trimFast:m.trimFast??true,steerDigital:m.steerDigital??true,seq:m.seq,received:performance.now()});}
   if(m.type==='disconnected'&&this.host)this.controls.delete(m.id);
@@ -18,7 +50,7 @@ class Fleet {
   if(m.type==='snapshot'&&!this.host&&m.seq>this.lastSnapshot&&m.state?.boats){this.lastSnapshot=m.seq;this.receive(m.state);}
  }
  step(control,now,dt){if(!this.session||!this.inWorld)return;
-  if(this.host){this.ensure();const env=this.bridge.env(),world=this.bridge.state(),previous=new Map();for(const [id,s] of this.boats){s.time=world.time-dt;s.waveProfile=clone(world.waveProfile);let c=this.controls.get(id);if(!c||now-c.received>700)c={steer:0,trim:0,crewPose:s.crewPose||2,spinnaker:!!s.spinnaker?.requested,downwindType:s.spinnaker?.type||'spinnaker'};const localEnv={...env,boatId:s.boatId,crewPose:c.crewPose};const prev={x:s.x,y:s.y,theta:s.theta,heel:s.heel,pitch:s.pitch,recovering:s.recovering,capsized:s.capsized};previous.set(id,prev);R.update(s,localEnv,now);P.step(s,c,localEnv,dt);W.step(s,localEnv,dt);s.seaState=world.seaState;R.update(s,localEnv,now);if(c.seq!==undefined)this.acks[id]=c.seq;}
+  if(this.host){this.ensure();const env=this.bridge.env(),world=this.bridge.state(),previous=new Map();for(const [id,s] of this.boats){s.time=world.time-dt;s.waveProfile=world.waveProfile;let c=this.controls.get(id);if(!c||now-c.received>700)c={steer:0,trim:0,crewPose:s.crewPose||2,spinnaker:!!s.spinnaker?.requested,downwindType:s.spinnaker?.type||'spinnaker'};const localEnv={...env,boatId:s.boatId,crewPose:c.crewPose};const prev={x:s.x,y:s.y,theta:s.theta,heel:s.heel,pitch:s.pitch,recovering:s.recovering,capsized:s.capsized};previous.set(id,prev);R.update(s,localEnv,now);P.step(s,c,localEnv,dt);W.step(s,localEnv,dt);s.seaState=world.seaState;R.update(s,localEnv,now);if(c.seq!==undefined)this.acks[id]=c.seq;}
    const contact=globalThis.FriVindCollisions.resolve([{id:this.id,state:world},...[...this.boats].map(([id,state])=>({id,state}))],globalThis.SailingBoats);this.lastContacts=contact.pairs;
    for(const [id,s] of this.boats){const prev=previous.get(id),race=this.races.get(id);if(race)race.update(prev,s,dt,{nowMs:now,discontinuity:!!(contact.touched.has(id)||prev.recovering||s.recovering||prev.capsized||s.capsized)});}
    if(this.raceActive&&this.bridge.course().finished&&[...this.races.values()].every(r=>r.finished)){this.raceActive=false;this.send({type:'phase',phase:'free'});}if(now-this.lastSend>=70){this.lastSend=now;this.broadcast();}return contact.touched.has(this.id);}
@@ -53,7 +85,7 @@ class Fleet {
    const spawn=grid.get(id)||course.model.spawn;
    const state=P.createState({...spawn,boatId:old.boatId,time:world.time,crewPose:old.crewPose},env);
    const safe=R.safeLocation(state,SailingBoats.get(old.boatId),state.theta);
-   state.x=safe.x;state.y=safe.y;state.seaState=world.seaState;state.waveProfile=clone(world.waveProfile);
+   state.x=safe.x;state.y=safe.y;state.seaState=world.seaState;state.waveProfile=world.waveProfile;
    W.initialize(state,env);
    this.boats.set(id,state);
    const race=new SailingCourse(env,'course',course.type,course.model);
@@ -77,25 +109,58 @@ class Fleet {
    this.broadcast();
   },Math.max(0,70-(performance.now()-this.lastSend)));
  }
- receive(packet){this.bridge.wait(false);this.bridge.weather(packet.env);this.bridge.results(packet.results||[]);const ownRace=packet.races?.[this.id],hostId=this.players.find(p=>p.host)?.id,allRaces=Object.values(packet.races||{}).filter(Boolean),hostRace=packet.races?.[hostId],sharedRace=hostRace&&!hostRace.finished?hostRace:allRaces.find(r=>!r.finished)||hostRace||allRaces[0];if(packet.mode==='free')this.bridge.free();else if(ownRace||sharedRace)this.bridge.race({...ownRace||sharedRace,spectating:!ownRace});const my=packet.boats[this.id];if(my&&this.inWorld){this.synced=true;const ack=packet.acks?.[this.id]??0;this.pending=this.pending.filter(p=>p.seq>ack);this.bridge.correct(my,this.pending);}for(const [id,s] of Object.entries(packet.boats)){if(id!==this.id){const old=this.boats.get(id);this.views.set(id,{from:old||s,to:s,at:performance.now()});this.boats.set(id,s);}}}
+ receive(packet){this.bridge.wait(false);this.bridge.weather(packet.env);this.bridge.results(packet.results||[]);const ownRace=packet.races?.[this.id],hostId=this.players.find(p=>p.host)?.id,allRaces=Object.values(packet.races||{}).filter(Boolean),hostRace=packet.races?.[hostId],sharedRace=hostRace&&!hostRace.finished?hostRace:allRaces.find(r=>!r.finished)||hostRace||allRaces[0];if(packet.mode==='free')this.bridge.free();else if(ownRace||sharedRace)this.bridge.race({...ownRace||sharedRace,spectating:!ownRace});const my=packet.boats[this.id];if(my&&this.inWorld){this.synced=true;const ack=packet.acks?.[this.id]??0;this.pending=this.pending.filter(p=>p.seq>ack);this.bridge.correct(my,this.pending);}const now=performance.now();
+  for(const [id,s] of Object.entries(packet.boats)){
+   if(id===this.id||!this.players.some(player=>player.id===id))continue;
+   const view=this.views.get(id);
+   const previous=view?.to;
+   const interval=view?clamp(now-view.at,40,150):75;
+   const duration=view?view.duration*.7+interval*.3:75;
+   const jump=previous&&(previous.boatId!==s.boatId||Math.hypot(s.x-previous.x,s.y-previous.y)>Math.max(9,(s.speed||0)*interval*.004));
+   this.views.set(id,{from:view&&!jump?visualPose(view,now):s,to:s,at:now,duration});
+   this.boats.set(id,s);
+  }
+ }
  largestBoat(){const ids=this.players.map(p=>p.boat);return ['ac72','ac75','yacht','dinghy','laser'].find(id=>ids.includes(id))||this.bridge.state().boatId;}
  ready(){return !this.inWorld||this.host||this.synced;}
  mapBoats(){return [...this.boats].filter(([id])=>id!==this.id).map(([id,s])=>({...s,player:this.players.find(p=>p.id===id)}));}
- render(dt){if(!this.inWorld||!this.session)return;const scene=this.bridge.scene(),env=this.bridge.env();for(const [id,s] of this.boats){if(id===this.id)continue;let actor=this.actors.get(id);if(actor&&actor.boatId!==s.boatId){actor.scene.remove(actor.boatRoot);this.actors.delete(id);actor=null;}if(!actor){actor=Object.create(scene);actor.boatRoot=null;actor.boatId=null;actor.isRemoteActor=true;actor.configureWaterMask=()=>{};actor.updateWaterMask=()=>{};actor.buildBoat(s.boatId);const info=this.players.find(p=>p.id===id);const name=new THREE.Sprite(new THREE.SpriteMaterial({map:scene.makeLabel(info?.name||'Sejler',false,info?.color||'#ffffff'),transparent:true,depthTest:false,depthWrite:false}));name.position.set(0,scene.modelFor(s.boatId).mastHeight*.5+2,0);name.scale.set(5,2.2,1);actor.hull.add(name);this.actors.set(id,actor);}const v=this.views.get(id),world=this.bridge.state();let draw={...s,time:world.time,seaState:world.seaState,waveProfile:world.waveProfile};if(v){let t=Math.min(1,Math.max(0,(performance.now()-v.at)/90));for(const k of ['x','y','heave','heel','pitch','rudder','boom','boomRate','crewPoseBlend','crewSideBlend','crewPoseVelocity','crewSideVelocity','crewDuck','crewSwim'])if(Number.isFinite(v.from[k])&&Number.isFinite(s[k]))draw[k]=v.from[k]+(s[k]-v.from[k])*t;if(Number.isFinite(v.from.theta)&&Number.isFinite(s.theta))draw.theta=v.from.theta+P.wrap(s.theta-v.from.theta)*t;
-   // Keep visual cloth and articulated rigs between the same two snapshots as
-   // the hull. The authoritative/predicted physics state is never modified.
-   const blend=(a,b,keys)=>{if(!b)return b;const out={...b};for(const k of keys)if(Number.isFinite(a?.[k])&&Number.isFinite(b[k]))out[k]=a[k]+(b[k]-a[k])*t;return out;};
-   draw.rig=blend(v.from.rig,s.rig,['sideBlend','camber','twist','fill','reef','sheetEase']);draw.wing=blend(v.from.wing,s.wing,['angle','flap','twist','jibAngle','load']);draw.spinnaker=blend(v.from.spinnaker,s.spinnaker,['hoist','fill','sideBlend']);
-   if(s.sail){draw.sail=blend(v.from.sail,s.sail,['load','luff','stall','twist','camber','fill']);for(const part of ['main','jib'])if(s.sail[part]){draw.sail[part]=blend(v.from.sail?.[part],s.sail[part],['angle','alpha','load','luff','stall','twist','camber','fill']);const prev=v.from.sail?.[part]?.sections;if(prev&&s.sail[part].sections)draw.sail[part].sections=s.sail[part].sections.map((q,i)=>blend(prev[i],q,['alpha','luff','stall','airForward','airRight','localAirSpeed']));}}
-   // Rebuild conventional joints from the interpolated stance, rather than
-   // jumping to the last received joint coordinates while the hull blends.
-   draw.crewJoints=undefined;
+ render(dt){
+  if(!this.inWorld||!this.session)return;
+  const scene=this.bridge.scene(),env=this.bridge.env(),world=this.bridge.state(),now=performance.now();
+  for(const [id,s] of this.boats){
+   if(id===this.id)continue;
+   let actor=this.actors.get(id);
+   if(actor&&actor.boatId!==s.boatId){actor.disposeBoat();this.actors.delete(id);actor=null;}
+   if(!actor){
+    actor=Object.create(scene);actor.boatRoot=null;actor.boatId=null;actor.isRemoteActor=true;
+    actor.configureWaterMask=()=>{};actor.updateWaterMask=()=>{};
+    actor.buildBoat(s.boatId);
+    const info=this.players.find(p=>p.id===id);
+    const name=new THREE.Sprite(new THREE.SpriteMaterial({map:scene.makeLabel(info?.name||'Sejler',false,info?.color||'#ffffff'),transparent:true,depthWrite:false}));
+    name.position.set(0,scene.modelFor(s.boatId).mastHeight*.5+2,0);
+    name.scale.set(5,2.2,1);actor.nameplate=name;actor.hull.add(name);
+    this.actors.set(id,actor);
+   }
+   const view=this.views.get(id),pose=view?visualPose(view,now):s;
+   const draw={...pose,time:world.time,seaState:world.seaState,waveProfile:world.waveProfile};
+   const distance=Math.hypot(draw.x-scene.camera.position.x,-draw.y-scene.camera.position.z);
+   actor.hull.visible=distance<1850;
+   actor.nameplate.visible=distance<460;
+   actor.nameplate.material.opacity=clamp((460-distance)/150,0,1);
+   if(!actor.hull.visible)continue;
+   actor.crewDetail=distance<(scene.quality==='low'?34:96);
+   const detailInterval=scene.quality==='low'?(distance<37?65:140):distance<160?30:125;
+   if(!actor.lastDetailAt||now-actor.lastDetailAt>=detailInterval){
+    const detailDt=actor.lastDetailAt?Math.min(.2,(now-actor.lastDetailAt)*.001):dt;
+    actor.lastDetailAt=now;actor.updateBoat(draw,env,detailDt);
+   }else{
+    actor.boatRoot.position.set(draw.x,draw.heave,-draw.y);
+    actor.heading.rotation.y=draw.theta;actor.hull.rotation.set(draw.heel,0,draw.pitch||0,'ZXY');
+   }
+   scene.hullWater.remote(id,actor,draw,env,distance<(scene.quality==='low'?20:50));
   }
-  const distance=Math.hypot(draw.x-scene.camera.position.x,-draw.y-scene.camera.position.z);
-  actor.crewDetail=distance<(scene.quality==='low'?34:96);
-  const detailInterval=scene.quality==='low'?(distance<37?90:180):distance<160?33:160;if(!actor.lastDetailAt||performance.now()-actor.lastDetailAt>=detailInterval){actor.lastDetailAt=performance.now();actor.updateBoat(draw,env,dt);}else{actor.boatRoot.position.set(draw.x,draw.heave,-draw.y);actor.heading.rotation.y=draw.theta;actor.hull.rotation.set(draw.heel,0,draw.pitch||0,'ZXY');}
-  scene.hullWater.remote(id,actor,draw,env,distance<(scene.quality==='low'?20:50));}}
- clear(){clearTimeout(this.weatherCommit);this.weatherCommit=null;this.sentWeather=null;for(const a of this.actors.values())a.scene.remove(a.boatRoot);this.actors.clear();this.boats.clear();this.controls.clear();this.views.clear();this.pending=[];this.acks={};this.races.clear();this.raceActive=false;this.session=null;this.inWorld=false;this.synced=false;this.lastSnapshot=-1;}
+ }
+ clear(){clearTimeout(this.weatherCommit);this.weatherCommit=null;this.sentWeather=null;for(const a of this.actors.values())a.disposeBoat();this.actors.clear();this.boats.clear();this.controls.clear();this.views.clear();this.pending=[];this.acks={};this.races.clear();this.raceActive=false;this.session=null;this.inWorld=false;this.synced=false;this.lastSnapshot=-1;}
 }
 globalThis.FriVindFleet=Fleet;
 })();
