@@ -323,11 +323,12 @@ test('the Laser sails into coastal shelter and out while arrows advect with loca
  await page.waitForFunction(()=>SAILING_GAME);
  const observations=await page.evaluate(()=>{
   const {scene,env}=SAILING_GAME,P=SailPhysics,e={...env,sea:'calm',speed:7,direction:0,gusts:0};
-  const s=P.createState({boatId:'laser',x:-284,y:-418,theta:0,vx:4,vy:0,sheet:.36},e);
+  // Cross the wake of Dyreborg's headland on the georeferenced chart.
+  const s=P.createState({boatId:'laser',x:-2025,y:-3060,theta:0,vx:4,vy:0,sheet:.36},e);
   const points=[];
   for(let step=0;step<=2040;step++){
    P.step(s,{steer:0,trim:0,crewPose:2},e,1/60);
-   if(![0,1260,2040].includes(step))continue;
+   if(![0,1080,2040].includes(step))continue;
    scene.updateCamera(s,1/60,0,true,e);
    scene.updateWindStrokes(s,e,true);
    const index=scene.windStrokes.findIndex(arrow=>arrow.shown),arrow=scene.windStrokes[index],x=arrow.x,y=arrow.y,dt=.06;
@@ -356,7 +357,8 @@ test('wind arrows on the sheltered coast follow the strength and direction of gu
  const evidence=await page.evaluate(()=>{
   const {scene,env}=SAILING_GAME,P=SailPhysics;
   const weather={...env,speed:8.5,direction:0,gusts:.65,waveHeight:.24,shelter:true};
-  const s=P.createState({boatId:'laser',x:225,y:-72,theta:-105*P.DEG},weather);
+  // The camera sees both sheltered water east of Dyreborg and the open fjord.
+  const s=P.createState({boatId:'laser',x:-1220,y:-2274.4,theta:-20*P.DEG},weather);
   scene.updateCamera(s,1/60,0,true,weather);
   const {position,alpha}=scene.windStrokeMesh.geometry.attributes;
   let slowest=Infinity,fastest=0,angleShift=0,gustChange=0,maxDriftError=0,minAlignment=1,observations=0,minWater=Infinity;
