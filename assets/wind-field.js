@@ -9,7 +9,7 @@
   });
   const B=Object.freeze(g.ArchipelagoData?.fieldBounds??{minX:-1300,maxX:1300,minY:-1500,maxY:600});
   const width=1+(B.maxX-B.minX)/CONFIG.gridStep,height=1+(B.maxY-B.minY)/CONFIG.gridStep;
-  const DEG=Math.PI/180,cache=new Map();
+  const DEG=Math.PI/180,cache=new Map(),pending=new Map();
   const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
   const smooth=x=>{const n=clamp(x,0,1);return n*n*(3-2*n);};
   const mix=(a,b,t)=>a+(b-a)*t;
@@ -92,7 +92,7 @@
     });
   }
 
-  function build(direction){
+  function* build(direction){
     ground ||= groundRaster();
     const step=CONFIG.gridStep,rad=direction*DEG,dx=-Math.sin(rad),dy=-Math.cos(rad),cx=-dy,cy=dx;
     const corners=[[B.minX,B.minY],[B.minX,B.maxY],[B.maxX,B.minY],[B.maxX,B.maxY]];
@@ -123,6 +123,7 @@
         for(let n=1;n<=run;n++)breadth[k-n]=run*step;
         run=0;
       }
+      if(row%8===7)yield;
     }
     const retainTerrain=Math.exp(-step/CONFIG.terrainMemory);
     for(let col=0;col<cols;col++){
@@ -167,34 +168,74 @@
         scale[k]=hScale/maxHeightScale;
         eddy[k]=turbulence/CONFIG.maxDeficit;
       }
+      if(col%4===3)yield;
     }
 
     const data=new Uint8Array(width*height*4);
     const cells=[exposure,scale,eddy];
-    function read(a,u,v){
-      const row=Math.floor(u),col=Math.floor(v),k=row*cols+col;
-      return mix(mix(a[k],a[k+1],v-col),mix(a[k+cols],a[k+cols+1],v-col),u-row);
+    function read(a,k,along,across){
+      return mix(mix(a[k],a[k+1],across),mix(a[k+cols],a[k+cols+1],across),along);
     }
-    for(let j=0;j<height;j++)for(let i=0;i<width;i++){
-      const x=B.minX+i*step,y=B.minY+j*step,k=(j*width+i)*4;
-      const u=(x*dx+y*dy-startU)/step,v=(x*cx+y*cy-startV)/step;
-      const fade=smooth(Math.min(i,j,width-1-i,height-1-j)*step/CONFIG.edgeFade);
-      for(let channel=0;channel<3;channel++){
-        const spread=12.5/step,a=cells[channel],raw=.5*read(a,u,v)+.25*(read(a,u,v-spread)+read(a,u,v+spread));
-        data[k+channel]=Math.round(255*(channel===0?mix(1,raw,fade):channel===2?raw*fade:raw));
+    const spread=12.5/step;
+    for(let j=0;j<height;j++){
+      for(let i=0;i<width;i++){
+        const x=B.minX+i*step,y=B.minY+j*step,k=(j*width+i)*4;
+        const u=(x*dx+y*dy-startU)/step,v=(x*cx+y*cy-startV)/step;
+        const row=Math.floor(u),col=Math.floor(v),left=Math.floor(v-spread),right=Math.floor(v+spread);
+        const base=row*cols,along=u-row,across=v-col,leftMix=(v-spread)-left,rightMix=(v+spread)-right;
+        const fade=smooth(Math.min(i,j,width-1-i,height-1-j)*step/CONFIG.edgeFade);
+        for(let channel=0;channel<3;channel++){
+          const a=cells[channel],raw=.5*read(a,base+col,along,across)+
+            .25*(read(a,base+left,along,leftMix)+read(a,base+right,along,rightMix));
+          data[k+channel]=Math.round(255*(channel===0?mix(1,raw,fade):channel===2?raw*fade:raw));
+        }
+        data[k+3]=255;
       }
-      data[k+3]=255;
+      if(j%8===7)yield;
     }
     return {data,direction,width,height,bounds:B,shore};
   }
 
-  function grid(direction){
-    let result=cache.get(direction);
-    if(result)cache.delete(direction);
-    else result=build(direction);
+  function store(direction,result){
+    cache.delete(direction);
     cache.set(direction,result);
     if(cache.size>8)cache.delete(cache.keys().next().value);
     return result;
+  }
+
+  function grid(direction){
+    if(cache.has(direction))return store(direction,cache.get(direction));
+    const job=pending.get(direction)||build(direction);
+    pending.delete(direction);
+    let next;
+    do{next=job.next();}while(!next.done);
+    return store(direction,next.value);
+  }
+
+  function prepareGrid(direction){
+    if(cache.has(direction))return true;
+    if(pending.has(direction))return false;
+    const job=build(direction);
+    pending.set(direction,job);
+    const work=()=>{
+      if(pending.get(direction)!==job)return;
+      const deadline=performance.now()+2.5;
+      let next;
+      do{next=job.next();}while(!next.done&&performance.now()<deadline);
+      if(!next.done){setTimeout(work,0);return;}
+      pending.delete(direction);
+      store(direction,next.value);
+    };
+    setTimeout(work,0);
+    return false;
+  }
+
+  // Keep fixed-step physics and drawing on the last complete wind field
+  // while slices prepare the next bearings on the main event loop.
+  function prepare(direction){
+    const d=wrap(direction),step=CONFIG.directionStep,lo=Math.floor(d/step)*step;
+    const a=prepareGrid(lo),b=d===lo||prepareGrid(wrap(lo+step));
+    return a&&b;
   }
 
   function field(direction){
@@ -273,5 +314,5 @@
       return vec3(-sin(heading),cos(heading),max(0.,windSpeed*terrain.r*(1.+gustStrength*g)));
     }
   `;
-  g.SailingWind={at,terrain,field,grove,shader,seedPhase,CONFIG,bounds:B};
+  g.SailingWind={at,terrain,field,prepare,grove,shader,seedPhase,CONFIG,bounds:B};
 })(globalThis);

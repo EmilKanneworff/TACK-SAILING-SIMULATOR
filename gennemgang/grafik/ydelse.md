@@ -26,3 +26,19 @@ Scenen med seks både brugte ét browservindue med de fem fjernbåde synlige, al
 | Seks både på Høj | 59,1 → 58,8 | 8,5 → 7,8 ms | 370.060 → 348.637 |
 
 På Lav faldt tegnebufferen fra 1280 × 800 til 998 × 624. Med seks både lå p95 for intervallet mellem browserens animationskald på 16,8 ms i begge målinger, og det længste interval var ca. 50 ms i begge. CPU-tiden i scenetabellen inkluderer klargøring og afsendelse af tegnekald. Førmålingen brugte kildekoden fra `24b7294`. Eftermålingen brugte det lokale produktionsbuild med revision `88eb7ef36a2f`.
+
+## Kystflimmer og vindskift
+
+Ved Faaborg havde en terræntrekant på ca. 3.100 m² tre kystpunkter i havniveau, selv om terrænmodellen placerede jorden i trekantens midte 60 cm over havet. Den flade trekant og roligt vand konkurrerede om de samme pixels. Kystmeshet har nu højdeprøver inde i de flade trekanter og bruger separate terrænfelter, så browseren kan springe terræn uden for synsfeltet over.
+
+[Faaborg før](kyst-faaborg-foer.jpg) · [Faaborg efter](kyst-faaborg-efter.jpg)
+
+Målt fra Laserjollens følgekamera i Chrome på Apple M5. Vinduet var 1512 × 850 CSS-pixels med 2× pixeltæthed. Hver måling varede 4,4 sekunder efter 1,5 sekund i scenen.
+
+| Situation | Trekanter pr. tegnet billede før → efter | CPU-tid til sceneopdatering, p95 før → efter |
+| --- | ---: | ---: |
+| Faaborg, roligt vand | 206.709 → 151.326 | 2,7 → 2,6 ms |
+| Dyreborg, let sø | 209.645 → 153.787 | 3,1 → 2,7 ms |
+| Åbent vand ud for Fyn | 224.508 → 175.977 | 3,8 → 2,2 ms |
+
+Vindfeltet for en ny retning forberedes i små bidder mellem billederne. Sejladsen bruger den senest færdige vindretning, indtil næste felt er klar. Ved et vindskift fra nord mod 245° i en 6,2 sekunders prøve faldt det længste målte billedinterval fra 133 til 33 ms. Antallet af intervaller over 30 ms gik fra otte til fem. Det er korte lokale målinger af de samme manøvrer.

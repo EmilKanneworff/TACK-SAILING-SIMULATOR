@@ -57,6 +57,34 @@ test('the simulator resumes sailing after the browser restores WebGL', async ({ 
   expect(await page.evaluate(() => SAILING_GAME.scene.renderer.info.render.triangles)).toBeGreaterThan(0);
 });
 
+test('live steering continues while a fresh wind direction is prepared', async ({ page }) => {
+  await page.goto(game);
+  await page.click('#startButton');
+  await page.waitForFunction(() => SAILING_GAME.state.time > .1);
+  await page.keyboard.down('ArrowRight');
+  try {
+    const before = await page.evaluate(() => {
+      const { state, env } = SAILING_GAME;
+      const prepare = SailingWind.prepare;
+      window.waitedForWind = false;
+      SailingWind.prepare = direction => {
+        const ready = prepare(direction);
+        if (!ready) window.waitedForWind = true;
+        return ready;
+      };
+      env.direction = 245;
+      return state.time;
+    });
+    await page.waitForFunction(time => window.waitedForWind &&
+      SAILING_GAME.state.time > time + .1 && SAILING_GAME.state.steerIntent === 1, before);
+  } finally {
+    await page.keyboard.up('ArrowRight');
+  }
+  await page.waitForFunction(() => Math.abs(SAILING_GAME.state.windClimate.direction - 245) < 3);
+  expect(await page.evaluate(() => SAILING_GAME.scene.waterUniforms.windDirection.value)).toBeCloseTo(
+    await page.evaluate(() => SAILING_GAME.state.windClimate.direction), 0);
+});
+
 test('remote hulls blend uneven snapshots, snap after rescue and release unused geometry', async ({ page }) => {
   await page.goto(game);
   await page.waitForFunction(() => window.SAILING_GAME);
