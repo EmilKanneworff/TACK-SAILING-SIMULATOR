@@ -119,14 +119,17 @@ test('foil support status avoids rapid flicker while water contact and lift vary
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const launches=await page.evaluate(()=>{
-  const env={...SAILING_GAME.env,boatId:'ac75',waves:.85,speed:12,direction:225};
+  const P=SailPhysics,direction=225;
+  const env={...SAILING_GAME.env,boatId:'ac75',difficulty:'hard',waves:.85,speed:16,direction,shelter:false};
+  const heading=(90-direction-112)*P.DEG;
   // Offset the start along the wave train to exercise different initial crests.
   return [-12,0,12].map(x=>{
-   const state=SailPhysics.createState({x,y:-5000,theta:.95,vx:0,vy:0},env);
+   const state=P.createState({x,y:-5000,theta:heading,sheet:.55,vx:0,vy:0},env);
    const transitions=[],wet=[];
    let last=null,lastTime=0,maxLift=0;
    for(let step=0;step<3000;step++){
-    SailPhysics.step(state,{steer:0,trim:step<42?-1:0,trimFast:true,crewPose:2},env,1/60);
+    const rudder=P.clamp(2.1*P.wrap(state.theta-heading)+1.12*state.omega,-.8,.8);
+    P.step(state,{steer:rudder,steerDigital:false,trim:0,crewPose:2},env,1/60);
     const phase=state.foiling.support?.phase;
     if(phase!==last){
      transitions.push({from:last,to:phase,dwell:state.time-lastTime});

@@ -70,7 +70,7 @@ The display's support/flight indicator never multiplies those physical forces.
 Mass and CG do not move at takeoff. Actual moving crew/foil arms change CG.
 
 V10 SPORT DINGHY
-The Laser remains the smallest: 4.23 x 1.37m, 137kg total, 7.06m2 sail.
+The Laser remains the smallest: 4.23 x 1.37m, 143kg total, 7.06m2 sail.
 SPORT 525 is a fictional 5.25 x 1.88m unballasted racing dinghy: 88kg hull,
 14kg rig, 8kg gear and the same 75kg sailor = 185kg, 11.2m2 square-top main.
 Its broad stern, lower rocker, lighter mass and lower calibrated drag make
@@ -478,7 +478,12 @@ body.easy-crew .pose-buttons{display:none}
   <div class="toast" id="toast" role="status" hidden=""></div>
   <div class="recover glass" id="recoverPanel" hidden=""><h2 id="recoveryTitle">Båden er kæntret</h2><p id="recoveryDescription">Besætningen får hjælp til at rejse båden. Opretningen starter automatisk.</p><button id="recoverButton" hidden="" disabled="">Automatisk opretning</button><progress id="recoveryProgress" value="0" max="1" hidden=""></progress><small id="recoveryLabel" hidden="">Retter op …</small></div>
   <aside class="debug glass" id="debug" hidden=""><strong>FYSIK / FAST 60 Hz</strong><pre id="debugValues"></pre><button id="selfTest">Kør kontrolscenarier</button><div id="testResults" class="test-results" hidden=""></div></aside>
-<div id="downwindControls" role="group" aria-label="Turbådens ekstra forsejl" hidden><button id="code0Button" type="button" data-cruiser-sail="code0">Sæt Code 0</button><button id="gennakerButton" type="button" data-cruiser-sail="gennaker">Sæt gennaker</button><button id="spinnakerButton" type="button" data-cruiser-sail="spinnaker">Sæt spiler</button></div><section id="sailingDock" class="sailing-dock glass" aria-label="Sejladsens vigtigste instrumenter"><div class="control-hint" aria-hidden="true">← → <span>Kurs</span> &nbsp; ↑ ↓ <span>Trim</span></div><section class="speed-card glass" aria-label="Fart og balance" id="speedCard"><div class="eyebrow" id="speedModeLabel">FART GENNEM VAND</div><small class="assist-note" id="assistBadge" role="status" hidden="">Hjælp i vindøjet</small><div class="speed-readout"><strong id="speed">0.0</strong><span>knob</span></div></section><button id="compactWind" class="compact-wind" aria-label="Vind fra nord. Åbn vindinstrument" aria-controls="telemetryPanel" aria-expanded="false"><svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="30" class="wind-ring"></circle><g id="miniNorth"><text x="40" y="7">N</text></g><path d="M40 29 34 49 40 46 46 49Z" class="mini-boat"></path><g id="miniTrueArrow"><path d="M40 25 34 11 46 11Z" class="true-arrow"></path></g><g id="miniApparentArrow"><path d="M40 27 36 17 44 17Z" class="apparent-arrow"></path></g></svg><span><small>VIND FRA <b id="compactWindFrom">N</b></small><strong id="compactWindSpeed">5,0 <em>m/s</em></strong><small id="compactHeading">Kurs 075°</small></span></button><section class="trim-card glass" aria-label="Storskøde"><div class="card-heading"><h3><span id="trimTitle">Sejltrim</span> <span class="keycap" id="trimInKey">↑</span> <span class="keycap" id="trimOutKey">↓</span></h3><b id="sheetValue">60 %</b></div><input id="sheetControl" class="sheet-range" type="range" min="0" max="100" value="60" step=".1" aria-label="Storskøde. 0 procent slækket, 100 procent halet ind"><div class="range-labels"><span>0 · Slæk ud</span><span>Hal ind · 100</span></div><div class="helm-feedback" aria-label="Ønsket drejeretning og faktisk rorvinkel"><div><span class="keycap" id="steerLeftKey">←</span><span id="helmIntent">Ror · neutral</span><span class="keycap" id="steerRightKey">→</span><b id="rudderValue">0,0°</b></div><div class="rudder-track"><i id="rudderDot"></i></div></div></section><section class="balance-card glass" id="balanceCard" aria-label="Båd og vægtposition"><div class="balance-heading"><button id="boatQuickButton" title="Vælg båd (B)"><span id="boatLabel">Laserjolle</span><small>↗</small></button><b id="heelCompact">0°</b></div><div class="pose-buttons" role="group" aria-label="Vælg vægtposition"><button id="pose1" data-pose="1" aria-pressed="false">1 – Inde</button><button id="pose2" data-pose="2" aria-pressed="true">2 – Kant</button><button id="pose3" data-pose="3" aria-pressed="false">3 – Hæng</button></div><div class="pose-foot"><span id="crewPoseLabel">På kanten</span><span id="crewSideLabel">Automatisk luv side</span></div><div class="crew-control" id="crewControl" hidden=""><button id="crewPort" aria-label="Vælg bagbord side">Bagbord</button><button id="crewStarboard" aria-label="Vælg styrbord side">Styrbord</button></div></section><div id="flightCompact" class="flight-compact" hidden=""><div class="flight-state"><i></i><b id="flightModeText">I vandet</b><strong id="flightClearanceText">−0,43 <small>m</small></strong></div><div class="support-track" title="Fordelingen af den opadrettede støtte mellem skrog og foils"><i id="hullSupportBar"></i><i id="foilSupportBar"></i></div><div class="support-caption"><span id="supportCaption">Skroget bærer</span><span>FRIHØJDE</span></div></div><button id="telemetryToggle" class="telemetry-toggle" aria-controls="telemetryPanel" aria-expanded="false" title="Fold instrumenter ud"><svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6M5 20h14"></path></svg><span>Detaljer</span></button></section><section id="telemetryPanel" class="telemetry-panel glass" hidden="" aria-label="Udvidede instrumenter"><header><div><small>VIND · BALANCE · VANDKONTAKT</small><h2>Instrumenter</h2></div><div id="telemetryActions"><button id="detailsButton" style="background:none;font-size:10px;padding:0;color:inherit">Model &amp; beregninger ↗</button></div><button id="telemetryClose" aria-label="Luk instrumenter">×</button></header><div class="telemetry-grid" id="telemetryGrid"><section class="dial-card glass" aria-label="Vindinstrument"><div class="dial-title"><span>VIND · FRA</span><b id="heading">075°</b></div><canvas id="windDial" width="396" height="396" aria-label="Sand og relativ vindvinkel, hastighed og kompaskurs"></canvas><div class="legend"><span><i class="true"></i>Sand vind</span><span><i class="apparent"></i>Relativ vind</span></div><div class="attitude-detail"><div class="metric-line"><span>Krængning</span><b id="heel">0°</b></div><div class="heel-track"><i id="heelDot"></i></div><div class="metric-line"><span id="vmgLabel">Afdrift</span><b id="vmg">0.0°</b></div></div></section><div class="water-load-detail"><h3>Bevægelse &amp; belastning</h3><dl><div><dt>Skrogets støtte</dt><dd id="hullLoadDetail">—</dd></div><div><dt>Foilernes støtte</dt><dd id="foilLoadDetail">—</dd></div><div><dt>Skrogmodstand</dt><dd id="hullDragDetail">—</dd></div><div><dt>Foilmodstand</dt><dd id="foilDragDetail">—</dd></div></dl><p id="flightModelNote">Vægten virker i tyngdepunktet. Skrog og foils skaber støtte ved deres egne angrebspunkter.</p><div class="control-detail"><div class="trim-bottom"><span id="boomLabel">Faktisk bom</span><b id="boomValue">32° · bagbord</b></div></div><details class="steering-details" id="steeringDetails"><summary>Automatisk styrehjælp</summary><p>Pilene vælger en drejehastighed. Roret og et begrænset hjælpemoment arbejder sammen. Vind og trim bestemmer stadig fremdriften.</p><dl><div><dt>Ønsket drejning</dt><dd id="steerDesiredRate">0,0°/s</dd></div><div><dt>Faktisk drejning</dt><dd id="steerActualRate">0,0°/s</dd></div><div><dt>Fysisk drejemoment</dt><dd id="steerPhysicalMoment">0 Nm</dd></div><div><dt>Hjælpemoment</dt><dd id="steerAssistMoment">0 Nm</dd></div></dl><small id="steerMode">Automatisk · altid aktiv under sejlads</small></details></div><section class="foil-card glass" id="foilHud" aria-label="Flyvehøjde og automatisk foilbesætning" hidden="">
+<div id="downwindControls" role="group" aria-label="Turbådens ekstra forsejl" hidden><button id="code0Button" type="button" data-cruiser-sail="code0">Sæt Code 0</button><button id="gennakerButton" type="button" data-cruiser-sail="gennaker">Sæt gennaker</button><button id="spinnakerButton" type="button" data-cruiser-sail="spinnaker">Sæt spiler</button></div><section id="sailingDock" class="sailing-dock glass" aria-label="Sejladsens vigtigste instrumenter"><div class="control-hint" aria-hidden="true">← → <span>Kurs</span> &nbsp; ↑ ↓ <span>Trim</span></div><section class="speed-card glass" aria-label="Fart og balance" id="speedCard"><div class="eyebrow" id="speedModeLabel">FART GENNEM VAND</div><small class="assist-note" id="assistBadge" role="status" hidden="">Hjælp i vindøjet</small><div class="speed-readout"><strong id="speed">0.0</strong><span>knob</span></div></section><button id="compactWind" class="compact-wind" aria-label="Vind fra nord. Åbn vindinstrument" aria-controls="telemetryPanel" aria-expanded="false"><svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="30" class="wind-ring"></circle><g id="miniNorth"><text x="40" y="7">N</text></g><path d="M40 29 34 49 40 46 46 49Z" class="mini-boat"></path><g id="miniTrueArrow"><path d="M40 25 34 11 46 11Z" class="true-arrow"></path></g><g id="miniApparentArrow"><path d="M40 27 36 17 44 17Z" class="apparent-arrow"></path></g></svg><span><small>VIND FRA <b id="compactWindFrom">N</b></small><strong id="compactWindSpeed">5,0 <em>m/s</em></strong><small id="compactHeading">Kurs 075°</small></span></button><section class="trim-card glass" aria-label="Storskøde"><div class="card-heading"><h3><span id="trimTitle">Sejltrim</span> <span class="keycap" id="trimInKey">↑</span> <span class="keycap" id="trimOutKey">↓</span></h3><b id="sheetValue">60 %</b></div><input id="sheetControl" class="sheet-range" type="range" min="0" max="100" value="60" step=".1" aria-label="Storskøde. 0 procent slækket, 100 procent halet ind"><div class="range-labels"><span>0 · Slæk ud</span><span>Hal ind · 100</span></div><div class="helm-feedback" aria-label="Ønsket drejeretning og faktisk rorvinkel"><div><span class="keycap" id="steerLeftKey">←</span><span id="helmIntent">Ror · neutral</span><span class="keycap" id="steerRightKey">→</span><b id="rudderValue">0,0°</b></div><div class="rudder-track"><i id="rudderDot"></i></div></div></section><section class="balance-card glass" id="balanceCard" aria-label="Båd og vægtposition"><div class="balance-heading"><button id="boatQuickButton" title="Vælg båd (B)"><span id="boatLabel">Laserjolle</span><small>↗</small></button><b id="heelCompact">0°</b></div><div class="pose-buttons" role="group" aria-label="Vælg vægtposition"><button id="pose1" data-pose="1" aria-pressed="false">1 – Inde</button><button id="pose2" data-pose="2" aria-pressed="true">2 – Kant</button><button id="pose3" data-pose="3" aria-pressed="false">3 – Hæng</button></div><div class="pose-foot"><span id="crewPoseLabel">På kanten</span><span id="crewSideLabel">Automatisk luv side</span></div><div class="crew-control" id="crewControl" hidden=""><button id="crewPort" aria-label="Vælg bagbord side">Bagbord</button><button id="crewStarboard" aria-label="Vælg styrbord side">Styrbord</button></div></section><div id="flightCompact" class="flight-compact" hidden=""><div class="flight-state"><i></i><b id="flightModeText">I vandet</b><strong id="flightClearanceText">−0,43 <small>m</small></strong></div><div class="support-track" title="Fordelingen af den opadrettede støtte mellem skrog og foils"><i id="hullSupportBar"></i><i id="foilSupportBar"></i></div><div class="support-caption"><span id="supportCaption">Skroget bærer</span><span>FRIHØJDE</span></div></div><button id="telemetryToggle" class="telemetry-toggle" aria-controls="telemetryPanel" aria-expanded="false" title="Fold instrumenter ud"><svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6M5 20h14"></path></svg><span>Detaljer</span></button></section><section id="telemetryPanel" class="telemetry-panel glass" hidden="" aria-label="Udvidede instrumenter"><header><div><small>VIND · BALANCE · VANDKONTAKT</small><h2>Instrumenter</h2></div><div id="telemetryActions"><button id="detailsButton" style="background:none;font-size:10px;padding:0;color:inherit">Model &amp; beregninger ↗</button></div><button id="telemetryClose" aria-label="Luk instrumenter">×</button></header><div class="telemetry-grid" id="telemetryGrid"><section class="dial-card glass" aria-label="Vindinstrument"><div class="dial-title"><span>VIND · FRA</span><b id="heading">075°</b></div><canvas id="windDial" width="396" height="396" aria-label="Sand og relativ vindvinkel, hastighed og kompaskurs"></canvas><div class="legend"><span><i class="true"></i>Sand vind</span><span><i class="apparent"></i>Relativ vind</span></div><div class="attitude-detail"><div class="metric-line"><span>Krængning</span><b id="heel">0°</b></div><div class="heel-track"><i id="heelDot"></i></div><div class="metric-line"><span id="vmgLabel">Afdrift</span><b id="vmg">0.0°</b></div></div></section><div class="water-load-detail"><h3>Bevægelse &amp; belastning</h3><dl><div><dt>Skrogets støtte</dt><dd id="hullLoadDetail">—</dd></div><div><dt>Foilernes støtte</dt><dd id="foilLoadDetail">—</dd></div><div><dt>Skrogmodstand</dt><dd id="hullDragDetail">—</dd></div><div><dt>Foilmodstand</dt><dd id="foilDragDetail">—</dd></div></dl><p id="flightModelNote">Vægten virker i tyngdepunktet. Skrog og foils skaber støtte ved deres egne angrebspunkter.</p><details class="steering-details" id="rigControls" hidden><summary>Rig</summary>
+  <label for="trimSail">Aktivt trim</label><select id="trimSail"><option value="main">Storsejl</option><option value="jib">Fok</option><option value="extra">Ekstrasejl</option></select>
+  <label for="reefSetting">Storsejl</label><select id="reefSetting"><option value="0">Fuldt sejl</option><option value="1">Ét reb</option><option value="2">To reb</option></select>
+  <label for="headsailSetting">Forsejl</label><select id="headsailSetting"><option value="0">Standardfok</option><option value="1">Mindre fok</option></select>
+</details><details class="steering-details" id="foreAftControls" hidden><summary>Vægt frem og tilbage</summary><label for="foreAftSetting">Agter (Z) · Frem (X)</label><input type="range" id="foreAftSetting" min="-100" max="100" step="1" value="0"><output id="foreAftValue">0 cm</output></details>
+<div class="control-detail"><div class="trim-bottom"><span id="boomLabel">Faktisk bom</span><b id="boomValue">32° · bagbord</b></div></div><details class="steering-details" id="steeringDetails"><summary>Styring</summary><p>På Svær styrer pilene rorvinklen. På Let hjælper et begrænset drejemoment med at holde den ønskede drejning.</p><dl><div><dt>Styresignal</dt><dd id="steerDesiredRate">0,0°/s</dd></div><div><dt>Faktisk drejning</dt><dd id="steerActualRate">0,0°/s</dd></div><div><dt>Fysisk drejemoment</dt><dd id="steerPhysicalMoment">0 Nm</dd></div><div><dt>Hjælpemoment</dt><dd id="steerAssistMoment">0 Nm</dd></div></dl><small id="steerMode">Rorvinkel på Svær · styrehjælp på Let</small></details></div><section class="foil-card glass" id="foilHud" aria-label="Flyvehøjde og automatisk foilbesætning" hidden="">
     <div class="foil-heading"><button id="foilBoatButton" title="Vælg båd"><span id="foilBoatLabel">AC75 · MONOHULL</span> <span>↗</span></button><span class="foil-status" id="foilStatus">I vandet</span></div>
     <div class="flight-metrics"><div class="height" title="Lodret afstand fra skrogbunden midtskibs til den lokale vandoverflade; negativ værdi er neddykket."><small id="flightHeightLabel">SKROGBUND OVER VAND</small><b id="flightHeight">0,00</b> <span>m</span></div><div><small>PITCH · STÆVN</small><b id="flightPitch">0,0°</b></div><div><small>KRÆNGNING</small><b id="flightHeel">0,0°</b></div></div>
     <div class="foil-readouts"><div class="foil-readout" id="portFoilCard"><header><span>BAGBORD</span><b id="portArmValue">NEDE</b></header><div class="foil-bar"><i id="portArmBar"></i></div><p><span>Flap · middel</span><b id="portFlapValue">0,0°</b></p><p><span>Dybde · midt</span><b id="portDepth">— m</b></p></div><div class="foil-readout" id="starboardFoilCard"><header><span>STYRBORD</span><b id="starboardArmValue">NEDE</b></header><div class="foil-bar"><i id="starboardArmBar"></i></div><p><span>Flap · middel</span><b id="starboardFlapValue">0,0°</b></p><p><span>Dybde · midt</span><b id="starboardDepth">— m</b></p></div></div>
@@ -594,7 +599,7 @@ body.easy-crew .pose-buttons{display:none}
 </div></aside>
 <section class="modal-layer" id="lobbyPanel" role="dialog" aria-label="Lobby" aria-modal="true" hidden><div class="modal lobby-modal"><button class="close" id="lobbyClose" aria-label="Luk lobby">×</button><h2>Lobby</h2><div id="lobbyConnect"><label for="lobbyName">Dit navn</label><input id="lobbyName" maxlength="32" autocomplete="nickname" placeholder="Navn"><label for="lobbyCodeInput">Lobbykode</label><input id="lobbyCodeInput" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 cifre"><div class="lobby-actions"><button id="lobbyCreate" class="primary">Opret lobby</button><button id="lobbyJoin" class="primary">Deltag</button></div></div><div id="lobbyRoom" hidden><p>Kode <strong id="lobbyCode">------</strong> <button id="lobbyCopy" type="button">Kopiér</button></p><div id="lobbyCount"></div><ul id="lobbyPlayers"></ul><div class="lobby-actions"><button id="lobbySail">Sejl sammen</button><button id="lobbyReady">Klar</button><button id="lobbyLeave">Forlad lobby</button></div></div><p id="lobbyMessage" role="status"></p></div></section>
 <section class="modal-layer boat-picker" id="boatPicker" role="dialog" aria-label="Bådvalg" aria-modal="true" hidden><div class="modal"><button class="close" data-close="boatPicker" aria-label="Luk bådvalg">×</button><h2>Vælg din båd</h2><div class="boat-options" role="group" aria-label="Vælg båd"><button class="boat-option" data-boat="laser" aria-pressed="false"><img src="assets/model-laser.webp" alt=""><strong>Laserjolle</strong><span>Let og aktiv</span></button><button class="boat-option" data-boat="dinghy" aria-pressed="false"><img src="assets/model-dinghy.webp" alt=""><strong>Racer 32</strong><span>Let racer · tre i besætningen</span></button><button class="boat-option" data-boat="yacht" aria-pressed="false"><img src="assets/model-yacht.webp" alt=""><strong>Turbåd 43</strong><span>Lettest at sejle</span></button><button class="boat-option" data-boat="ac75" aria-pressed="false"><img src="assets/model-ac75.webp" alt=""><strong>Foilmonohull</strong><span>Præcis og krævende</span></button><button class="boat-option" data-boat="ac72" aria-pressed="false"><img src="assets/model-ac72.webp" alt=""><strong>Foilkatamaran</strong><span>Hurtig foiling</span></button></div><a href="assets/sammenlign.html" target="_blank" rel="noopener">Sammenlign størrelser</a></div></section>
-<section class="modal-layer" id="help" hidden=""><div class="modal"><button class="close" data-close="help" aria-label="Luk hjælp">×</button><div class="eyebrow">LÆR BÅDEN AT KENDE</div><h2>Kurs. Trim. Balance.</h2><p>Vindpile på vandet viser, hvor den lokale vind blæser hen. Instrumenterne viser, hvor vinden kommer fra.</p><div class="foil-help" id="foilHelp" hidden=""><div class="help-grid"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Sejltrimmet bliver stående.</span><span>1 / 2 / 3</span><span>På Svær flytter 1, 2 og 3 besætningens vægt. På Let flytter besætningen sig selv.</span><span>Skærmknapper</span><span>Pause, genstart, kamera og bådvalg.</span></div><p><b>Byg fart først.</b> Begynd på en åben kurs med slækket sejl. Når farten stiger, trækker den relative vind frem; hal gradvist ind med korte tryk på ↑. For stramt sejl giver ikke automatisk mere fart: hold øje med den orange relative vind og sejlrådet.</p><p><b>Lad løftet vokse.</b> Foilerne overtager vægten, når strømningen kan bære båden. Højde, pitch, foilnedsænkning og kontakt med bølgerne bestemmer kræfterne. Der er ingen knap til takeoff.</p><p><b>Sejl rolige vendinger.</b> Brug korte rortryk ved høj fart. På monohullen sænker besætningen den nye foil før den gamle hæves. Katamaranen holder begge løftende sværd nede og fordeler støtten over fire foilflader som en tilgivende spilforenkling. Store rorudslag bremser og kan koste løft. For lidt sejltryk, lav fart eller en foil tæt på overfladen kan give touchdown.</p><p><b>Vingesejlet.</b> På katamaranen styrer ↑ / ↓ den samlede vingeåbning. Den stive vinge drejer sammenhængende; dens belastning og strømning vises i instrumenterne. Mere indtrimning kan også give stall og mindre fremdrift.</p><p><b>Automatisk foilbesætning.</b> Du repræsenterer skipperen; spillet udfører de øvrige besætningsfunktioner gennem flapper, rorflader og monohullens bevægelige arme med begrænset hastighed og korrektion. Reguleringen tillader krængning i sving og korte reaktioner på bølger og pust. Instrumenterne viser de faktiske indstillinger.</p><p><b>Flyvehøjde:</b> Afstanden fra skrogbunden midtskibs til den lokale vandoverflade. På katamaranen vises den laveste af de to skrogbunde. Foilernes dybde vises separat. Begge hovedfoils kan være nede under acceleration og manøvrer.</p><p><b>Banen:</b> Vælg op/ned med gates eller trekant. Begge baner har seks ben og 30 sekunders nedtælling. Se rute, rundingspile og næste mål på kortet. Cup-bådene får længere baner og mere plads til runding.</p></div><div class="help-grid dinghy-only"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Skødet bliver stående.</span><span>1 · 2 · 3</span><span>På Svær vælger du Inde, Kant eller Fuld hængning. På Let vælger besætningen selv og kan slække Laserjollens sejl ved stor krængning.</span><span>Q / E</span><span>På Laserjollen på Svær vælger Q bagbord og E styrbord. Vælg en anden vægtposition for at genoptage sidehjælpen.</span><span>C · Mellemrum</span><span>Skift kamera · Pause og fortsæt</span><span>R · H · V · B</span><span>Genstart · Hjælp · Vejr og vind · Vælg båd (sætter på pause)</span><span>Touch</span><span>Træk rorkontrollen til venstre. Skødeskyderen til højre bliver stående. Begge kan bruges samtidig.</span></div><p class="help-tip"><b>Automatisk styrehjælp:</b> Et kort tryk giver en lille korrektion. Hold pilen for et skarpere sving. Modsat pil bremser først den eksisterende drejning; slip lader styringen afvikle den. Hjælpen virker som et begrænset drejemoment, også ved stilstand og i vindøjet. Den giver ingen fremdrift.</p><div class="help-tip dinghy-only"><p><b>Vejr og vind:</b> Tryk V eller vælg Vejr øverst. Vælg mellem solskin, overskyet, regn, tåge, bygevejr og solnedgang. Vindstyrke, retning, pust, bølger, regn, skyer og tåge kan justeres hver for sig.</p><p><b>På kryds:</b> Hold vinden skråt forfra. Hal ind, til sejlet trækker uden at stalle. Skift hals ved at dreje stævnen gennem vinden med restfart.</p><p><b>Med vinden:</b> Slæk gradvist ud. På læns skubber vinden på sejlet; dragdomineret strømning er normal her.</p><p><b>Gennem banen:</b> Sejl gennem hver lysende port i pilens retning, med den orange bøje om bagbord. Sejl mellem gatebøjerne og rund en af dem udad, eller rund trekantens mærker om bagbord. Følg ruten i rækkefølge. En forkert passage bliver ved med at være aktiv, så den kan rettes.</p><p><b>Vægtplacering på Svær.</b> 2 – Kant er den tilgivende standardstilling. Brug 1 – Inde i svag vind og 3 – Hæng, når sejltrykket kræver større modvægt. Fuld hængning kan give overbalance ved et vindhul. Kroppen og det beregnede tyngdepunkt flyttes sammen. På kølbåden flytter én person kun lidt på den samlede balance.</p><p><b>Krængning:</b> Stor krængning koster fart. Slæk i et pust. Ved kæntring flyder jollen videre. Automatisk opretning starter med det samme og afleverer kontrollen senest efter fem sekunder, mens fanen er aktiv. Sejlet aflastes, og besætningen sættes ind i båden. Øvelsens rekord bortfalder.</p></div><div class="help-tip"><p><b>Små korrektioner:</b> Korte styretryk giver små kurskorrektioner. Et længere tryk øger gradvist den ønskede drejehastighed. Modsat pil begynder straks at bremse drejningen. De lysende pile viser din kommando; rorvisningen viser den faktiske vinkel. Følsomhed, kontrolhastighed, fysisk dæmpning og kamera kan justeres hver for sig i Vejr.</p><p><b>Kom ud af vindøjet:</b> Hold venstre eller højre pil, indtil stævnen peger ud på en sejlbar kurs. Den automatiske styrehjælp virker også fra stilstand og er altid aktiv under almindelig sejlads. Indstillingen “Bak sejlet i vindøjet” giver desuden besætningen lov til kortvarigt at bakke sejlet. Fremdriften kræver stadig en brugbar kurs og passende trim.</p><p><b>Se, hvor vinden går hen:</b> De fine strøg på vandet driver med den sande vind. Grønne og orange pile på instrumentet viser derimod, hvor vinden kommer fra. Kyst, fyr, mole og kølvand ligger fast i verden.</p></div><button class="primary" data-close="help">Tilbage til vandet <span>→</span></button></div></section>
+<section class="modal-layer" id="help" hidden=""><div class="modal"><button class="close" data-close="help" aria-label="Luk hjælp">×</button><div class="eyebrow">LÆR BÅDEN AT KENDE</div><h2>Kurs. Trim. Balance.</h2><p>Vindpile på vandet viser, hvor den lokale vind blæser hen. Instrumenterne viser, hvor vinden kommer fra.</p><div class="foil-help" id="foilHelp" hidden=""><div class="help-grid"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Sejltrimmet bliver stående.</span><span>1 / 2 / 3</span><span>På Svær flytter 1, 2 og 3 besætningens vægt. På Let flytter besætningen sig selv.</span><span>Skærmknapper</span><span>Pause, genstart, kamera og bådvalg.</span></div><p><b>Byg fart først.</b> Begynd på en åben kurs med slækket sejl. Når farten stiger, trækker den relative vind frem; hal gradvist ind med korte tryk på ↑. For stramt sejl giver ikke automatisk mere fart: hold øje med den orange relative vind og sejlrådet.</p><p><b>Lad løftet vokse.</b> Foilerne overtager vægten, når strømningen kan bære båden. Højde, pitch, foilnedsænkning og kontakt med bølgerne bestemmer kræfterne. Der er ingen knap til takeoff.</p><p><b>Sejl rolige vendinger.</b> Brug korte rortryk ved høj fart. På monohullen sænker besætningen den nye foil før den gamle hæves. Katamaranen holder begge løftende sværd nede og fordeler støtten over fire foilflader som en tilgivende spilforenkling. Store rorudslag bremser og kan koste løft. For lidt sejltryk, lav fart eller en foil tæt på overfladen kan give touchdown.</p><p><b>Vingesejlet.</b> På katamaranen styrer ↑ / ↓ den samlede vingeåbning. Den stive vinge drejer sammenhængende; dens belastning og strømning vises i instrumenterne. Mere indtrimning kan også give stall og mindre fremdrift.</p><p><b>Automatisk foilbesætning.</b> Du repræsenterer skipperen; spillet udfører de øvrige besætningsfunktioner gennem flapper, rorflader og monohullens bevægelige arme med begrænset hastighed og korrektion. Reguleringen tillader krængning i sving og korte reaktioner på bølger og pust. Instrumenterne viser de faktiske indstillinger.</p><p><b>Flyvehøjde:</b> Afstanden fra skrogbunden midtskibs til den lokale vandoverflade. På katamaranen vises den laveste af de to skrogbunde. Foilernes dybde vises separat. Begge hovedfoils kan være nede under acceleration og manøvrer.</p><p><b>Banen:</b> Vælg op/ned med gates eller trekant. Begge baner har seks ben og 30 sekunders nedtælling. Se rute, rundingspile og næste mål på kortet. Cup-bådene får længere baner og mere plads til runding.</p></div><div class="help-grid dinghy-only"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Skødet bliver stående.</span><span>1 · 2 · 3</span><span>På Svær vælger du Inde, Kant eller Fuld hængning. På Let vælger besætningen selv og kan slække Laserjollens sejl ved stor krængning.</span><span>Q / E</span><span>På Laserjollen på Svær vælger Q bagbord og E styrbord. Vælg en anden vægtposition for at genoptage sidehjælpen.</span><span>C · Mellemrum</span><span>Skift kamera · Pause og fortsæt</span><span>R · H · V · B</span><span>Genstart · Hjælp · Vejr og vind · Vælg båd (sætter på pause)</span><span>Touch</span><span>Træk rorkontrollen til venstre. Skødeskyderen til højre bliver stående. Begge kan bruges samtidig.</span></div><p class="help-tip"><b>Automatisk styrehjælp:</b> Et kort tryk giver en lille korrektion. Hold pilen for et skarpere sving. Modsat pil bremser først den eksisterende drejning; slip lader styringen afvikle den. Hjælpen virker som et begrænset drejemoment, også ved stilstand og i vindøjet. Den giver ingen fremdrift.</p><div class="help-tip dinghy-only"><p><b>Vejr og vind:</b> Tryk V eller vælg Vejr øverst. Vælg mellem solskin, overskyet, regn, tåge, bygevejr og solnedgang. Vindstyrke, retning, pust, bølger, regn, skyer og tåge kan justeres hver for sig.</p><p><b>På kryds:</b> Hold vinden skråt forfra. Hal ind, til sejlet trækker uden at stalle. Skift hals ved at dreje stævnen gennem vinden med restfart.</p><p><b>Med vinden:</b> Slæk gradvist ud. På læns skubber vinden på sejlet; dragdomineret strømning er normal her.</p><p><b>Gennem banen:</b> Sejl gennem hver lysende port i pilens retning, med den orange bøje om bagbord. Sejl mellem gatebøjerne og rund en af dem udad, eller rund trekantens mærker om bagbord. Følg ruten i rækkefølge. En forkert passage bliver ved med at være aktiv, så den kan rettes.</p><p><b>Vægtplacering på Svær.</b> 2 – Kant er den tilgivende standardstilling. Brug 1 – Inde i svag vind og 3 – Hæng, når sejltrykket kræver større modvægt. Fuld hængning kan give overbalance ved et vindhul. Kroppen og det beregnede tyngdepunkt flyttes sammen. På kølbåden flytter én person kun lidt på den samlede balance.</p><p><b>Krængning:</b> Stor krængning koster fart. Slæk i et pust. Ved kæntring flyder jollen videre. Automatisk opretning starter med det samme og afleverer kontrollen senest efter fem sekunder, mens fanen er aktiv. Sejlet aflastes, og besætningen sættes ind i båden. Øvelsens rekord bortfalder.</p></div><div class="help-tip"><p><b>Små korrektioner:</b> Korte styretryk giver små kurskorrektioner. Et længere tryk øger gradvist den ønskede drejehastighed. Modsat pil begynder straks at bremse drejningen. De lysende pile viser din kommando; rorvisningen viser den faktiske vinkel. Følsomhed, kontrolhastighed, fysisk dæmpning og kamera kan justeres hver for sig i Vejr.</p><p><b>Kom ud af vindøjet:</b> Hold venstre eller højre pil, indtil stævnen peger ud på en sejlbar kurs. På Let kan styrehjælpen også virke ved lav fart. På Svær skal roret have vandstrøm for at kunne dreje båden. Indstillingen “Bak sejlet i vindøjet” giver desuden besætningen lov til kortvarigt at bakke sejlet. Fremdriften kræver stadig en brugbar kurs og passende trim.</p><p><b>Se, hvor vinden går hen:</b> De fine strøg på vandet driver med den sande vind. Grønne og orange pile på instrumentet viser derimod, hvor vinden kommer fra. Kyst, fyr, mole og kølvand ligger fast i verden.</p></div><button class="primary" data-close="help">Tilbage til vandet <span>→</span></button></div></section>
 <section class="modal-layer" id="details" hidden=""><div class="modal"><button class="close" data-close="details" aria-label="Luk instrumenter">×</button><div class="eyebrow">SAMME TILSTAND · ALLE INSTRUMENTER</div><h2>Vind &amp; bevægelse</h2><div class="detail-grid"><div><small>TWS · sand vindhastighed</small><b id="twsDetail">—</b></div><div><small>TWD · sand vind fra</small><b id="twdDetail">—</b></div><div><small>TWA · sand vindvinkel</small><b id="twaDetail">—</b></div><div><small>AWS · relativ vindhastighed</small><b id="awsDetail">—</b></div><div><small>AWA · relativ vindvinkel</small><b id="awaDetail">—</b></div><div><small>VMG mod næste mærke</small><b id="vmgDetail">—</b></div></div><p>Grøn viser sand vind. Orange viser relativ vind. Pilene viser, hvor vinden kommer <b>fra</b>. Både bådens fart og dens kurs ændrer den relative vind. Vindvinklen er ubestemt ved næsten nul vind.</p>
   <details open=""><summary>Den fysiske model</summary><p>Fysisk funderet spilsimulation — ikke en valideret Laser-polar. Bådparametrene ligger samlet i <code>SailingBoats.CONFIGS</code> i denne fil. Mellemjollen og 40-fods kølbåden er fiktive; også Laserens kraftkoefficienter er spilværdier. Fysikken kører med fast tidsstep 1/60 s og semi-implicit Euler. Foileren bruger yderligere deltrin til hurtige kraftændringer; grafikken interpolerer mellem tilstandene.</p><table class="details-table"><tbody><tr><td>Bådmodeller</td><td>Laserjolle, mellemstor jolle, 12,2 m kølbåd og America’s Cup med to varianter: AC75-inspireret monohull og AC72-inspireret katamaran. Jollerne har sværd; kølbåden har 2.300 kg ballast i en særskilt køl; Monohullen har bevægelige foil-arme og et T-ror. Katamaranen har to særskilte skrog, løftende sværd og to rorfoils. En person vejer 75 kg i de tre første både. Begge Cup-varianter har deres egen besætningsmasse og fordeling.</td></tr><tr><td>Vind &amp; vand</td><td>Vind er en vektor. Relativ vind = luftens hastighed − bådens hastighed. Ingen strøm. Samme bølgefunktion bruges ved skrogets opdriftspunkter og i havets grafik.</td></tr><tr><td>Sejl</td><td>Lift + drag, glatte koefficientkurver, flere højdestriber og fast twist. Læns er dragdomineret. Sejlformen følger beregnet belastning; den er ikke en stof- eller CFD-simulation.</td></tr><tr><td>Storskøde &amp; bom</td><td>Skødet sætter en maksimal åbningsvinkel. Bommen har inerti og dæmpning. En dokumenteret empirisk leech-snap-model med hysterese hjælper bomningen.</td></tr><tr><td>Skrog &amp; foiler</td><td>Empirisk skrogmodstand samt sværd-, køl- og rorkræfter. Roret bruger lokal vandhastighed inklusive rotation. Ved bakning vender inputomsætningen med hysterese; de fysiske vandkræfter bevares. Ingen fuld planingsmodel.</td></tr><tr><td>Balance</td><td>Dynamisk rulning, hævning og pitch. Opdrift virker ved de neddykkede skrogdele; vægten virker ved bådens og kroppens tyngdepunkter. Sejl, sværd og ror bidrager med momenter. På Let vælger besætningen side og vægtplacering. På Svær vælger spilleren vægtplaceringen med 1, 2 og 3.</td></tr><tr><td>Vandlinje</td><td>Fordelt opdrift og vanddæmpning styrer flydehøjden. En skrogmaske fjerner kun vandfragmenter inde i skroget; cockpittet kan overskylles, når rælingen går under.</td></tr><tr><td>Kæntring</td><td>Væltningen sker gennem fysikken. Lukkede opdriftsrum og en forenklet rigkontakt med vandet holder jollen flydende. Opretning starter automatisk. En monoton tidsmåling styrer aflastning, assisterede momenter og om nødvendigt en kontrolleret afslutning til en sikker flydeposition. Normalvarighed 3–4,4 s; watchdog ved 4,5 s. En suspenderet fane færdiggør et udløbet forløb ved første aktive opdatering. Ingen fuld væskesimulation af vand inde i cockpittet.</td></tr><tr><td>Bevægelsesmodel</td><td>Samme tilstand for kræfter, kontroller og grafik. Massefordeling, opdriftscenter og kraftangrebspunkter holdes adskilt. Momenter beregnes konsekvent om et fælles skrogreferencepunkt med diagonale, kalibrerede inertier. Fuld kobling mellem translation og rotation i en 6×6 massematrix er udeladt; dette er en reduceret spilmodel. Besætningens vægt tælles én gang.</td></tr><tr><td>Vægtbevægelse</td><td>Krop og tyngdepunkt bruger samme glatte posefunktion. Både hastighed og acceleration er begrænset. Bevægelsen ind igen er hurtigere end fuld udlægning. Sidevalg bekræftes over tid og bevarer sin side omkring læns. Position 2 er standard; position 3 kan stadig give overbalance.</td></tr><tr><td>Fast rigtrim</td><td>Moderat vang og udhal; neutral cunningham. Fast grundbugt og twist specificeret i konfigurationen. Ingen særskilt rigtrim.</td></tr><tr><td>Foiling</td><td>Begge Cup-modeller beregner lokale vandstrømme, løft, modstand og momenter for hver foil. Nedsænkning, flap og orientering ændrer kræfterne. To flapfelter på hver hovedvinge fordeler løftet langs spændet; dette er en dokumenteret spilforenkling. Skroget aflastes gennem kraftbalancen; dets vandmodstand aftager med vandkontakten. Ventilation fra overfladen har forsinket opbygning og genopretning. Kavitation er ikke modelleret.</td></tr><tr><td>Katamaran</td><td>Opdrift, lokal vandkontakt og modstand beregnes for hvert af de to skrog. Begge løftende sværd holdes nede under normal sejlads; de og de to agterste rorfoils fordeler kræfterne over bredden. Denne firepunktsstøtte er et bevidst tilgivende spilvalg. Den stive vinges projektionsareal tælles én gang. Større stabilitet og højere topfart end monohullen er valgt i spilkalibreringen; det er ikke validerede AC72-data. Automatisk regulerede flapper og rortrim er en spilforenkling, ikke AC72-klasseregler.</td></tr><tr><td>Kontrolrespons</td><td>Holdte taster aflæses hvert fast fysikstep. Progressiv, fartafhængig ønsket drejehastighed med separat aktuatorhastighed. Modstyring og slip afvikler drejningen uden et ekstra inputfilter. Roret kan beholde en lille vinkel for at balancere sejltrykket. Kontrolvisningen opdateres hvert billede; kameraet har sin egen indstilling.</td></tr><tr><td>Foilbesætning</td><td>Automatikken betjener de samme flapper, pitchtrim og foil-arme, som skaber kræfterne. Begrænset reaktionshastighed og arbejdsområde; ingen låst flyvehøjde eller fartbonus. Spilleren bestemmer kurs og sejltrim. Tasterne 1–3 flytter kun besætningen lidt inden for cockpitpladserne.</td></tr><tr><td>Automatisk styrehjælp</td><td>Altid aktiv under almindelig sejlads: et begrænset hjælpemoment supplerer roret, også ved stilstand og i vindøjet. Ingen direkte ændring af fart, position eller stævnretning. “Bak sejlet i vindøjet” styrer kun den valgfrie sejlbakning. Kæntring, opretning og grundstødning afbryder den almindelige styrehjælp.</td></tr><tr><td>Kystkontakt</td><td>Havbunden følger den synlige kyst. Kontakt ved skrog, køl, sværd, ror og foils giver elastisk modkraft og dæmpende friktion. Dette er en enkel spiltilnærmelse uden skader eller opmålt dybdekort.</td></tr></tbody></table><pre id="configSummary" class="code-note"></pre></details>
   <details><summary>Vejr &amp; synlige detaljer</summary><p>De seks vejrtyper er valgte spilindstillinger. Justér grundvinden fra 0 til 12 m/s; de lokale vindpust kan komme højere op. Vindretning, pust, bølger, regn, skyer og dis kan indstilles hver for sig. Sejlkræfterne følger den faktiske relative vind, uden en særskilt fartbonus for vejrtypen.</p><p>Regn, tåge, skyer, sollys og vandfarver ændres gradvist gennem samme simulationstilstand. Havet følger langsommere efter vind og bølgeniveau. Regnen hælder med vinden, og dråber danner krusninger. Regn og tåge ændrer udsyn og lyd; de tilfører ikke vandvægt eller ændrer skrogfriktion.</p><p>Riggen har blokke, klamper, mastekrave og sejløjer. Sejldug og dæk er tekstureret i kode. Kyst, fyrtårn, mole, strand, klipper og skov er faste verdenskoordinater, fælles for alle fire både. Samme terræn styrer den synlige kyst og havbunden. Grundstødning giver eftergivelige kontaktkræfter og friktion; der er ingen skadesmodel. Fine vindspor driver med den lokale sande vind. Mørke krusningsfelter bruger samme vindpust som sejlkræfterne. Brug C til at skifte mellem følge-, oversigts-, cockpit- og sidekamera.</p></details>
@@ -757,6 +762,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   p.cockpit={minX:p.cockpitMinX,maxX:p.cockpitMaxX,x0:p.cockpitMinX,x1:p.cockpitMaxX,halfWidth:p.cockpitHalfWidth,floorY:p.cockpitFloorY,radius:p.cockpitRadius};
   p.mastHeight=p.mastTop;p.sailFoot=p.boomLength-.06;
   p.crewX=p.crewX??(-.11*p.length);p.crewMax=p.beam*.5+.43;
+  p.crewForeAftRange=p.kind==='foiler'?.15:p.length*.065;
   p.massPoints=[...(p.hullOffsets||[0]).map(z=>({mass:p.hullMass/(p.hullOffsets?.length||1),x:p.hullCGX,y:p.hullCGY,z})),{mass:p.rigMass,x:p.mastX-.12,y:p.rigCGY,z:0},{mass:p.equipmentMass,x:-.25,y:p.deckY-.05,z:0}];
   if(p.ballastMass)p.massPoints.push({mass:p.ballastMass,x:p.ballastX,y:p.ballastY,z:0,ballast:true});
   if(p.kind!=='foiler'){
@@ -774,7 +780,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
    crewPoseRate:4.2,crewPoseAcceleration:30,crewPoseResponse:.10,
    crewPoseReturnRate:13,crewPoseReturnAcceleration:175,crewPoseReturnResponse:.058,
    crewSideRate:3.55,crewSideAcceleration:17,crewSideResponse:.09,
-   helmYawRateLow:.81,helmYawRateHigh:.53,helmInitialFraction:.24,helmGrowthSeconds:.35,helmYawAcceleration:1.20,
+   helmYawRateLow:.81,helmYawRateHigh:.53,helmInitialFraction:.38,helmGrowthSeconds:.35,helmYawAcceleration:1.20,
    shape:[[-.485,.745],[-.390,.876],[-.248,.972],[-.059,1],[.118,.949],[.272,.745],[.390,.438],[.515,.018]],
    hullMass:56,rigMass:10,equipmentMass:2,hullCGX:-.02,hullCGY:-.035,rigCGY:1.65,
    sailArea:7.06,mastX:1.02,mastTop:6.18,boomY:.98,boomLength:2.73,sailLuff:5.15,sailCPChord:1.04,sailCPHeight:2.66,
@@ -789,7 +795,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   // Fictional 32-foot sport keelboat, inspired by the supplied open-cockpit
   // Melges reference. Dimensions and masses are game calibrations, not class data.
   // The stable 'dinghy' identity is retained for existing multiplayer rooms.
-  dinghy:make('dinghy','Racer 32','Let kapsejladsbåd på 9,75 meter med tre i trapez.',{
+  dinghy:make('dinghy','Racer 32','Let kapsejladsbåd på 9,75 meter med to sejlere i trapez.',{
    shortName:'Racer 32',kind:'keelboat',racingYacht:true,courseScale:2.55,
    helmInitialFraction:.34,helmGrowthSeconds:.32,helmYawRateLow:.46,helmYawRateHigh:.255,helmYawSpeedReference:5,helmYawResponse:.16,helmYawCounterResponse:.105,helmYawReleaseResponse:.17,helmYawAcceleration:.75,helmYawBrakeAcceleration:1.55,helmRudderFeedback:.65,
    crewPoseRate:1.35,crewPoseAcceleration:5.2,crewPoseResponse:.18,
@@ -798,17 +804,17 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
    length:9.75,beam:3.10,hullDepth:1.05,deckY:.68,rocker:.18,chinePower:3.0,
    planing:true,planingAreaFraction:.13,planingLiftSlope:1.1,planingMaxWeightFraction:.52,
    shape:[[-.48,.88],[-.36,.98],[-.17,1],[.04,.95],[.24,.77],[.4,.41],[.515,.012]],
-   hullMass:880,rigMass:150,equipmentMass:170,ballastMass:760,crewMass:240,hullCGX:-.08,hullCGY:.10,rigCGY:4.8,
+   hullMass:880,rigMass:150,equipmentMass:170,ballastMass:760,crewMass:160,hullCGX:-.08,hullCGY:.10,rigCGY:4.8,
    ballastX:.10,ballastY:-1.65,ballastVolume:.096,keelBottomY:-1.80,keelTopY:-.40,keelChord:1.18,keelArea:1.95,
    sailArea:62,mainArea:38,jibArea:24,mastX:1.20,mastTop:14.9,boomY:1.30,boomLength:4.72,sailLuff:13.3,
    sailCPChord:1.90,sailCPHeight:6.35,mainCPX:-.62,mainCPHeight:6.35,jibCPX:1.40,jibCPHeight:5.70,
    jibTackX:4.55,jibTackY:.77,jibHeadX:1.20,jibHeadY:13.8,jibLuff:13.03,jibFoot:48/13.03,
    daggerArea:1.95,daggerDepth:2.40,daggerCPY:-1.0,daggerChord:1.18,daggerX:.10,rudderArea:.56,rudderDepth:1.68,rudderChord:.46,rudderX:-4.24,rudderOffsets:[-.837,.837],
    yawInertia:17400,rollInertia:1850,pitchInertia:17500,boomInertia:32,boomDamping:90,
-   hullLinearDrag:21,hullQuadraticDrag:18,hullWaveDrag:.78,hullLateralLinear:160,hullLateralQuadratic:305,
+   hullLinearDrag:21,hullQuadraticDrag:24,hullWaveDrag:1.65,hullLateralLinear:160,hullLateralQuadratic:305,
    yawLinearDamping:1170,yawQuadraticDamping:1540,heaveDamping:10800,rollDamping:3650,pitchDamping:6600,
    boomMin:4*D,boomMax:83*D,sheetRate:.24,rudderMax:28*D,rudderRate:1.64,baseTwist:5*D,sailCLMax:1.3,foilProfileCD:.008,
-   cockpitMinX:-4.24,cockpitMaxX:-.64,cockpitHalfWidth:1.00,cockpitFloorY:.37,cockpitRadius:.16,crewX:-2.85,crewOffsets:[0,.96,1.92],crewFloatVolume:.216,
+   cockpitMinX:-4.24,cockpitMaxX:-.64,cockpitHalfWidth:1.00,cockpitFloorY:.37,cockpitRadius:.16,crewX:-2.85,crewOffsets:[0,1.44],crewFloatVolume:.144,
    hydroNx:14,hydroNz:8,hydroNy:5,mastFloatVolume:.027,rigDragLinear:17,rigDragQuadratic:11,rigRollDamping:1700,rigPitchDamping:3300,rigYawDamping:1400,capsizeAngle:100*D,
    ironsSpeed:.8,ironsYawAcceleration:.045,ironsMaxYawRate:7*D,flotationVolume:15,color:'#163e66'}),
   yacht:make('yacht','Turbåd 43','Nem og stabil turbåd på 13,1 meter.',{
@@ -928,13 +934,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
  function get(id){if(id&&typeof id==='object'){if(id.hullSections)return id;id=id.boatId||id.id;}return CONFIGS[id]||CONFIGS.laser;}
  function halfBeamAt(model,x){const p=get(model),a=p.hullSections;if(x<a[0][0]||x>a[a.length-1][0])return 0;for(let i=1;i<a.length;i++)if(x<=a[i][0])return mix(a[i-1][1],a[i][1],(x-a[i-1][0])/(a[i][0]-a[i-1][0]));return a[a.length-1][1];}
  function hullBottom(model,x,z){const p=get(model),w=halfBeamAt(p,x);if(w<=0)return p.deckY;const r=clamp(Math.abs(z)/w,0,1),u=x/(p.length*.52),depth=(p.hullDepth-p.rocker*u*u)*(.58+.42*Math.min(1,w/((p.hullBeam||p.beam)*.25)));return p.deckY-depth*(1-Math.pow(r,p.chinePower));}
- // Match the Laser's blade profiles. The board begins exerting force where
- // it leaves the hull, while the rudder hangs from a hinge above the water.
- {
-  const p=CONFIGS.laser;
+ // Use the same span limits as the drawn blades and split twin-rudder area.
+ for(const p of [CONFIGS.laser,CONFIGS.dinghy,CONFIGS.yacht]){
   p.waterBlades={
-   board:{x:p.daggerX,root:hullBottom(p,p.daggerX,0),tip:-p.daggerDepth,chord:p.daggerChord,area:p.daggerArea,taper:.78},
-   rudder:{x:p.rudderX,root:p.deckY-.13,tip:p.deckY-.03-p.rudderDepth,chord:p.rudderChord,area:p.rudderArea,taper:.82}
+   board:{x:p.daggerX,root:p.keelTopY??hullBottom(p,p.daggerX,0),tip:p.keelBottomY??-p.daggerDepth,chord:p.daggerChord,area:p.daggerArea,taper:.78},
+   rudder:{x:p.rudderX,root:p.deckY-.10,tip:p.deckY-p.rudderDepth,chord:p.rudderChord,area:p.rudderArea,taper:.82}
   };
  }
  function insideCockpit(model,x,z){const p=get(model),c=p.cockpit,r=c.radius,ax=Math.max(c.minX+r-x,0,x-(c.maxX-r)),az=Math.max(Math.abs(z)-(c.halfWidth-r),0);return ax*ax+az*az<=r*r&&x>=c.minX&&x<=c.maxX&&Math.abs(z)<=c.halfWidth;}
@@ -953,7 +957,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   return Math.hypot(x-fx*along,p.z-fz*along,horizontal?0:p.y-model.boomY);
  }
  function crewPose(model,degree,side,swim=0,offset=0,single=false,motion=null){
-  const p=get(model),d=clamp(degree,1,3),sg=clamp(side,-1,1),x=p.crewX+offset,edge=p.racingYacht?halfBeamAt(p,x):p.beam*.5,k=clamp(swim,0,1);
+  const p=get(model),d=clamp(degree,1,3),sg=clamp(side,-1,1),x=p.crewX+offset+(motion?.crewForeAft??0)*p.crewForeAftRange,edge=p.racingYacht?halfBeamAt(p,x):p.beam*.5,k=clamp(swim,0,1);
   // Fixed human segment lengths across all hulls and through the transfer.
   // A two-link solve locates each knee/elbow; feet remain under the strap.
   // The Laser's middle stance sits just inside the coaming with a small lean.
@@ -1000,7 +1004,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   const elbows=shoulders.map((sh,i)=>jointBetween(sh,hands[i],.32,.31,{x:0,y:-1,z:0}));
   const segments=[{mass:27,p:midpoint(pelvis,chest)},{mass:8,p:pelvis},{mass:6,p:head}];
   for(let i=0;i<2;i++){segments.push({mass:8,p:midpoint(hips[i],knees[i])},{mass:4,p:midpoint(knees[i],feet[i])},{mass:1,p:feet[i]},{mass:2,p:midpoint(shoulders[i],elbows[i])},{mass:1.5,p:midpoint(elbows[i],hands[i])},{mass:.5,p:hands[i]});}
-  let members;if(p.crewOffsets&&!single){members=p.crewOffsets.map(dx=>crewPose(p,d,sg,k,dx,true));segments.splice(0,segments.length,...members.flatMap(member=>member.segments.map(v=>({mass:v.mass,p:{...v.p}}))));}
+  let members;if(p.crewOffsets&&!single){members=p.crewOffsets.map(dx=>crewPose(p,d,sg,k,dx,true,motion));segments.splice(0,segments.length,...members.flatMap(member=>member.segments.map(v=>({mass:v.mass,p:{...v.p}}))));}
   const total=segments.reduce((n,v)=>n+v.mass,0),targetMass=p.crewOffsets&&single?p.crewMass/p.crewOffsets.length:p.crewMass,cg=point(0,0,0);for(const v of segments){cg.x+=v.p.x*v.mass/total;cg.y+=v.p.y*v.mass/total;cg.z+=v.p.z*v.mass/total;v.mass*=targetMass/total;}
   return {pelvis,chest,head,hips,knees,feet,shoulders,elbows,hands,cg,segments,lean,degree:d,side:sg,
    ...(laserMotion?{sharedMotion:true,duck,lookDown:.05+.38*duck,lookYaw:Math.PI/2+clamp((motion.rudder||0)*.8+stepDirection*duck*.25,-.55,.55)}:{}),
@@ -1015,9 +1019,10 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
  // the hull; interpolation belongs to the simulation, never to rendering.
  function foilerCrewPositions(state){
   const p=get(state),degree=clamp(state.crewPoseBlend??2,1,3),side=clamp(state.crewSideBlend??-1,-1,1),smooth5=u=>u*u*u*(u*(u*6-15)+10),first=smooth5(clamp(degree-1,0,1)),second=smooth5(clamp(degree-2,0,1));
+  const foreAft=(state.crewForeAft??0)*p.crewForeAftRange;
   // Small, bounded movements within the cockpits: middle, normal windward,
   // and the furthest usable windward position. All people retain their mass.
-  return p.crewStations.map(q=>{const centre=q.z===0,shift=(centre?.12:.18)*first+(centre?.08:.18)*second;return {...q,z:q.z+shift*side,y:q.y-.025*second};});
+  return p.crewStations.map(q=>{const centre=q.z===0,shift=(centre?.12:.18)*first+(centre?.08:.18)*second;return {...q,x:q.x+foreAft,z:q.z+shift*side,y:q.y-.025*second};});
  }
  function foilerSailScale(model,name,reef=0){
   return Math.sqrt(mix(1,model.heavyAir?.[name]??1,reef));
@@ -1444,23 +1449,26 @@ function hullResistance(s,c,a,env,rigWet,planingSupport){
  }
  const fDrag=1+c.hullHeelDrag*Math.sin(s.heel)**2+rigWet*c.hullWetRigDrag;
  const rDrag=1+rigWet*c.hullWetRigLateralDrag;
- const rise=c.hullWaveRise,referenceSpeed=rise?Math.sqrt(c.gravity*c.referenceWaterline):1;
+ const rise=c.hullWaveRise,referenceSpeed=Math.sqrt(c.gravity*(c.referenceWaterline??c.length*.91));
  // Radiated wave height falls as dynamic support unloads displacement.
  const displacementDrag=(1-planingSupport)**2;
- let f=0,r=0,roll=0,pitch=0,yaw=0;
+ let f=0,r=0,roll=0,pitch=0,yaw=0,skinF=0,ownWaveF=0;
  for(const p of samples){
   const q=bodyOffset(s,p),point=bodyPoint(s,p),velocity=pointMotion(s,q,a);
   const w=waveAt(point.x,point.y,s.time,env,Math.max(0,-point.z));
   const water=waterVelocity(s,w),u=velocity.f-water.x*a.fx-water.y*a.fy,v=velocity.r-water.x*a.rx-water.y*a.ry;
   const wet=p.w*smooth(-.07,.09,w.height-point.z);
   const speed=Math.abs(u);
-  const waveDrag=displacementDrag*(c.hullWaveDrag+(rise?rise.extra*smooth(rise.from,rise.to,speed/referenceSpeed):0));
-  const along=-(c.hullLinearDrag*u+c.hullQuadraticDrag*u*speed+waveDrag*u*speed**3)*wet*fDrag;
+  const froude=speed/referenceSpeed;
+  const waveDrag=displacementDrag*(c.hullWaveDrag*(.68+.32*smooth(.12,.44,froude))+(rise?rise.extra*smooth(rise.from,rise.to,froude):0));
+  const skin=-(c.hullLinearDrag*u+c.hullQuadraticDrag*u*speed)*wet*fDrag;
+  const ownWave=-waveDrag*u*speed**3*wet*fDrag;
+  const along=skin+ownWave;
   const across=-(c.hullLateralLinear*v+c.hullLateralQuadratic*v*Math.abs(v))*wet*rDrag;
   const moment=horizontalMoment(s,p,along,across);
-  f+=along;r+=across;roll+=moment.roll;pitch+=moment.pitch;yaw+=moment.yaw;
+  f+=along;r+=across;roll+=moment.roll;pitch+=moment.pitch;yaw+=moment.yaw;skinF+=skin;ownWaveF+=ownWave;
  }
- return {f,r,roll,pitch,yaw};
+ return {f,r,roll,pitch,yaw,skinF,ownWaveF};
 }
 const planingStations=[[-.26,.54],[-.04,.46]];
 function planingLoad(s,c,a,env,hydro){
@@ -1530,7 +1538,11 @@ function updateRig(s,c,dt,lively=false){
  };
  if(c.rigidWing)old.flutter=0;
  else advanceCloth('flutter',previous,flexibility,gybe);
- if(s.sail?.jib)advanceCloth('jibFlutter',s.sail.jib,flexibility*.84*(1-(s.spinnaker?.hoist??0)),gybe*.30);
+ if(s.sail?.jib){
+  advanceCloth('jibFlutter',s.sail.jib,flexibility*.84*(1-(s.spinnaker?.hoist??0)),gybe*.30);
+  const prior=old.jibFill??fill,target=s.sail.jib.area>0?(1-s.sail.jib.luff)*smooth(.08,1.4,speed):0;
+  old.jibFill=prior+(target-prior)*(1-Math.exp(-dt/.40));
+ }
  old.flutterPhase=(old.flutterPhase??0)+dt*(7.5+.52*Math.min(21,speed));
  return old;
 }
@@ -1539,6 +1551,38 @@ function sailFlutter(rig,height,jib=false){
  return amplitude?amplitude*Math.sin(rig.flutterPhase-height*9+(jib?1.9:0))*Math.sin(PI*height):0;
 }
 function horizontalMoment(s,p,forward,side){const q=bodyOffset(s,p),cp=Math.cos(s.pitch||0),sp=Math.sin(s.pitch||0),yaw=q.r*forward-q.f*side;return {roll:cp*q.up*side+sp*yaw,pitch:-q.up*forward,yaw};}
+// Translate and rotate about the instantaneous centre of mass. The scene,
+// contact queries and networking still address the hull origin. Diagonal
+// inertias are retained as an approximation to the coupled inertia tensor.
+function integrateMass(s,dt,mass,cg,originInertia,force,moment){
+ const previous=s.massMotion,oldCg=previous?.cg??s.hydro?.cg??cg;
+ const rate={x:(cg.x-oldCg.x)/dt,y:(cg.y-oldCg.y)/dt,z:(cg.z-oldCg.z)/dt};
+ const axis=axes(s.theta),oldOffset=bodyOffset(s,oldCg),oldDrift=bodyOffset(s,previous?.rate??{x:0,y:0,z:0});
+ const velocity=pointMotion(s,oldOffset,axis);
+ const vx=velocity.x+oldDrift.f*axis.fx+oldDrift.r*axis.rx+force.x/mass*dt;
+ const vy=velocity.y+oldDrift.f*axis.fy+oldDrift.r*axis.ry+force.y/mass*dt;
+ const vz=velocity.z+oldDrift.up+force.z/mass*dt;
+ const offset=bodyOffset(s,cg),originMoment=horizontalMoment(s,cg,force.x*axis.fx+force.y*axis.fy,force.x*axis.rx+force.y*axis.ry);
+ const inertia={
+  roll:Math.max(originInertia.roll*.25,originInertia.roll-mass*(cg.y*cg.y+cg.z*cg.z)),
+  pitch:Math.max(originInertia.pitch*.25,originInertia.pitch-mass*(cg.x*cg.x+cg.y*cg.y)),
+  yaw:Math.max(originInertia.yaw*.25,originInertia.yaw-mass*(cg.x*cg.x+cg.z*cg.z))
+ };
+ const prior=previous?.inertia??inertia;
+ s.heelRate=(s.heelRate*prior.roll+(moment.roll-originMoment.roll-offset.dHeel*force.z)*dt)/inertia.roll;
+ s.pitchRate=(s.pitchRate*prior.pitch+(moment.pitch-originMoment.pitch-offset.dPitch*force.z)*dt)/inertia.pitch;
+ s.omega=(s.omega*prior.yaw+(moment.yaw-originMoment.yaw)*dt)/inertia.yaw;
+ s.theta=wrap(s.theta+s.omega*dt);s.heel+=s.heelRate*dt;s.pitch+=s.pitchRate*dt;
+ const nextAxis=axes(s.theta),next=bodyOffset(s,cg),nextDrift=bodyOffset(s,rate);
+ const nextVelocity=pointMotion({vx:0,vy:0,heaveVelocity:0,omega:s.omega,heelRate:s.heelRate,pitchRate:s.pitchRate,pitch:s.pitch},next,nextAxis);
+ s.x+=oldOffset.f*axis.fx+oldOffset.r*axis.rx+vx*dt-next.f*nextAxis.fx-next.r*nextAxis.rx;
+ s.y+=oldOffset.f*axis.fy+oldOffset.r*axis.ry+vy*dt-next.f*nextAxis.fy-next.r*nextAxis.ry;
+ s.heave+=oldOffset.up+vz*dt-next.up;
+ s.vx=vx-nextVelocity.x-nextDrift.f*nextAxis.fx-nextDrift.r*nextAxis.rx;
+ s.vy=vy-nextVelocity.y-nextDrift.f*nextAxis.fy-nextDrift.r*nextAxis.ry;
+ s.heaveVelocity=vz-nextVelocity.z-nextDrift.up;
+ s.massMotion={cg,rate,inertia};
+}
 const hullCache=new Map();
 function hullSamples(model){
  const c=configFor(model);if(hullCache.has(c.id))return hullCache.get(c.id);
@@ -1707,6 +1751,8 @@ function updateCrew(s,controls,env,dt,sail){
   automatic?80:inward?c.crewPoseReturnAcceleration:c.crewPoseAcceleration,automatic?.07:inward?c.crewPoseReturnResponse:c.crewPoseResponse,dt);
  crewMotion(s,'crewSideBlend','crewSideVelocity',s.crewSide,automatic?6:c.crewSideRate,
   automatic?45:c.crewSideAcceleration,automatic?.075:c.crewSideResponse,dt);
+ const foreAft=automatic||s.capsized||s.recovering?0:clamp(controls.foreAft??0,-1,1);
+ crewMotion(s,'crewForeAft','crewForeAftVelocity',foreAft,2.5,10,.18,dt);
  const capTarget=s.capsized&&!s.recovering?1:0;s.crewSwim=move(s.crewSwim||0,capTarget,dt*.85);
  if(c.kind==='foiler'){const people=B.foilerCrewPositions(s),sum=people.reduce((n,p)=>n+p.mass,0);s.crewStations=people;s.crewCG=people.reduce((v,p)=>({x:v.x+p.x*p.mass/sum,y:v.y+p.y*p.mass/sum,z:v.z+p.z*p.mass/sum}),{x:0,y:0,z:0});s.crew=s.crewCG.z;s.crewJoints=null;}
  else{s.crewJoints=B.crewPoseAt(s);s.crewCG=s.crewJoints.cg;s.crew=s.crewCG.z;}
@@ -1775,7 +1821,7 @@ function hydrostatics(s,inputEnv,withDamping=true){
  }
  return {buoyancy:buoyancy+rigBuoyancy,weight:-gravity,vertical:buoyancy+rigBuoyancy+gravity+verticalDamping+rigDrag+slam,verticalDamping,slamForce:slam,slamSeverity:slam/(c.mass*c.gravity),
   rollBuoyancy,pitchBuoyancy,rollGravity,pitchGravity,rollCrew,pitchCrew,rollHydroDamping,pitchHydroDamping,rollRig,pitchRig,
-  roll:rollBuoyancy+rollGravity+rollHydroDamping+rollRig+waveRoll,pitch:pitchBuoyancy+pitchGravity+pitchHydroDamping+pitchRig+wavePitch,waveFx,waveFy,waveYaw,
+  roll:rollBuoyancy+rollGravity+rollHydroDamping+rollRig+waveRoll,pitch:pitchBuoyancy+pitchGravity+pitchHydroDamping+pitchRig+wavePitch,waveFx,waveFy,waveRoll,wavePitch,waveYaw,
   submergedVolume,totalDisplacedVolume,totalVolume:data.volume,rigWet,crewWet,coamingClearance,floorClearance,deckClearance,cockpitWet:s.cockpitWet||0,hullCenterOfBuoyancy,
   centerOfBuoyancy:{x:centerX/(totalDisplacedVolume||1),y:centerY/(totalDisplacedVolume||1),z:centerZ/(totalDisplacedVolume||1)},cg:{x:cgX,y:cgY,z:cgZ}};
 }
@@ -1791,35 +1837,64 @@ function cruiserSailWind(s,c,env,side,overrideWind){
  const speed=Math.hypot(forward,across),awa=Math.atan2(-across,-forward);
  return {point,speed,awa,angle:Math.abs(awa),trueSpeed:air.trueSpeed,forward,across};
 }
+function updateCruiserRig(s,control,env,dt){
+ const r=s.cruiserRig??(s.cruiserRig={reef:0,headsail:0,jibSheet:null,extraSheet:null});
+ const setting=control.rig??control;
+ r.reef=move(r.reef,clamp(Math.round(setting.reef??r.reefTarget??0),0,2),dt*.55);
+ r.headsail=move(r.headsail,clamp(Math.round(setting.headsail??r.headsailTarget??0),0,1),dt*.48);
+ if(Number.isFinite(setting.reef))r.reefTarget=clamp(Math.round(setting.reef),0,2);
+ if(Number.isFinite(setting.headsail))r.headsailTarget=clamp(Math.round(setting.headsail),0,1);
+ const automatic=(control.difficulty??env.difficulty)==='easy';
+ for(const [key,rate] of [['jibSheet',.56],['extraSheet',.62]]){
+  if(automatic){r[key]=null;continue;}
+  if(Number.isFinite(setting[key]))r[key]=move(r[key]??s.sheet,clamp(setting[key],0,1),rate*dt);
+ }
+}
 function aero(s,inputEnv,overrideWind){
  if(configFor(s).kind==='foiler'&&root.FoilingPhysics)return root.FoilingPhysics.aero(s,inputEnv,overrideWind);
  const c=configFor(s),env={...environment(inputEnv),waveCurrent:s.seaState??seaTarget(inputEnv),waveCurrentRate:s.seaStateRate||0,waveProfile:s.waveProfile},wind=windForState(s,env,overrideWind),a=axes(s.theta),wf=wind.avx*a.fx+wind.avy*a.fy,wr=wind.avx*a.rx+wind.avy*a.ry;
  const spill=s.crewSpill||0,sailPressure=clamp(s.recoveryAeroScale??1,0,1)*(1-.92*spill);
  let forceF=0,forceR=0,cl=0,cd=0,alpha=0,luff=0,stall=0,lift=0,drag=0,rollMoment=0,pitchMoment=0,yawMoment=0,exposure=0;
- const side=s.rig?.side??(Math.abs(s.boom)>.02?Math.sign(s.boom):-1),twist=s.rig?.twist??c.baseTwist*(.6+.4*(1-s.sheet)),heelFactor=Math.max(.012,Math.cos(s.heel)**2),qArea=.5*c.airDensity*wind.aws**2*c.sailArea*heelFactor*sailPressure;
- const sections=[],actualCamber=(s.rig?.camber??c.camber)*(.55+.45*(s.rig?.fill??1)),mainFraction=(c.mainArea||c.sailArea)/c.sailArea,strips=[[5/9,7/45],[3/9,13/27],[1/9,7/9]];
+ const cruiser=s.cruiserRig,mainScale=1-.22*(cruiser?.reef??0),jibScale=Math.sqrt(1-.42*(cruiser?.headsail??0));
+ const mainArea=(c.mainArea||c.sailArea)*mainScale,jibArea=(c.jibArea??0)*jibScale**2*(1-(s.spinnaker?.hoist??0)),totalArea=mainArea+jibArea;
+ const side=s.rig?.side??(Math.abs(s.boom)>.02?Math.sign(s.boom):-1),twist=s.rig?.twist??c.baseTwist*(.6+.4*(1-s.sheet)),heelFactor=Math.max(.012,Math.cos(s.heel)**2),qArea=.5*c.airDensity*wind.aws**2*totalArea*heelFactor*sailPressure;
+ const sections=[],actualCamber=(s.rig?.camber??c.camber)*(.55+.45*(s.rig?.fill??1)),mainFraction=mainArea/totalArea,strips=[[5/9,7/45],[3/9,13/27],[1/9,7/9]];
  for(const [weight,height]of strips){
-  const beta=s.boom+(s.rig?.sideBlend??side)*twist*height*height+sailFlutter(s.rig,height)*.56,cp={x:c.mastX-c.sailCPChord*(1-height)*1.5*Math.cos(beta),y:c.boomY+c.sailLuff*height,z:c.sailCPChord*(1-height)*1.5*Math.sin(beta)},wp=bodyPoint(s,cp),water=waveAt(wp.x,wp.y,s.time,env).height,exposed=smooth(-.05,.22,wp.z-water);exposure+=exposed*weight;
+  const beta=s.boom+(s.rig?.sideBlend??side)*twist*height*height+sailFlutter(s.rig,height)*.56,cp={x:c.mastX-c.sailCPChord*(1-height)*1.5*Math.cos(beta),y:c.boomY+c.sailLuff*height*mainScale,z:c.sailCPChord*(1-height)*1.5*Math.sin(beta)},wp=bodyPoint(s,cp),water=waveAt(wp.x,wp.y,s.time,env).height,exposed=smooth(-.05,.22,wp.z-water);exposure+=exposed*weight;
   const air=sailAirAt(s,env,cp,overrideWind,s.boomRate||0),localF=air.x*a.fx+air.y*a.fy,localR=air.x*a.rx+air.y*a.ry,localSpeed=Math.hypot(localF,localR);
-  if(localSpeed<=1e-6)continue;const unitF=localF/localSpeed,unitR=localR/localSpeed,cf=-Math.cos(beta),cr=Math.sin(beta),angle=Math.atan2(localF*-cr+localR*cf,localF*cf+localR*cr),coeff=sailCoefficients(angle,c,actualCamber*Math.abs(s.rig?.sideBlend??1)),q=.5*c.airDensity*localSpeed**2*c.sailArea*heelFactor*sailPressure*mainFraction*weight*exposed,L=q*coeff.cl,D=q*coeff.cd,ff=-unitR*L+unitF*D,rr=unitF*L+unitR*D,m=horizontalMoment(s,cp,ff,rr);
-  sections.push({height,alpha:coeff.folded,luff:coeff.luff+(1-coeff.luff)*spill,stall:coeff.stall,airForward:unitF,airRight:unitR,localAirSpeed:localSpeed,load:Math.hypot(ff,rr)});
+  if(localSpeed<=1e-6)continue;const unitF=localF/localSpeed,unitR=localR/localSpeed,cf=-Math.cos(beta),cr=Math.sin(beta),angle=Math.atan2(localF*-cr+localR*cf,localF*cf+localR*cr),coeff=sailCoefficients(angle,c,actualCamber*Math.abs(s.rig?.sideBlend??1)),q=.5*c.airDensity*localSpeed**2*mainArea*heelFactor*sailPressure*weight*exposed,L=q*coeff.cl,D=q*coeff.cd,ff=-unitR*L+unitF*D,rr=unitF*L+unitR*D,m=horizontalMoment(s,cp,ff,rr);
+  sections.push({height,point:cp,drive:ff,sideForce:rr,alpha:coeff.folded,luff:coeff.luff+(1-coeff.luff)*spill,stall:coeff.stall,airForward:unitF,airRight:unitR,localAirSpeed:localSpeed,load:Math.hypot(ff,rr)});
   forceF+=ff;forceR+=rr;rollMoment+=m.roll;pitchMoment+=m.pitch;yawMoment+=m.yaw;cl+=mainFraction*weight*coeff.cl;cd+=mainFraction*weight*coeff.cd;alpha+=mainFraction*weight*coeff.folded;luff+=mainFraction*weight*coeff.luff;stall+=mainFraction*weight*coeff.stall;lift+=L;drag+=D;
  }
  const mainLuff=luff/mainFraction;
- const main={area:c.mainArea||c.sailArea,angle:s.boom,drive:forceF,sideForce:forceR,alpha:alpha/(mainFraction||1),luff:mainLuff+(1-mainLuff)*spill,stall:stall/(mainFraction||1),load:clamp(Math.hypot(forceF,forceR)/(190*(c.sailArea/7.06)),0,1),side,twist,camber:actualCamber,fill:s.rig?.fill??0,sections};let jib=null;
+ const main={area:mainArea,trim:s.sheet,centre:{x:c.mastX-c.sailCPChord*Math.cos(s.boom),y:c.boomY+(c.sailCPHeight-c.boomY)*mainScale,z:c.sailCPChord*Math.sin(s.boom)},angle:s.boom,drive:forceF,sideForce:forceR,alpha:alpha/(mainFraction||1),luff:mainLuff+(1-mainLuff)*spill,stall:stall/(mainFraction||1),load:clamp(Math.hypot(forceF,forceR)/(190*(c.sailArea/7.06)),0,1),side,twist,camber:actualCamber,fill:s.rig?.fill??0,sections};let jib=null;
  // The keel yacht has a second, continuously sheeted sail. Its own resultant
  // acts at the configured CP; it does not duplicate the mainsail's area.
- if(c.jibArea){const beta=s.boom*.78+1.2*DEG*Math.tanh(s.boom/(2*DEG))+sailFlutter(s.rig,.60,true)*.42,p={x:c.jibCPX,y:c.jibCPHeight,z:.65*Math.sin(beta)},wp=bodyPoint(s,p),exposed=smooth(-.05,.22,wp.z-waveAt(wp.x,wp.y,s.time,env).height),air=sailAirAt(s,env,p,overrideWind),jf=air.x*a.fx+air.y*a.fy,jr=air.x*a.rx+air.y*a.ry,js=Math.hypot(jf,jr),angle=js>1e-6?Math.atan2(jf*-Math.sin(beta)+jr*-Math.cos(beta),jf*-Math.cos(beta)+jr*Math.sin(beta)):0,co=sailCoefficients(angle,c,actualCamber*Math.abs(s.rig?.sideBlend??1)),q=.5*c.airDensity*js**2*c.jibArea*heelFactor*exposed*(1-(s.spinnaker?.hoist||0))*sailPressure,L=q*co.cl,D=q*co.cd,ff=js>1e-6?(-jr*L+jf*D)/js:0,rr=js>1e-6?(jf*L+jr*D)/js:0,m=horizontalMoment(s,p,ff,rr),fraction=c.jibArea/c.sailArea;
-  forceF+=ff;forceR+=rr;rollMoment+=m.roll;pitchMoment+=m.pitch;yawMoment+=m.yaw;lift+=L;drag+=D;cl+=fraction*co.cl;cd+=fraction*co.cd;alpha+=fraction*co.folded;luff+=fraction*co.luff;stall+=fraction*co.stall;exposure=exposure*mainFraction+exposed*fraction;
-  jib={area:c.jibArea,angle:beta,alpha:co.folded,cl:co.cl,cd:co.cd,lift:L,drag:D,drive:ff,sideForce:rr,luff:co.luff,stall:co.stall,load:clamp(Math.hypot(ff,rr)/(190*c.jibArea/7.06),0,1),point:p,side};
+ if(c.jibArea){
+  const jibSheet=cruiser?.jibSheet??s.sheet;
+  const coupled=s.boom*.78+1.2*DEG*Math.tanh(s.boom/(2*DEG));
+  const reach=Math.abs(wind.awa??0),windSide=reach<150*DEG&&reach>5*DEG?-Math.sign(wind.awa):Math.sign(s.boom||-1);
+  const limit=(76-69*jibSheet)*DEG;
+  const base=cruiser?.jibSheet==null?coupled:windSide*Math.min(limit,reach);
+  const beta=base+sailFlutter(s.rig,.60,true)*.42;
+  const tackY=c.jibTackY??c.deckY,p={x:c.jibTackX+(c.jibCPX-c.jibTackX)*jibScale,y:tackY+(c.jibCPHeight-tackY)*jibScale,z:.65*jibScale*Math.sin(beta)};
+  const wp=bodyPoint(s,p),exposed=smooth(-.05,.22,wp.z-waveAt(wp.x,wp.y,s.time,env).height),air=sailAirAt(s,env,p,overrideWind);
+  const jf=air.x*a.fx+air.y*a.fy,jr=air.x*a.rx+air.y*a.ry,js=Math.hypot(jf,jr);
+  const angle=js>1e-6?Math.atan2(jf*-Math.sin(beta)+jr*-Math.cos(beta),jf*-Math.cos(beta)+jr*Math.sin(beta)):0;
+  const camber=c.camber*(.63+.37*(s.rig?.jibFill??1)),co=sailCoefficients(angle,c,camber);
+  const q=.5*c.airDensity*js**2*jibArea*heelFactor*exposed*sailPressure,L=q*co.cl,Fd=q*co.cd;
+  const ff=js>1e-6?(-jr*L+jf*Fd)/js:0,rr=js>1e-6?(jf*L+jr*Fd)/js:0,m=horizontalMoment(s,p,ff,rr),fraction=jibArea/totalArea;
+  forceF+=ff;forceR+=rr;rollMoment+=m.roll;pitchMoment+=m.pitch;yawMoment+=m.yaw;cl+=fraction*co.cl;cd+=fraction*co.cd;alpha+=fraction*co.folded;luff+=fraction*co.luff;stall+=fraction*co.stall;exposure=exposure*mainFraction+exposed*fraction;
+  jib={area:jibArea,nominalArea:c.jibArea,trim:jibSheet,angle:beta,alpha:co.folded,cl:co.cl,cd:co.cd,lift:L,drag:Fd,drive:ff,sideForce:rr,luff:co.luff,stall:co.stall,
+   load:clamp(Math.hypot(ff,rr)/(190*c.jibArea/7.06),0,1),point:p,camber,fill:jibArea>0?s.rig?.jibFill??0:0,side:Math.sign(beta)||side};
  }
  let spinnaker=null;
  if(c.id==='yacht'&&s.spinnaker?.hoist>0){
-  const sp=s.spinnaker,profile=B.cruiserSails[sp.type]||B.cruiserSails.spinnaker,area=c[profile.area];
+  const sp=s.spinnaker,profile=B.cruiserSails[sp.type]||B.cruiserSails.spinnaker,nominalArea=c[profile.area],area=nominalArea*sp.hoist;
   const {point,speed,angle,forward,across}=cruiserSailWind(s,c,env,sp.sideBlend,overrideWind);
   const wp=bodyPoint(s,point),exposed=smooth(-.05,.22,wp.z-waveAt(wp.x,wp.y,s.time,env).height);
-  const pressure=.5*c.airDensity*speed**2*area*sp.hoist*sailPressure*heelFactor*exposed;
-  const load=pressure*Math.min(sp.fill,sp.hoist)*smooth(profile.close*DEG,profile.full*DEG,angle);
+  const pressure=.5*c.airDensity*speed**2*area*sailPressure*heelFactor*exposed;
+  const load=pressure*clamp(sp.fill/sp.hoist,0,1);
   const reaching=1-smooth(145*DEG,175*DEG,angle);
   // A collapsed sail still presents cloth to the flow. It adds aerodynamic
   // drag while the working jib is rolled away, even after lift has fallen off.
@@ -1829,7 +1904,7 @@ function aero(s,inputEnv,overrideWind){
   const uf=forward/Math.max(.01,speed),ur=across/Math.max(.01,speed);
   const ff=uf*drag+Math.abs(ur)*lift,rr=ur*drag-Math.sign(ur)*uf*lift,m=horizontalMoment(s,point,ff,rr);
   forceF+=ff;forceR+=rr;rollMoment+=m.roll;pitchMoment+=m.pitch;yawMoment+=m.yaw;
-  spinnaker={type:sp.type,area,fill:sp.fill,luff,drive:ff,sideForce:rr,trim:s.sheet,localAirSpeed:speed,angle};
+  spinnaker={type:sp.type,area,nominalArea,point,fill:sp.fill,luff,drive:ff,sideForce:rr,trim:cruiser?.extraSheet??s.sheet,localAirSpeed:speed,angle};
  }
  const fx=forceF*a.fx+forceR*a.rx,fy=forceF*a.fy+forceR*a.ry,pressure=Math.hypot(forceF,forceR),running=wind.awa!=null&&Math.abs(wind.awa)>125*DEG&&drag>Math.abs(lift)*.55&&forceF>0,flow=wind.aws<.15||luff>.48?'luff':running?'running':stall>.55?'stalled':'attached';
  return{wind,main,jib,spinnaker,alpha,cl,cd,lift,drag,qArea: qArea*exposure,fx,fy,drive:forceF,sideForce:forceR,side,load:clamp(pressure/190,0,1),luff,stall,flow,twist,camber:actualCamber,fill:s.rig?.fill??0,cpX:c.mastX-c.sailCPChord*Math.cos(s.boom),cpR:c.sailCPChord*Math.sin(s.boom),rollMoment,pitchMoment,yawMoment,exposure};
@@ -1840,17 +1915,17 @@ function foil(u,v,angle,area,model,ventilation=0){const c=model?configFor(model)
  const alpha=Math.atan2(wf*-cr+wr*cf,wf*cf+wr*cr),fold=.5*Math.atan2(Math.sin(2*alpha),Math.cos(2*alpha)),stall=smooth(14*DEG,29*DEG,Math.abs(fold));
  const attached=c.foilCLMax*Math.tanh(c.foilLiftSlope*fold/c.foilCLMax);
  const cl=((1-stall)*attached+stall*.85*Math.sin(2*alpha))*(1-.82*ventilation);
- const cd=(c.foilProfileCD??.008)+c.foilInducedCD*cl*cl+1.12*Math.sin(alpha)**2*stall;
+ const profile=c.foilProfileCD??.008,induced=c.foilInducedCD*cl*cl,stallCD=1.12*Math.sin(alpha)**2*stall,cd=profile+induced+stallCD;
  const q=.5*c.waterDensity*area*speed*speed,forward=q*(-wr*cl+wf*cd),side=q*(wf*cl+wr*cd);
- return{forward,side,power:forward*u+side*v,speed,alpha:fold,stall};
+ return{forward,side,power:forward*u+side*v,speed,alpha:fold,stall,profileDrag:q*profile,inducedDrag:q*induced,stallDrag:q*stallCD};
 }
-function laserBlade(s,a,model,blade,angle,env,dt,previous){
+function appendageBlade(s,a,model,blade,angle,env,dt,previous){
  const along=bodyOffset(s,{x:1,y:0,z:0}),across=bodyOffset(s,{x:0,y:0,z:1}),span=bodyOffset(s,{x:0,y:1,z:0});
  const verticalSpan=blade.root-blade.tip,band=verticalSpan/4,moment={roll:0,pitch:0,yaw:0};
- const load={forward:0,side:0,vertical:0,power:0,speed:0,wet:0,stall:0,axialSpeed:0,axialFlow:0,crossFlow:0,steeringPressure:0,ventilation:0};
+ const load={forward:0,side:0,vertical:0,power:0,speed:0,wet:0,stall:0,axialSpeed:0,axialFlow:0,crossFlow:0,steeringPressure:0,ventilation:0,profileDrag:0,inducedDrag:0,stallDrag:0};
  let airSupply=0;
  for(let i=0;i<4;i++){
-  const fraction=(i+.5)/4,p={x:blade.x,y:blade.root-fraction*verticalSpan,z:0};
+  const fraction=(i+.5)/4,p={x:blade.x,y:blade.root-fraction*verticalSpan,z:blade.z??0};
   const contact=waterContact(s,p,env);
   const surfaceSpan=span.up-contact.dx*(span.f*a.fx+span.r*a.rx)-contact.dy*(span.f*a.fy+span.r*a.ry);
   const immersed=clamp(.5+contact.depth/Math.max(.036,band*Math.abs(surfaceSpan)),0,1);
@@ -1865,6 +1940,7 @@ function laserBlade(s,a,model,blade,angle,env,dt,previous){
   const q=bodyOffset(s,p),m=horizontalMoment(s,p,forward,side);
   moment.yaw+=m.yaw;moment.roll+=m.roll+q.dHeel*vertical;moment.pitch+=m.pitch+q.dPitch*vertical;
   load.forward+=forward;load.side+=side;load.vertical+=vertical;load.power+=force.power;load.wet+=areaFraction;
+  load.profileDrag+=force.profileDrag??0;load.inducedDrag+=force.inducedDrag??0;load.stallDrag+=force.stallDrag??0;
   load.axialSpeed+=Math.abs(u)*areaFraction;load.speed+=force.speed*areaFraction;load.stall+=force.stall*areaFraction;
   load.axialFlow+=u*areaFraction;load.crossFlow+=v*areaFraction;
   load.steeringPressure+=u*u*areaFraction*(1-.82*ventilation)*(1-.55*force.stall)*Math.abs(across.r);
@@ -1925,6 +2001,14 @@ function updateHelm(s,controls,inputEnv,dt,yawInertia){
  const speed=c.waterBlades?Math.hypot(s.vx-flow.x,s.vy-flow.y):Math.hypot(s.vx,s.vy);
  const sensitivity=clamp(env.controlSensitivity??1,.35,1.8),rate=clamp(env.controlRate??1,.35,2),flight=helmResponse(s,c,steer,false,rate).flight,initial=c.helmInitialFraction+flight*((c.helmFlightInitialFraction??c.helmInitialFraction)-c.helmInitialFraction),progressive=initial+(1-initial)*(1-Math.exp(-s.helmHoldSeconds/c.helmGrowthSeconds)),demand=digital?steer*progressive:sign*Math.pow(Math.abs(steer),1.25),maximumRate=(c.helmYawRateHigh+(c.helmYawRateLow-c.helmYawRateHigh)/(1+(speed/c.helmYawSpeedReference)**2))*(1+flight*((c.helmFlightRateMultiplier??1)-1)),desiredRate=-clamp(demand*sensitivity,-1,1)*maximumRate;
  const available=c.rudderMax*(c.helmMinimumFraction+(1-c.helmMinimumFraction)/(1+(Math.abs(u)/c.helmSpeedReference)**2)),error=desiredRate-s.omega;
+ if((controls.difficulty??env.difficulty)==='hard'){
+  s.helmTarget=clamp(demand*sensitivity,-1,1)*available*s.helmFlowSign;
+  s.helmMaximum=available;s.helmDigital=digital;
+  s.rudder=move(s.rudder,s.helmTarget,(sign?c.rudderRate:c.rudderCenterRate)*rate*dt);
+  s.helmAssist={active:false,level:0,localForward:u,flowSign:s.helmFlowSign,backing:u<-.08};
+  s.steering={mode:'rudder',enabled:false,input:steer,targetRudder:s.helmTarget,desiredRate:0,actualRate:s.omega,localForward:u,flowSign:s.helmFlowSign,assistedMoment:0};
+  return s.helmAssist;
+ }
  // Curvature feed-forward keeps the physical rudder working in a sustained
  // turn. Rate-error feedback begins counter-rudder on the first opposite or
  // released input. The floor avoids dividing by a near-zero local stream.
@@ -1966,6 +2050,10 @@ function updateHelm(s,controls,inputEnv,dt,yawInertia){
 // not a claim that real crew can produce these torques without water flow.
 function steeringMoment(s,physicalMoment,rudderMoment,inertia,inputEnv,dt,sailMoment=0,rudder){
  const c=configFor(s),h=s.steering,env=environment(inputEnv);if(!h)return 0;
+ if(h.mode==='rudder'||env.difficulty==='hard'&&s.crewDifficulty==='hard'){
+  Object.assign(h,{enabled:false,physicalMoment,rudderMoment,assistedMoment:0});
+  return 0;
+ }
  const enabled=!s.capsized&&!s.recovering&&!s.ground?.contact,counter=h.input!==0&&h.desiredRate*s.omega<0,rate=clamp(env.controlRate??1,.35,2),timing=helmResponse(s,c,h.input,counter,rate),error=h.desiredRate-s.omega;
  // Response and acceleration limits are independent from input sensitivity
  // and passive motionDamping. No extra target or torque smoothing is applied.
@@ -2062,7 +2150,7 @@ function createState(overrides,inputEnv){
   if(o.crewSideBlend==null)s.crewSideBlend=s.crewSide;
  }
  advanceWaveProfile(s,env);updateCrew(s,{crewPose:s.crewPose}, {...env,autoBalance:false},0);
- if(o.heave==null)s.heave=equilibriumHeave(s,env);s.hydro=hydrostatics(s,env);refresh(s,env);return s;
+ if(o.heave==null)s.heave=equilibriumHeave(s,env);s.hydro=hydrostatics(s,env);s.massMotion=null;refresh(s,env);return s;
 }
 function updateCruiserSail(s,controls,env,c,dt){
  const sp=s.spinnaker||(s.spinnaker={type:'spinnaker',hoist:0,fill:0,luff:0,side:-1,sideBlend:-1,unsafe:0,phase:'down'});
@@ -2098,7 +2186,7 @@ function updateCruiserSail(s,controls,env,c,dt){
  if(wasDown&&asymmetric)sp.sideBlend=sp.side;
  else sp.sideBlend+=(sp.side-sp.sideBlend)*(1-Math.exp(-dt/1.5));
 
- const trim=clamp(1-Math.abs(s.sheet-profile.sheet)*1.25,0,1);
+ const selectedSheet=s.cruiserRig?.extraSheet??s.sheet,trim=clamp(1-Math.abs(selectedSheet-profile.sheet)*1.25,0,1);
  const shadow=1-profile.shadowLoss*smooth(profile.shadow*DEG,178*DEG,angle);
  // During a gybe the cloth briefly collapses as the clew crosses the bow.
  const settled=smooth(.12,.76,sp.side*sp.sideBlend);
@@ -2109,7 +2197,7 @@ function updateCruiserSail(s,controls,env,c,dt){
  sp.fill=sp.hoist>0?sp.fill+(fill-sp.fill)*(1-Math.exp(-dt/timeConstant)):0;
  // A modest trim or shadow loss reduces drive without making a loaded sail
  // flog. Luffing builds when the sail is too close to the wind or loses tension.
- const slack=smooth(.13,.46,profile.sheet-s.sheet),blanketed=smooth(.22,.65,1-shadow);
+ const slack=smooth(.13,.46,profile.sheet-selectedSheet),blanketed=smooth(.22,.65,1-shadow);
  const luff=Math.max(1-angleSupport*settled,.76*slack,.72*blanketed)*smooth(.25,2,speed);
  sp.luff=sp.hoist>0?(sp.luff??0)+(luff-(sp.luff??0))*(1-Math.exp(-dt/.27)):0;
  const curl=sp.type==='code0'?.007:sp.type==='gennaker'?.012:.048;
@@ -2154,33 +2242,26 @@ function step(s,controls,inputEnv,dt){
  if(rescueActive){s.rudder=move(s.rudder,0,h*c.rudderCenterRate);s.helmTarget=0;}else updateHelm(s,ctrl,env,h);
  const lively=(ctrl.difficulty??env.difficulty)!=='easy'&&!rescueActive&&!s.capsized;
  updateRig(s,c,h,lively);
- if(c.id==='yacht')updateCruiserSail(s,ctrl,env,c,h);
+ if(c.id==='yacht'){updateCruiserRig(s,ctrl,env,h);updateCruiserSail(s,ctrl,env,c,h);}
  let sail=aero(s,env);const limit=boomLimit(s.sheet,c),awa=sail.wind.awa;
  const boom=updateBoom(s,c,sail,env,h,limit,lively);
  if(awa!=null&&Math.abs(awa)<100*DEG&&Math.abs(awa)>12*DEG){const side=Math.sign(awa);if(s.lastTackSide&&side!==s.lastTackSide&&Math.abs(awa)<60*DEG)s.tackCount++;s.lastTackSide=side;}
  updateCrew(s,ctrl,env,h,sail);
  sail=aero(s,env);const a=axes(s.theta),wetEnv={...env,waveCurrent:s.seaState,waveCurrentRate:s.seaStateRate||0,waveProfile:s.waveProfile};
- const boardP={x:c.daggerX,y:c.daggerCPY??(c.deckY-c.daggerDepth*.56),z:0},rudderP={x:c.rudderX,y:c.deckY-c.rudderDepth*.62,z:0};
- const foilAt=(p,angle,area)=>{
-  const contact=waterContact(s,p,wetEnv),wet=smooth(-.05,.18,contact.depth),cos=Math.cos(s.heel);
-  const forward=contact.relativeX*a.fx+contact.relativeY*a.fy,side=contact.relativeX*a.rx+contact.relativeY*a.ry;
-  return foil(forward,side,angle,area*wet*Math.max(.04,cos*cos),c);
- };
- let board,rudder,bMoment,rMoment;
- if(c.waterBlades){
-  ({load:board,moment:bMoment}=laserBlade(s,a,c,c.waterBlades.board,0,wetEnv,h,s.forces?.board));
-  ({load:rudder,moment:rMoment}=laserBlade(s,a,c,c.waterBlades.rudder,s.rudder,wetEnv,h,s.forces?.rudder));
- }else{
-  board=foilAt(boardP,0,c.daggerArea);
-  bMoment=horizontalMoment(s,boardP,board.forward,board.side);
-  // Divide the total rudder area between the blades. Each has its own flow and immersion.
-  const parts=(c.rudderOffsets||[0]).map(z=>{
-   const point={...rudderP,z},load=foilAt(point,s.rudder,c.rudderArea/(c.rudderOffsets?.length||1));
-   return {point,load,moment:horizontalMoment(s,point,load.forward,load.side)};
-  });
-  rudder={...parts[0].load,forward:parts.reduce((n,r)=>n+r.load.forward,0),side:parts.reduce((n,r)=>n+r.load.side,0),power:parts.reduce((n,r)=>n+r.load.power,0),parts:parts.map(r=>({point:r.point,...r.load}))};
-  rMoment={roll:parts.reduce((n,r)=>n+r.moment.roll,0),pitch:parts.reduce((n,r)=>n+r.moment.pitch,0),yaw:parts.reduce((n,r)=>n+r.moment.yaw,0)};
+ const blades=c.waterBlades,offsets=c.rudderOffsets??[0];
+ const {load:board,moment:bMoment}=appendageBlade(s,a,c,blades.board,0,wetEnv,h,s.forces?.board);
+ const rudders=offsets.map((z,i)=>{
+  const blade={...blades.rudder,z,area:blades.rudder.area/offsets.length};
+  const prior=s.forces?.rudder?.parts?.[i]??s.forces?.rudder;
+  return appendageBlade(s,a,c,blade,s.rudder,wetEnv,h,prior);
+ });
+ const rudder={parts:rudders.map(({load},i)=>({...load,x:blades.rudder.x,z:offsets[i],area:blades.rudder.area/offsets.length}))};
+ for(const key of Object.keys(rudders[0].load)){
+  const total=rudders.reduce((sum,r)=>sum+r.load[key],0);
+  rudder[key]=['forward','side','vertical','power','profileDrag','inducedDrag','stallDrag'].includes(key)?total:total/offsets.length;
  }
+ const rMoment={roll:0,pitch:0,yaw:0};
+ for(const {moment} of rudders)for(const axis of ['roll','pitch','yaw'])rMoment[axis]+=moment[axis];
  const hydro=hydrostatics(s,env),wetRig=hydro.rigWet;
  const planing=c.planing?planingLoad(s,c,a,wetEnv,hydro):null,planingLift=planing?.lift??0,planingDrag=planing?.drag??0;
  const planingSurge=planing?.surge??0,planingMoment=planing?.moment??{roll:0,pitch:0,yaw:0};
@@ -2191,7 +2272,12 @@ function step(s,controls,inputEnv,dt){
  const ground=root.SailingWorld?.contact(s,c,env)||{fx:0,fy:0,fz:0,yaw:0,roll:0,pitch:0,contact:false,depth:80,distance:Infinity};s.ground=ground;
  const crewSegments=(s.crewJoints||B.crewPoseAt(s)).segments;
  const inertiaYaw=c.yawInertia+crewSegments.reduce((sum,v)=>sum+v.mass*(v.p.x*v.p.x+v.p.z*v.p.z),0);
- const physicalYaw=sail.yawMoment+bMoment.yaw+rMoment.yaw+planingMoment.yaw+resistance.yaw+yawDamping+ground.yaw+hydro.waveYaw,yawAssist=steeringMoment(s,physicalYaw,rMoment.yaw,inertiaYaw,env,h,sail.yawMoment,rudder),baseYawMoment=physicalYaw+yawAssist+boom.reaction;
+ const physicalYaw=sail.yawMoment+bMoment.yaw+rMoment.yaw+planingMoment.yaw+resistance.yaw+yawDamping+ground.yaw+hydro.waveYaw;
+ const waterDrive=hydro.waveFx*a.fx+hydro.waveFy*a.fy,waterSide=hydro.waveFx*a.rx+hydro.waveFy*a.ry;
+ const cgYaw=horizontalMoment(s,hydro.cg,forceF+waterDrive+ground.fx*a.fx+ground.fy*a.fy,forceR+waterSide+ground.fx*a.rx+ground.fy*a.ry).yaw;
+ const yawAtCG=s.massMotion?.inertia.yaw??inertiaYaw;
+ const yawAssist=steeringMoment(s,physicalYaw-cgYaw,rMoment.yaw-horizontalMoment(s,hydro.cg,rudder.forward,rudder.side).yaw,yawAtCG,env,h,sail.yawMoment,rudder);
+ const baseYawMoment=physicalYaw+yawAssist+boom.reaction;
  const rollDamping=-(c.rollDamping+wetRig*c.rigRollDamping)*s.heelRate*damping,pitchDamping=-(c.pitchDamping+wetRig*c.rigPitchDamping)*s.pitchRate*damping;
  let rollMoment=sail.rollMoment+bMoment.roll+rMoment.roll+planingMoment.roll+resistance.roll+hydro.roll+rollDamping+ground.roll,pitchMoment=sail.pitchMoment+bMoment.pitch+rMoment.pitch+planingMoment.pitch+resistance.pitch+hydro.pitch+pitchDamping+ground.pitch;
  // The articulated segments are the same mass points used by gravity and
@@ -2201,21 +2287,34 @@ function step(s,controls,inputEnv,dt){
  const vertical=hydro.vertical+planingLift+ground.fz+(board.vertical||0)+(rudder.vertical||0);
  const rollPhysical=rollMoment,pitchPhysical=pitchMoment,rescue=root.SailingRecovery?.forces(s,env,{roll:inertiaRoll,pitch:inertiaPitch,yaw:inertiaYaw,mass:c.mass,physicalRoll:rollPhysical,physicalPitch:pitchPhysical,physicalYaw,physicalFz:vertical})||{roll:0,pitch:0,yaw:0,fx:0,fy:0,fz:0};
  const recoveryRoll=rescue.roll,recoveryPitch=rescue.pitch,yawMoment=baseYawMoment+rescue.yaw;rollMoment+=recoveryRoll;pitchMoment+=recoveryPitch;
- s.vx+=(forceF*a.fx+forceR*a.rx+ground.fx+rescue.fx+hydro.waveFx)/c.mass*h;s.vy+=(forceF*a.fy+forceR*a.ry+ground.fy+rescue.fy+hydro.waveFy)/c.mass*h;s.omega+=yawMoment/inertiaYaw*h;if(s.steering){s.steering.actualRate=s.omega;s.steering.error=s.steering.desiredRate-s.omega;}
- s.heaveVelocity+=(vertical+rescue.fz)/c.mass*h;s.heelRate+=rollMoment/inertiaRoll*h;s.pitchRate+=pitchMoment/inertiaPitch*h;
- s.x+=s.vx*h;s.y+=s.vy*h;s.theta=wrap(s.theta+s.omega*h);s.heave+=s.heaveVelocity*h;s.heel+=s.heelRate*h;s.pitch+=s.pitchRate*h;
+ const force={x:forceF*a.fx+forceR*a.rx+ground.fx+rescue.fx+hydro.waveFx,y:forceF*a.fy+forceR*a.ry+ground.fy+rescue.fy+hydro.waveFy,z:vertical+rescue.fz};
+ integrateMass(s,h,c.mass,hydro.cg,{roll:inertiaRoll,pitch:inertiaPitch,yaw:inertiaYaw},force,{roll:rollMoment,pitch:pitchMoment,yaw:yawMoment});
+ if(s.steering){s.steering.actualRate=s.omega;s.steering.error=s.steering.desiredRate-s.omega;}
  const floodTarget=smooth(.025,-.065,hydro.coamingClearance);s.cockpitWet+=(floodTarget-s.cockpitWet)*(1-Math.exp(-h/(floodTarget>s.cockpitWet?c.floodFillSeconds:c.floodDrainSeconds)));
  if(!s.capsized&&Math.abs(wrap(s.heel))>c.capsizeAngle){s.capsized=true;s.gybeTarget=0;}
  s.hydro=hydro;s.hydro.cockpitWet=s.cockpitWet;
- const waterDrive=hydro.waveFx*a.fx+hydro.waveFy*a.fy,waterSide=hydro.waveFx*a.rx+hydro.waveFy*a.ry;
- s.forces={forward:forceF+waterDrive+(ground.fx+rescue.fx)*a.fx+(ground.fy+rescue.fy)*a.fy,side:forceR+waterSide+(ground.fx+rescue.fx)*a.rx+(ground.fy+rescue.fy)*a.ry,hullF,hullR,waveForward:waterDrive,planingLift,planingDrag,planingSurge,planingRelativeRise:planing?.rise??0,planingPower:planing?.power??0,board,rudder,yaw:yawMoment,yawSail:sail.yawMoment,yawBoard:bMoment.yaw,yawRudder:rMoment.yaw,yawDamping,yawAssist,yawPhysical:physicalYaw,yawRecovery:rescue.yaw,ground,roll:rollMoment,rollPhysical,pitchPhysical,rollSail:sail.rollMoment,rollCrew:hydro.rollCrew,rollHull:hydro.rollBuoyancy+hydro.rollGravity-hydro.rollCrew,rollHydro:bMoment.roll+rMoment.roll+hydro.rollRig,rollDamping:rollDamping+hydro.rollHydroDamping,pitch:pitchMoment,vertical:vertical+rescue.fz,recoveryVertical:rescue.fz,recoveryDrag:{x:rescue.fx,y:rescue.fy},buoyancy:hydro.buoyancy,weight:hydro.weight,recoveryRoll,recoveryPitch,inertiaRoll,inertiaPitch,inertiaYaw,boomTorque:boom.torque,boomReaction:boom.reaction,sheetTension:Math.abs(s.boom)>=limit-.001?Math.abs(boom.torque):0};
+ s.forces={forward:forceF+waterDrive+(ground.fx+rescue.fx)*a.fx+(ground.fy+rescue.fy)*a.fy,side:forceR+waterSide+(ground.fx+rescue.fx)*a.rx+(ground.fy+rescue.fy)*a.ry,world:force,hullF,hullR,skinF:resistance.skinF,ownWaveF:resistance.ownWaveF,waveForward:waterDrive,planingLift,planingDrag,planingSurge,planingRelativeRise:planing?.rise??0,planingPower:planing?.power??0,board,rudder,yaw:yawMoment,yawSail:sail.yawMoment,yawBoard:bMoment.yaw,yawRudder:rMoment.yaw,yawDamping,yawAssist,yawPhysical:physicalYaw,yawRecovery:rescue.yaw,ground,roll:rollMoment,rollPhysical,pitchPhysical,rollSail:sail.rollMoment,rollCrew:hydro.rollCrew,rollHull:hydro.rollBuoyancy+hydro.rollGravity-hydro.rollCrew,rollHydro:bMoment.roll+rMoment.roll+hydro.rollRig,rollDamping:rollDamping+hydro.rollHydroDamping,pitch:pitchMoment,vertical:vertical+rescue.fz,recoveryVertical:rescue.fz,recoveryDrag:{x:rescue.fx,y:rescue.fy},buoyancy:hydro.buoyancy,weight:hydro.weight,recoveryRoll,recoveryPitch,inertiaRoll,inertiaPitch,inertiaYaw,boomTorque:boom.torque,boomReaction:boom.reaction,sheetTension:Math.abs(s.boom)>=limit-.001?Math.abs(boom.torque):0};
+ if(env.forceDiagnostics){
+  const ledger=(forward,side,up,roll,pitch,yaw)=>({force:{x:forward*a.fx+side*a.rx,y:forward*a.fy+side*a.ry,z:up},moment:{roll,pitch,yaw}});
+  const at=(load,m)=>ledger(load.forward,load.side,load.vertical??0,m.roll,m.pitch,m.yaw);
+  s.forces.ledger={
+   sail:ledger(sail.drive,sail.sideForce,0,sail.rollMoment,sail.pitchMoment,sail.yawMoment),
+   hull:ledger(hullF,hullR,0,resistance.roll,resistance.pitch,resistance.yaw),
+   board:at(board,bMoment),rudder:at(rudder,rMoment),planing:at({forward:planingSurge,side:0,vertical:planingLift},planingMoment),
+   buoyancyAndDamping:ledger(0,0,hydro.vertical+hydro.weight,hydro.roll-hydro.rollGravity-hydro.waveRoll+rollDamping,hydro.pitch-hydro.pitchGravity-hydro.wavePitch+pitchDamping,yawDamping),
+   gravity:ledger(0,0,-hydro.weight,hydro.rollGravity,hydro.pitchGravity,0),
+   wave:ledger(waterDrive,waterSide,0,hydro.waveRoll,hydro.wavePitch,hydro.waveYaw),
+   ground:{force:{x:ground.fx,y:ground.fy,z:ground.fz},moment:{roll:ground.roll,pitch:ground.pitch,yaw:ground.yaw}},
+   boom:ledger(0,0,0,0,0,boom.reaction),assist:{force:{x:rescue.fx,y:rescue.fy,z:rescue.fz},moment:{roll:rescue.roll,pitch:rescue.pitch,yaw:rescue.yaw+yawAssist}}
+  };
+ }
  root.SailingRecovery?.postStep(s,env);if(root.SailingRecovery?.active(s)&&s.recoveryState.fallback)s.hydro=hydrostatics(s,env,false);return refresh(s,env);
 }
 function recover(s,env,nowMs){const R=root.SailingRecovery||(typeof require==='function'?require('./recovery.js'):null);if(!R)throw Error('Opretningsmodellen er ikke indlæst.');R.start(s,env,nowMs);return s;}
 function instruments(s,target,env){const a=axes(s.theta),w=s.wind,speed=Math.hypot(s.vx,s.vy);
  const logSpeed=Math.hypot(s.vx-(s.waterX||0),s.vy-(s.waterY||0));
  const flow=waterVelocity(s,env?waveAt(s.x,s.y,s.time,{...env,waveCurrent:s.seaState,waveProfile:s.waveProfile},Math.max(0,-s.heave)):undefined),waterX=s.vx-flow.x,waterY=s.vy-flow.y,waterSpeed=Math.hypot(waterX,waterY);let distance=null,vmg=null,bearing=null;if(target){const dx=target.x-s.x,dy=target.y-s.y;distance=Math.hypot(dx,dy);vmg=distance>1e-8?(s.vx*dx+s.vy*dy)/distance:0;bearing=wrap360(Math.atan2(dx,dy)/DEG);}return{speed,knots:speed*1.9438444924,waterSpeed,waterKnots:waterSpeed*1.9438444924,logKnots:logSpeed*1.9438444924,heading:wrap360(90-s.theta/DEG),course:speed>.03?wrap360(Math.atan2(s.vx,s.vy)/DEG):null,leeway:waterSpeed>.03?Math.atan2(waterX*a.rx+waterY*a.ry,waterX*a.fx+waterY*a.fy):null,tws:w.tws,twd:w.twd,twa:w.twa,aws:w.aws,awa:w.awa,heel:s.heel,sheet:s.sheet,boom:s.boom,distance,vmg,bearing,boatId:s.boatId,crewPose:s.crewPose,heave:s.heave,pitch:s.pitch,vmgWind:w.tws>.01?-(s.vx*w.vx+s.vy*w.vy)/w.tws:null};}
-root.SailPhysics={CONFIG,DEFAULT_ENV,environment,WAVE_COMPONENTS,BASE_WAVE_DIRECTION,BASE_WAVE_PERIOD,WAVE_HEIGHT_UNIT,CREST_BEND,PROFILE_SECONDS,MAX_WAVE_HEIGHT,CHOP_PERIOD,CHOP_SPREAD,waveHeightUnit,windWaveAt,windWaveTarget,longWaveAt,waveProfileFor,waveBlendAt,advanceWaveProfile,waveExposureField,waveExposureAt,wavePathField,DEG,clamp,wrap,wrap360,configFor,createState,step,windAt,waveAt,seaTarget,aero,sailCoefficients,foil,windForState,instruments,boomLimit,sheetRateFor,sheetTorque,recover,refresh,axes,bodyPoint,bodyOffset,pointMotion,waterVelocity,waterContact,bowWaterContact,hydrostatics,equilibriumHeave,hullSamples,updateCrew,updateRig,updateBoom,sailFlutter,sailAirAt,updateHelm,steeringMoment,backingBoomTorque};
+root.SailPhysics={CONFIG,DEFAULT_ENV,environment,WAVE_COMPONENTS,BASE_WAVE_DIRECTION,BASE_WAVE_PERIOD,WAVE_HEIGHT_UNIT,CREST_BEND,PROFILE_SECONDS,MAX_WAVE_HEIGHT,CHOP_PERIOD,CHOP_SPREAD,waveHeightUnit,windWaveAt,windWaveTarget,longWaveAt,waveProfileFor,waveBlendAt,advanceWaveProfile,waveExposureField,waveExposureAt,wavePathField,DEG,clamp,wrap,wrap360,configFor,createState,step,windAt,waveAt,seaTarget,aero,sailCoefficients,foil,windForState,instruments,boomLimit,sheetRateFor,sheetTorque,integrateMass,recover,refresh,axes,bodyPoint,bodyOffset,pointMotion,waterVelocity,waterContact,bowWaterContact,hydrostatics,equilibriumHeave,hullSamples,updateCrew,updateRig,updateBoom,sailFlutter,sailAirAt,updateHelm,steeringMoment,backingBoomTorque};
 if(typeof module!=='undefined'&&module.exports)module.exports=root.SailPhysics;
 })(typeof globalThis!=='undefined'?globalThis:window);
 
@@ -2566,7 +2665,7 @@ function createState(overrides,inputEnv){
   const angle=P.windForState(s,env).awa;
   if(angle!=null&&Math.abs(Math.sin(angle))>.08)s.boom=-Math.sign(angle)*Math.abs(s.boom);
  }
- heavyAirSailPlan(s,env,c,0);refresh(s,env);s.hydro=hullLoads(s,env,massProperties(s),false);foilLoads(s,env);updateStatus(s,s.hydro);return s;
+ heavyAirSailPlan(s,env,c,0);refresh(s,env);s.hydro=hullLoads(s,env,massProperties(s),false);s.massMotion=null;foilLoads(s,env);updateStatus(s,s.hydro);return s;
 }
 function updateStatus(s,hull){
  const f=s.foiling,c=cfg(s),lift=foilKeys(s).reduce((sum,key)=>sum+s.foils[key].force.z,0),weight=c.mass*(s.massScale||1)*c.gravity,oldStatus=f.status;
@@ -2603,20 +2702,34 @@ function advance(s,controls,env,h){
  const ease=c.rigidWing?.78*(s.wing?.relief??0):s.rig?.sheetEase??0;
  let sail=aero(s,env);
  const boom=P.updateBoom(s,c,sail,env,h,P.boomLimit(s.sheet*(1-ease),c),lively);
- sail=aero(s,env);let m=massProperties(s),hull=hullLoads(s,env,m),water=foilLoads(s,env,h);autoFoils(s,ctrl,env,h,m,hull,sail,water);m=massProperties(s);water=foilLoads(s,env);const air=airHullLoads(s,env),total=accumulator();combine(total,hull);combine(total,sail.accumulator);combine(total,water);combine(total,air);
+ sail=aero(s,env);let m=massProperties(s),hull=hullLoads(s,env,m),water=foilLoads(s,env,h);autoFoils(s,ctrl,env,h,m,hull,sail,water);m=massProperties(s);water=foilLoads(s,env);
+ const gravityAtCg=P.bodyOffset(s,m.cg),gravityRoll=-hull.weight*gravityAtCg.dHeel,gravityPitch=-hull.weight*gravityAtCg.dPitch;
+ hull.roll+=gravityRoll-hull.rollGravity;hull.pitch+=gravityPitch-hull.pitchGravity;
+ hull.rollGravity=gravityRoll;hull.pitchGravity=gravityPitch;
+ const air=airHullLoads(s,env),total=accumulator();combine(total,hull);combine(total,sail.accumulator);combine(total,water);combine(total,air);
  const ground=root.SailingWorld?.contact(s,c,env)||{fx:0,fy:0,fz:0,yaw:0,roll:0,pitch:0,contact:false,depth:80,distance:Infinity};s.ground=ground;total.force.x+=ground.fx;total.force.y+=ground.fy;total.force.z+=ground.fz;total.roll+=ground.roll;total.pitch+=ground.pitch;total.yaw+=ground.yaw;
- // Hydraulics accelerate heavy arms. Equal-and-opposite joint reactions are
- // applied to the hull; these are internal actuator forces, not a stabilizer.
- let reaction=accumulator();for(const p of m.points)if(p.kind==='arm'&&p.jointAcceleration){const force=mul(bodyVector(s,p.jointAcceleration),-p.mass);addForce(reaction,s,p,force);}combine(total,reaction);
- const physicalYaw=total.yaw,rollPhysical=total.roll,pitchPhysical=total.pitch,yawAssist=P.steeringMoment(s,physicalYaw,water.rudderYaw,m.inertiaYaw,env,h);
+ // The arm actuator is internal. Its mass transfer is in integrateMass.
+ const reaction=accumulator();
+ const heading=P.axes(s.theta),centre=P.bodyOffset(s,m.cg);
+ const cgYaw=centre.r*(total.force.x*heading.fx+total.force.y*heading.fy)-centre.f*(total.force.x*heading.rx+total.force.y*heading.ry);
+ const physicalYaw=total.yaw,rollPhysical=total.roll,pitchPhysical=total.pitch;
+ const yawAssist=P.steeringMoment(s,physicalYaw-cgYaw,water.rudderYaw,s.massMotion?.inertia.yaw??m.inertiaYaw,env,h);
  const rescue=root.SailingRecovery?.forces(s,env,{roll:m.inertiaRoll,pitch:m.inertiaPitch,yaw:m.inertiaYaw,mass:m.mass,physicalRoll:rollPhysical,physicalPitch:pitchPhysical,physicalYaw,physicalFz:total.force.z})||{roll:0,pitch:0,yaw:0,fx:0,fy:0,fz:0},recoveryRoll=rescue.roll,recoveryPitch=rescue.pitch;
  total.roll+=rescue.roll;total.pitch+=rescue.pitch;total.yaw+=yawAssist+rescue.yaw+boom.reaction;total.force.x+=rescue.fx;total.force.y+=rescue.fy;total.force.z+=rescue.fz;
  if(s.foiling.controller)Object.assign(s.foiling.controller,{actualFoilVertical:water.vertical,actualFoilRoll:water.roll,actualFoilPitch:water.pitch,actualRollAcceleration:total.roll/m.inertiaRoll,actualPitchAcceleration:total.pitch/m.inertiaPitch,actualVerticalAcceleration:total.force.z/m.mass,hullDamping:{...hull.rotationalDamping},hullContactFraction:hull.hullWetFraction});
- s.vx+=total.force.x/m.mass*h;s.vy+=total.force.y/m.mass*h;s.heaveVelocity+=total.force.z/m.mass*h;s.heelRate+=total.roll/m.inertiaRoll*h;s.pitchRate+=total.pitch/m.inertiaPitch*h;s.omega+=total.yaw/m.inertiaYaw*h;if(s.steering){s.steering.actualRate=s.omega;s.steering.error=s.steering.desiredRate-s.omega;}
- s.x+=s.vx*h;s.y+=s.vy*h;s.heave+=s.heaveVelocity*h;s.heel+=s.heelRate*h;s.pitch+=s.pitchRate*h;s.theta=wrap(s.theta+s.omega*h);
+ P.integrateMass(s,h,m.mass,m.cg,{roll:m.inertiaRoll,pitch:m.inertiaPitch,yaw:m.inertiaYaw},total.force,total);
+ if(s.steering){s.steering.actualRate=s.omega;s.steering.error=s.steering.desiredRate-s.omega;}
  s.cockpitWet+=(smooth(.03,-.10,hull.coamingClearance)-s.cockpitWet)*(1-Math.exp(-h/(hull.coamingClearance<0?c.floodFillSeconds:c.floodDrainSeconds)));
  if(Math.abs(wrap(s.heel))>c.capsizeAngle||Math.abs(wrap(s.pitch))>65*D)s.capsized=true;
  const ax=P.axes(s.theta);s.hydro={...hull,weight:m.mass*c.gravity,cg:m.cg};s.forces={forward:total.force.x*ax.fx+total.force.y*ax.fy,side:total.force.x*ax.rx+total.force.y*ax.ry,world:total.force,vertical:total.force.z,aeroVertical:sail.fz,roll:total.roll,pitch:total.pitch,yaw:total.yaw,yawAssist,yawPhysical:physicalYaw,yawRecovery:rescue.yaw,rollPhysical,pitchPhysical,recoveryVertical:rescue.fz,recoveryDrag:{x:rescue.fx,y:rescue.fy},yawRudder:water.rudderYaw,ground,rollSail:sail.rollMoment,rollHull:hull.roll,rollHydro:water.roll,rollCrew:0,rollDamping:hull.rotationalDamping?.roll||0,pitchDamping:hull.rotationalDamping?.pitch||0,yawDamping:hull.rotationalDamping?.yaw||0,buoyancy:hull.buoyancy,weight:m.mass*c.gravity,hullF:hull.hullF,hullR:hull.hullR,foilVertical:water.vertical,foilDrag:water.foilDrag,inertiaRoll:m.inertiaRoll,inertiaPitch:m.inertiaPitch,inertiaYaw:m.inertiaYaw,armReaction:reaction.force,armReactionRoll:reaction.roll,recoveryRoll,recoveryPitch,boomTorque:boom.torque,boomReaction:boom.reaction,mass:m.mass,board:{forward:0,side:0},rudder:s.foils.rudder||s.foils.rudderPort};
+ if(env.forceDiagnostics){
+  const report=(a,weight=0)=>({force:{...a.force,z:a.force.z+weight},moment:{roll:a.roll-(weight?hull.rollGravity:0),pitch:a.pitch-(weight?hull.pitchGravity:0),yaw:a.yaw}});
+  s.forces.ledger={sail:report(sail.accumulator),hull:report(hull,hull.weight),foils:report(water),airDrag:report(air),
+   gravity:{force:V(0,0,-hull.weight),moment:{roll:hull.rollGravity,pitch:hull.pitchGravity,yaw:0}},
+   ground:{force:V(ground.fx,ground.fy,ground.fz),moment:{roll:ground.roll,pitch:ground.pitch,yaw:ground.yaw}},
+   boom:{force:V(),moment:{roll:0,pitch:0,yaw:boom.reaction}},
+   assist:{force:V(rescue.fx,rescue.fy,rescue.fz),moment:{roll:rescue.roll,pitch:rescue.pitch,yaw:rescue.yaw+yawAssist}}};
+ }
  root.SailingRecovery?.postStep(s,env);if(root.SailingRecovery?.active(s)&&s.recoveryState.fallback){hull=hullLoads(s,env,massProperties(s),false);s.hydro=hull;foilLoads(s,env);}updateStatus(s,hull);refresh(s,env);
 }
 function step(s,controls,inputEnv,dt){const env=envFor(inputEnv),h=dt==null?1/60:clamp(dt,0,.05);if(!h)return s;const count=Math.ceil(h/(1/240)-1e-9),sub=h/count;for(let i=0;i<count;i++)advance(s,controls||{},env,sub);return s;}
@@ -2687,6 +2800,7 @@ function solvedState(s,env,plan){
  return{fresh,where};
 }
 function start(s,env,nowMs){
+ if(env?.autoRecovery===false)return{started:false};
  if(active(s)){s.recoveryState.repeatedStartCount++;return{started:false,record:s.recoveryState};}
  const now=monotonicNow(nowMs),initial=statePoint(s),plan=windPlan(s,env),r={id:(s.lastRecovery?.id||s.recoveryState?.id||0)+1,active:true,startMs:now,lastMs:now,elapsed:0,phase:'unload',initial,plan,usedFallback:false,fallback:null,stableSince:null,completedAtMs:null,completedElapsedSeconds:null,deadlineMs:now+CONFIG.deadlineSeconds*1000,watchdogMs:now+CONFIG.watchdogSeconds*1000,clock:'monotonic milliseconds supplied by caller',repeatedStartCount:0};
  s.recoveryState=r;s.recovering=true;s.capsized=true;s.recovery=0;s.recoveryAeroScale=1;s.gybeTarget=0;s.crewPose=1;s.crewSide=plan.side;s.crewSideCandidate=plan.side;s.crewSideConfirm=0;s.helmHoldSeconds=0;s.steerIntent=0;s.helmAssist={active:false,level:0,moment:0,backAngle:0};s.steering=null;
@@ -2770,7 +2884,7 @@ function finish(s,env,nowMs,reason){
  return{completed:true,record:history};
 }
 function update(s,env,nowMs){
- if(!s)return{started:false,completed:false};let started=false;
+ if(!s||env?.autoRecovery===false)return{started:false,completed:false};let started=false;
  if(s.capsized&&!active(s)){start(s,env,nowMs);started=true;}
  if(!active(s))return{started,completed:false};
  const r=s.recoveryState,now=Math.max(r.lastMs,monotonicNow(nowMs));r.lastMs=now;r.elapsed=(now-r.startMs)/1000;s.recovery=clamp(r.elapsed/CONFIG.fallbackEndSeconds,0,1);s.recovering=true;s.crewPose=1;
@@ -4969,7 +5083,7 @@ class SailingScene {
     for(const [mesh,jib] of [[this.sailMesh,false],[this.jibMesh,true]]){const {rows,cols}=mesh.userData.grid,p=mesh.geometry.attributes.position.array;let k=0;for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++){const q=jib?this.jibFoilerPoint((i/cols)*(1-(s.spinnaker?.hoist||0)),j/rows,s):this.mainFoilerPoint(i/cols,j/rows,s);p[k++]=q.x;p[k++]=q.y;p[k++]=q.z;}mesh.geometry.attributes.position.needsUpdate=true;mesh.geometry.computeVertexNormals();}
     for(const [line,jib] of [[this.sailEdge,false],[this.jibEdge,true]]){const p=line.geometry.attributes.position.array,n=p.length/3,half=Math.ceil(n/2);for(let i=0;i<n;i++){const u=i<half?1:0,v=i<half?i/(half-1):(n-1-i)/(n-half-1),q=jib?this.jibFoilerPoint(u*(1-(s.spinnaker?.hoist||0)),v,s):this.mainFoilerPoint(u,v,s);p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z;}line.geometry.attributes.position.needsUpdate=true;}
     for(const b of this.mainBattens){const p=b.line.geometry.attributes.position.array;for(let i=0;i<17;i++){const q=this.mainFoilerPoint(.36+.63*i/16,b.v,s);p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z+.008;}b.line.geometry.attributes.position.needsUpdate=true;}
-    const top=this.foilerMastPoint(this.rig.mastTop,s);this.forestay.geometry.setFromPoints([this.jibFoilerPoint(0,0,s),this.jibFoilerPoint(0,1,s)]);this.backstay.geometry.setFromPoints([this.V(m.hullSections[0][0]+.25,deck,0),top]);
+    const top=this.foilerMastPoint(this.rig.mastTop,s);this.forestay.geometry.setFromPoints([this.jibFoilerPoint(0,0,s,true),this.jibFoilerPoint(0,1,s,true)]);this.backstay.geometry.setFromPoints([this.V(m.hullSections[0][0]+.25,deck,0),top]);
     for(let i=0;i<2;i++){const side=i?1:-1;this.shrouds[i].geometry.setFromPoints([this.V(this.mastX-.60,deck,side*m.beam*.43),this.foilerMastPoint(this.rig.mastTop*.53,s).add(this.V(-.18,0,side*m.beam*.36)),top]);}
     const clew=this.mainFoilerPoint(1,0,s),jclew=this.jibFoilerPoint(1-(s.spinnaker?.hoist||0),0,s);this.mainSheet.geometry.setFromPoints([clew,this.V(c.x1-.40,deck+.06,0)]);this.vang.geometry.setFromPoints([this.V(this.mastX,deck+.10,0),this.V(this.mastX-Math.cos(s.boom)*1.6,this.rig.boomY,Math.sin(s.boom)*1.6)]);for(let i=0;i<2;i++)this.jibSheets[i].geometry.setFromPoints([jclew,this.V(c.x1-.35,deck+.20,(i?1:-1)*(c.halfWidth+.16))]);
     for(const t of this.telltales){const q=t.jib?this.jibFoilerPoint(.26,t.v,s):this.mainFoilerPoint(.26,t.v,s),a=t.line.geometry.attributes.position.array,flow=(t.jib?s.sail?.jib:s.sail?.main)||s.sail||{},beta=t.jib?(flow.angle??s.jibAngle??s.boom*.7):s.boom,flutter=(flow.flow==='running'?.18:clamp(.06+(flow.luff||0)*.8+(flow.stall||0)*.65,.06,1))*clamp((s.wind?.aws??0)/1.5,0,1);for(let i=0;i<9;i++){const u=i/8;a[i*3]=q.x-Math.cos(beta)*u*.40;a[i*3+1]=q.y+Math.sin(s.time*16+t.v*31+i)*u*.10*flutter;a[i*3+2]=q.z+Math.sin(beta)*u*.40+t.side*.025+Math.sin(s.time*21+i*.8)*u*.08*flutter;}t.line.geometry.attributes.position.needsUpdate=true;}
@@ -5021,7 +5135,7 @@ class SailingScene {
     if(asymmetric){
       const tack=m.hullSections.at(-1)[0]-.10,base=deck+.14,luff=m.mastTop*(code0?.96:.95)-base;
       const taper=code0?.62:.45,foot=m[code0?'code0Area':'gennakerArea']*(1+taper)/luff;
-      const beta0=(code0?.53:.67)+.34*(1-s.sheet);
+      const beta0=(code0?.53:.67)+.34*(1-(s.cruiserRig?.extraSheet??s.sheet));
       for(let j=0;j<=rows;j++){
         const v=j/rows,span=Math.sin(Math.PI*v),beta=beta0+.14*v;
         const leadingX=tack+(m.mastX-tack)*v+(code0?0:.48)*span*fill;
@@ -5085,7 +5199,7 @@ class SailingScene {
     const m=this.model,a=s.sail?.main||s.sail||{},side=s.rig?.sideBlend??a.side??s.sail?.side??(Math.sign(s.boom)||1),angle=(s.boom??a.angle??0)+side*(a.twist??s.sail?.twist??m.baseTwist??.08)*v;
     const scale=global.SailingBoats.foilerSailScale(m,'main',s.rig?.reef);
     const area=m.mainArea??m.sailArea*.76,mean=clamp(area/(this.rig.foot*this.rig.luff),.32,.88),tip=m.racingYacht?.27:.12,exponent=clamp((1-tip)/(mean-tip)-1,.18,2.5),width=scale*this.rig.foot*(tip+(1-tip)*Math.pow(1-v,exponent));
-    const height=this.rig.boomY+this.rig.luff*v*scale,bend=this.foilerMastPoint(height,s),cx=-Math.cos(angle),cz=Math.sin(angle),nx=Math.sin(angle),nz=Math.cos(angle),span=Math.sin(Math.PI*u),edge=Math.sin(Math.PI*v);
+    const height=this.rig.boomY+this.rig.luff*v*scale*(1-.22*(s.cruiserRig?.reef??0)),bend=this.foilerMastPoint(height,s),cx=-Math.cos(angle),cz=Math.sin(angle),nx=Math.sin(angle),nz=Math.cos(angle),span=Math.sin(Math.PI*u),edge=Math.sin(Math.PI*v);
     const camber=side*(a.camber??s.sail?.camber??m.camber??.055)*width*span*Math.pow(Math.max(0,edge),.35),thickness=skin*.016*width*span*Math.pow(Math.max(0,edge),.3);
     const flutter=width*(m.id==='yacht'?.48:.60)*(u**4+.10*span)*this.P.sailFlutter(s.rig,v);
     return this.V(bend.x+cx*width*u+nx*(camber+thickness+flutter),height,bend.z+cz*width*u+nz*(camber+thickness+flutter));
@@ -5094,7 +5208,7 @@ class SailingScene {
   jibFoilerPoint(u,v,s,fullStay=false){
     const m=this.model,a=s.sail?.jib||s.sail||{},load=clamp(a.load??0,0,1),side=s.rig?.sideBlend??a.side??s.sail?.side??(Math.sign(s.boom)||1);
     const jib=m.jib||{},jt=m.jibTack||jib.tack||{},jh=m.jibHead||jib.head||{},tack=this.V(jt.x??jib.tackX??m.jibTackX??9.3,jt.y??jib.tackY??m.jibTackY??m.deckY+.16,jt.z??0),headY=jh.y??jib.headY??m.jibHeadY??23,head=this.foilerMastPoint(headY,s);head.x+=(jh.x??jib.headX??m.jibHeadX??this.mastX)-this.mastX;
-    const scale=fullStay?1:global.SailingBoats.foilerSailScale(m,'jib',s.rig?.reef);
+    const scale=fullStay?1:global.SailingBoats.foilerSailScale(m,'jib',s.rig?.reef)*Math.sqrt(1-.42*(s.cruiserRig?.headsail??0));
     const luff=headY-tack.y,foot=jib.foot??m.jibFoot??2*(m.jibArea??40)/luff,width=scale*foot*(1-v),base=tack.lerp(head,v*scale),angle=a.angle??s.foiling?.jibAngle??(s.boom||0)*.68,twist=side*(s.sail?.twist??m.baseTwist??.035)*.7*(v-.33),beta=angle+twist;
     const span=Math.sin(Math.PI*u),belly=side*(a.camber??s.sail?.camber??m.camber??.065)*width*span*Math.sin(Math.PI*v);
     const flutter=width*(m.id==='yacht'?.45:.58)*(u**4+.15*span)*this.P.sailFlutter(s.rig,v,true);
@@ -6050,7 +6164,7 @@ const fmt=(n,d=1)=>Number.isFinite(n)?n.toFixed(d):'—';
 const ang=n=>n==null?'—':Math.abs(n/DEG).toFixed(0)+'°'+(Math.abs(n)<.0001||Math.abs(n)>Math.PI-.0001?'':n>0?' SB':' BB');
 const timeText=n=>{if(n==null)return '—';const whole=Math.floor(n),tenth=Math.floor((n-whole)*10);return Math.floor(whole/60)+':'+String(whole%60).padStart(2,'0')+'.'+tenth;};
 const bearing=n=>n==null?'—':String(Math.round(n)%360).padStart(3,'0')+'°';
-const query=new URLSearchParams(location.search),trial=query.get('proeve');
+const query=new URLSearchParams(location.search),trial=query.get('proeve'),physicalCapsize=query.get('fysik')==='uden-opretning';
 const waveTrial=trial==='boelger',windTrial=trial==='lae';
 const dinghyTrial=waveTrial&&query.get('baad')==='laser';
 const trialHeading=dinghyTrial?-1.16:.36,trialSpeed=dinghyTrial?3.7:2.4;
@@ -6063,7 +6177,7 @@ try{settingsStorage=window.localStorage;}catch{}
 const saved=Settings.load(settingsStorage),personal=saved.personal;
 let localWeather=saved.weather,receivedWeather=false,wasMultiplayer=false;
 const env={...localWeather,courseType:'gates',courseVariant:'short',boatId:'laser',crewPose:2,difficulty:personal.difficulty,
-  windSeed:globalThis.SailingWind.CONFIG.seed,autoBalance:true,ironsHelp:true,helpers:true,
+  windSeed:globalThis.SailingWind.CONFIG.seed,autoBalance:true,ironsHelp:true,helpers:true,autoRecovery:!physicalCapsize,
   controlSensitivity:1,controlRate:1,motionDamping:1,cameraResponse:1};
 if(waveTrial)Object.assign(env,{boatId:'yacht',speed:8.5,direction:270,waveHeight:.85});
 if(dinghyTrial)Object.assign(env,{boatId:'laser',speed:6.2,direction:215,waveHeight:.82});
@@ -6087,12 +6201,14 @@ const categoryFor=id=>B.get(id).kind==='foiler'?'cup':id;
 const isYacht=(s=state)=>B.get(s?.boatId||env.boatId).kind==='keelboat';
 const assisted=()=>!!state?.helmAssist?.active;
 const FOIL_STATUS={waterborne:'I vandet',displacement:'Accelererer',accelerating:'Accelererer',lifting:'Løfter',takeoff:'Løfter',foiling:'Foiler',lowLift:'Lavt løft','low-lift':'Lavt løft',touchdown:'Vandkontakt',capsized:'Kæntret',recovering:'Opretning'};
+const emptyRigCommand=()=>({reef:0,headsail:0});
+let trimSail='main',rigCommand=emptyRigCommand(),foreAftTarget=0;
 const keys=new Set();let touchSteer=0,touchCrew=0,laserCrewSide=0,helmPointer=null,sheetPointer=null,spinCommand=false,spinType='spinnaker',sheetTarget=.62,track=[],lastTrack=-1,lastRenderAt=0,crashed=false;
 let graphicsUnavailable=false;
 const copyAtmosphere=a=>a?Object.fromEntries(Object.entries(a).map(([k,v])=>[k,Array.isArray(v)?v.slice():v])):a;
 const copyTree=v=>Array.isArray(v)?v.map(copyTree):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,n])=>[k,copyTree(n)])):v;
 const blendTree=(a,b,t)=>typeof b==='number'&&typeof a==='number'?lerp(a,b,t):Array.isArray(b)?b.map((v,j)=>blendTree(a?.[j],v,t)):b&&typeof b==='object'?Object.fromEntries(Object.entries(b).map(([k,v])=>[k,blendTree(a?.[k],v,t)])):b;
-const snapshot=s=>({...s,wind:{...s.wind},sail:copyTree(s.sail),rig:copyTree(s.rig),spinnaker:copyTree(s.spinnaker),forces:s.forces,atmosphere:copyAtmosphere(s.atmosphere),crewCG:copyTree(s.crewCG),crewJoints:copyTree(s.crewJoints),foils:copyTree(s.foils),foiling:copyTree(s.foiling),wing:copyTree(s.wing),steering:copyTree(s.steering)});
+const snapshot=s=>({...s,wind:{...s.wind},sail:copyTree(s.sail),rig:copyTree(s.rig),spinnaker:copyTree(s.spinnaker),cruiserRig:copyTree(s.cruiserRig),forces:s.forces,atmosphere:copyAtmosphere(s.atmosphere),crewCG:copyTree(s.crewCG),crewJoints:copyTree(s.crewJoints),foils:copyTree(s.foils),foiling:copyTree(s.foiling),wing:copyTree(s.wing),steering:copyTree(s.steering)});
 function fatal(e){
   crashed=true;$('fatal').hidden=false;$('intro').hidden=true;
   const message=e&&e.message?e.message:String(e),shader=/shader/i.test(message);
@@ -6161,6 +6277,10 @@ function setPause(value,reason='Pause',source='user'){
   $('pauseReason').textContent=reason;
   syncPause();
 }
+function resetRigControls(){
+  trimSail='main';rigCommand=emptyRigCommand();foreAftTarget=0;
+  $('trimSail').value='main';$('reefSetting').value='0';$('headsailSetting').value='0';$('foreAftSetting').value='0';
+}
 function discardTrimInput(){for(const code of ['ArrowUp','ArrowDown','KeyW','KeyS'])keys.delete(code);sheetPointer=null;sheetTarget=state.sheet;}
 function cancelRecoveryWatchdog(){if(recoveryWatchdog!==null)clearTimeout(recoveryWatchdog);recoveryWatchdog=null;}
 /* Recovery has its own monotonic wall clock, independent of simulation debt.
@@ -6174,7 +6294,7 @@ function synchronizeRecovery(now=performance.now()){
   if(!record)return;
   const raceClock=paused||modalPaused?undefined:now;
   if(R.active(state)&&recoveryNotice!==record){
-    recoveryNotice=record;discardTrimInput();env.crewPose=1;laserCrewSide=0;
+    recoveryNotice=record;discardTrimInput();resetRigControls();env.crewPose=1;laserCrewSide=0;
     course.recoveries++;course.invalidate('Automatisk opretning efter kæntring');
     course.noteDiscontinuity?.(state,raceClock);track.push({x:state.x,y:state.y,t:state.time,time:state.time,break:true});
     if(focusPaused)resumeRecoveryOnFocus=true;
@@ -6271,7 +6391,7 @@ function selectedCourse(settings=env){
   return new SailingCourse(settings,'course',settings.courseType,model);
 }
 function reset(which=mode,preparedCourse){
-  cancelRecoveryWatchdog();networkView.x=networkView.y=networkView.theta=0;spinCommand=false;laserCrewSide=0;recoveryNotice=null;focusPaused=false;resumeRecoveryOnFocus=false;toggleTelemetry(false);
+  cancelRecoveryWatchdog();networkView.x=networkView.y=networkView.theta=0;spinCommand=false;laserCrewSide=0;resetRigControls();recoveryNotice=null;focusPaused=false;resumeRecoveryOnFocus=false;toggleTelemetry(false);
   const fleet=globalThis.FriVindLobby?.fleet,oldWorld=state,oldTime=state?.time||0;if(fleet?.inWorld&&fleet.host&&which==='course')env.courseScaleBoatId=fleet.largestBoat();else if(!fleet?.inWorld)delete env.courseScaleBoatId;
   mode=which;coursePauseAt=null;course=mode==='course'?preparedCourse||selectedCourse():new SailingCourse(env);
   // Face the open water and Bjørnø when entering free sailing at Faaborg.
@@ -6389,6 +6509,7 @@ function setDifficulty(value){
   if(env.difficulty===difficulty)return;
   laserCrewSide=0;
   env.difficulty=personal.difficulty=difficulty;
+  if(difficulty==='easy'){trimSail='main';$('trimSail').value='main';delete rigCommand.jibSheet;delete rigCommand.extraSheet;}
   savePreferences();
   settingChanged();
 }
@@ -6396,7 +6517,7 @@ function chooseBoat(id){
   if(!B.CONFIGS[id])return;
   if(globalThis.FriVindLobby?.boatChanged(id)===false){syncSettings();return;}
   if(id===env.boatId){if(!$('boatPicker').hidden)closePanel('boatPicker');return;}
-  laserCrewSide=0;
+  laserCrewSide=0;resetRigControls();
   if(globalThis.FriVindLobby?.fleet?.inWorld){const old=state;networkView.x=networkView.y=networkView.theta=0;spinCommand=false;env.boatId=id;env.crewPose=2;state=P.createState({boatId:id,x:old.x,y:old.y,theta:old.theta,time:old.time,vx:old.vx,vy:old.vy},env);state.seaState=old.seaState;state.waveProfile=old.waveProfile;state.windClimate=old.windClimate;W.initialize(state,env);if(old.atmosphere)state.atmosphere=old.atmosphere;previous=snapshot(state);sheetTarget=state.sheet;closePanel('boatPicker');syncSettings();return;}
   env.boatId=id;env.crewPose=2;reset();
   if(started&&mode==='free')toast(B.get(id).name,2);
@@ -6646,7 +6767,22 @@ function bind(){
     spinCommand=!(spinCommand&&spinType===type);spinType=type;
     updateUI();$('sea').focus({preventScroll:true});
   };
-  $('sheetControl').oninput=()=>{if(R.active(state))return;sheetTarget=clamp(+$('sheetControl').value/100,0,1);audio.start();};
+  $('sheetControl').oninput=()=>{
+    if(R.active(state))return;
+    const value=clamp(+$('sheetControl').value/100,0,1);
+    if(trimSail==='main')sheetTarget=value;
+    else rigCommand[trimSail==='jib'?'jibSheet':'extraSheet']=value;
+    audio.start();
+  };
+  $('trimSail').onchange=()=>{
+    trimSail=$('trimSail').value;
+    const key=trimSail==='jib'?'jibSheet':'extraSheet';
+    if(trimSail!=='main'&&!Number.isFinite(rigCommand[key]))rigCommand[key]=state.cruiserRig?.[key]??state.sheet;
+    updateLiveControls();$('sea').focus({preventScroll:true});
+  };
+  $('reefSetting').onchange=()=>{rigCommand.reef=+$('reefSetting').value;};
+  $('headsailSetting').onchange=()=>{rigCommand.headsail=+$('headsailSetting').value;};
+  $('foreAftSetting').oninput=()=>{foreAftTarget=+$('foreAftSetting').value/100;};
   $('sheetControl').addEventListener('pointerdown',e=>{sheetPointer=e.pointerId;});
   for(const event of ['pointerup','pointercancel'])window.addEventListener(event,e=>{if(e.pointerId===sheetPointer){sheetPointer=null;if(started&&!modalPaused)$('sea').focus({preventScroll:true});}});
   const helm=$('touchHelm');
@@ -6659,7 +6795,7 @@ function bind(){
     b.addEventListener('click',chooseSide);
     for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,()=>{touchCrew=0;});
   }
-  const controlKeys=new Set(['KeyA','KeyD','KeyW','KeyS','KeyQ','KeyE','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','KeyC','KeyR','KeyH','KeyV','KeyB','Digit1','Digit2','Digit3','Numpad1','Numpad2','Numpad3','Backquote']);
+  const controlKeys=new Set(['KeyA','KeyD','KeyW','KeyS','KeyQ','KeyE','KeyZ','KeyX','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','KeyC','KeyR','KeyH','KeyV','KeyB','Digit1','Digit2','Digit3','Numpad1','Numpad2','Numpad3','Backquote']);
   window.addEventListener('keydown',e=>{
     if(e.code==='Escape'){
       const panel=gamePanels.find(id=>!$(id).hidden);
@@ -6717,10 +6853,23 @@ function bind(){
   $('debugButton').onclick=()=>{closePanel('details');debug=true;$('debug').hidden=false;};
   $('selfTest').onclick=()=>showTests('testResults');$('detailsTests').onclick=()=>showTests('detailsTestResults');
 }
-function input(){const difficulty=env.difficulty;if(R.active(state))return{steer:0,steerDigital:true,trim:0,crew:0,crewPose:1,difficulty};const trimKeys=(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0),cfg=P.configFor(state);
+function input(){
+  const difficulty=env.difficulty;
+  if(R.active(state))return{steer:0,steerDigital:true,trim:0,crew:0,crewPose:1,difficulty};
+  const trimKeys=(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0),cfg=P.configFor(state);
+  const selected=state.boatId==='yacht'&&difficulty==='hard'?trimSail:'main';
+  if(selected!=='main'&&trimKeys){
+    const key=selected==='jib'?'jibSheet':'extraSheet';
+    rigCommand[key]=clamp((rigCommand[key]??state.sheet)+trimKeys*.5*P.CONFIG.fixedDt,0,1);
+  }
   const difference=sheetTarget-state.sheet,trimRate=P.sheetRateFor(cfg,difference,false,difficulty);
   const crew=isFoiler()||difficulty==='easy'?0:state.boatId==='laser'?laserCrewSide:clamp((keys.has('KeyE')?1:0)-(keys.has('KeyQ')?1:0)+touchCrew,-1,1);
-  return {steer:clamp((keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0)+touchSteer,-1,1),steerDigital:helmPointer===null,trimFast:!!trimKeys,trim:trimKeys||clamp(difference/(trimRate*env.controlRate*P.CONFIG.fixedDt),-1,1),crew,crewPose:env.crewPose,difficulty,spinnaker:spinCommand,downwindType:spinType};}
+  const foreAft=(keys.has('KeyX')?1:0)-(keys.has('KeyZ')?1:0)||foreAftTarget;
+  return {steer:clamp((keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0)+touchSteer,-1,1),
+    steerDigital:helmPointer===null,trimFast:!!trimKeys&&selected==='main',
+    trim:(selected==='main'?trimKeys:0)||clamp(difference/(trimRate*env.controlRate*P.CONFIG.fixedDt),-1,1),crew,foreAft,crewPose:env.crewPose,difficulty,
+    ...(state.boatId==='yacht'?{rig:{...rigCommand}}:{}),spinnaker:spinCommand,downwindType:spinType};
+}
 function fixedStep(stepNowMs=performance.now()){
   const control=input();previous=snapshot(state);
   const bearing=state.windClimate?.direction??env.direction;
@@ -6728,17 +6877,19 @@ function fixedStep(stepNowMs=performance.now()){
   if(actual.direction!==bearing&&actual.shelter!==false&&!globalThis.SailingWind.prepare(actual.direction)){
     state.windClimate.direction=actual.direction=bearing;
   }
+  if(debug)actual.forceDiagnostics=true;
   P.step(state,control,actual,P.CONFIG.fixedDt);W.step(state,actual,P.CONFIG.fixedDt);const contact=globalThis.FriVindLobby?.step(control,stepNowMs,P.CONFIG.fixedDt);
-  if(state.crewEasing||state.recovering||previous.recovering||keys.has('KeyW')||keys.has('KeyS')||keys.has('ArrowUp')||keys.has('ArrowDown'))sheetTarget=state.sheet;
+  if(state.crewEasing||state.recovering||previous.recovering||control.trimFast)sheetTarget=state.sheet;
   if(!globalThis.FriVindLobby?.fleet?.inWorld||globalThis.FriVindLobby.fleet.host)raceEvents(course.update(previous,state,P.CONFIG.fixedDt,{nowMs:stepNowMs,discontinuity:!!(contact||state.recovering||previous.recovering||state.capsized||previous.capsized)}));
   synchronizeRecovery(performance.now());
   if(state.ground?.contact&&!previous.ground?.contact){course.invalidate('Kontakt med havbunden');toast('Lavt vand · kontakt med bunden bremser båden.',4);}
   if(!state.recovering&&!state.capsized&&state.time-lastTrack>.35){track.push({x:state.x,y:state.y,t:state.time,time:state.time});lastTrack=state.time;if(track.length>600)track.shift();}
 }
 function interpolate(alpha){
-  const s={...state};for(const k of ['x','y','vx','vy','omega','heel','heelRate','rudder','sheet','boom','boomRate','crew','time','seaState','heave','heaveVelocity','pitch','pitchRate','crewPoseBlend','crewSideBlend','crewSideVelocity','crewDuck','crewSwim','cockpitWet','recovery'])if(typeof state[k]==='number'&&typeof previous[k]==='number')s[k]=lerp(previous[k],state[k],alpha);
+  const s={...state};for(const k of ['x','y','vx','vy','omega','heel','heelRate','rudder','sheet','boom','boomRate','crew','time','seaState','heave','heaveVelocity','pitch','pitchRate','crewPoseBlend','crewSideBlend','crewSideVelocity','crewForeAft','crewDuck','crewSwim','cockpitWet','recovery'])if(typeof state[k]==='number'&&typeof previous[k]==='number')s[k]=lerp(previous[k],state[k],alpha);
   s.theta=previous.theta+P.wrap(state.theta-previous.theta)*alpha;
   s.rig=blendTree(previous.rig,state.rig,alpha);
+  s.cruiserRig=blendTree(previous.cruiserRig,state.cruiserRig,alpha);
   s.spinnaker=previous.spinnaker?.type===state.spinnaker?.type?blendTree(previous.spinnaker,state.spinnaker,alpha):state.spinnaker;
   if(state.sail){s.sail={...state.sail};for(const key of ['load','luff','stall','twist','camber','fill'])if(Number.isFinite(previous.sail?.[key])&&Number.isFinite(state.sail[key]))s.sail[key]=lerp(previous.sail[key],state.sail[key],alpha);for(const part of ['main','jib'])if(state.sail[part])s.sail[part]=blendTree(previous.sail?.[part],state.sail[part],alpha);}
   s.atmosphere=copyAtmosphere(state.atmosphere);for(const [k,v] of Object.entries(s.atmosphere)){const p=previous.atmosphere[k];if(Array.isArray(v))s.atmosphere[k]=v.map((n,j)=>lerp(p[j],n,alpha));else if(typeof v==='number')s.atmosphere[k]=lerp(p,v,alpha);}
@@ -6822,14 +6973,24 @@ function updateLiveControls(){
   const r=state.rudder/DEG,c=P.configFor(state);
   setText($('rudderValue'),(r<-.005?'−':r>.005?'+':'')+fmt(Math.abs(r)).replace('.',',')+'°');
   $('rudderDot').style.left=(50+clamp(state.rudder/c.rudderMax,-1,1)*48).toFixed(2)+'%';
-  setText($('sheetValue'),fmt(state.sheet*100).replace('.',',')+' %');
+  const selected=state.boatId==='yacht'&&env.difficulty==='hard'?trimSail:'main',key=selected==='jib'?'jibSheet':'extraSheet';
+  const activeSheet=selected==='main'?state.sheet:state.cruiserRig?.[key]??state.sheet;
+  const target=selected==='main'?sheetTarget:rigCommand[key]??activeSheet;
+  setText($('trimTitle'),selected==='jib'?'Foktrim':selected==='extra'?'Ekstrasejl':isCat()?'Vingetrim':'Sejltrim');
+  setText($('sheetValue'),fmt(activeSheet*100).replace('.',',')+' %');
+  $('sheetControl').setAttribute('aria-label',(selected==='jib'?'Fok':selected==='extra'?'Ekstrasejl':'Storsejl')+' · 0 procent slækket, 100 procent halet ind');
   if(sheetPointer===null){
-    const slider=$('sheetControl'),value=String(sheetTarget*100);
+    const slider=$('sheetControl'),value=String(target*100);
     if(slider.value!==value)slider.value=value;
   }
 }
 function updateRigControls(){
   const controls=$('downwindControls');
+  $('rigControls').hidden=state.boatId!=='yacht';
+  $('trimSail').disabled=env.difficulty==='easy'||state.recovering;
+  $('reefSetting').disabled=$('headsailSetting').disabled=!!state.recovering;
+  $('foreAftControls').hidden=env.difficulty==='easy';
+  $('foreAftValue').value=fmt((state.crewForeAft??0)*P.configFor(state).crewForeAftRange*100,0)+' cm';
   controls.hidden=!started||state.boatId!=='yacht';
   const sail=state.spinnaker;
   if(!controls.hidden)for(const button of controls.querySelectorAll('[data-cruiser-sail]')){
@@ -6853,9 +7014,10 @@ function updateSteeringDetails(){
     $('steerMode').textContent='Automatisk opretning · normal styring vender tilbage';return;
   }
   const h=state?.steering;if(!h)return;
-  $('steerDesiredRate').textContent=direction(h.desiredRate);$('steerActualRate').textContent=direction(state.omega);
+  const direct=h.mode==='rudder';
+  $('steerDesiredRate').textContent=direct?fmt((state.helmTarget||0)/DEG,1)+'° ror':direction(h.desiredRate);$('steerActualRate').textContent=direction(state.omega);
   $('steerPhysicalMoment').textContent=fmt(h.physicalMoment,0)+' Nm';$('steerAssistMoment').textContent=fmt(h.assistedMoment,0)+' Nm';
-  $('steerMode').textContent=h.enabled===false?'Afventer opretning eller fri vandkontakt':h.saturated?'Styrehjælp ved sin momentgrænse':'Automatisk · ror og begrænset drejemoment';
+  $('steerMode').textContent=direct?'Svær · direkte ror':h.enabled===false?'Afventer opretning eller fri vandkontakt':h.saturated?'Styrehjælp ved sin momentgrænse':'Automatisk · ror og begrænset drejemoment';
   $('steeringDetails').title='Positivt moment drejer mod bagbord; negativt mod styrbord. Hjælpen ændrer kun rotationskraften, aldrig hastighedsvektor eller position direkte.';
 }
 
@@ -6868,7 +7030,7 @@ function cruiserSailHint(reason,type){
 function coachText(instruments){
   const a=Math.abs(state.wind.awa||0),s=state.sail;
   if(state.recovering)return ['Automatisk opretning','Sejlet aflastes · kontrollen vender tilbage inden fem sekunder',false];
-  if(state.capsized)return ['Båden er kæntret','Automatisk opretning starter',true];
+  if(state.capsized)return ['Båden er kæntret',physicalCapsize?'Fysisk prøve · R starter forfra':'Automatisk opretning starter',true];
   if(state.ground?.contact)return ['Kontakt med havbunden','Slæk, og styr mod dybere vand · båden bremser mod bunden',true];
   if(env.difficulty==='hard'&&!P.configFor(state).rigidWing){
     if(state.rig?.gybeImpact>.18)return ['Skødet fanger bommen','Hold kursen, og balancér båden på den nye side',true];
@@ -6976,7 +7138,7 @@ function updateUI(){if(!state||!course)return;
   sideLabel.textContent=sideName+(easy||sideMotion?'':manualLaser||!env.autoBalance?' · Q/E':' · sidehjælp');
   sideLabel.title=manualLaser?'Q vælger bagbord og E vælger styrbord. Sidehjælpen vender tilbage, når du vælger en anden vægtposition.':'';
   document.querySelectorAll('[data-pose]').forEach(b=>{b.setAttribute('aria-pressed',String(+b.dataset.pose===env.crewPose));b.disabled=!!state.recovering;});
-  $('recoverPanel').hidden=!started||(!state.capsized&&!state.recovering);$('recoverButton').disabled=true;$('recoverButton').hidden=true;$('sheetControl').disabled=!!state.recovering;
+  $('recoverPanel').hidden=!started||physicalCapsize||(!state.capsized&&!state.recovering);$('recoverButton').disabled=true;$('recoverButton').hidden=true;$('sheetControl').disabled=!!state.recovering;
   const rescue=state.recoveryState,phase=rescue?.phase;
   $('recoveryTitle').textContent=phase==='stabilize'?'Finder en stabil vandlinje':'Båden rettes automatisk op';
   $('recoveryDescription').textContent=phase==='unload'?'Sejlet aflastes, og rotationen bremses.':phase==='stabilize'?'Skrog, besætning og sejl bringes roligt tilbage til sejlads.':'Besætningen får hjælp til at rejse båden. Du behøver ikke trykke på noget.';
@@ -6998,6 +7160,9 @@ function updateUI(){if(!state||!course)return;
     $('debugValues').textContent='render '+fmt(fps,0)+' fps · '+effectiveQuality+'\nposition E/N '+fmt(state.x,2)+' / '+fmt(state.y,2)+' m\nvelocity E/N '+fmt(state.vx,2)+' / '+fmt(state.vy,2)+' m/s\ntrue air E/N '+fmt(w.vx,2)+' / '+fmt(w.vy,2)+' m/s\napparent E/N '+fmt(w.avx,2)+' / '+fmt(w.avy,2)+' m/s\nα '+fmt(s.alpha/DEG)+'° · CL '+fmt(s.cl,3)+' · CD '+fmt(s.cd,3)+'\nboom '+fmt(state.boom/DEG)+'° / limit '+fmt(P.boomLimit(state.sheet,state)/DEG)+'°\nω boom '+fmt(state.boomRate/DEG)+'°/s · rudder '+fmt(state.rudder/DEG)+'°\ncrew '+fmt(state.crew,2)+' m · heel '+fmt(state.heel/DEG)+'°\nsail drive '+fmt(s.drive)+' N · side '+fmt(s.sideForce)+' N\nnet forward '+fmt(f.forward)+' N · net side '+fmt(f.side)+' N\nyaw '+fmt(f.yaw)+' Nm · roll '+fmt(f.roll)+' Nm\nflow '+s.flow+' · luff '+fmt(s.luff,2)+' · stall '+fmt(s.stall,2)+'\nVMG wind '+fmt(i.vmgWind)+' m/s\nTack '+state.tackCount+' · gybe '+state.gybeCount;
     $('debugValues').textContent+='\nhelm target '+fmt((state.helmTarget||0)/DEG,2)+'° · held '+fmt(state.helmHoldSeconds||0,3)+' s\nhelm flow '+(state.helmFlowSign||state.steeringFlowSign||'—')+' · requested '+fmt(state.steerIntent??state.helmIntent??0,2)+'\nirons help '+(assisted()?'ON':'off')+' · moment '+fmt(state.helmAssist?.moment||0)+' Nm\nseabed depth '+fmt(state.ground?.depth,1)+' m · contact '+(state.ground?.contact?'yes':'no');
     const steering=state.steering;if(steering)$('debugValues').textContent+='\n\nSTEERING / RATE CONTROL\ninput '+fmt(steering.input,2)+' · hold '+fmt(steering.holdSeconds,3)+' s\nyaw desired / actual '+fmt(steering.desiredRate/DEG,2)+' / '+fmt(state.omega/DEG,2)+' deg/s\nyaw error '+fmt(steering.error/DEG,2)+' deg/s · max '+fmt(steering.maximumRate/DEG,2)+' deg/s\nphysical / rudder moment '+fmt(steering.physicalMoment)+' / '+fmt(steering.rudderMoment)+' Nm\nassist / cap '+fmt(steering.assistedMoment)+' / '+fmt(steering.assistCap)+' Nm\ninertia '+fmt(steering.inertia)+' kg m2 · '+steering.mode+(steering.saturated?' · saturated':'');
+    if(f.ledger)for(const [name,row] of Object.entries(f.ledger)){
+      $('debugValues').textContent+='\n'+name+' '+Object.values(row.force).map(v=>fmt(v,1)).join(' / ')+' N · '+Object.values(row.moment).map(v=>fmt(v,1)).join(' / ')+' Nm';
+    }
     if(steering&&foiler)$('debugValues').textContent+='\nrudder authority '+fmt(steering.rudderAuthority,3)+' · residual assist '+fmt(steering.assistFraction,3)+'\nyaw trim observer '+fmt(steering.externalYawTrim)+' Nm · transient '+fmt(steering.disturbanceResidual)+' Nm';
     $('debugValues').textContent+='\n\nCREW / RECOVERY\npose '+fmt(state.crewPoseBlend,3)+' · velocity '+fmt(state.crewPoseVelocity||0,3)+' /s\nside '+fmt(state.crewSideBlend,3)+' · velocity '+fmt(state.crewSideVelocity||0,3)+' /s\nCG '+fmt(state.crewCG?.x,3)+' / '+fmt(state.crewCG?.y,3)+' / '+fmt(state.crewCG?.z,3)+' m\ninput at '+fmt(state.lastInputMs,1)+' ms · '+(state.lastInputCode||'—')+'\nrecovery '+(state.recoveryState?.phase||'none')+' · '+fmt(state.recoveryState?.elapsed,3)+' s\nstarted once '+fmt(state.recoveryState?.startMs,1)+' ms\nlast completed '+fmt(state.lastRecovery?.elapsedSeconds,3)+' s · '+(state.lastRecovery?.reason||'—');
     if(foiler){
@@ -7083,7 +7248,7 @@ function selfTests(){
 function showTests(id){const results=selfTests(),passed=results.filter(r=>r.pass).length;$(id).hidden=false;$(id).textContent=results.map(r=>(r.pass?'✓ ':'✗ ')+r.name+(r.error?' — '+r.error:'')).join('\n')+'\n\n'+passed+' / '+results.length+' bestået';$('verifiedTests').textContent='Kørt i denne session: '+passed+' af '+results.length+' indbyggede, numeriske kontrolscenarier bestået. Eksterne udviklertests og begrænsninger er dokumenteret i kildekoden.';}
 function configSummary(){
   const c=P.configFor(state),n=(v,d=2)=>fmt(v,d).replace('.',',');
-  const controlNote='\nSTYRING / ØNSKET DREJEHASTIGHED\nAutomatisk styrehjælp er altid aktiv under almindelig sejlads. Pilene beder om drejehastighed; roret og et begrænset hjælpemoment realiserer ønsket.\nLav/høj fart: '+n(c.helmYawRateLow/DEG,1)+' / '+n(c.helmYawRateHigh/DEG,1)+'°/s · fartreference '+n(c.helmYawSpeedReference,1)+' m/s\nRespons / modstyring / slip: '+n(c.helmYawResponse,2)+' / '+n(c.helmYawCounterResponse,2)+' / '+n(c.helmYawReleaseResponse,2)+' s\nVinkelacceleration '+n(c.helmYawAcceleration/DEG,1)+'°/s² · modstyring/slip '+n(c.helmYawBrakeAcceleration/DEG,1)+'°/s². Hjælpens basisbudget I × '+n(c.helmAssistAcceleration/DEG,1)+'°/s², med begrænsede vand-/luftbelastningsbidrag.\nIngen direkte ændring af kurs, fart eller hastighedsvektor. Den ekstra rotationsenergi er en bevidst spilassistance.\nFølsomhed '+n(env.controlSensitivity)+' · aktuatorhastighed '+n(env.controlRate)+' · fysisk dæmpning '+n(env.motionDamping)+' · kamera '+n(env.cameraResponse)+'\nRorhastighed '+n(c.rudderRate/DEG,1)+'°/s · skøderate '+n(c.sheetRate*100,1)+' procentpoint/s. Input hver fysikopdatering; kontrolvisning hvert renderet billede.\n';
+  const controlNote='\nSTYRING / ØNSKET DREJEHASTIGHED\nPå Let beder pilene om drejehastighed; roret og et begrænset hjælpemoment realiserer ønsket.\nLav/høj fart: '+n(c.helmYawRateLow/DEG,1)+' / '+n(c.helmYawRateHigh/DEG,1)+'°/s · fartreference '+n(c.helmYawSpeedReference,1)+' m/s\nRespons / modstyring / slip: '+n(c.helmYawResponse,2)+' / '+n(c.helmYawCounterResponse,2)+' / '+n(c.helmYawReleaseResponse,2)+' s\nVinkelacceleration '+n(c.helmYawAcceleration/DEG,1)+'°/s² · modstyring/slip '+n(c.helmYawBrakeAcceleration/DEG,1)+'°/s². Hjælpens basisbudget I × '+n(c.helmAssistAcceleration/DEG,1)+'°/s², med begrænsede vand-/luftbelastningsbidrag.\nIngen direkte ændring af kurs, fart eller hastighedsvektor. Den ekstra rotationsenergi er en bevidst spilassistance.\nFølsomhed '+n(env.controlSensitivity)+' · aktuatorhastighed '+n(env.controlRate)+' · fysisk dæmpning '+n(env.motionDamping)+' · kamera '+n(env.cameraResponse)+'\nRorhastighed '+n(c.rudderRate/DEG,1)+'°/s · skøderate '+n(c.sheetRate*100,1)+' procentpoint/s. Input hver fysikopdatering; kontrolvisning hvert renderet billede.\n';
   if(c.kind==='foiler')return c.name+' · kalibreret spilmodel, inspireret af '+(isCat()?'AC72 fra 2013':'AC75 fra 2024')+'\n'
     +'Skrog '+n(c.length)+' × '+n(c.beam)+' m · masttop '+n(c.mastTop,1)+' m over skrogreferencen\n'
     +(isCat()?'To skrog med egen opdrift/modstand: bredde '+n(c.hullBeam)+' m, centre ved '+c.hullOffsets.map(v=>n(v)).join(' / ')+' m fra midten. Ingen skrogvolumen under trampolinen.\n':'')
@@ -7133,7 +7298,7 @@ function configSummary(){
     +'Grundtwist '+n(c.baseTwist/DEG,0)+'° · bugt '+n(c.camber*100,1)+' %\n'
     +'Vang '+c.vang+' · cunningham '+c.cunningham+' · udhal '+c.outhaul+'\n'
     +'Sidehjælp vælger kun side; spilleren vælger altid position 1, 2 eller 3.\n'
-    +'Automatisk styrehjælp: altid aktiv. Sejlbakning i vindøjet: '+(env.ironsHelp?'til':'fra')+'.\n'
+    +'Styrehjælp: '+(env.difficulty==='easy'?'til på Let':'fra på Svær')+'. Sejlbakning i vindøjet: '+(env.ironsHelp&&env.difficulty!=='hard'?'til':'fra')+'.\n'
     +'Kysten bruger faste verdenskoordinater og eftergivelige kontaktkræfter fra samme terræn som grafikken.'+controlNote;
 }
 try{

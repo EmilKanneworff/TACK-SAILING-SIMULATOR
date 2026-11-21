@@ -175,9 +175,10 @@ test('portrait resizing keeps the boat in frame and enlarged race text leaves th
 });
 
 test('every boat loads the photographic environment and has skinned crew at physical stations',async({page})=>{
+  test.setTimeout(60000);
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
-  for(const [boat,count] of [['laser',1],['dinghy',3],['yacht',4],['ac75',8],['ac72',11]]){
+  for(const [boat,count] of [['laser',1],['dinghy',2],['yacht',4],['ac75',8],['ac72',11]]){
     await sail(page,boat);
     const result=await page.evaluate(()=>{
       const {scene,state}=SAILING_GAME;

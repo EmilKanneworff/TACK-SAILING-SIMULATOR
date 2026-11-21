@@ -42,7 +42,29 @@ function handle(ws,m) {
  if(m.type==='leave'){disconnected(ws,true);return;}
  if(m.type==='ready'){if(typeof m.ready!=='boolean')return error(ws,'Ugyldig klarstatus.');p.ready=m.ready;roster(room);return;}
  if(m.type==='boat'){if(!boats.has(m.boat)||room.phase==='race')return error(ws,'Bådvalg er låst under løbet.');p.boat=m.boat;roster(room);emit(room,{type:'boat',session:room.id,id:p.id,boat:p.boat});return;}
- if(m.type==='input'){if(!Number.isSafeInteger(m.seq)||m.seq<=p.lastSeq||!Number.isFinite(m.steer)||Math.abs(m.steer)>1||!Number.isFinite(m.trim)||Math.abs(m.trim)>1||![1,2,3].includes(m.crewPose))return error(ws,'Ugyldigt input.');if((m.difficulty!==undefined&&!['easy','hard'].includes(m.difficulty))||(m.crew!==undefined&&(!Number.isFinite(m.crew)||Math.abs(m.crew)>1))||(m.trimFast!==undefined&&typeof m.trimFast!=='boolean')||(m.steerDigital!==undefined&&typeof m.steerDigital!=='boolean')||(m.spinnaker!==undefined&&typeof m.spinnaker!=='boolean')||(m.downwindType!==undefined&&!['spinnaker','gennaker','code0'].includes(m.downwindType)))return error(ws,'Ugyldigt input.');p.lastSeq=m.seq;send(room.players.get(room.hostId)?.ws,{type:'input',session:room.id,id:p.id,seq:m.seq,steer:m.steer,trim:m.trim,crew:m.crew??0,crewPose:m.crewPose,difficulty:m.difficulty??'hard',spinnaker:m.spinnaker??false,downwindType:m.downwindType??'spinnaker',trimFast:m.trimFast??true,steerDigital:m.steerDigital??true});return;}
+ if(m.type==='input'){
+   if(!Number.isSafeInteger(m.seq)||m.seq<=p.lastSeq||!Number.isFinite(m.steer)||Math.abs(m.steer)>1||
+      !Number.isFinite(m.trim)||Math.abs(m.trim)>1||![1,2,3].includes(m.crewPose))return error(ws,'Ugyldigt input.');
+   const validUnit=value=>value===undefined||Number.isFinite(value)&&Math.abs(value)<=1;
+   const validSwitch=value=>value===undefined||typeof value==='boolean';
+   if((m.difficulty!==undefined&&!['easy','hard'].includes(m.difficulty))||!validUnit(m.crew)||!validUnit(m.foreAft)||
+      !validSwitch(m.trimFast)||!validSwitch(m.steerDigital)||!validSwitch(m.spinnaker)||
+      (m.downwindType!==undefined&&!['spinnaker','gennaker','code0'].includes(m.downwindType)))return error(ws,'Ugyldigt input.');
+   let rig;
+   if(m.rig!==undefined){
+     if(p.boat!=='yacht'||!m.rig||typeof m.rig!=='object'||Array.isArray(m.rig))return error(ws,'Ugyldig rig.');
+     const {reef,headsail,jibSheet,extraSheet}=m.rig;
+     const sheet=value=>value===undefined||Number.isFinite(value)&&value>=0&&value<=1;
+     if((reef!==undefined&&![0,1,2].includes(reef))||(headsail!==undefined&&![0,1].includes(headsail))||
+        !sheet(jibSheet)||!sheet(extraSheet))return error(ws,'Ugyldig rig.');
+     rig={reef,headsail,jibSheet,extraSheet};
+   }
+   p.lastSeq=m.seq;
+   send(room.players.get(room.hostId)?.ws,{type:'input',session:room.id,id:p.id,seq:m.seq,steer:m.steer,trim:m.trim,crew:m.crew??0,crewPose:m.crewPose,
+     ...(m.foreAft!==undefined?{foreAft:m.foreAft}:{}),...(rig?{rig}:{}),difficulty:m.difficulty??'hard',
+     spinnaker:m.spinnaker??false,downwindType:m.downwindType??'spinnaker',trimFast:m.trimFast??true,steerDigital:m.steerDigital??true});
+   return;
+ }
  if(['snapshot','settings','phase'].includes(m.type)){if(!isHost)return error(ws,'Kun værten kan ændre det fælles spil.');if(m.type==='phase'){if(!['lobby','free','race'].includes(m.phase))return error(ws,'Ugyldig spiltilstand.');room.phase=m.phase;roster(room);}if(m.type==='snapshot'&&(!Number.isSafeInteger(m.seq)||m.seq<0||typeof m.state!=='object'||m.state===null||!Number.isFinite(m.state.time)||m.state.time<0))return error(ws,'Ugyldigt snapshot.');if(m.type==='snapshot'){if(room.lastSnapshotSeq!==undefined&&m.seq<=room.lastSnapshotSeq)return error(ws,'Forældet snapshot.');if(room.lastSimulationTime!==undefined&&m.state.time<room.lastSimulationTime-1e-6)return error(ws,'Forældet simulationstid.');const now=Date.now(),advanced=room.lastSimulationTime===undefined||m.state.time>room.lastSimulationTime+1e-6;room.lastSnapshotSeq=m.seq;room.lastSnapshotAt=now;if(advanced){room.lastSimulationTime=m.state.time;room.lastProgressAt=now;if(room.stalled){room.stalled=false;emit(room,{type:'host-restored',session:room.id},p);}}else if(room.stalled)return;}if(m.type==='settings')return error(ws,'Fælles vejr følger værtens simulation.');
   if(m.type==='snapshot'&&m.state.env&&typeof m.state.env==='object'){
     const values=m.state.env,clean=weather.migrate(values);

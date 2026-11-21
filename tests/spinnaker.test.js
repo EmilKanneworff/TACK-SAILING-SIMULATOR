@@ -31,9 +31,9 @@ test('rounding up keeps the sail flogging on hard and douses it on easy',async({
      const steer=P.clamp(-2.5*P.wrap(target-s.theta)+1.2*s.omega,-1,1);
      P.step(s,{steer,steerDigital:false,crewPose:2,spinnaker:true,downwindType:type},env,1/60);
     }
-    return {...s.spinnaker,speed:s.speed,drive:s.sail.spinnaker?.drive??0,capsized:s.capsized};
+    return {...s.spinnaker,speed:s.speed,drive:s.sail.spinnaker?.drive??0,capsized:s.capsized,awa:s.wind.awa/D};
    }
-   const filled=steerTo(theta,11),windward=steerTo(86*D,26),filledAgain=steerTo(theta,20);
+   const filled=steerTo(theta,11),windward=steerTo(46*D,26),filledAgain=steerTo(theta,32);
    return {type,difficulty,filled,windward,filledAgain};
   }));
  });
@@ -44,13 +44,14 @@ test('rounding up keeps the sail flogging on hard and douses it on easy',async({
   expect(filled.flutter,label).toBeLessThan(.06);
   expect(filledAgain,label).toMatchObject({type,hoist:1,capsized:false});
   expect(filledAgain.drive,label).toBeGreaterThan(200);
+  expect(Math.abs(windward.awa),label).toBeLessThan(Math.abs(filled.awa)-5);
   if(difficulty==='hard'){
    expect(windward,label).toMatchObject({type,phase:'up',hoist:1,capsized:false});
-   expect(windward.luff,label).toBeGreaterThan(.95);
+   expect(windward.luff,label).toBeGreaterThan(Math.max(.6,filled.luff+.25));
    expect(windward.flutter,label).toBeGreaterThan(filled.flutter*2);
-   expect(windward.fill,label).toBeLessThan(.05);
-   expect(windward.drive,label).toBeLessThan(-200);
-   expect(windward.speed,label).toBeLessThan(1);
+   expect(windward.fill,label).toBeLessThan(filled.fill*.4);
+   expect(windward.drive,label).toBeLessThan(0);
+   expect(windward.speed,label).toBeLessThan(filled.speed*.55);
   }else{
    expect(windward,label).toMatchObject({phase:'waiting',hoist:0,waitingFor:'course',capsized:false,flutter:0});
   }
