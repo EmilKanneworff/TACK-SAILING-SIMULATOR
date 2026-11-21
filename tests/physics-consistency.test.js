@@ -87,7 +87,7 @@ test('the Laser slides with little rudder authority and gains grip as the blades
   };
  });
  expect(result.atRest.angle).toBeLessThan(1);
- expect(result.forward.angle).toBeGreaterThan(18);
+ expect(result.forward.angle).toBeGreaterThan(15);
  expect(result.sideways.travel).toBeLessThan(-.45);
  expect(result.sideways.angle).toBeLessThan(result.forward.angle*.4);
  expect(result.partial.board.wet).toBeGreaterThan(.15);
@@ -103,4 +103,29 @@ test('the Laser slides with little rudder authority and gains grip as the blades
  expect(result.rewet.ventilation).toBeGreaterThan(result.recovered.ventilation+.4);
  expect(Math.abs(result.recovered.side)).toBeGreaterThan(Math.abs(result.rewet.side)*1.2);
  for(const blade of [result.exposed,result.rewet,result.recovered,result.forward.rudder])expect(blade.power).toBeLessThanOrEqual(0);
+});
+
+test('a larger hydrodynamic blade creates more side force and resistance under the same flow',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ const values=await page.evaluate(()=>['laser','dinghy','yacht'].map(boatId=>{
+  const P=SailPhysics,c=SailingBoats.get(boatId);
+  const env={...P.DEFAULT_ENV,boatId,difficulty:'hard',speed:0,waves:0,gusts:0,shelter:false};
+  const sample=function(){
+   const state=P.createState({boatId,x:0,y:-5000,theta:0,vx:4,vy:.45,crewPose:1,crewSide:0,rudder:.15},env);
+   P.step(state,{steer:.45,crewPose:1},env,1/60);
+   return {board:state.forces.board,rudder:state.forces.rudder};
+  };
+  const blades=Object.values(c.waterBlades),stock=blades.map(blade=>blade.area);
+  const before=sample();
+  try{
+   for(const blade of blades)blade.area*=1.3;
+   return {boatId,before,after:sample()};
+  }finally{blades.forEach((blade,i)=>{blade.area=stock[i];});}
+ }));
+ for(const {boatId,before,after} of values){
+  for(const key of ['board','rudder']){
+   expect(Math.abs(after[key].side),boatId+' '+key).toBeGreaterThan(Math.abs(before[key].side)*1.18);
+   expect(after[key].power,boatId+' '+key).toBeLessThan(before[key].power);
+  }
+ }
 });

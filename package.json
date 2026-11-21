@@ -27,8 +27,9 @@
     "test:turbaad": "playwright test tests/gennaker-side.test.js tests/turbaad-sejl.test.js tests/spinnaker.test.js tests/spinnaker-network.test.js --workers=1 --reporter=line",
     "test:foil-respons": "playwright test tests/foil-respons.test.js --workers=1 --reporter=line",
     "test:ui-balance": "playwright test tests/sailing-ui-balance.test.js --workers=1 --reporter=line",
-    "test:physics": "playwright test tests/physics-consistency.test.js tests/physics-voyages.test.js tests/racer27.test.js tests/manoeuvres.test.js --workers=1 --reporter=line",
-    "measure:physics": "node scripts/physics-calibration.cjs",
+    "test:physics": "playwright test tests/physical-model.test.js tests/physics-consistency.test.js tests/physics-voyages.test.js tests/racer27.test.js tests/manoeuvres.test.js --workers=1 --reporter=line",
+    "measure:physics": "node scripts/sea-trials.cjs",
+    "measure:profiles": "node scripts/physics-calibration.cjs",
     "test:shelter": "playwright test tests/shelter.test.js --workers=1 --reporter=line",
     "test:shelter:geometry": "node --test tests/shelter-geometry.test.js"
   },
