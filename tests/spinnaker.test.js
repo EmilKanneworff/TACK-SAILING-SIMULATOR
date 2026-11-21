@@ -14,6 +14,45 @@ test('spinnaker button animates the actual sail and retracts it',async({page})=>
 test('catamaran uses one wing area and a separate jib',async({page})=>{await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);const r=await page.evaluate(()=>{const e={...SAILING_GAME.env,boatId:'ac72',speed:8},s=SailPhysics.createState({boatId:'ac72'},e),a=SailPhysics.aero(s,e);return{area:SailingBoats.get('ac72').sailArea,main:a.main?.area,jib:a.jib?.area,flap:s.wing?.flap}});expect(r.main+r.jib).toBe(r.area);expect(r.jib).toBeGreaterThan(0)});
 test('both gybes move the spinnaker side gradually and assistance lowers it after sailing too high',async({page})=>{
  test.setTimeout(90000);await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
- const runs=await page.evaluate(()=>{const P=SailPhysics,e={...SAILING_GAME.env,boatId:'yacht',speed:7,direction:0,waves:0,gusts:0};return [-1,1].map(dir=>{const theta=-Math.PI/2+dir*.4,s=P.createState({boatId:'yacht',theta,vx:2*Math.cos(theta),vy:2*Math.sin(theta),sheet:.42},e),points=[];for(let i=0;i<1800;i++){P.step(s,{steer:i<480?0:dir,steerDigital:true,trim:0,crewPose:2,spinnaker:true},e,1/60);if(i%6===0)points.push({t:s.time,awa:s.wind.awa,side:s.spinnaker.sideBlend,fill:s.spinnaker.fill,phase:s.spinnaker.phase,hoist:s.spinnaker.hoist,waitingFor:s.spinnaker.waitingFor,speed:Math.hypot(s.vx,s.vy),drive:s.sail.spinnaker?.drive||0,capsized:s.capsized})}return points})});
+ const runs=await page.evaluate(()=>{const P=SailPhysics,e={...SAILING_GAME.env,boatId:'yacht',speed:7,direction:0,waves:0,gusts:0,difficulty:'easy'};return [-1,1].map(dir=>{const theta=-Math.PI/2+dir*.4,s=P.createState({boatId:'yacht',theta,vx:2*Math.cos(theta),vy:2*Math.sin(theta),sheet:.42},e),points=[];for(let i=0;i<1800;i++){P.step(s,{steer:i<480?0:dir,steerDigital:true,trim:0,crewPose:2,spinnaker:true},e,1/60);if(i%6===0)points.push({t:s.time,awa:s.wind.awa,side:s.spinnaker.sideBlend,fill:s.spinnaker.fill,phase:s.spinnaker.phase,hoist:s.spinnaker.hoist,waitingFor:s.spinnaker.waitingFor,speed:Math.hypot(s.vx,s.vy),drive:s.sail.spinnaker?.drive||0,capsized:s.capsized})}return points})});
  for(const points of runs){const before=points.find(x=>x.t>7.9),after=points.find(x=>x.t>14.9);expect(before.side*after.side).toBeLessThan(0);expect(after.phase).toBe('up');expect(after.fill).toBeGreaterThan(.5);expect(points.filter(x=>x.t<15).every(x=>!x.capsized)).toBe(true);expect(Math.max(...points.slice(1).map((x,i)=>Math.abs(x.side-points[i].side)))).toBeLessThan(.2);expect(points.at(-1)).toMatchObject({phase:'waiting',hoist:0,waitingFor:'course'});expect(points.at(-1).drive).toBeLessThan(1);}
+});
+
+test('rounding up keeps the sail flogging on hard and douses it on easy',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ const results=await page.evaluate(()=>{
+  const P=SailPhysics,D=P.DEG,boatId='yacht';
+  return ['code0','gennaker','spinnaker'].flatMap(type=>['hard','easy'].map(difficulty=>{
+   const env={...P.DEFAULT_ENV,boatId,speed:8,direction:0,waves:0,gusts:0,shelter:false,ironsHelp:false,difficulty};
+   const theta=(type==='code0'?0:type==='gennaker'?-35:-65)*D,sheet=SailingBoats.cruiserSails[type].sheet;
+   const s=P.createState({boatId,x:0,y:-5000,theta,vx:2*Math.cos(theta),vy:2*Math.sin(theta),sheet},env);
+   function steerTo(target,seconds){
+    for(let i=0;i<seconds*60;i++){
+     const steer=P.clamp(-2.5*P.wrap(target-s.theta)+1.2*s.omega,-1,1);
+     P.step(s,{steer,steerDigital:false,crewPose:2,spinnaker:true,downwindType:type},env,1/60);
+    }
+    return {...s.spinnaker,speed:s.speed,drive:s.sail.spinnaker?.drive??0,capsized:s.capsized};
+   }
+   const filled=steerTo(theta,11),windward=steerTo(86*D,26),filledAgain=steerTo(theta,20);
+   return {type,difficulty,filled,windward,filledAgain};
+  }));
+ });
+ for(const {type,difficulty,filled,windward,filledAgain} of results){
+  const label=type+' '+difficulty;
+  expect(filled,label).toMatchObject({hoist:1,capsized:false});
+  expect(filled.drive,label).toBeGreaterThan(200);
+  expect(filled.flutter,label).toBeLessThan(.06);
+  expect(filledAgain,label).toMatchObject({type,hoist:1,capsized:false});
+  expect(filledAgain.drive,label).toBeGreaterThan(200);
+  if(difficulty==='hard'){
+   expect(windward,label).toMatchObject({type,phase:'up',hoist:1,capsized:false});
+   expect(windward.luff,label).toBeGreaterThan(.95);
+   expect(windward.flutter,label).toBeGreaterThan(filled.flutter*2);
+   expect(windward.fill,label).toBeLessThan(.05);
+   expect(windward.drive,label).toBeLessThan(-200);
+   expect(windward.speed,label).toBeLessThan(1);
+  }else{
+   expect(windward,label).toMatchObject({phase:'waiting',hoist:0,waitingFor:'course',capsized:false,flutter:0});
+  }
+ }
 });

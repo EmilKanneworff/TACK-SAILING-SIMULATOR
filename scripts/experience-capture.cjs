@@ -1,5 +1,5 @@
 'use strict';
-const { introOption } = require('./browser-setup.cjs');
+const { introOption, dragMap } = require('./browser-setup.cjs');
 
 const fs = require('node:fs/promises');
 const path = require('node:path');
@@ -71,8 +71,11 @@ async function run(browser) {
     await page.clock.runFor(100);
     await still(page, 'vejr');
     await page.click('[data-close="settings"]');
-    await page.click('#mapExpand');
-    await page.click('#mapExpand');
+    if(await page.locator('#mapResize').count()) await dragMap(page,350,220);
+    else{
+      await page.click('#mapExpand');
+      await page.click('#mapExpand');
+    }
     await page.clock.runFor(100);
     await still(page, 'stort-kort');
   } finally { await fixed.close(); }
@@ -117,8 +120,11 @@ async function run(browser) {
     return result;
   });
   if(phase==='efter') await record('kamera-kort',url,'laser',async page=>{
-    for(let i=0;i<4;i++){await page.click('#cameraButton');await page.waitForTimeout(600);}
-    for(let i=0;i<3;i++){await page.click('#mapExpand');await page.waitForTimeout(650);}
+    for(let i=0;i<5;i++){await page.click('#cameraButton');await page.waitForTimeout(600);}
+    for(const [width,height] of [[150,100],[200,130],[-350,-230]]){
+      await dragMap(page,width,height);
+      await page.waitForTimeout(650);
+    }
     return sample(page);
   });
   if(phase==='efter'){

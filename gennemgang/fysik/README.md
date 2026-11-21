@@ -5,14 +5,14 @@ Koordinater for komponenter er relativt til skrogoprindelsen: x fremad, y opad o
 | Båd | Længde × bredde m | Skrog kg | Rig kg | Udstyr kg | Ballast kg | Foilarme kg | Besætning kg | Samlet kg | Arbejdssejl m² |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Laserjolle | 4,23 × 1,37 | 56 | 10 | 2 | 0 | 0 | 75 | 143 | 7,06 |
-| Racer 32 | 9,75 × 3,10 | 1.100 | 190 | 250 | 900 | 0 | 160 | 2.600 | 62 |
+| Racer 32 | 9,75 × 3,10 | 880 | 150 | 170 | 760 | 0 | 240 | 2.200 | 62 |
 | Turbåd 43 | 13,1 × 4,05 | 5.200 | 400 | 900 | 2.800 | 0 | 300 | 9.600 | 80 |
 | Foilmonohull | 20,7 × 5 | 2.890 | 500 | 260 | 0 | 2.530 | 720 | 6.900 | 230 |
 | Foilkatamaran | 22 × 14 | 3.260 | 900 | 1.150 | 0 | 600 | 990 | 6.900 | 260 |
 
 Laserjollens 7,06 m² svarer til ILCA 7. De nominelle 58 kg med beslag er repræsenteret som 56 kg skrog plus 2 kg beslag. Spillets 10 kg løs rig og udstyr samt sejlerens 75 kg er estimater. Klassen angiver en vandlinje på 3,81 m. Den bruges som reference for Froude-tallet. Spillets beregnede vandlinje i den viste lasttilstand er 3,58 m. [ILCA-håndbogen](https://ilcasailing.org/laserinternational/wp-content/uploads/2025/02/HANDBOOK-2025.pdf)
 
-Racer 32 er et fiktivt design. Dimensioner, vægte, køl, 38 m² storsejl og 24 m² fok er spilestimater, ikke en målt båd. To personer à 80 kg indgår én gang i den samlede masse; deres animerede led bestemmer de fysiske massepunkter. Turbåden er også fiktiv og ikke en Hallberg-Rassy 43. Som sammenligningsgrundlag beskriver [producentens specifikation](https://www.hallberg-rassy.com/fileadmin/data/yachts/hallberg-rassy_43_mk_ii/downloads/HR43MkIITeknBesk.pdf) en anden og tungere 43 Mk II. Foilernes mål er inspireret af klasserne, mens massefordeling, profiler og automatisk styring er spilkalibreringer; begge synlige sejlflader på monohullen udgør tilsammen ét storsejl.
+Racer 32 er et fiktivt design. Dimensioner, vægte, køl, 38 m² storsejl og 24 m² fok er spilestimater, ikke en målt båd. Tre personer à 80 kg indgår i den samlede masse. Kroppens position bestemmer de fysiske massepunkter. Turbåden er også fiktiv og ikke en Hallberg-Rassy 43. Som sammenligningsgrundlag beskriver [producentens specifikation](https://www.hallberg-rassy.com/fileadmin/data/yachts/hallberg-rassy_43_mk_ii/downloads/HR43MkIITeknBesk.pdf) en anden og tungere 43 Mk II. Foilernes mål er inspireret af klasserne, mens massefordeling, profiler og automatisk styring er spilkalibreringer; begge synlige sejlflader på monohullen udgør tilsammen ét storsejl.
 
 Opdrift beregnes fra neddykkede skrogceller og den samme bølgeflade, der bruges i spillet. Ballastens masse tælles én gang og dens estimerede volumen giver separat opdrift. Katamaranen beregner to adskilte skrog. Alle fem både bruger 1.025 kg/m³ som spillets fælles vanddensitet. Besætningens segmenter giver tyngdemoment og bidrag til inertien; flytning ændrer ikke den samlede masse. Flere massepunkter findes også i foilbådenes model.
 
@@ -33,7 +33,7 @@ I matrixen før planing og to rorpunkter (`kalibrering-for-planing.json`) gav in
 
 Læmodellen vælger det største beregnede vindlæ fra de landstykker, som ligger i indfaldsretningen. En nærliggende lav ø skjuler derfor ikke virkningen af højere land længere op mod vinden. Bølgelæ følger fortsat den nærmeste blokering.
 
-Efter de to ror og planingstilnærmelsen er `kalibrering.json` genskabt: alle 100 forløb sluttede med endelige tilstande, uden registreret kæntring eller kursafvigelse over 20°. Maksimalt planingsløft opgøres per båd og vindvinkel i rådataene. Resultaterne før planing ligger i `kalibrering-for-planing.json`. De opdaterede fartmålinger med særskilt trim per kurs ligger i [sejladsgennemgangen](../haandtering/README.md).
+Efter de to ror og planingstilnærmelsen er `kalibrering.json` genskabt: alle 100 forløb sluttede med endelige tilstande, uden registreret kæntring eller kursafvigelse over 20°. Maksimalt planingsløft opgøres per båd og vindvinkel i rådataene. Resultaterne før planing ligger i `kalibrering-for-planing.json`. De historiske fartmålinger med særskilt trim per kurs ligger i [sejladsgennemgangen](../haandtering/README.md). Matrixen er fra før Racer 32 blev lettet til 2.200 kg.
 
 ## Foilmonohull i hård vind
 

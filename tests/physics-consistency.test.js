@@ -17,8 +17,21 @@ test('Racer 32 rudders use separate local flow and immersion without duplicating
 });
 test('dynamic hull support grows with forward speed and disappears without water contact',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
- const r=await page.evaluate(()=>{const P=SailPhysics,e={...P.DEFAULT_ENV,boatId:'laser',speed:0,waves:0,gusts:0,shelter:false};function run(speed,heave){const s=P.createState({x:0,y:-5000,theta:0,vx:speed,vy:0,...(heave===null?{}:{heave})},e);P.step(s,{steer:0,trim:0,crewPose:2},e,1/60);return {lift:s.forces.planingLift,drag:s.forces.planingDrag,rise:s.forces.planingRelativeRise,weight:s.hydro.weight};}return {slow:run(0,null),mid:run(4,null),fast:run(7,null),reverse:run(-7,null),dry:run(7,10)};});
- expect(r.slow.lift).toBe(0);expect(r.reverse.lift).toBe(0);expect(r.dry.lift).toBe(0);expect(r.fast.lift).toBeGreaterThan(r.mid.lift);expect(r.fast.lift).toBeLessThanOrEqual(r.fast.weight*.7);expect(r.fast.drag).toBeGreaterThan(0);expect(r.fast.lift*r.fast.rise-r.fast.drag*7).toBeLessThanOrEqual(0);
+ const r=await page.evaluate(()=>{
+  const P=SailPhysics,e={...P.DEFAULT_ENV,boatId:'laser',speed:0,waves:0,gusts:0,shelter:false};
+  function run(speed,heave,heaveVelocity=0,pitch=0){
+   const s=P.createState({x:0,y:-5000,theta:0,vx:speed,vy:0,pitch,heaveVelocity,...(heave===null?{}:{heave})},e);
+   P.step(s,{steer:0,trim:0,crewPose:2},e,1/60);
+   return {lift:s.forces.planingLift,drag:s.forces.planingDrag,surge:s.forces.planingSurge,power:s.forces.planingPower,weight:s.hydro.weight};
+  }
+  return {slow:run(0,null),mid:run(4,null),fast:run(7,null),reverse:run(-7,null),dry:run(7,10),
+   descending:run(7,null,-.64,-.06),rising:run(7,null,.64,-.06)};
+ });
+ expect(r.slow.lift).toBe(0);expect(r.reverse.lift).toBe(0);expect(r.dry.lift).toBe(0);expect(r.fast.lift).toBeGreaterThan(r.mid.lift);expect(r.fast.lift).toBeLessThanOrEqual(r.fast.weight*.7);expect(r.fast.drag).toBeGreaterThan(0);expect(r.fast.power).toBeLessThan(0);
+ expect(r.descending.lift).toBeGreaterThan(0);
+ expect(r.descending.surge).toBeGreaterThan(0);
+ expect(r.descending.power).toBeLessThan(0);
+ expect(r.rising.lift).toBeLessThan(r.descending.lift);
 });
 
 test('hulls, underwater surfaces and instruments distinguish current from movement over ground',async({page})=>{
@@ -41,4 +54,53 @@ test('hulls, underwater surfaces and instruments distinguish current from moveme
   expect(withCurrent.drag).toBeLessThan(without.drag*.03);
   expect(withCurrent.foilSpeed).toBeLessThan(without.foilSpeed*.05);
  }
+});
+
+test('the Laser slides with little rudder authority and gains grip as the blades rewet',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const result=await page.evaluate(()=>{
+  const P=SailPhysics,env={...P.DEFAULT_ENV,boatId:'laser',difficulty:'hard',speed:0,sea:'calm',waves:0,gusts:0,shelter:false,ironsHelp:false,autoBalance:false};
+  const origin={boatId:'laser',x:0,y:-5000,theta:0,vx:0,vy:0,crewPose:1,crewPoseBlend:1};
+  function run(initial,steps){
+   const s=P.createState({...origin,...initial},env),reading=P.instruments(s,null,env);
+   for(let i=0;i<steps;i++)P.step(s,{steer:1,crewPose:1},env,1/120);
+   return {angle:Math.abs(s.theta)/P.DEG,travel:s.y-origin.y,reading,assist:s.forces.yawAssist,board:s.forces.board,rudder:s.forces.rudder};
+  }
+  const fixed={...origin,vy:-2,vx:2.2,heave:.29,heel:0,heaveVelocity:0,heelRate:0,pitch:0,pitchRate:0,omega:0,rudder:0};
+  const s=P.createState(fixed,env);
+  function sampleGrip(steps,contact){
+   for(let i=0;i<steps;i++){
+    // Fix the geometry and stream for this load test. Keep only the blade's
+    // flow history to isolate how its force recovers under identical flow.
+    Object.assign(s,fixed,contact);
+    P.step(s,{steer:0,crewPose:1},env,1/120);
+   }
+   return s.forces.board;
+  }
+  return {
+   atRest:run({},120),forward:run({vx:2.8},120),sideways:run({vy:-1.3},120),
+   partial:run({vx:2.8,heave:.69},1),dry:run({vx:2.8,heave:1.3},1),
+   heeled:run({vx:2.8,vy:-.45,heel:25*P.DEG,pitch:8*P.DEG},1),
+   current:run({vx:2,vy:-1,waterY:-1},1),carried:run({vx:2,vy:-1,waterX:2,waterY:-1},1),
+   exposed:sampleGrip(24,{}),rewet:sampleGrip(1,{heave:0,vy:-.12}),recovered:sampleGrip(112,{heave:0,vy:-.12})
+  };
+ });
+ expect(result.atRest.angle).toBeLessThan(1);
+ expect(result.forward.angle).toBeGreaterThan(18);
+ expect(result.sideways.travel).toBeLessThan(-.45);
+ expect(result.sideways.angle).toBeLessThan(result.forward.angle*.4);
+ expect(result.partial.board.wet).toBeGreaterThan(.15);
+ expect(result.partial.board.wet).toBeLessThan(.6);
+ expect(result.partial.rudder.wet).toBe(0);
+ expect(result.dry.board.wet).toBe(0);
+ expect(result.dry.assist).toBe(0);
+ expect(Math.abs(result.heeled.board.vertical)).toBeGreaterThan(1);
+ expect(result.current.reading.leeway).toBeCloseTo(0);
+ expect(result.carried.reading.leeway).toBeNull();
+ expect(result.carried.assist).toBe(0);
+ expect(result.exposed.ventilation).toBeGreaterThan(.5);
+ expect(result.rewet.ventilation).toBeGreaterThan(result.recovered.ventilation+.4);
+ expect(Math.abs(result.recovered.side)).toBeGreaterThan(Math.abs(result.rewet.side)*1.2);
+ for(const blade of [result.exposed,result.rewet,result.recovered,result.forward.rudder])expect(blade.power).toBeLessThanOrEqual(0);
 });

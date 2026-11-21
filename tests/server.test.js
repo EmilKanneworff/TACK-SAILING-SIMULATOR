@@ -11,10 +11,14 @@ test('six real connections, capacity, identity and host permissions',async t=>{
  let extra=await connect();clients.push(extra);send(extra,{type:'join',code:h.code,name:'Syv',boat:'laser'});assert.equal((await next(extra,'error')).message,'Lobbyen er fuld.');
  let guest=clients[1];send(guest,{type:'settings',session:h.session,settings:{speed:12},host:true});assert.match((await next(guest,'error')).message,/Kun værten/);
  send(guest,{type:'phase',session:h.session,phase:'race',host:true});assert.match((await next(guest,'error')).message,/Kun værten/);
- const guestId=(await next(host,'sync-request')).id;send(guest,{type:'input',session:h.session,id:h.id,seq:1,steer:1,trim:0,crewPose:2});const input=await next(host,'input');assert.equal(input.id,guestId);assert.notEqual(input.id,h.id);
+ send(host,{type:'snapshot',session:h.session,seq:1,state:{time:1,env:{speed:14,waveHeight:.64,chop:.76}}});
+ const shared=(await next(guest,'snapshot')).state.env;
+ assert.equal(shared.waveHeight,.64);assert.equal(shared.chop,.76);
+ const guestId=(await next(host,'sync-request')).id;send(guest,{type:'input',session:h.session,id:h.id,seq:1,steer:1,trim:0,crewPose:2});const input=await next(host,'input');assert.equal(input.id,guestId);assert.notEqual(input.id,h.id);assert.equal(input.difficulty,'hard');
  send(guest,{type:'input',session:h.session,seq:1,steer:1,trim:0,crewPose:2});assert.match((await next(guest,'error')).message,/Ugyldigt input/);
  send(guest,{type:'input',session:h.session,seq:2,steer:0,trim:0,crewPose:2,spinnaker:true,downwindType:'ukendt'});assert.match((await next(guest,'error')).message,/Ugyldigt input/);
- send(guest,{type:'input',session:h.session,seq:2,steer:0,trim:0,crewPose:2,spinnaker:true,downwindType:'gennaker'});const sailInput=await next(host,'input');assert.equal(sailInput.id,guestId);assert.equal(sailInput.downwindType,'gennaker');
+ send(guest,{type:'input',session:h.session,seq:2,steer:0,trim:0,crewPose:2,difficulty:'ukendt'});assert.match((await next(guest,'error')).message,/Ugyldigt input/);
+ send(guest,{type:'input',session:h.session,seq:2,steer:0,trim:0,crewPose:2,spinnaker:true,downwindType:'gennaker',difficulty:'easy'});const sailInput=await next(host,'input');assert.equal(sailInput.id,guestId);assert.equal(sailInput.downwindType,'gennaker');assert.equal(sailInput.difficulty,'easy');
  send(guest,{type:'input',session:h.session,seq:3,steer:0,trim:0,crewPose:2,spinnaker:true,downwindType:'code0'});assert.equal((await next(host,'input')).downwindType,'code0');
  send(guest,{type:'input',session:'stale',seq:2,steer:0,trim:0,crewPose:2});assert.match((await next(guest,'error')).message,/udløbet/);
  // A valid reconnection token must still work when this shared IP has hit the join limit.

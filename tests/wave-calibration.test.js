@@ -9,11 +9,11 @@ test('open-water height is significant height and light tracks an independent bl
  await page.waitForFunction(()=>window.SAILING_GAME);
  const data=await page.evaluate(()=>{
   const P=SailPhysics,env=SAILING_GAME.env;
-  const levels=[0,.45,1.5].flatMap(waveHeight=>[0,6,20].map(speed=>{
-   const e={...env,waveHeight,speed,shelter:false};
-   return {waveHeight,model:P.seaTarget(e)*P.waveHeightUnit(P.waveProfileFor(e).short*P.windWaveTarget(e))};
-  }));
-  const sample={...env,waveHeight:.45,speed:6,shelter:false};
+  const levels=[0,.45,1.5].map(waveHeight=>{
+   const e={...env,waveHeight,chop:0,speed:20,shelter:false};
+   return {waveHeight,model:P.seaTarget(e)*P.waveHeightUnit(0)};
+  });
+  const sample={...env,waveHeight:.45,chop:0,speed:20,shelter:false};
   const shape=P.waveProfileFor(sample);
   sample.waveProfile={from:shape,to:shape,start:-10};
   const heights=Array.from({length:2048},(_,i)=>P.waveAt((i*373)%911,-5000+(i*619)%977,i*.378,sample).height);
@@ -139,4 +139,60 @@ test('wave fronts stay coherent across the chosen direction and pass spaced prob
     expect(reading.delayed).toBeLessThan(1e-8);
     expect(reading.simultaneous).toBeGreaterThan(.15);
   }
+});
+
+test('separate sea controls, wind duration and shoals change the physical wave field',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const result=await page.evaluate(()=>{
+  const P=SailPhysics,D=SailingWaterDepth,base={...SAILING_GAME.env,speed:14,direction:0,waveHeight:0,chop:0};
+  const short=P.WAVE_COMPONENTS.findIndex(w=>w.windSea),long=0;
+  function rms(env,x,y){
+   const p=P.waveProfileFor(env),conditions={...env,waveProfile:{from:p,to:p,start:-10}};
+   return Math.sqrt(Array.from({length:480},(_,i)=>P.waveAt(x,y,i*.075,conditions).height**2)
+    .reduce((sum,h)=>sum+h,0)/480);
+  }
+  const offshore={...base,shelter:false},big={...offshore,waveHeight:1.15},choppy={...offshore,chop:1};
+  const combined={...big,chop:1};
+  const depths=[40,3,.02].map(h=>D.phaseVelocity(30,h));
+  const k0=2*Math.PI/30,k=D.waveNumber(k0,3);
+  const state={time:0};
+  const fresh={...base,speed:5,waveHeight:.9,chop:.85},windy={...fresh,speed:20};
+  P.advanceWaveProfile(state,fresh);
+  P.advanceWaveProfile(state,windy);
+  const growth=[0,6,24,90].map(t=>({
+   short:P.windWaveAt(t,state.waveProfile,windy).scale,long:P.longWaveAt(t,state.waveProfile,windy).scale
+  }));
+  const island=SailingWorld.ISLANDS.find(i=>i.id==='bjorno'),x=1500;
+  let shore=island.minY;while(SailingWorld.islandSample(island,x,shore).distance>=0)shore++;
+  const y=shore-70,lee={...base,chop:1,waveHeight:1.15};
+  const leeProfile=P.waveProfileFor(lee),swellPath=P.wavePathField(leeProfile);
+  const measuredPaths=[-40,0,40].map(offset=>D.samplePath(swellPath,x,y+offset,0).v);
+  return {
+   deep:depths[0],shallow:depths[1],veryShallow:depths[2],k,dispersionError:Math.abs(k*Math.tanh(k*3)-k0),
+   onlyLong:[rms({...big,waveComponent:long},0,-10000),rms({...big,waveComponent:short},0,-10000)],
+   onlyShort:[rms({...choppy,waveComponent:long},0,-10000),rms({...choppy,waveComponent:short},0,-10000)],
+   combined:[rms({...combined,waveComponent:long},0,-10000),rms({...combined,waveComponent:short},0,-10000)],
+   calm:rms(offshore,0,-10000),growth, lee:rms(lee,x,y), open:rms(combined,x,y),
+   fetch:P.waveExposureAt(leeProfile,x,y).fetch,measuredPaths
+  };
+ });
+ expect(result.deep).toBeCloseTo(Math.sqrt(9.82*30/(2*Math.PI)),3);
+ expect(result.veryShallow).toBeCloseTo(Math.sqrt(9.82*.02),4);
+ expect(result.shallow).toBeLessThan(result.deep);
+ expect(result.k).toBeGreaterThan(2*Math.PI/30);
+ expect(result.dispersionError).toBeLessThan(.0005);
+ expect(result.calm).toBe(0);
+ expect(result.onlyLong[0]).toBeGreaterThan(.1);
+ expect(result.onlyLong[1]).toBe(0);
+ expect(result.onlyShort[0]).toBe(0);
+ expect(result.onlyShort[1]).toBeGreaterThan(.10);
+ expect(result.combined[0]).toBeCloseTo(result.onlyLong[0],8);
+ expect(result.combined[1]).toBeCloseTo(result.onlyShort[1],8);
+ expect(result.growth[1].short).toBeGreaterThan(result.growth[0].short);
+ expect(result.growth[2].long).toBeGreaterThan(result.growth[1].long);
+ expect(result.growth[3].long).toBeGreaterThan(result.growth[2].long);
+ expect(result.fetch).toBeLessThan(140);
+ expect(result.lee).toBeLessThan(result.open*.25);
+ expect(Math.max(...result.measuredPaths)-Math.min(...result.measuredPaths)).toBeGreaterThan(.10);
 });

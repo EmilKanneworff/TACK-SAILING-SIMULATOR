@@ -1,4 +1,4 @@
-const { introOption } = require('../scripts/browser-setup.cjs');
+const { introOption, dragMap } = require('../scripts/browser-setup.cjs');
 const {test,expect}=require('@playwright/test');
 const {spawn}=require('node:child_process');
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
@@ -23,7 +23,7 @@ test('guest rejoins the same boat and menus keep the shared world running',async
   await guest.keyboard.press('3');await guest.keyboard.down('ArrowUp');
   try{await host.waitForFunction(id=>{const s=FriVindLobby.fleet.boats.get(id);return s&&s.crewPose===3&&s.sheet>.4},id,{timeout:12000});}
   finally{await guest.keyboard.up('ArrowUp');}
-  const before=await host.evaluate(()=>SAILING_GAME.state.time);await host.click('#mapExpand');await host.click('#mapExpand');
+  const before=await host.evaluate(()=>SAILING_GAME.state.time);await dragMap(host,300,125);
   await host.waitForFunction(time=>SAILING_GAME.state.time>time+.2,before,{timeout:12000});
   await guest.evaluate(()=>window.testSockets.at(-1).close());
   await guest.waitForFunction(()=>window.testSockets.length>=2&&FriVindLobby.fleet.synced,null,{timeout:12000});
@@ -49,7 +49,7 @@ test('guest rejoins the same boat and menus keep the shared world running',async
    throw error;
   }
   expect(await host.evaluate(()=>FriVindLobby.fleet.players.length)).toBe(2);
-  await host.click('#mapExpand');await host.click('#preferencesButton');await host.click('#lobbyButton');await host.click('#lobbyLeave');
+  await dragMap(host,-200,-85);await host.click('#preferencesButton');await host.click('#lobbyButton');await host.click('#lobbyLeave');
   await expect(guest.locator('#lobbyPanel')).toBeVisible();
   await expect(guest.locator('#lobbyMessage')).toHaveText('Værten har forladt spillet.');
   expect(await guest.evaluate(()=>({active:FriVindLobby.fleet.inWorld,paused:SAILING_GAME.paused}))).toEqual({active:false,paused:true});

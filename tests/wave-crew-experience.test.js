@@ -1,4 +1,5 @@
 'use strict';
+const {dragMap}=require('../scripts/browser-setup.cjs');
 const {test,expect}=require('@playwright/test');
 const {pathToFileURL}=require('node:url');
 const path=require('node:path');
@@ -11,8 +12,8 @@ test('solo sliders preserve exact values and hold the simulated weather until re
   steer:g.state.steerIntent,env:{...g.env},actual:SailingSettings.live(g.env,g.state),
   rain:g.state.atmosphere.rain,clouds:g.state.atmosphere.clouds,fog:g.state.atmosphere.fog,warmth:g.state.atmosphere.sunWarmth};});
  const before=await read();
- await expect(page.locator('#weatherControls input[type=range]')).toHaveCount(8);
- for(const [id,value,label] of [['waveHeight','0.45','0,45 m'],['windGusts','0.23','23 %'],['cloudCover','0.37','37 %'],
+ await expect(page.locator('#weatherControls input[type=range]')).toHaveCount(9);
+ for(const [id,value,label] of [['waveHeight','0.45','0,45 m'],['chop','0.64','64 %'],['windGusts','0.23','23 %'],['cloudCover','0.37','37 %'],
   ['rainLevel','0.20','20 %'],['fogLevel','0.10','10 %'],['eveningLight','0.40','40 %']]){
   await page.locator('#'+id).fill(value);
   await expect(page.locator('#'+id+'Value')).toHaveText(label);
@@ -25,7 +26,7 @@ test('solo sliders preserve exact values and hold the simulated weather until re
  await page.clock.runFor(500);
  const paused=await read();
  expect(paused.t).toBe(before.t);expect(paused.sheet).toBe(before.sheet);expect(paused.steer).toBe(before.steer);
- expect(paused.env).toMatchObject({speed:6.3,direction:215,gusts:.23,waveHeight:.45,clouds:.37,rain:.20,fog:.10,daylight:.40});
+ expect(paused.env).toMatchObject({speed:6.3,direction:215,gusts:.23,waveHeight:.45,chop:.64,clouds:.37,rain:.20,fog:.10,daylight:.40});
  expect(paused.actual.speed).toBe(before.actual.speed);
  await expect(page.locator('#liveWindLabel')).toHaveText('Ved båden før ændring');
  await page.keyboard.press('Escape');
@@ -35,10 +36,11 @@ test('solo sliders preserve exact values and hold the simulated weather until re
  expect(after.sea).toBeGreaterThan(before.sea+.06);
  expect(after.actual.speed).toBeGreaterThan(before.actual.speed);
  for(const key of ['rain','clouds','fog','warmth'])expect(after[key]).toBeGreaterThan(before[key]);
- await page.click('#cameraButton');await page.click('#mapExpand');await page.click('#settingsButton');
+ await page.click('#cameraButton');await dragMap(page,160,100);await page.click('#settingsButton');
  await expect(page.locator('#liveWindLabel')).toHaveText('Ved båden før ændring');
  await page.locator('#rainLevel').fill('0.21');
  await expect(page.locator('#waveHeight')).toHaveValue('0.45');
+ await expect(page.locator('#chop')).toHaveValue('0.64');
  await page.keyboard.press('Escape');
  await page.reload();await page.click('#startButton');await page.click('#settingsButton');
  await expect(page.locator('#waveHeight')).toHaveValue('0.45');
@@ -65,7 +67,7 @@ test('equivalent legacy weather retains best race time at its exact height',asyn
  await page.waitForFunction(()=>window.SAILING_GAME);
  const best=await page.evaluate(()=>{
   const env={...SAILING_GAME.env,waveHeight:.35,daylight:0};
-  const settings=new SailingCourse(env,'course').settings;
+  const {chop,...settings}=new SailingCourse(env,'course').settings;
   const legacy=Object.fromEntries(Object.entries(settings).map(([name,value])=>
    name==='waveHeight'?['sea','small']:[name,name==='daylight'?'day':value]));
   const key='frivind-v12:'+JSON.stringify(legacy);
@@ -75,7 +77,7 @@ test('equivalent legacy weather retains best race time at its exact height',asyn
  expect(best).toEqual([75,null]);
 });
 
-test('eight native ranges update during drag and keep north at either end',async({page})=>{
+test('native ranges update during drag and keep north at either end',async({page})=>{
  await page.setViewportSize({width:1366,height:950});
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
  await page.click('#startButton');

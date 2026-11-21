@@ -1,10 +1,12 @@
+const {dragMap}=require('../scripts/browser-setup.cjs');
 const {test,expect}=require('@playwright/test');
 const {pathToFileURL}=require('node:url');
 const path=require('node:path');
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
 test('the chart, land mesh and collision use the same archipelago',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
- await page.click('#startButton');await page.click('#mapExpand');await page.selectOption('#mapView','area');
+ await page.click('#startButton');await dragMap(page,260,130);
+ await page.locator('#courseCard').hover();await page.selectOption('#mapView','area');
  const r=await page.evaluate(()=>{const W=SailingWorld,map=SAILING_GAME.map,scene=SAILING_GAME.scene;map._worldData();
  const comparisons=W.ISLANDS.map(island=>{
   const coast=map._shoreCache.find(c=>c.island.id===island.id);
@@ -108,7 +110,13 @@ test('the deeper coastal shelf lets the catamaran pass while very shallow water 
  expect(outside.depth).toBeGreaterThan(channel.depth);
 });
 test('named settlements and island roads appear on the shared chart and in the scene',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);await page.click('#startButton');await page.click('#mapExpand');await page.click('#mapExpand');await page.selectOption('#mapView','area');
+ await page.setViewportSize({width:1440,height:900});
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.click('#startButton');
+ await dragMap(page,580,400);
+ await page.waitForFunction(()=>SAILING_GAME.map.height>490);
+ await page.locator('#courseCard').hover();
+ await page.selectOption('#mapView','area');
  const shoreNames=['Drejet','Faaborg Havn','Dyreborg Havn','Bjørnø Bro','Lyø Havn','Avernakø Havn'];
  const r=await page.evaluate((shoreNames)=>{
   const w=SailingWorld,map=SAILING_GAME.map,scene=SAILING_GAME.scene;

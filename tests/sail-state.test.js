@@ -34,3 +34,88 @@ test('rig evolution is independent of rendering frame rate',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
  const runs=await page.evaluate(()=>[30,60,120].map(fps=>{const e={...SAILING_GAME.env,boatId:'laser',speed:6,direction:0,gusts:.2,waves:.12},s=SailPhysics.createState({x:0,y:-5000,boatId:'laser'},e);let acc=0;for(let frame=0;frame<fps*8;frame++){acc+=1/fps;while(acc+1e-12>=1/60){SailPhysics.step(s,{steer:s.time<2?.2:0,trim:s.time<2?.3:0,crewPose:2},e,1/60);acc-=1/60}}return{x:s.x,y:s.y,boom:s.boom,camber:s.rig.camber,twist:s.rig.twist,fill:s.rig.fill,side:s.rig.sideBlend};}));for(const r of runs.slice(1))for(const key of Object.keys(r))expect(r[key]).toBeCloseTo(runs[0][key],8);
 });
+
+test('a wind shift across the stern moves the boom and loads the sheet on hard',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ const results=await page.evaluate(()=>{
+  const P=SailPhysics,D=P.DEG;
+  function run(boatId,difficulty,trim=.15){
+   const env={...P.DEFAULT_ENV,boatId,difficulty,direction:5,speed:10,waves:0,gusts:0,shelter:false,ironsHelp:false,autoBalance:false};
+   const s=P.createState({boatId,theta:-Math.PI/2,x:0,y:-5000,vx:0,vy:-1.8,boom:P.boomLimit(trim,boatId),sheet:trim},env);
+   const step=()=>P.step(s,{steer:0,trim:0,crewPose:2},env,1/60);
+   for(let i=0;i<42;i++)step();
+   const before=s.boom,was=s.gybeCount;
+   env.direction=354;env.speed=12;
+   let shock=0,flutter=0,jibFlutter=0,peakRoll=0,reaction=0,peakYaw=0;
+   for(let i=0;i<198;i++){
+    step();
+    shock=Math.max(shock,s.rig.gybeImpact);
+    flutter=Math.max(flutter,s.rig.flutter);
+    jibFlutter=Math.max(jibFlutter,s.rig.jibFlutter??0);
+    peakRoll=Math.max(peakRoll,Math.abs(s.heelRate)/D);
+    peakYaw=Math.max(peakYaw,Math.abs(s.omega)/D);
+    reaction=Math.max(reaction,Math.abs(s.forces.boomReaction));
+   }
+   return {before,after:s.boom,shock,flutter,jibFlutter,peakRoll,peakYaw,reaction,gybes:s.gybeCount-was,capsized:s.capsized};
+  }
+  return {soft:['laser','dinghy','yacht','ac75'].map(boat=>({boat,easy:run(boat,'easy'),hard:run(boat,'hard')})),
+   sheeted:run('yacht','hard',.92),wing:run('ac72','hard')};
+ });
+ for(const {boat,easy,hard} of results.soft){
+  expect(easy.gybes,boat).toBe(0);
+  expect(easy.shock,boat).toBe(0);
+  expect(hard,boat).toMatchObject({gybes:1,capsized:false});
+  expect(hard.before,boat).toBeGreaterThan(.9);
+  expect(hard.after,boat).toBeLessThan(-.9);
+  expect(hard.flutter,boat).toBeGreaterThan(.05);
+  expect(hard.shock,boat).toBeGreaterThan(.35);
+  expect(hard.reaction,boat).toBeGreaterThan(50);
+  expect(hard.peakRoll,boat).toBeGreaterThan(easy.peakRoll+5);
+  expect(hard.peakYaw,boat).toBeGreaterThan(easy.peakYaw+.2);
+ }
+ expect(results.sheeted.shock).toBe(0);
+ expect(results.wing).toMatchObject({shock:0,reaction:0,capsized:false,flutter:0});
+ expect(results.wing.jibFlutter).toBeGreaterThan(0);
+});
+
+test('loaded sail cloth stays quiet and only the luffing sail develops larger edge movement',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ const rows=await page.evaluate(()=>{
+  const {scene}=SAILING_GAME,P=SailPhysics;
+  return SailingBoats.LIST.map(model=>{
+   scene.buildBoat(model.id);
+   const main={load:.70,luff:.22,stall:.32},jib={load:.65,luff:.16,stall:.24};
+   const s={boatId:model.id,boom:.52,sheet:.58,sail:{wind:{aws:8},main,...(model.jibArea?{jib}:{})}};
+   const settle=()=>{for(let i=0;i<120;i++)P.updateRig(s,model,1/60,true);};
+   const movement=(isJib,u)=>{
+    const point=()=>model.id==='laser'?scene.sailPoint(u,.53,s):isJib?scene.jibFoilerPoint(u,.53,s):scene.mainFoilerPoint(u,.53,s);
+    s.rig.flutterPhase=.53*9-(isJib?1.9:0)+Math.PI/2;
+    const from=point();
+    s.rig.flutterPhase+=Math.PI;
+    return from.distanceTo(point());
+   };
+   settle();
+   const steady={main:s.rig.flutter,jib:s.rig.jibFlutter,edge:movement(model.rigidWing,.92)};
+   main.luff=.99;
+   settle();
+   const mainLoose={main:s.rig.flutter,jib:s.rig.jibFlutter,edge:movement(false,.92),mid:movement(false,.45)};
+   jib.luff=.99;
+   settle();
+   return {id:model.id,wing:!!model.rigidWing,steady,mainLoose,jibLoose:s.rig.jibFlutter};
+  });
+ });
+ for(const row of rows){
+  const label=JSON.stringify(row);
+  expect(row.steady.edge,label).toBeLessThan(.025);
+  if(row.wing)expect(row.mainLoose.main,label).toBe(0);
+  else {
+   expect(row.mainLoose.edge,label).toBeGreaterThan(.04);
+   expect(row.mainLoose.edge,label).toBeLessThan(.23);
+   expect(row.mainLoose.mid,label).toBeLessThan(row.mainLoose.edge*.35);
+  }
+  if(row.steady.jib!==undefined){
+   expect(row.mainLoose.jib,label).toBeCloseTo(row.steady.jib,5);
+   expect(row.jibLoose,label).toBeGreaterThan(row.steady.jib*8);
+  }
+ }
+});

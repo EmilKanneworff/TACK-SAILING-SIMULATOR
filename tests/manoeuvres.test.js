@@ -71,3 +71,39 @@ test('a Laser tacks at 8–9 m/s with queued hiking and clearance on both sides'
   if(row.kind==='in')expect(row.after.pose,context).toBe(1);
  }
 });
+
+test('Laser on hard can gybe in chop and recover from a loaded reach on either tack',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const runs=await page.evaluate(()=>{
+  const P=SailPhysics,D=P.DEG;
+  return [-1,1].flatMap(side=>['gybe','release'].map(manoeuvre=>{
+   const gybe=manoeuvre==='gybe',course=side*(gybe?155:95),theta=(90-course)*D;
+   const env={...SAILING_GAME.env,boatId:'laser',difficulty:'hard',shelter:false,speed:gybe?8.5:12,
+     waveHeight:gybe?.35:.50,chop:.35,gusts:gybe?.23:.34};
+   const s=P.createState({x:0,y:-5000,theta,sheet:gybe?.15:.61,vx:3.1*Math.cos(theta),vy:3.1*Math.sin(theta)},env);
+   let peakHeel=0;
+   for(let i=0;i<600&&!s.capsized;i++){
+    const t=i/60,steer=gybe&&t>2&&t<4.2?side:0;
+    const crewPose=!gybe&&t>=.32&&t<1.75?3:2,trim=!gybe&&t>.52&&t<.87?-1:0;
+    P.step(s,{steer,crewPose,trim,trimFast:true},env,1/60);
+    peakHeel=Math.max(peakHeel,Math.abs(s.heel)/D);
+   }
+   return {side,manoeuvre,peakHeel,capsized:s.capsized,gybes:s.gybeCount,crewSide:s.crewSide,courseChange:P.wrap(theta-s.theta)/D,sheet:s.sheet,speed:s.speed};
+  }));
+ });
+ for(const run of runs){
+  const context=JSON.stringify(run);
+  expect(run.capsized,context).toBe(false);
+  expect(run.peakHeel,context).toBeLessThan(32);
+  expect(run.speed,context).toBeGreaterThan(2.5);
+  if(run.manoeuvre==='gybe'){
+   expect(run.gybes,context).toBe(1);
+   expect(run.crewSide,context).toBe(run.side);
+   expect(run.courseChange*run.side,context).toBeGreaterThan(50);
+  }else{
+   expect(run.sheet,context).toBeLessThan(.25);
+   expect(Math.abs(run.courseChange),context).toBeLessThan(12);
+  }
+ }
+});

@@ -1,5 +1,5 @@
 'use strict';
-const { introOption } = require('../scripts/browser-setup.cjs');
+const { introOption, dragMap } = require('../scripts/browser-setup.cjs');
 
 const { test, expect } = require('@playwright/test');
 const { pathToFileURL } = require('node:url');
@@ -60,6 +60,10 @@ test('right rail and map remain usable through live resizing and enlarged text',
   for(const [width,height,font] of [[1440,900,100],[1280,720,150],[390,844,100],[320,600,162]]){
     await page.setViewportSize({width,height});
     await page.evaluate(percent=>document.documentElement.style.fontSize=percent+'%',font);
+    await expect.poll(()=>page.evaluate(()=>{
+      const rail=document.querySelector('.tools').getBoundingClientRect();
+      return rail.top-document.getElementById('courseCard').getBoundingClientRect().bottom;
+    })).toBeGreaterThanOrEqual(0);
     const check=await page.evaluate(()=>{
       const chart=document.getElementById('courseCard').getBoundingClientRect();
       const dock=document.getElementById('sailingDock').getBoundingClientRect();
@@ -76,13 +80,12 @@ test('right rail and map remain usable through live resizing and enlarged text',
     await page.locator('#windSpeed').focus();
     await page.keyboard.press('Escape');
     await expect(page.locator('#settingsButton')).toBeFocused();
-    await page.click('#mapExpand');
-    await page.click('#mapExpand');
+    await dragMap(page,110,95);
     const bounds=await page.evaluate(()=>({map:document.getElementById('courseCard').getBoundingClientRect().bottom,
       sails:document.getElementById('downwindControls').getBoundingClientRect().top}));
     expect(bounds.map).toBeLessThan(bounds.sails);
-    await page.keyboard.press('Escape');
-    await expect(page.locator('#courseCard')).not.toHaveClass(/map-expanded|map-medium/);
+    const railTop=await page.locator('.tools').evaluate(element=>element.getBoundingClientRect().top);
+    expect(bounds.map).toBeLessThanOrEqual(railTop);
   }
 });
 
@@ -110,7 +113,8 @@ test('camera click and shortcut preserve the player’s held steering',async({pa
   await sail(page);
   await page.keyboard.down('ArrowRight');
   await page.waitForFunction(()=>SAILING_GAME.state.steerIntent===1);
-  for(const [mode,change] of [[1,()=>page.click('#cameraButton')],[2,()=>page.keyboard.press('KeyC')]]){
+  for(const [mode,change] of [[1,()=>page.click('#cameraButton')],[2,()=>page.keyboard.press('KeyC')],
+    [3,()=>page.click('#cameraButton')],[4,()=>page.keyboard.press('KeyC')]]){
     const clock=await page.evaluate(()=>SAILING_GAME.state.time);
     await change();
     await page.waitForFunction(({mode,clock})=>SAILING_GAME.scene.cameraMode===mode&&SAILING_GAME.state.time>clock+.1,{mode,clock});
@@ -118,6 +122,12 @@ test('camera click and shortcut preserve the player’s held steering',async({pa
   }
   await page.keyboard.up('ArrowRight');
   await page.waitForFunction(()=>SAILING_GAME.state.steerIntent===0);
+  await expect(page.locator('#cameraButton')).toHaveText('Kamera · Førsteperson');
+  await page.reload();
+  await page.click('#startButton');
+  await page.waitForFunction(()=>SAILING_GAME.scene.cameraMode===4);
+  await page.keyboard.press('KeyC');
+  await page.waitForFunction(()=>SAILING_GAME.scene.cameraMode===0);
 });
 
 test('portrait resizing keeps the boat in frame and enlarged race text leaves the map controls clickable',async({page})=>{
@@ -135,8 +145,9 @@ test('portrait resizing keeps the boat in frame and enlarged race text leaves th
   await page.evaluate(()=>document.documentElement.style.fontSize='150%');
   await page.click('#raceButton');
   await page.waitForFunction(()=>SAILING_GAME.course.phase==='countdown');
-  const button=page.locator('#mapExpand');
-  const bounds=await button.evaluate(element=>{
+  await page.locator('#courseCard').hover();
+  const handle=page.locator('#mapResize');
+  const bounds=await handle.evaluate(element=>{
     const {left,right,top,bottom}=element.getBoundingClientRect();
     const chart=document.getElementById('courseCard').getBoundingClientRect();
     return {bottom,chartBottom:chart.bottom,hit:element.contains(document.elementFromPoint((left+right)/2,(top+bottom)/2))};
@@ -157,14 +168,16 @@ test('portrait resizing keeps the boat in frame and enlarged race text leaves th
   for(const [index,label] of labels.entries()){
     expect(labels.slice(index+1).some(other=>label.left<other.right&&label.right>other.left&&label.top<other.bottom&&label.bottom>other.top)).toBe(false);
   }
-  await button.click();
-  await expect(page.locator('#courseCard')).toHaveClass(/map-medium/);
+  const chart=page.locator('#courseCard');
+  const width=(await chart.boundingBox()).width;
+  await dragMap(page,110,80);
+  await expect.poll(async()=>(await chart.boundingBox()).width).toBeCloseTo(width+110,0);
 });
 
 test('every boat loads the photographic environment and has skinned crew at physical stations',async({page})=>{
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
-  for(const [boat,count] of [['laser',1],['dinghy',2],['yacht',4],['ac75',8],['ac72',11]]){
+  for(const [boat,count] of [['laser',1],['dinghy',3],['yacht',4],['ac75',8],['ac72',11]]){
     await sail(page,boat);
     const result=await page.evaluate(()=>{
       const {scene,state}=SAILING_GAME;
@@ -185,16 +198,39 @@ test('every boat loads the photographic environment and has skinned crew at phys
       expect(result.skin[i].bones).toBe(14);
       expect(Math.hypot(result.skin[i].pelvis[0]-x,result.skin[i].pelvis[1]-y,result.skin[i].pelvis[2]-z)).toBeLessThan(.05);
     }
-    for(const mode of [1,2,3,0]){
+    for(const mode of [1,2,3,4,0]){
       await page.click('#cameraButton');
       await page.waitForFunction(value=>SAILING_GAME.scene.cameraMode===value,mode);
-      const eye=await page.evaluate(()=>{
+      const eye=await page.evaluate(firstPerson=>{
         const {scene,state,env}=SAILING_GAME,p=scene.camera.position;
         const water=SailPhysics.waveAt(p.x,-p.z,state.time,{...env,waveCurrent:state.seaState,waveProfile:state.waveProfile}).height;
-        return {clearance:p.y-water,inside:scene.waterMaskedAt(p)};
-      });
-      expect(eye.inside).toBe(false);
-      expect(eye.clearance).toBeGreaterThan(.25);
+        if(!firstPerson)return {clearance:p.y-water,inside:scene.waterMaskedAt(p)};
+        const helmsman=scene.isFoiler?scene.helmPerson:scene.person;
+        const anchor=helmsman.head.getWorldPosition(new THREE.Vector3());
+        const heading=scene.heading.rotation.y;
+        const forward=new THREE.Vector3(Math.cos(heading),0,-Math.sin(heading));
+        const view=scene.camera.getWorldDirection(new THREE.Vector3());
+        const visible=part=>scene.camera.layers.test(part.layers);
+        let faceHidden=false,handsVisible=false;
+        const render=scene.renderer.render;
+        scene.renderer.render=()=>{
+          faceHidden=[helmsman.head,helmsman.cap,helmsman.brim,helmsman.glasses].every(part=>!visible(part));
+          handsVisible=helmsman.hands.every(visible);
+        };
+        try{scene.render();}
+        finally{scene.renderer.render=render;}
+        return {anchorDistance:anchor.distanceTo(p),clearance:p.y-water,forward:view.dot(forward),
+          faceHidden,handsVisible,faceRestored:visible(helmsman.head)};
+      },mode===4);
+      if(mode===4){
+        expect(eye.anchorDistance).toBeLessThan(.25);
+        expect(eye.clearance).toBeGreaterThan(.12);
+        expect(eye.forward).toBeGreaterThan(.9);
+        expect(eye).toMatchObject({faceHidden:true,handsVisible:true,faceRestored:true});
+      }else{
+        expect(eye.inside).toBe(false);
+        expect(eye.clearance).toBeGreaterThan(.25);
+      }
     }
   }
   expect(errors).toEqual([]);

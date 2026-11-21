@@ -37,3 +37,37 @@ test('a dinghy accelerates on a swell face and slows after leaving it',async({pa
  expect(result.opposing).toBe(true);
  expect(result.capsized).toBe(false);
 });
+
+test('a following wave adds speed over the flat-water run and the back of the wave brakes',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const result=await page.evaluate(()=>{
+  const P=SailPhysics,theta=15*P.DEG;
+  const initialSpeed=4.25,waveComponent=0,w=P.WAVE_COMPONENTS[waveComponent];
+  const env={...SAILING_GAME.env,boatId:'laser',speed:14,direction:270,waveHeight:1.35,chop:0,wavePeriod:3.85,
+   gusts:0,waveComponent,shelter:false,autoBalance:false,ironsHelp:false,difficulty:'hard'};
+  const period=P.waveProfileFor(env).period,k=w.k/period**2;
+  function run(phase,waveHeight){
+   const sea={...env,waveHeight};
+   const s=P.createState({boatId:'laser',x:(phase-w.phase)/k,y:-13000,theta,
+    vx:initialSpeed*Math.cos(theta),vy:initialSpeed*Math.sin(theta),sheet:.13,crewPose:2,crewPoseBlend:2},sea);
+   const moments=[];
+   for(let i=0;i<120;i++){
+    const steer=P.clamp(P.wrap(s.theta-theta)*2+s.omega*.9,-1,1);
+    P.step(s,{steer,steerDigital:false,crewPose:2},sea,1/60);
+    if(i>=60)moments.push(s.hydro.waveFx);
+   }
+   const instruments=P.instruments(s,null,sea);
+   return {along:s.vx,log:instruments.logKnots,ground:instruments.knots,
+    pressure:moments.reduce((sum,v)=>sum+v,0)/moments.length,capsized:s.capsized};
+  }
+  return {face:run(4.4,1.35),back:run(.7,1.35),flat:run(4.4,0)};
+ });
+ expect(result.face.along).toBeGreaterThan(result.flat.along+.055);
+ expect(result.back.along).toBeLessThan(result.flat.along-.65);
+ expect(result.face.pressure).toBeGreaterThan(30);
+ expect(result.back.pressure).toBeLessThan(-30);
+ expect(result.flat.pressure).toBe(0);
+ expect(result.face.log).toBeCloseTo(result.face.ground,8);
+ expect(result.face.capsized).toBe(false);
+});

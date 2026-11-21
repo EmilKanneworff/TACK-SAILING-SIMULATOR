@@ -206,3 +206,71 @@ test('foil hull wake stops in flight and resumes at the rounded belly on touchdo
  });
  expect(result).toEqual({onWater:true,flying:true,landing:true,leftHullWake:true});
 });
+
+test('hull film follows the curved surface and returned spray meets the same waterline',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const result=await page.evaluate(()=>{
+  const P=SailPhysics,w=SAILING_GAME.scene,sea=w.hullWater;
+  const env={speed:8,direction:270,waves:.85,waveComponent:4,shelter:false};
+  const wave=P.WAVE_COMPONENTS[4],angle=P.waveProfileFor(env).windAngle,y=-5000,time=1;
+  const kx=wave.kx*Math.cos(angle)-wave.ky*Math.sin(angle),ky=wave.kx*Math.sin(angle)+wave.ky*Math.cos(angle);
+  const x=P.wrap(Math.PI/2-(ky*y-wave.omega*time+wave.phase))/kx;
+  const s=P.createState({boatId:'laser',x,y,theta:0,vx:4,heel:.12,time},env);
+  const live={...env,waveCurrent:s.seaState,waveProfile:s.waveProfile};
+  const fx=sea.sample('local',w,s,live,{local:true,reset:true});
+  const camera=new THREE.PerspectiveCamera();camera.position.set(s.x,5,-s.y);
+  sea.publish(s,camera);
+  const uniforms=w.hullWetUniforms,bounds=uniforms.bounds.value,values=[];
+  for(const off of [-.41,0,.41]){
+   const x=s.x+off/bounds.z,y=s.y;
+   const packed=sea.surfaceHeight(w,x,y),height=P.waveAt(x,y,s.time,live).height+sea.contactHeight(x,y);
+   const plane=-(uniforms.plane.value.x*x-uniforms.plane.value.z*y+uniforms.plane.value.w);
+   values.push({packed,height,plane});
+  }
+  const far=sea.surfaceHeight(w,s.x+20,s.y);
+  const still={...s,time:2,seaState:0},flat={...env,waves:0,waveCurrent:0};
+  sea.sample('local',w,still,flat,{local:true,reset:true});
+  sea.publish(still,camera);
+  w.spray.length=0;
+  const drop={x:still.x,y:still.y,h:.12,vx:0,vy:0,ax:0,ay:0,vh:.42,t:still.time,size:.024,alpha:.6};
+  w.spray.push(drop);
+  w.updateSprayGeometry({...still,time:still.time+.08},flat);
+  const airborne=w.spray.length;
+  w.updateSprayGeometry({...still,time:still.time+.29},flat);
+  const landed=w.spray.length;
+  return {values,far,airborne,landed,recycled:w.sprayPool.includes(drop),filmCount:fx.films.length};
+ });
+ expect(result.far).toBeNull();
+ expect(result.filmCount).toBe(4);
+ for(const p of result.values)expect(Math.abs(p.packed-p.height)).toBeLessThan(.012);
+ expect(result.values.some(p=>Math.abs(p.plane-p.height)>.009)).toBe(true);
+ expect(result.airborne).toBe(1);
+ expect(result.landed).toBe(0);
+ expect(result.recycled).toBe(true);
+});
+
+test('the Laser sailor braces at the bow impact and keeps the physical stance',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const result=await page.evaluate(()=>{
+  const P=SailPhysics,w=SAILING_GAME.scene,C=SailingCrewMotion,env={speed:0,waves:0,waveCurrent:0};
+  const c=SailingBoats.get('laser'),x=c.length*.38;
+  const s=P.createState({boatId:'laser',time:1,x:0,y:-5000,theta:0,vx:3,vy:0,heel:0,pitch:0,
+   heave:-SailingBoats.hullBottom(c,x,0),heaveVelocity:0,crewPose:2,crewPoseBlend:2},env);
+  let previous=C.balance(null,s,1/60,P.bowWaterContact(s,c,env));
+  s.heaveVelocity=-1.75;s.time+=.11;
+  const bow=P.bowWaterContact(s,c,env);
+  w.crewBalance=C.balance(previous,s,.11,bow);
+  const body=SailingBoats.crewPoseAt(s),visual=C.pose(w,body,s,0);
+  const delta=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
+  return {brace:w.crewBalance.brace,headDrop:body.head.y-visual.head.y,
+   seat:delta(body.pelvis,visual.pelvis),hands:visual.hands.map((p,i)=>delta(p,body.hands[i])),
+   feet:visual.feet.map((p,i)=>delta(p,body.feet[i]))};
+ });
+ expect(result.brace).toBeGreaterThan(.45);
+ expect(result.headDrop).toBeGreaterThan(.035);
+ expect(result.seat).toBe(0);
+ expect(result.hands).toEqual([0,0]);
+ expect(result.feet).toEqual([0,0]);
+});

@@ -8,24 +8,40 @@
   const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
   const blendPoint=(p,target,weight)=>advance(p,(target.x-p.x)*weight,(target.y-p.y)*weight,(target.z-p.z)*weight);
 
-  function balance(previous,s,dt){
+  function balance(previous,s,dt,bow){
     const speed=s.vx*Math.cos(s.theta)+s.vy*Math.sin(s.theta),rise=s.heaveVelocity||0;
     if(!previous||s.time<previous.time||s.time-previous.time>.5||distance(previous,{x:s.x,y:s.y,z:0})>30){
-      return {x:s.x,y:s.y,z:0,time:s.time,speed,rise,fore:0,side:0,compression:0};
+      return {x:s.x,y:s.y,z:0,time:s.time,speed,rise,sheet:s.sheet??0,fore:0,side:0,compression:0,brace:0,trim:0};
     }
     if(s.time===previous.time)return previous;
     const step=Math.max(.012,s.time-previous.time),mix=1-Math.exp(-clamp(dt||step,.01,.2)*7);
     const forward=clamp((speed-previous.speed)/step,-5,5),vertical=clamp((rise-previous.rise)/step,-7,7);
-    const fore=clamp(-.009*forward+.10*(s.pitchRate||0),-.078,.078);
+    const fore=clamp(-.014*forward+.11*(s.pitchRate||0),-.088,.088);
     const side=clamp(-.11*(s.heelRate||0)-.009*speed*(s.omega||0),-.085,.085);
-    const compression=clamp(-.0055*vertical,-.047,.021);
-    return {x:s.x,y:s.y,z:0,time:s.time,speed,rise,
+    const compression=clamp(-.0069*vertical,-.061,.023);
+    const brace=bow?smooth((bow.closing-.34)/1.35)*(1-smooth((Math.abs(bow.depth)-.08)/.29)):0;
+    const sheet=s.sheet??0,trim=smooth(Math.abs(sheet-previous.sheet)/(step*.44));
+    return {x:s.x,y:s.y,z:0,time:s.time,speed,rise,sheet,
       fore:previous.fore+(fore-previous.fore)*mix,side:previous.side+(side-previous.side)*mix,
-      compression:previous.compression+(compression-previous.compression)*mix};
+      compression:previous.compression+(compression-previous.compression)*mix,
+      brace:previous.brace+(brace-previous.brace)*(1-Math.exp(-step*(brace>previous.brace?13:5))),
+      trim:previous.trim+(trim-previous.trim)*(1-Math.exp(-step*(trim>previous.trim?8:2.4)))};
   }
 
+  const solve=(root,end,restRoot,restJoint,restEnd,keepEnd=false)=>{
+    const upper=distance(restRoot,restJoint),lower=distance(restJoint,restEnd);
+    const length=distance(root,end);
+    const desired=clamp(length,Math.abs(upper-lower)+.003,upper+lower-.003);
+    if(length>1e-6&&desired!==length){
+      if(keepEnd)blendPoint(root,end,1-desired/length);
+      else blendPoint(end,root,1-desired/length);
+    }
+    const bend={x:restJoint.x-restRoot.x,y:restJoint.y-restRoot.y,z:restJoint.z-restRoot.z};
+    return global.SailingBoats.jointBetween(root,end,upper,lower,bend);
+  };
+
   function pose(scene,body,s,index){
-    if(!body||!s||body.sharedMotion||s.capsized||s.recovering)return body;
+    if(!body||!s||s.capsized||s.recovering)return body;
     const out={...body};
     for(const key of ['pelvis','chest','head'])out[key]={...body[key]};
     for(const key of ['hips','knees','feet','shoulders','elbows','hands'])out[key]=body[key].map(point=>({...point}));
@@ -36,14 +52,29 @@
     const crossing=clamp(Math.abs(sideRate)*2.2,0,1);
     const duck=crossing*Math.pow(clamp(1-Math.abs(side),0,1),1.25);
     const direction=Math.sign(sideRate)||1,transfer=clamp((side*direction+1)*.5,0,1);
-    const balance=scene.crewBalance||{fore:0,side:clamp(-.11*(s.heelRate||0),-.08,.08),compression:0};
+    const balance=scene.crewBalance||{fore:0,side:clamp(-.11*(s.heelRate||0),-.08,.08),compression:0,brace:0,trim:0};
     const professional=scene.isFoiler?.50:scene.isYacht?.68:1;
     const breath=Math.sin((s.time||0)*(1.77+index*.023)+index*1.37)*.007;
     const toward=clamp((s.crewPose??poseBlend)-poseBlend,-1,1);
     const anticipation=(crossing*.045*direction+toward*side*.035)*(1-duck*.7);
     const lean=balance.side*professional+anticipation;
-    const reach=balance.fore*professional+.13*duck;
-    const settle=balance.compression*professional+breath+.034*moving*(1-duck)-.17*duck;
+    const reach=balance.fore*professional+.13*duck+balance.brace*.036;
+    const settle=balance.compression*professional+breath+.034*moving*(1-duck)-.17*duck-balance.brace*.042*professional;
+    if(body.sharedMotion){
+      // Feet, seat and control hands stay with the physical stance. Shoulders
+      // and elbows absorb the movement as the sailor watches the bow.
+      const free=1-.76*(body.duck||0),rise=(balance.compression+breath-balance.brace*.084)*free;
+      const lean=balance.side*free,fore=(balance.fore+.042*balance.brace)*free;
+      advance(out.chest,fore,rise,lean);
+      advance(out.head,fore*.93,rise+clamp((s.pitchRate||0)*.016,-.02,.02),lean*.65);
+      for(let i=0;i<2;i++){
+        advance(out.shoulders[i],fore,rise,lean);
+        out.elbows[i]=solve(out.shoulders[i],out.hands[i],body.shoulders[i],body.elbows[i],body.hands[i],true);
+      }
+      out.lookYaw=(body.lookYaw??Math.PI/2)+.15*balance.trim*side;
+      out.lookDown=(body.lookDown??.05)+.13*balance.brace+.075*balance.trim-clamp((s.pitchRate||0)*.21,-.13,.13);
+      return out;
+    }
     advance(out.chest,reach,settle,lean);
     advance(out.head,reach*1.3,settle-.07*duck,lean*1.22);
 
@@ -82,8 +113,8 @@
         for(const shoulder of out.shoulders)advance(shoulder,0,-clearance*.73,0);
       }
     }else if(scene.isYacht&&index===0&&scene.helmWheel){
-      const wheel=scene.helmWheel.position,racing=scene.model.racingYacht;
-      const angle=(racing?Math.PI*.5*side:-.90)+scene.helmWheel.rotation.x,radius=racing?.34:.43;
+      const wheel=scene.helmWheel.position;
+      const angle=-.90+scene.helmWheel.rotation.x,radius=.43;
       hold(1,{x:wheel.x,y:wheel.y+Math.cos(angle)*radius,z:wheel.z+Math.sin(angle)*radius},1-duck);
     }else if(scene.isYacht){
       const trim=clamp(s.sheet??.45,0,1),hoist=s.spinnaker?.hoist||0;
@@ -97,20 +128,13 @@
       advance(out.hands[0],(index%3===0?.040:-.023)*Math.sin((s.time||0)*.62+index),balance.compression*.28,0);
     }
 
-    const solve=(root,end,restRoot,restJoint,restEnd)=>{
-      const upper=distance(restRoot,restJoint),lower=distance(restJoint,restEnd);
-      const length=distance(root,end);
-      const desired=clamp(length,Math.abs(upper-lower)+.003,upper+lower-.003);
-      if(length>1e-6&&desired!==length)blendPoint(end,root,1-desired/length);
-      const bend={x:restJoint.x-restRoot.x,y:restJoint.y-restRoot.y,z:restJoint.z-restRoot.z};
-      return global.SailingBoats.jointBetween(root,end,upper,lower,bend);
-    };
     for(let i=0;i<2;i++){
       out.knees[i]=solve(out.hips[i],out.feet[i],body.hips[i],body.knees[i],body.feet[i]);
       out.elbows[i]=solve(out.shoulders[i],out.hands[i],body.shoulders[i],body.elbows[i],body.hands[i]);
     }
     out.lookYaw=Math.PI/2+clamp((s.rudder||0)*.95+sideRate*.30+Math.sin((s.time||0)*.81+index)*.145+(index%3-1)*.11,-.65,.65);
-    out.lookDown=.05+.32*duck+(index%3)*.10-clamp((s.pitchRate||0)*.25,-.13,.13);
+    out.lookDown=.05+.32*duck+(index%3)*.10+.15*balance.brace+.12*balance.trim*Number(index%3===1)
+      -clamp((s.pitchRate||0)*.25,-.13,.13);
     return out;
   }
 

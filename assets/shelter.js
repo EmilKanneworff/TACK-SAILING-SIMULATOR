@@ -4,7 +4,7 @@
  'use strict';
  const worldBounds=g.ArchipelagoData?.fieldBounds;
  const N=worldBounds?461:136,B=Object.freeze(worldBounds??{minX:-2100,maxX:2100,minY:-2680,maxY:620});
- const LIMIT=1450,stepX=(B.maxX-B.minX)/(N-1),stepY=(B.maxY-B.minY)/(N-1);
+ const LIMIT=6500,stepX=(B.maxX-B.minX)/(N-1),stepY=(B.maxY-B.minY)/(N-1);
  const cache=new Map(),pairs=new Map();
  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
  const quantize=d=>((Math.round(d)%360)+360)%360;
@@ -45,7 +45,7 @@
   const data=new Uint8Array(N*N*4);
   const short=f=>.012+.988*Math.pow(clamp(f/1250,0,1),.67);
   const formed=f=>Math.pow(clamp(f/1370,0,1),.86);
-  const openSwell=Math.exp(-LIMIT/355);
+  const openSwell=Math.exp(-1450/355);
   for(let j=0;j<N;j++)for(let i=0;i<N;i++){
    const x=B.minX+stepX*i,y=B.minY+stepY*j,fetch=centre(x,y);
    const a=left(x,y),b=right(x,y);
@@ -57,7 +57,7 @@
    const edge=smooth(Math.min(i,j,N-1-i,N-1-j)/5);
    // Swell already at sea is partly scattered around headlands. Sea generated
    // locally grows from the last shore, with a small off-axis contribution.
-   const swell=1-.82*(Math.exp(-fetch/355)-openSwell)/(1-openSwell);
+   const swell=1-.82*Math.max(0,Math.exp(-fetch/355)-openSwell)/(1-openSwell);
    const shortSea=.89*short(fetch)+.055*(short(a)+short(b));
    const longSea=swell*(.20+.80*(.92*formed(fetch)+.04*(formed(a)+formed(b))));
    data[k]=Math.round(255*mix(1,swell,edge));
@@ -108,12 +108,13 @@
  const shader=`
     uniform float waveShelterEnabled;
     uniform sampler2D waveExposureFrom,waveExposureTo;
-    vec3 coastExposure(sampler2D tex,vec2 p){
-      if(waveShelterEnabled<.5)return vec3(1.);
+    vec4 coastWaveFields(sampler2D tex,vec2 p){
+      if(waveShelterEnabled<.5)return vec4(1.);
       vec2 uv=(vec2(p.x,-p.y)-vec2(${n(B.minX)},${n(B.minY)}))/vec2(${n(B.maxX-B.minX)},${n(B.maxY-B.minY)});
-      if(any(lessThan(uv,vec2(0.)))||any(greaterThan(uv,vec2(1.))))return vec3(1.);
-      return texture2D(tex,(uv*${n(N-1)}+.5)/${n(N)}).rgb;
+      if(any(lessThan(uv,vec2(0.)))||any(greaterThan(uv,vec2(1.))))return vec4(1.);
+      return texture2D(tex,(uv*${n(N-1)}+.5)/${n(N)});
     }
+    vec3 coastExposure(sampler2D tex,vec2 p){return coastWaveFields(tex,p).rgb;}
  `;
  g.SailingShelter={field,combinedField,sample,sampleGradient,waveDirection,shader,bounds:B,size:N,fetchLimit:LIMIT,
    contains:(x,y)=>x>=B.minX&&x<=B.maxX&&y>=B.minY&&y<=B.maxY};
