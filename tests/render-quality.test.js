@@ -32,10 +32,18 @@ test('low graphics lowers the drawing resolution and keeps the active frame cade
   const result = await page.evaluate(() => ({
     draws: window.draws,
     ratio: SAILING_GAME.scene.renderer.getPixelRatio(),
-    device: Math.min(devicePixelRatio, 1)
+    device: Math.min(devicePixelRatio, 1),
+    far: SAILING_GAME.scene.camera.far,
+    waterTriangles: SAILING_GAME.scene.water.geometry.index.count / 3,
+    reflection: SAILING_GAME.scene.hullWater.uniforms.boatReflectionEnabled.value,
+    decorations: SAILING_GAME.scene.coastDecorations.visible,
+    shoreInRange: SAILING_GAME.scene.coastTerrain.some(tile => tile.visible),
+    shoreCulled: SAILING_GAME.scene.coastTerrain.some(tile => !tile.visible)
   }));
   expect(result.draws).toBeGreaterThanOrEqual(26);
   expect(result.ratio).toBeCloseTo(result.device * .78, 5);
+  expect(result.waterTriangles).toBeLessThan(31_000);
+  expect(result).toMatchObject({ far: 1500, reflection: 0, decorations: false, shoreInRange: true, shoreCulled: true });
 });
 
 test('the simulator resumes sailing after the browser restores WebGL', async ({ page }) => {
@@ -112,6 +120,9 @@ test('remote hulls blend uneven snapshots, snap after rescue and release unused 
       return { x: actor.boatRoot.position.x - base.x, heading: actor.heading.rotation.y };
     };
     try {
+      receive(10_000, 0);
+      fleet.render(1 / 60);
+      const farBoat = { built: fleet.actors.has('remote'), onMap: fleet.mapBoats().length === 1 };
       receive(0, Math.PI - .08);
       show();
       now += 43;
@@ -131,12 +142,13 @@ test('remote hulls blend uneven snapshots, snap after rescue and release unused 
       fleet.roster([]);
       receive(32, 0);
       fleet.render(1 / 60);
-      return { before, after, next, rescued, removed: !root.parent, disposed, views: fleet.views.size, actors: fleet.actors.size };
+      return { farBoat, before, after, next, rescued, removed: !root.parent, disposed, views: fleet.views.size, actors: fleet.actors.size };
     } finally {
       performance.now = originalNow;
       fleet.clear();
     }
   });
+  expect(result.farBoat).toEqual({ built: false, onMap: true });
   expect(result.before.x).toBeGreaterThan(0);
   expect(result.before.x).toBeLessThan(2);
   expect(Math.abs(result.before.heading)).toBeGreaterThan(3);
@@ -144,4 +156,53 @@ test('remote hulls blend uneven snapshots, snap after rescue and release unused 
   expect(result.next.x).toBeGreaterThan(result.after.x);
   expect(result.rescued).toEqual({ x: 32, heading: 0 });
   expect(result).toMatchObject({ removed: true, disposed: true, views: 0, actors: 0 });
+});
+
+test('auto scales the 3D scene down and recovers gradually after steady rendering', async ({ page }) => {
+  await page.addInitScript(() => {
+    const request = window.requestAnimationFrame;
+    window.requestAnimationFrame = callback => {
+      if (callback.name === 'frame') {
+        window.gameFrame = callback;
+        return 0;
+      }
+      return request.call(window, callback);
+    };
+  });
+  await page.goto(game);
+  await page.click('#startButton');
+  const result = await page.evaluate(() => {
+    const { scene } = SAILING_GAME, update = scene.update;
+    let now = performance.now();
+    // Supply frame timestamps without drawing hundreds of WebGL frames.
+    scene.update = () => {};
+    const step = (duration, frameMs) => {
+      for (let t = 0; t < duration; t += frameMs) window.gameFrame(now += frameMs);
+      return scene.graphicsProfile.id;
+    };
+    try {
+      const start = step(800, 20);
+      const singleSlowWindow = step(1100, 30);
+      const sustainedSlow = step(3400, 50);
+      const lowFar = scene.camera.far;
+      const lowTriangles = scene.water.geometry.index.count / 3;
+      const shortRecovery = step(6000, 16);
+      const stableRecovery = step(6600, 16);
+      const select = document.querySelector('#quality');
+      select.value = 'high';
+      select.dispatchEvent(new Event('change'));
+      const manualHigh = step(3500, 50);
+      const highFar = scene.camera.far, highTriangles = scene.water.geometry.index.count / 3;
+      select.value = 'auto';
+      select.dispatchEvent(new Event('change'));
+      const severe = step(1600, 100);
+      return { start, singleSlowWindow, sustainedSlow, lowFar, lowTriangles, shortRecovery, stableRecovery,
+        manualHigh, highFar, highTriangles, severe };
+    } finally { scene.update = update; }
+  });
+  expect(result).toMatchObject({
+    start: 'high', singleSlowWindow: 'high', sustainedSlow: 'minimum', lowFar: 850,
+    shortRecovery: 'minimum', stableRecovery: 'low', manualHigh: 'high', highFar: 8000, severe: 'minimum'
+  });
+  expect(result.lowTriangles).toBeLessThan(result.highTriangles * .45);
 });

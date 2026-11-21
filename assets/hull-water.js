@@ -429,20 +429,20 @@ class HullWater {
   }
 
   reflect(s,env){
-    const {renderer,scene,camera,quality}=this.scene,u=this.uniforms;
-    const active=!this.layers.has('refleksion')&&camera.position.y>.20&&camera.position.y<39;
+    const {renderer,scene,camera,graphicsProfile}=this.scene,u=this.uniforms;
+    const active=graphicsProfile.reflectionSize>0&&!this.layers.has('refleksion')&&camera.position.y>.20&&camera.position.y<39;
     if(!active){u.boatReflectionEnabled.value=0;return;}
     // This pass shares a single viewport for all boats and renders the sails
     // and shells only. The above-water clipping plane excludes appendages.
     const now=s.time;
     const aspect=camera.aspect;
-    if(this.reflectionMode===this.scene.cameraMode&&this.reflectionQuality===quality&&this.reflectionAspect===aspect&&now>=this.lastReflection&&now-this.lastReflection<(quality==='low'?.055:.028)){
+    if(this.reflectionMode===this.scene.cameraMode&&this.reflectionQuality===graphicsProfile.id&&this.reflectionAspect===aspect&&now>=this.lastReflection&&now-this.lastReflection<graphicsProfile.reflectionInterval){
       if(camera.position.y<=u.boatReflectionHeight.value+.21)u.boatReflectionEnabled.value=0;
       return;
     }
     this.reflectionMode=this.scene.cameraMode;
-    this.reflectionQuality=quality;this.reflectionAspect=aspect;
-    const width=quality==='low'?320:640;
+    this.reflectionQuality=graphicsProfile.id;this.reflectionAspect=aspect;
+    const width=graphicsProfile.reflectionSize;
     const height=Math.round(limit(width/aspect,160,512));
     if(this.target.width!==width||this.target.height!==height)this.target.setSize(width,height);
     this.lastReflection=now;

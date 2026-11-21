@@ -129,10 +129,21 @@ class Fleet {
  render(dt){
   if(!this.inWorld||!this.session)return;
   const scene=this.bridge.scene(),env=this.bridge.env(),world=this.bridge.state(),now=performance.now();
+  const {remoteDistance}=scene.graphicsProfile,eye=scene.camera.position;
   for(const [id,s] of this.boats){
    if(id===this.id)continue;
    let actor=this.actors.get(id);
    if(actor&&actor.boatId!==s.boatId){actor.disposeBoat();this.actors.delete(id);actor=null;}
+   if(Math.hypot(s.x-eye.x,s.y+eye.z)>remoteDistance+35){
+    if(actor){actor.boatRoot.visible=false;actor.hull.visible=false;}
+    continue;
+   }
+   const view=this.views.get(id),pose=view?visualPose(view,now):s;
+   const distance=Math.hypot(pose.x-eye.x,pose.y+eye.z);
+   if(distance>=remoteDistance){
+    if(actor){actor.boatRoot.visible=false;actor.hull.visible=false;}
+    continue;
+   }
    if(!actor){
     actor=Object.create(scene);actor.boatRoot=null;actor.boatId=null;actor.isRemoteActor=true;
     actor.configureWaterMask=()=>{};actor.updateWaterMask=()=>{};
@@ -143,13 +154,10 @@ class Fleet {
     name.scale.set(5,2.2,1);actor.nameplate=name;actor.hull.add(name);
     this.actors.set(id,actor);
    }
-   const view=this.views.get(id),pose=view?visualPose(view,now):s;
    const draw={...pose,time:world.time,seaState:world.seaState,waveProfile:world.waveProfile};
-   const distance=Math.hypot(draw.x-scene.camera.position.x,-draw.y-scene.camera.position.z);
-   actor.hull.visible=distance<1850;
+   actor.boatRoot.visible=actor.hull.visible=true;
    actor.nameplate.visible=distance<460;
    actor.nameplate.material.opacity=clamp((460-distance)/150,0,1);
-   if(!actor.hull.visible)continue;
    actor.crewDetail=distance<(scene.quality==='low'?34:96);
    const detailInterval=scene.quality==='low'?(distance<37?65:140):distance<160?30:125;
    if(!actor.lastDetailAt||now-actor.lastDetailAt>=detailInterval){
