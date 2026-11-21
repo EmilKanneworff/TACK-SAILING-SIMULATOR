@@ -43,10 +43,10 @@
       const time=state.time,scene=this.scene,P=scene.P;
       if(reset||time<this.last){this.patches.length=0;this.recent.clear();this.last=-Infinity;this.index=0;}
       this.patches=this.patches.filter(p=>time-p.time<p.life);
-      if(time-this.last>.14&&state.seaState>.14){
+      if(scene.graphicsProfile.ambientFoam&&time-this.last>.14&&state.seaState>.14){
         this.last=time;
         const step=3.8,ix=Math.round(state.x/step),iy=Math.round(state.y/step);
-        const radius=scene.quality==='low'?10:13;
+        const radius=scene.graphicsProfile.id==='balanced'?9:13;
         const lane=this.index++%3;
         for(const [key,t] of this.recent)if(time-t>5)this.recent.delete(key);
         for(let j=-radius;j<=radius;j++)for(let i=-radius;i<=radius;i++){

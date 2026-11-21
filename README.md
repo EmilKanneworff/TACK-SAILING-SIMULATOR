@@ -116,6 +116,8 @@ Katamaranen har et opdelt stift vingeprofil med flap og en separat, blød fok. V
 
 ## Visuel kontrol og ydelse
 
+**Grafikkvalitet → Auto** sænker automatisk opløsning, detaljeniveau og synsafstand, når billedhastigheden falder vedvarende. Ved lavt detaljeniveau er synsafstanden ca. 1,5 km og ved det laveste trin ca. 850 m. Grafikken øges igen trinvis efter stabil billedhastighed. **Lav** og **Høj** kan vælges manuelt. Søkortsvisning, fysik og vindpilene følger fortsat spillets tilstand.
+
 Bådenes geometri og animationer bygges i `index.html`. `gennemgang/modelkontrol/sammenlign.html` sammenstiller den aktuelle model med de valgte referencebilleder, herunder et manuelt justerbart overlay. Referencerne er kun til kontrol og er ikke spillets assets. `node scripts/boat-presentations.cjs` genskaber alle fem bådvælgerbilleder fra spillets scene, mens spillet kører lokalt på port 5173.
 
 `node scripts/visual-qa.cjs` måler en otte sekunders scene med standardkamera, 1280 × 720 og høj grafik. Med `QA_VIDEO=1` optages også et forløb med besætningsskift og styreinput. Browsersti kan angives med `CHROME_PATH`. Måling, sammenligningsbilleder, optagelse og konkrete resterende afvigelser findes i `gennemgang/visuel-2026-11-19/`.
