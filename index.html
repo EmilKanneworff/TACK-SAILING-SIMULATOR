@@ -5078,17 +5078,25 @@ function input(){
   const selected=state.boatId==='yacht'&&difficulty==='hard'?trimSail:'main';
   if(selected!=='main'&&trimKeys){
     const key=selected==='jib'?'jibSheet':'extraSheet';
-    rigCommand[key]=clamp((rigCommand[key]??state.sheet)+trimKeys*.5*Sim.fixedDt,0,1);
+    const sheet=rigCommand[key]??state.sheet;
+    let travel=trimKeys*.5*Sim.fixedDt;
+    if(selected==='jib'&&travel>0)travel=Math.min(travel,P.haulSheetTravel(sheet,cfg,Sim.fixedDt));
+    rigCommand[key]=clamp(sheet+travel,0,1);
   }
   const trimKey=selected==='main'?trimKeys:0,difference=sheetTarget-state.sheet;
-  const trimFast=!!trimKey||(difference<0&&!cfg.rigidWing);
-  const trimRate=P.sheetRateFor(cfg,difference,trimFast,difficulty);
+  const trimFast=!!trimKey||(!cfg.rigidWing&&difference!==0);
+  const time=clamp(env.controlRate??1,.35,2)*Sim.fixedDt;
+  const travelLimit=P.sheetRateFor(cfg,trimKey||difference,trimFast,difficulty)*time;
+  const requestedTravel=trimKey?trimKey*travelLimit:difference;
+  const travel=requestedTravel>0&&!cfg.rigidWing
+    ?Math.min(requestedTravel,P.haulSheetTravel(state.sheet,cfg,time))
+    :requestedTravel;
   const crew=difficulty==='easy'?0:crewSideCommand;
   const foreAft=(controlPressed('KeyX')?1:0)-(controlPressed('KeyZ')?1:0)||foreAftTarget;
   const touch=helmPointer===null?pendingTouchSteer:touchSteer;
   return {steer:steeringInput(touch),
     steerDigital:touch===null,trimFast,trimKey,
-    trim:trimKey||clamp(difference/(trimRate*env.controlRate*Sim.fixedDt),-1,1),crew,foreAft,crewPose:env.crewPose,difficulty,
+    trim:clamp(travel/travelLimit,-1,1),crew,foreAft,crewPose:env.crewPose,difficulty,
     ...(state.boatId==='yacht'?{rig:{...rigCommand}}:cfg.heavyAir?{rig:{reef:rigCommand.reef}}:{}),
     spinnaker:spinCommand,downwindType:spinType};
 }

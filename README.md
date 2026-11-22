@@ -90,7 +90,7 @@ På både med storsejl ændrer en bevægelse på skyderens slække halvdel, 0–
 
 [Sejladsgennemgangen](gennemgang/haandtering/README.md) viser vindlæ ved Faaborg, Laserjollens stagvending med tastatur og den målte fartforskel til Racer 32.
 
-Det tager cirka to sekunder at hale skødet helt ind med tastaturet ved standardfølsomhed. Udslækshastigheden afhænger af riggen. I Laserprøven tog fuldt udslæk 0,63 sekunder. Bommens bevægelse og sejlkraften afhænger af vind og båd. Se [skødegennemgangen](gennemgang/skode/README.md) for målinger og optagelse.
+Hastigheden falder gradvist under indhaling, så små tryk på ↑ giver finere justeringer tæt på 100 %. På Laserjollen tog 0–50 % cirka 1,47 sekunder og 50–100 % cirka 2,45 sekunder. Fuldt udslæk med ↓ tog 0,63 sekunder. Bommens bevægelse og sejlkraften afhænger af vind og båd. Se [skødegennemgangen](gennemgang/skode/README.md) for målinger og optagelse.
 
 Den assisterede position 2 flytter vægten gradvist gennem båden ved sideskift; position 3 holder den tidligere side, indtil spilleren vælger position 2. Totalmassen er konstant. En browserkontrol med påtvunget kæntring målte automatisk opretning på højst 4,4 aktive sekunder for de fem både i de testede forhold.
 

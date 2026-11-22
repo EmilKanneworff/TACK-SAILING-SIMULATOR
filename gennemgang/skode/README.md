@@ -1,5 +1,18 @@
 # Skøde og bom i TACK
 
+## Opfølgning på indhaling
+
+Build `7a3e175e9b60` sænker indhalingshastigheden mod 100 % på den viste skala. Den tidligere styring holdt linehastigheden næsten konstant under indhaling. Kurven mellem line og procent fik derfor procenttallet til at løbe hurtigere, jo længere ind skødet kom.
+
+| Laserjolle, 60 Hz | 0–50 % før → efter | 50–100 % før → efter |
+| --- | ---: | ---: |
+| Holdt ↑ | 1,45 → 1,47 s | 0,55 → 2,45 s |
+| Skyder fra 0 direkte til 100 | 2,70 → 1,47 s | 1,02 → 2,45 s |
+
+Tabellen måler den faktisk anvendte indstilling i Fri sejlads i stille vand. Skyderen viser spillerens ønskede procent med det samme. Den modellerede line følger med over den målte tid. Hovedskødets nye tempo gælder tastatur og skyder. Fokkens tastaturbetjening bruger også det finere tempo opdelt efter procent. Prøven kan gentages med tilstanden `haul` i `scripts/sheet-trials.cjs`. Rådata fra build `05c4636e0c1c` og `7a3e175e9b60` ligger under `haulBefore` og `haulAfter` i målesættet.
+
+## Den første skødeændring
+
 Den opdaterede version kan åbnes på [localhost:4173](http://localhost:4173/). Førmålingen er fra build `a461cf3c0689`. Eftermålingen er fra `cd32b97c55e2`. I [klippet](skode.mp4) sejler Laserjollen på halvvind, mens skyderen flyttes fra 50 til 0 og tilbage til 88 %. Det er spillets almindelige Følge-kamera.
 
 ## Hvad der gjorde skødet trægt
@@ -61,6 +74,6 @@ Fuld udslækning var hurtigere i alle tre kørselstyper. Tidspunktet for den fø
 
 [Råt målesæt som JSON komprimeret med gzip](målinger.json.gz) indeholder forløb fra begge builds, inputtidspunkter, målinger med forskellige billedfrekvenser, vendinger og bomninger, Turbåd 43’s sejl samt målingerne med én og seks både. Rådata indeholder også tilsyneladende vind, bomvinkel og -hastighed, fart, krængning og efterslæb. Linens belastning er et anslået reaktionsmoment i Nm ved bommen. Førmålingen kan kun estimere fjederens del. Eftermålingen medregner også reaktionen ved skødestoppet. En omregning til linekraft i newton kræver en kalibreret model for talje og skødets momentarm.
 
-Prøverne kan gentages med `node scripts/sheet-trials.cjs http://localhost:4173/ /tmp/tack-skode sweep`. De øvrige tilstande er `turns`, `cruiser`, `live` og `video`. Det oprindelige build blev målt fra en kopi af `dist`. Testene kontrollerer spillets respons og fortegn i dets nuværende model. Kalibrering af skødemoment, bomudslag og twist kræver tilsvarende målinger om bord på de virkelige bådtyper.
+Prøverne kan gentages med `node scripts/sheet-trials.cjs http://localhost:4173/ /tmp/tack-skode sweep`. De øvrige tilstande er `haul`, `turns`, `cruiser`, `live` og `video`. Det oprindelige build blev målt fra en kopi af `dist`. Testene kontrollerer spillets respons og fortegn i den målte model. Kalibrering af skødemoment, bomudslag og twist kræver tilsvarende målinger om bord på de virkelige bådtyper.
 
 `npm test` bestod 41 af 41 prøver, og `npm run check:simulation` bestod. 35 af 36 Playwright-prøver bestod i sejl-, skøde-, foil- og brugerfladesættet. Katamaranens hårdvindsprøve målte 32,19 m/s ved en testgrænse på 32 m/s. En direkte gentagelse ved 20 m/s vind målte samme topfart i begge builds.

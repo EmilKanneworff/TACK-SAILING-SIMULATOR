@@ -135,6 +135,28 @@ async function keyTrial(page,hz,quality) {
   return {hz,quality,rows};
 }
 
+async function haulTrial(page, control) {
+  const frame=duration=>page.evaluate(duration=>runSheetFrames(duration,60,false),duration);
+  const slider=page.locator('#sheetControl');
+  await page.evaluate(seed,{id:'laser',twa:88,tee:1,startingTrim:0,wind:0});
+  await frame(.1);
+  await slider.fill('0');
+  const start=(await frame(.5)).at(-1);
+  let rows;
+  if(control==='slider'){
+    await slider.fill('100');
+    rows=await frame(5);
+  }else{
+    await page.locator('#sea').focus();
+    await page.keyboard.down('ArrowUp');
+    rows=await frame(5);
+    await page.keyboard.up('ArrowUp');
+  }
+  const at=value=>rows.find(row=>row.applied>=value-.001)?.t;
+  const middle=at(50),end=at(100);
+  return {control,start,rows,firstHalf:middle-start.t,secondHalf:end-middle};
+}
+
 async function turnTrial(page, type, side) {
   const gybe=type==='bomning', twa=side*(gybe?151:49), trim=gybe?30:63;
   const frame=duration=>page.evaluate(duration=>runSheetFrames(duration,60,false),duration);
@@ -230,7 +252,7 @@ async function cruiserTrial(page, name, twa, loadedTrim) {
 
 async function main() {
   const [, , url, output, mode='sweep']=process.argv;
-  if(!url||!output)throw Error('node scripts/sheet-trials.cjs URL MAPPE [sweep|turns|cruiser|live|video]');
+  if(!url||!output)throw Error('node scripts/sheet-trials.cjs URL MAPPE [sweep|haul|turns|cruiser|live|video]');
   const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']});
   await fs.mkdir(output,{recursive:true});
@@ -252,6 +274,12 @@ async function main() {
       const high=await open(browser,url,{quality:'high'});
       try{result.keys.push(await keyTrial(high.page,120,'high'));result.errors.push(...high.errors);}
       finally{await high.context.close();}
+    }else if(mode==='haul'){
+      for(const control of ['keyboard','slider']){
+        const {context,page,revision,errors}=await open(browser,url);
+        try{result.revision=revision;result.runs.push({...await haulTrial(page,control),errors});}
+        finally{await context.close();}
+      }
     }else if(mode==='turns'){
       for(const type of ['stagvending','bomning'])for(const side of [1,-1]){
         const {context,page,revision,errors}=await open(browser,url);
