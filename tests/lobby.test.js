@@ -1,9 +1,73 @@
-const { introOption } = require('../scripts/browser-setup.cjs');
-const {test,expect}=require('@playwright/test');const {spawn}=require('node:child_process');
+'use strict';
+
+const { test,expect } = require('@playwright/test');
+const { spawn } = require('node:child_process');
+const { once } = require('node:events');
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
-test('six independent browser contexts join and seventh is refused',async({browser})=>{
- test.setTimeout(90000);const child=spawn(process.execPath,['server/index.js'],{env:{...process.env,PORT:'33109'},stdio:['ignore','pipe','inherit']});const frontend=spawn(process.execPath,['server/static.js'],{env:{...process.env,FRONTEND_PORT:'34109'},stdio:['ignore','pipe','inherit']});await Promise.all([child,frontend].map(p=>new Promise((res,rej)=>{p.stdout.once('data',res);p.once('error',rej)})));const contexts=[];try{
- for(let i=0;i<7;i++){const ctx=await browser.newContext();contexts.push(ctx);const page=await ctx.newPage();await page.addInitScript(()=>{window.FRI_VIND_REALTIME_URL='ws://127.0.0.1:33109';const Real=window.WebSocket;window.WebSocket=class extends Real{constructor(...args){super(...args);window.testSocket=this}}});await page.goto('http://127.0.0.1:34109');await page.waitForFunction(()=>!!window.SAILING_GAME);await (await introOption(page, '#introLobby')).click();await page.fill('#lobbyName',`Spiller ${i+1}`);if(i===0){await page.click('#lobbyCreate');await expect(page.locator('#lobbyRoom')).toBeVisible();}else{const code=await contexts[0].pages()[0].locator('#lobbyCode').textContent();expect(code).toMatch(/^\d{6}$/);await page.fill('#lobbyCodeInput',code);await page.click('#lobbyJoin');if(i<6)await expect(page.locator('#lobbyRoom')).toBeVisible();else await expect(page.locator('#lobbyMessage')).toHaveText('Lobbyen er fuld.');}}
- await expect(contexts[0].pages()[0].locator('#lobbyCount')).toHaveText('6 / 6 spillere');const guest=contexts[1].pages()[0];await guest.evaluate(()=>window.testSocket.close());await expect(guest.locator('#lobbyMessage')).toContainText('Genforbinder',{timeout:5000});await expect(guest.locator('#lobbyMessage')).toContainText('Forbundet',{timeout:10000});await expect(guest.locator('#lobbyCount')).toHaveText('6 / 6 spillere');await expect(contexts[1].pages()[0].locator('#lobbyPlayers li')).toHaveCount(6);
- }finally{await Promise.all(contexts.map(c=>c.close()));child.kill();frontend.kill();}
+
+test('an invitation opens the lobby and two browsers sail without the host tab',async({ browser })=>{
+  test.setTimeout(90000);
+  const live=spawn(process.execPath,['server/index.js'],{env:{...process.env,PORT:'33109'}});
+  const frontend=spawn(process.execPath,['server/static.js'],{env:{...process.env,FRONTEND_PORT:'34109'}});
+  const contexts=[];
+  try {
+    await Promise.all([live,frontend].map(p=>once(p.stdout,'data')));
+    const url='http://127.0.0.1:34109/';
+    async function pageFor(name,link,delay=0) {
+      const context=await browser.newContext({viewport:{width:994,height:646}});
+      contexts.push(context);
+      const page=await context.newPage();
+      await page.addInitScript(delay=>{
+        window.FRI_VIND_REALTIME_URL='ws://127.0.0.1:33109';
+        const Native=window.WebSocket;
+        window.sockets=[];
+        window.WebSocket=class extends Native{
+          constructor(...args){ super(...args);window.sockets.push(this); }
+          send(data){ if(!delay){ super.send(data);return; }
+            setTimeout(()=>{ if(this.readyState===Native.OPEN)super.send(data); },delay);
+          }
+        };
+      },delay);
+      await page.goto(link);
+      await page.locator('#startButton:enabled').waitFor();
+      if(link===url)await page.click('#introLobby');
+      await page.fill('#lobbyName',name);
+      return page;
+    }
+    const host=await pageFor('Vært',url);
+    await contexts[0].grantPermissions(['clipboard-read','clipboard-write']);
+    await host.click('#lobbyCreate');
+    await expect(host.locator('#lobbyRoom')).toBeVisible();
+    const code=await host.locator('#lobbyCode').textContent();
+    expect(code).toMatch(/^\d{6}$/);
+    await host.click('#lobbyInvite');
+    const link=await host.evaluate(()=>navigator.clipboard.readText());
+    expect(link).toBe(url+'?lobby='+code);
+    const guest=await pageFor('Gæst',link,75);
+    await expect(guest.locator('#lobbyCodeInput')).toHaveValue(code);
+    await guest.click('#lobbyJoin');
+    await expect(host.locator('#lobbyCount')).toHaveText('2 / 6 spillere');
+    await guest.click('#lobbyReady');
+    await expect(host.locator('#lobbyPlayers')).toContainText('Gæst · Laserjolle · Klar');
+    await host.click('#lobbySail');
+    await guest.waitForFunction(()=>FriVindLobby.fleet.synced&&FriVindLobby.fleet.boats.size===1);
+    await host.waitForFunction(()=>FriVindLobby.fleet.synced&&FriVindLobby.fleet.boats.size===1);
+    const id=await guest.evaluate(()=>FriVindLobby.fleet.id);
+    await guest.locator('#sea').focus();
+    await guest.keyboard.down('ArrowRight');
+    try{
+      await host.waitForFunction(id=>FriVindLobby.fleet.boats.get(id)?.steerIntent===1,id);
+    }finally{await guest.keyboard.up('ArrowRight');}
+    await host.waitForFunction(id=>FriVindLobby.fleet.boats.get(id)?.steerIntent===0,id);
+    await guest.evaluate(()=>window.sockets.at(-1).close());
+    await guest.waitForFunction(()=>window.sockets.length===2&&FriVindLobby.fleet.synced);
+    expect(await guest.evaluate(()=>FriVindLobby.fleet.id)).toBe(id);
+    const time=await guest.evaluate(()=>SAILING_GAME.state.time);
+    await host.close();
+    await guest.waitForFunction(time=>SAILING_GAME.state.time>time+.5&&!SAILING_GAME.paused,time);
+    await expect(guest.locator('#fatal')).toBeHidden();
+  } finally {
+    await Promise.all(contexts.map(context=>context.close()));
+    live.kill();frontend.kill();
+  }
 });

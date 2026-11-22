@@ -9,9 +9,9 @@ function createSimulation(fieldSamplers = {}) {
   for (const install of [
     require('./boats'), require('../archipelago'), require('../archipelago-relief'),
     require('./terrain'), require('../shelter'), require('../water-depth'), require('../wind-field'),
-    require('./physics'), require('./foils'), require('./recovery'), require('./weather')
+    require('./physics'), require('./foils'), require('./recovery'), require('./weather'), require('./course')
   ]) install(scope);
-  return createRuntime(scope);
+  return { ...createRuntime(scope), Course: scope.SailingCourse, map: scope.ArchipelagoData, terrain: scope.SailingWorld };
 }
 
 module.exports = { createSimulation };
