@@ -5,7 +5,7 @@
   const protocol=globalThis.TackLiveProtocol, reconnectMs=30000, sessionKey='tack.live.session';
   const phases={lobby:'Venter på start',free:'Fri sejlads',countdown:'Nedtælling',race:'Kapsejlads',results:'Resultater'};
   let ws,room,adapter,fleet,pending,retryTimer,openTimer,reconnectDeadline=0,attempt=0;
-  let worker,workerRun;
+  let worker,workerRun,settingsDraft;
 
   const message=text=>{ $('lobbyMessage').textContent=text; };
   const send=data=>{
@@ -36,7 +36,7 @@
     $('lobbyRoom').hidden=!room;
     if(!room)return;
     $('lobbySetup').hidden=!(room.host&&room.phase==='lobby');
-    $('lobbyCourse').hidden=$('lobbyCourseLabel').hidden=room.settings.mode!=='course';
+    $('lobbyCourse').hidden=$('lobbyCourseLabel').hidden=(settingsDraft??room.settings).mode!=='course';
     $('lobbyReady').hidden=room.phase!=='lobby';
     $('lobbySail').hidden=!(room.host&&room.phase==='lobby');
     $('lobbyReturn').hidden=!room.host||room.phase==='lobby';
@@ -64,8 +64,12 @@
     const detail=info.settings.mode==='course'?'Kapsejlads · '+courses[info.settings.courseType]+
       (info.settings.courseVariant==='long'?' · Lang':info.settings.courseVariant==='short'?' · Kort':' · Egen bane'):'Fri sejlads';
     $('lobbySettingsSummary').textContent=detail+' · '+Number(info.env.speed).toLocaleString('da-DK')+' m/s · '+info.env.direction+'° · '+Number(info.env.waveHeight).toLocaleString('da-DK')+' m bølger · '+phases[info.phase];
-    $('lobbyMode').value=info.settings.mode;
-    if(info.settings.courseVariant!=='custom')$('lobbyCourse').value=info.settings.courseType+':'+info.settings.courseVariant;
+    if(!room.host||info.phase!=='lobby'||settingsDraft&&Object.keys(settingsDraft).every(key=>settingsDraft[key]===info.settings[key]))
+      settingsDraft=undefined;
+    if(!settingsDraft){
+      $('lobbyMode').value=info.settings.mode;
+      if(info.settings.courseVariant!=='custom')$('lobbyCourse').value=info.settings.courseType+':'+info.settings.courseVariant;
+    }
     if(!room.host||!fleet.inWorld)adapter.weather(info.env);
     fleet.roster(info.players,info.phase);
     if(info.phase==='lobby'||!room.host)stopWorker();
@@ -110,7 +114,7 @@
     const socket=ws;ws=null;
     if(socket?.readyState<2)socket.close();
     const active=fleet.inWorld;
-    stopWorker();fleet.clear();room=null;saveSession(null);setPending(null);view();
+    stopWorker();fleet.clear();room=null;settingsDraft=undefined;saveSession(null);setPending(null);view();
     adapter.wait(false);
     if(active&&open)adapter.openPanel('lobbyPanel',null,false);
     message(text);
@@ -146,6 +150,7 @@
         }
         clearTimeout(openTimer);clearTimeout(retryTimer);reconnectDeadline=attempt=0;setPending(null);
         room={code:m.code,session:m.session,id:m.id,token:m.token,host:m.host,phase:m.phase,settings:m.settings,nextSeq:m.nextSeq,authority:m.authority,capacity:m.capacity};
+        settingsDraft=undefined;
         saveSession(room);
         adapter.weather(m.env);
         fleet.joined(room,m.players);
@@ -204,11 +209,16 @@
       if(code.length!==6)return;
       event.preventDefault();event.currentTarget.value=code;
     };
-    $('lobbySail').onclick=()=>send({type:'start',settings:settingsFromForm()});
+    $('lobbySail').onclick=()=>send({type:'start',settings:settingsDraft??settingsFromForm()});
     $('lobbyReturn').onclick=()=>send({type:'lobby'});
     $('lobbyReady').onclick=()=>send({type:'ready',ready:$('lobbyReady').getAttribute('aria-pressed')!=='true'});
     $('lobbyLeave').onclick=()=>{send({type:'leave'});stop('Du har forladt lobbyen.');};
-    for(const id of ['lobbyMode','lobbyCourse'])$(id).onchange=()=>send({type:'settings',settings:settingsFromForm()});
+    for(const id of ['lobbyMode','lobbyCourse'])$(id).onchange=()=>{
+      // An earlier relay reply can arrive between selecting a course and clicking Start.
+      settingsDraft=settingsFromForm();
+      view();
+      send({type:'settings',settings:settingsDraft});
+    };
     $('lobbyCopy').onclick=()=>copy(room.code,'Koden er kopieret.');
     $('lobbyInvite').onclick=()=>copy(inviteUrl(),'Invitationslinket er kopieret.');
     const code=new URLSearchParams(location.search).get('lobby');
