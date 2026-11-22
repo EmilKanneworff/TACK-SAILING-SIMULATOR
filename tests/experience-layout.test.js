@@ -20,7 +20,7 @@ test('the two front-page buttons each enter live sailing with one click',async({
     await page.setViewportSize({width,height});
     await page.goto(game);
     const intro=page.locator('#intro');
-    await expect(intro.locator('button:visible')).toHaveText(['Fri sejlads','Kapsejlads']);
+    await expect(intro.locator('.intro-actions button')).toHaveText(['Fri sejlads','Kapsejlads']);
     await intro.getByRole('button',{name:button,exact:true}).click();
     await page.waitForFunction(target=>SAILING_GAME.course.phase===target&&SAILING_GAME.state.time>.1,phase);
     await expect(intro).toBeHidden();
@@ -33,6 +33,70 @@ test('the two front-page buttons each enter live sailing with one click',async({
     await page.waitForFunction(target=>SAILING_GAME.course.phase===target,phase==='free'?'countdown':'free');
     await expect(page.locator('#racePreview')).toBeHidden();
   }
+});
+
+test('the start picker rejects land, starts at a map point and remembers it',async({page})=>{
+  await page.goto(process.env.TACK_URL||game);
+  await page.click('#introStartLocation');
+  const picker=page.locator('#startLocationPicker'),launch=picker.locator('#startAtLocation');
+  const selectOnMap=async point=>{
+    const pixel=await page.evaluate(point=>SAILING_GAME.startLocationMap.worldToScreen(point),point);
+    await picker.locator('canvas').click({position:pixel});
+  };
+  const land=await page.evaluate(()=>SailingWorld.LANDMARKS.find(mark=>mark.id==='faaborg'));
+  await selectOnMap(land);
+  await expect(launch).toBeDisabled();
+  await expect(picker.getByRole('status')).toContainText('Det er land');
+  await selectOnMap({x:-1130,y:-1700});
+  await expect(launch).toBeEnabled();
+  const place=await page.evaluate(()=>SAILING_GAME.startLocationMap.marker);
+  const distance=()=>page.evaluate(({x,y})=>Math.hypot(SAILING_GAME.state.x-x,SAILING_GAME.state.y-y),place);
+  await launch.click();
+  await expect(picker).toBeHidden();
+  expect(await distance()).toBeLessThan(5);
+  await page.reload();
+  await expect(page.locator('#introStartLocation')).toHaveText('Startsted · Valgt på kortet');
+  await page.click('#startButton');
+  expect(await distance()).toBeLessThan(5);
+  await page.click('#preferencesButton');
+  await page.click('#startLocationButton');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#startLocationButton')).toBeFocused();
+  await page.click('#startLocationButton');
+  await picker.locator('select').selectOption('svelmo');
+  await launch.click();
+  expect(await page.evaluate(()=>{
+    const s=SAILING_GAME.state;
+    return Math.hypot(s.x-1600,s.y+1480);
+  })).toBeLessThan(5);
+  await page.click('#raceButton');
+  await page.waitForFunction(()=>SAILING_GAME.course.phase==='countdown');
+  expect(await page.evaluate(()=>Math.hypot(SAILING_GAME.state.x-1600,SAILING_GAME.state.y+1480))).toBeGreaterThan(200);
+});
+
+test('all start areas offer a safe launch for the foil catamaran on a touch screen',async({browser})=>{
+  const context=await browser.newContext({viewport:{width:390,height:700},isMobile:true,hasTouch:true});
+  try{
+    const page=await context.newPage();
+    await page.goto(process.env.TACK_URL||game);
+    await (await introOption(page,'#introBoat')).selectOption('ac72');
+    await page.locator('#introStartLocation').tap();
+    const picker=page.locator('#startLocationPicker'),launch=picker.locator('#startAtLocation');
+    for(const area of ['bjorno','lyo','svelmo','avernako','default','open']){
+      await picker.locator('select').selectOption(area);
+      await expect(launch,area).toBeEnabled();
+      await expect(picker.getByRole('status')).toContainText('Dybde');
+    }
+    await launch.tap();
+    await page.waitForFunction(()=>SAILING_GAME.state.time>.3);
+    const {state,contact}=await page.evaluate(()=>{
+      const s=SAILING_GAME.state;
+      return {state:{boatId:s.boatId,x:s.x,y:s.y},contact:s.ground.contact};
+    });
+    expect(state.boatId).toBe('ac72');
+    expect(Math.hypot(state.x+1500,state.y+1800)).toBeLessThan(8);
+    expect(contact).toBe(false);
+  }finally{await context.close();}
 });
 
 test('the speed log damps short spikes, follows sustained changes and resets with the boat',async({page})=>{

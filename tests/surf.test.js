@@ -46,7 +46,7 @@ test('a following wave accelerates the dinghy on its face and brakes it on its b
   const initialSpeed=4.25,waveComponent=0,w=P.WAVE_COMPONENTS[waveComponent];
   const env={...SAILING_GAME.env,boatId:'laser',speed:14,direction:270,waveHeight:1.35,chop:0,wavePeriod:3.85,
    gusts:0,waveComponent,shelter:false,autoBalance:false,ironsHelp:false,difficulty:'hard'};
-  const period=P.waveProfileFor(env).period,k=w.k/period**2;
+  const stretch=P.waveProfileFor(env).period*w.managedPeriod,k=w.k/stretch**2;
   function run(phase,waveHeight,ticks=120){
    const sea={...env,waveHeight};
    const s=P.createState({boatId:'laser',x:(phase-w.phase)/k,y:-13000,theta,

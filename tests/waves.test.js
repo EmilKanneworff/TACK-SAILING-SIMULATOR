@@ -5,10 +5,11 @@ test('one regular 2.5 metre wave has a 1.25 metre amplitude',async({page})=>{
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const P=SailPhysics,w=P.WAVE_COMPONENTS[0];
-  const env={waveHeight:2.5,chop:0,waveCurrent:1.25/w.amplitude,wavePeriod:P.BASE_WAVE_PERIOD,
+  const env={waveHeight:2.5,chop:0,waveCurrent:1.25/(w.amplitude*w.swellGain),wavePeriod:P.BASE_WAVE_PERIOD,
    direction:270,waveComponent:0,shelter:false};
-  const crest=P.waveAt((Math.PI/2-w.phase)/w.k,0,0,env).height;
-  const trough=P.waveAt((-Math.PI/2-w.phase)/w.k,0,0,env).height;
+  const k=w.k/w.managedPeriod**2;
+  const crest=P.waveAt((Math.PI/2-w.phase)/k,0,0,env).height;
+  const trough=P.waveAt((-Math.PI/2-w.phase)/k,0,0,env).height;
   return {height:crest-trough,amplitude:(crest-trough)/2};
  });
  expect(result.height).toBeCloseTo(2.5,8);

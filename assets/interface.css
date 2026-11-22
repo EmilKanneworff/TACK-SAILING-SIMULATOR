@@ -30,7 +30,7 @@ details > summary:focus-visible{outline:2px solid var(--orange);outline-offset:2
 }
 #intro :is(select,summary,button):focus-visible{outline-color:#17695d}
 
-:is(#intro,#settings,#telemetryPanel,#racePreview,#courseEditor) select,
+:is(#intro,#settings,#telemetryPanel,#racePreview,#courseEditor,#startLocationPicker) select,
 #hud .map-tools select{
  appearance:none;min-width:0;max-width:100%;
  padding:8px 36px 8px 12px;border:1px solid #70939a;border-radius:var(--control-radius);
@@ -44,7 +44,7 @@ details > summary:focus-visible{outline:2px solid var(--orange);outline-offset:2
 #intro #introDifficulty{min-width:104px}
 #introBoat{min-height:44px}
 @media(forced-colors:active){
- :is(#intro,#settings,#telemetryPanel,#racePreview,#courseEditor) select,
+ :is(#intro,#settings,#telemetryPanel,#racePreview,#courseEditor,#startLocationPicker) select,
  #hud .map-tools select{appearance:auto;background-image:none;padding-inline-end:12px}
 }
 
@@ -57,6 +57,27 @@ details > summary:focus-visible{outline:2px solid var(--orange);outline-offset:2
 }
 .telemetry-panel > header{column-gap:12px}
 .sailing-menu button,.intro-setup-actions button,#downwindControls button{border-radius:var(--control-radius)}
+.intro-start-location{
+ width:100%;min-height:44px;margin-top:8px;
+ border:1px solid #aebfb8;border-radius:var(--control-radius);background:#e5eeea;color:#234951;
+}
+.intro-start-location:hover{background:#dbeae4}
+.start-location-picker{
+ width:min(690px,calc(100vw - 24px));max-height:calc(100dvh - 24px);
+ overflow:auto;padding:clamp(16px,4vw,28px);text-align:left;
+}
+.start-location-picker h2{margin:0 52px 12px 0}
+.start-location-picker select{min-height:44px;margin-left:8px}
+.start-location-picker p{margin:10px 0}
+.start-location-picker #startAtLocation{width:100%;min-height:44px;margin:0}
+#startLocationStatus{min-height:1.45em;color:#a4e5d6}
+#startLocationStatus[data-invalid]{color:#ffca9a}
+.start-location-chart{position:relative}
+#startLocationMap{
+ display:block;width:100%;height:clamp(190px,50dvh,420px);
+ border-radius:var(--control-radius);background:#0b2b36;
+}
+#startLocationMap:focus-visible{outline:2px solid var(--teal);outline-offset:-2px}
 
 body.boat-comparison{
  overflow:auto;

@@ -54,6 +54,36 @@ test('the eased half of the mainsheet opens more travel and lets soft sails feat
   assert.equal(P.sheetFromTrim(.5, wing), .5);
 });
 
+test('manual rudder can hold a run and deep broad reaches while each rig builds way', () => {
+  const { physics: P, createBoat, stepBoat, fixedDt } = createSimulation();
+  const field = { speed: 8, direction: 270, gusts: 0, waveHeight: 0, chop: 0,
+    shelter: false, difficulty: 'hard', autoRecovery: false };
+  for (const boat of ['laser', 'dinghy', 'yacht', 'ac75', 'ac72']) {
+    const traces = [0, 16, -16].map(heading => {
+      const theta = heading * P.DEG;
+      const s = createBoat(boat, { x: -1500, y: -1800, theta, sheet: .04, crewPose: 1,
+        vx: .55 * Math.cos(theta), vy: .55 * Math.sin(theta) }, field);
+      let distance = 0, error = 0, count = 0;
+      for (let tick = 0; tick < 16 / fixedDt; tick++) {
+        const steer = P.clamp(2.25 * P.wrap(s.theta - theta) + 1.2 * s.omega, -.85, .85);
+        stepBoat(s, { steer, steerDigital: false, trim: 0, crewPose: 1 }, field, fixedDt);
+        assert.equal(s.capsized, false, boat + ' at ' + heading);
+        if (s.time >= 12) {
+          distance += s.vx;
+          error += Math.abs(P.wrap(s.theta - theta)) / P.DEG;
+          count++;
+        }
+      }
+      assert.equal(s.sheet, .04);
+      assert.equal(s.crewPose, 1);
+      const vmg = distance / count;
+      assert.ok(vmg > 2.3 && error / count < 16, JSON.stringify({ boat, heading, vmg, error: error / count }));
+      return vmg;
+    });
+    assert.ok(Math.abs(traces[1] - traces[2]) < .025, boat + ' should mirror a broad reach on either tack');
+  }
+});
+
 test('the sheet takes up slack before pulling and cannot push the boom out', () => {
   const { physics: P, fixedDt } = createSimulation();
   const c = P.configFor('laser');
@@ -303,7 +333,7 @@ test('Laser passive damping and known moment separate dry and entrained-water in
 
 test('the flat-water launch and relative water correction match separate recorded trials', () => {
   const { before, after } = require('../gennemgang/fysik/laser-rotation.json');
-  const reference = require('./fixtures/laser-rotation-sheet.json');
+  const reference = { ...require('./fixtures/laser-rotation-sheet.json'), ...require('./fixtures/laser-rotation-downwind.json') };
   const current = JSON.parse(JSON.stringify(run()));
   for (const [stage, shots] of Object.entries(current)) verify(shots, reference[stage], stage);
   for (const [i, row] of after.broadReach.entries()) verify(row.heading, before.broadReach[i].heading, 'heading ' + row.t);
