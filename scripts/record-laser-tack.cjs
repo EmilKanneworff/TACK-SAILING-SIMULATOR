@@ -55,10 +55,13 @@ async function run(){
   await page.keyboard.press('3');
   await page.clock.runFor(2100);
   const trace=[];
-  let released=false,caption='3 · Hæng';
+  let released=false,changedSide=false,caption='3 · Hæng';
   for(let i=0;i<fps*9;i++){
    if(i===12){await page.keyboard.press('1');await page.keyboard.down('ArrowLeft');caption='1 · Inde · Drej mod vinden';}
-   if(i===17){await page.keyboard.press('3');caption='3 · Hæng valgt på den nye side';}
+   if(i===17){await page.keyboard.press('3');caption='3 · Hæng valgt';}
+   if(!changedSide&&trace.at(-1)?.heading>94){
+    await page.keyboard.press('KeyE');changedSide=true;caption='E · Skift til styrbord';
+   }
    if(!released&&trace.at(-1)?.heading>130){await page.keyboard.up('ArrowLeft');released=true;}
    await page.clock.runFor(Math.round((i+1)*1000/fps)-Math.round(i*1000/fps));
    const reading=await page.evaluate(caption=>readTack(caption),caption);

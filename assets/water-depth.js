@@ -1,10 +1,13 @@
 /* Shared bathymetry and accumulated wave phase along incoming rays.
  * World x=east, y=north. */
-(function (root) {
+(function(install){
+ if(typeof module!=='undefined'&&module.exports)module.exports=install;
+ else install(globalThis);
+})(function(root){
   'use strict';
   const metricBounds=root.ArchipelagoData?.fieldBounds;
   const bounds=Object.freeze(metricBounds??{minX:-1300,maxX:1300,minY:-1500,maxY:600});
-  const resolution=metricBounds?20:10;
+  const resolution=metricBounds?20*(root.ArchipelagoData.horizontalScale??1):10;
   const width=1+Math.ceil((bounds.maxX-bounds.minX)/resolution),height=1+Math.ceil((bounds.maxY-bounds.minY)/resolution),minDepth=-8,span=48;
   const stepX=(bounds.maxX-bounds.minX)/(width-1),stepY=(bounds.maxY-bounds.minY)/(height-1);
   const open={depth:minDepth+span,dx:0,dy:0};
@@ -111,16 +114,18 @@
     return {v:((f*(1-a)+g*a)*(1-b)+(h*(1-a)+l*a)*b)*scale,
       dx:((g-f)*(1-b)+(l-h)*b)*scale/pathStepX,dy:((h-f)*(1-a)+(l-g)*a)*scale/pathStepY};
   }
+  const shaderOrigin=[bounds.minX,bounds.minY].map(value=>value.toFixed(3)).join(',');
+  const shaderExtent=[bounds.maxX-bounds.minX,bounds.maxY-bounds.minY].map(value=>value.toFixed(3)).join(',');
   const shader=`
     uniform sampler2D bathymetryMap;
     float seaDepth(vec2 p){
-      vec2 uv=(vec2(p.x,-p.y)-vec2(${bounds.minX}.0,${bounds.minY}.0))/vec2(${bounds.maxX-bounds.minX}.0,${bounds.maxY-bounds.minY}.0);
+      vec2 uv=(vec2(p.x,-p.y)-vec2(${shaderOrigin}))/vec2(${shaderExtent});
       if(any(lessThan(uv,vec2(0.)))||any(greaterThan(uv,vec2(1.))))return 40.;
       vec2 value=texture2D(bathymetryMap,(uv*vec2(${width-1}.0,${height-1}.0)+.5)/vec2(${width}.0,${height}.0)).rg;
       return -8.+48.*dot(value,vec2(256./257.,1./257.));
     }
     vec2 wavePath(sampler2D tex,vec2 p){
-      vec2 uv=(vec2(p.x,-p.y)-vec2(${bounds.minX}.0,${bounds.minY}.0))/vec2(${bounds.maxX-bounds.minX}.0,${bounds.maxY-bounds.minY}.0);
+      vec2 uv=(vec2(p.x,-p.y)-vec2(${shaderOrigin}))/vec2(${shaderExtent});
       if(any(lessThan(uv,vec2(0.)))||any(greaterThan(uv,vec2(1.))))return vec2(0.);
       vec4 value=texture2D(tex,(uv*vec2(${pathWidth-1}.0,${pathHeight-1}.0)+.5)/vec2(${pathWidth}.0,${pathHeight}.0));
       return ${phaseRange}.0*vec2(dot(value.rg,vec2(256./257.,1./257.)),dot(value.ba,vec2(256./257.,1./257.)));
@@ -136,4 +141,4 @@
     }
   `;
   root.SailingWaterDepth={data,sample,damp,width,height,shader,waveNumber,phaseVelocity,waveGain,pathField,samplePath,swellDepth:2.4,chopDepth:1.4};
-})(globalThis);
+});

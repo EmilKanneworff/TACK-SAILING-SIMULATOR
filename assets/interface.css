@@ -89,11 +89,23 @@
  color:#d4e3e3;background:#0b2b36d9;font-size:9px;line-height:1.25
 }
 .map-race-status{
- position:absolute;top:5px;left:35px;right:5px;margin:0;padding:4px 7px;gap:5px;
+ position:absolute;top:5px;left:35px;right:62px;margin:0;padding:4px 7px;gap:5px;
  border-radius:6px;background:#0b2b36e8;pointer-events:none
 }
 .map-race-status h2{margin:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .map-race-status b{white-space:nowrap}
+.map-wind{
+ position:absolute;top:5px;right:5px;width:52px;height:23px;display:flex;align-items:center;justify-content:center;gap:3px;
+ border-radius:6px;background:#0b2b36e8;color:#d4e3e3;font-size:10px;line-height:1;pointer-events:none
+}
+.map-wind-arrow{
+ width:16px;height:16px;background:#8ee6d1;
+ clip-path:polygon(50% 0,91% 48%,63% 48%,63% 100%,37% 100%,37% 48%,9% 48%);
+ transform:rotate(var(--map-wind-angle,0deg))
+}
+.map-wind[data-calm] .map-wind-arrow{
+ background:#91aab0;clip-path:inset(44% 20%);transform:none
+}
 .map-controls{position:absolute;inset:0;visibility:hidden;pointer-events:none}
 @media (hover:hover), (any-hover:hover){
  .course-card:hover .map-controls{visibility:visible}
@@ -104,7 +116,6 @@
  position:absolute;top:37px;left:5px;right:5px;max-height:calc(100% - 107px);overflow:auto;
  border-radius:6px;background:#0b2b36f0;pointer-events:auto
 }
-.free-card .map-details{top:5px;left:33px}
 #hud .map-tools{
  position:absolute;bottom:28px;left:5px;right:5px;pointer-events:auto;
  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;align-items:center;padding:3px;

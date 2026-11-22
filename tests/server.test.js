@@ -24,6 +24,11 @@ test('six real connections, capacity, identity and host permissions',async t=>{
  // A valid reconnection token must still work when this shared IP has hit the join limit.
  for(let i=0;i<22;i++){send(extra,{type:'join',code:'999999',name:'Forsøg',boat:'laser'});await next(extra,'error');}
  guest.terminate();await next(host,'disconnected');const resumed=await connect();clients.push(resumed);send(resumed,{type:'resume',code:h.code,session:h.session,token:credentials[0].token});const rejoined=await next(resumed,'joined');assert.equal(rejoined.id,guestId);assert.equal(rejoined.players.length,6);guest=resumed;
+ send(guest,{type:'boat',session:h.session,boat:'ac75'});assert.equal((await next(host,'boat')).boat,'ac75');
+ const reefInput={type:'input',session:h.session,seq:4,steer:0,trim:0,crewPose:2};
+ send(guest,{...reefInput,rig:{reef:2,jibSheet:.35}});assert.match((await next(guest,'error')).message,/Ugyldig rig/);
+ send(guest,{...reefInput,rig:{reef:3}});assert.match((await next(guest,'error')).message,/Ugyldig rig/);
+ send(guest,{...reefInput,rig:{reef:2}});assert.deepEqual((await next(host,'input')).rig,{reef:2});
  send(host,{type:'phase',session:h.session,phase:'race'});await next(guest,'phase');send(guest,{type:'boat',session:h.session,boat:'laser'});assert.match((await next(guest,'error')).message,/låst/);
  send(host,{type:'leave',session:h.session});assert.equal((await next(guest,'closed')).message,'Værten har forladt spillet.');
 });

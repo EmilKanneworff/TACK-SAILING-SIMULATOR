@@ -47,9 +47,12 @@ function coursePilot(course,windBearing,{gateChoice=0,wait=0,retry=false}={}){
       if(course.finished||now<course.countdownAtMs+wait)return {steer:0,trim:-1,crewPose:2,steerDigital:false,trimFast:true};
       if(course.started&&target<2)target=2;
       const range=ranges[course.index];
+      if(course.started)target=Math.max(target,range?.first??route.length-2);
       if(retry&&course.started&&range&&target>Math.min(range.last+2,route.length-2))target=range.first;
       const point=route[target],distance=Math.hypot(point.x-state.x,point.y-state.y);
-      if(course.started&&distance<(point.tag==='Start'?9:point.tag==='Mål'?7:3)&&target<route.length-1)target++;
+      const hullLength=SailingBoats.get(state).length;
+      const arrival=hullLength>10?hullLength*.60:3;
+      if(course.started&&distance<(point.tag==='Start'?9:point.tag==='Mål'?7:arrival)&&target<route.length-1)target++;
       const along=(state.x-startLine.centre.x)*axis.x+(state.y-startLine.centre.y)*axis.y;
       destination=course.started?route[target]:now<course.gunAtMs||!course.startArmed||along>10?back:front;
       let want=Math.atan2(destination.y-state.y,destination.x-state.x);

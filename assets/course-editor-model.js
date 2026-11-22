@@ -1,11 +1,13 @@
 /* Course editor data and geometry. Coordinates are world metres: east, north. */
 (function (root, factory) {
-  const api = factory();
-  if (typeof module !== 'undefined' && module.exports) module.exports = api;
-  else root.FriVindCourseEditorModel = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  if (typeof module !== 'undefined' && module.exports) {
+    const data = {};
+    require('./archipelago')(data);
+    module.exports = factory(data.ArchipelagoData);
+  } else root.FriVindCourseEditorModel = factory(root.ArchipelagoData);
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (map) {
   'use strict';
-  const MAP = 'faaborg-metric-1', LEGACY_MAP = 'faaborg-hand-drawn-1', VERSION = 1, TAU = 2 * Math.PI;
+  const MAP = map.version, METRIC_MAP = 'faaborg-metric-1', LEGACY_MAP = 'faaborg-hand-drawn-1', VERSION = 1, TAU = 2 * Math.PI;
   const add = (a,b) => ({x:a.x+b.x,y:a.y+b.y});
   const sub = (a,b) => ({x:a.x-b.x,y:a.y-b.y});
   const mul = (a,n) => ({x:a.x*n,y:a.y*n});
@@ -35,7 +37,11 @@
   function validate(d, terrain) {
     const issues=[], error=(message)=>issues.push({level:'error',message});
     if (!d || typeof d!=='object' || Array.isArray(d)) return [{level:'error',message:'Filen indeholder ikke en bane.'}];
-    if (d.version!==VERSION || (d.map!==MAP && d.map!==LEGACY_MAP)) error('Banens version eller kort passer ikke til dette spil.');
+    if (d.version!==VERSION || ![MAP,METRIC_MAP,LEGACY_MAP].includes(d.map)) error('Banens version eller kort passer ikke til dette spil.');
+    if (terrain && d.map===METRIC_MAP){
+      const heightAt=terrain;
+      terrain=(x,y)=>{const p=map.fromMetric(x,y);return heightAt(p.x,p.y);};
+    }
     if (typeof d.id!=='string' || !d.id || typeof d.name!=='string' || !d.name.trim() || d.name.length>100) error('Banen mangler et gyldigt navn eller id.');
     if (!d.weather || !Number.isFinite(d.weather.direction) || d.weather.direction<0 || d.weather.direction>=360 || !Number.isFinite(d.weather.speed) || d.weather.speed<0 || d.weather.speed>20) error('Referencevinden er ugyldig.');
     const validLine=(l,name)=>{
@@ -61,6 +67,12 @@
       if(!visit || !['round','gate'].includes(visit.kind) || !Array.isArray(visit.markIds) || visit.markIds.length!==(visit.kind==='gate'?2:1) || visit.markIds.some(id=>!marks.has(id)) || (visit.kind==='round'&&!['port','starboard'].includes(visit.side)) || (visit.kind==='gate'&&visit.markIds[0]===visit.markIds[1])) error('En passage er ugyldig eller henviser til et manglende mærke.');
     }
     return issues;
+  }
+  function onCurrentMap(d){
+    if(d?.map!==METRIC_MAP||validate(d).length)return d;
+    const toPoint=p=>({...p,...map.fromMetric(p.x,p.y)});
+    const toLine=l=>({...l,a:toPoint(l.a),b:toPoint(l.b)});
+    return {...d,map:MAP,start:toLine(d.start),finish:toLine(d.finish),marks:d.marks.map(toPoint)};
   }
   function rotate(d, degrees) {
     const out=clone(d), anchor=centre(out.start), r=degrees*Math.PI/180, c=Math.cos(r),s=Math.sin(r);
@@ -99,6 +111,7 @@
   }
   function compile(d, rounding, boat={length:4.23,beam:1.37}) {
     const issues=validate(d);if(issues.length)throw new Error(issues[0].message);
+    d=onCurrentMap(d);
     const {buoys,startLine,finishLine}=courseGeometry(d,boat),lines={start:startLine,finish:finishLine};
     const byId=new Map(buoys.map(b=>[b.id,b])), targets=d.route.map(v=>{
       const pair=v.markIds.map(id=>byId.get(id)), p=pair.length===2?mul(add(pair[0],pair[1]),.5):pair[0];
@@ -122,5 +135,5 @@
     const points=buoys, axis={...lines.start.normal}, origin=lines.start.centre;
     return {type:d.template==='triangle'?'triangle':'gates',variant:'custom',name:d.name,axis,right:right(axis),origin,buoys,gateGroups:targets.filter(t=>t.v.kind==='gate').map(t=>({id:'gate-'+t.v.markIds.join('-'),label:t.v.label||'Gate',buoyIds:t.v.markIds.slice(),x:t.p.x,y:t.p.y})),startLine:lines.start,finishLine:lines.finish,route,bounds:{minX:Math.min(...points.map(p=>p.x))-50,maxX:Math.max(...points.map(p=>p.x))+50,minY:Math.min(...points.map(p=>p.y))-50,maxY:Math.max(...points.map(p=>p.y))+50},roundingRadius:Math.max(11,boat.length*2.65),gateWidth:Math.max(1,...targets.filter(t=>t.pair.length===2).map(t=>length(sub(t.pair[1],t.pair[0])))),spawn:{...add(origin,mul(axis,-Math.max(24,boat.length*2.4))),theta:Math.atan2(axis.y,axis.x)-55*Math.PI/180},meta:{version:12,length:length(sub(origin,route[0])),customId:d.id,customVersion:d.revision||1,referenceWind:{...d.weather}}};
   }
-  return {MAP,VERSION,windAxis,angleDifference,lineAdvice,startWidth,validate,rotate,draftFrom,moveEndpoint,courseGeometry,compile,clone};
+  return {MAP,VERSION,windAxis,angleDifference,lineAdvice,startWidth,validate,onCurrentMap,rotate,draftFrom,moveEndpoint,courseGeometry,compile,clone};
 });

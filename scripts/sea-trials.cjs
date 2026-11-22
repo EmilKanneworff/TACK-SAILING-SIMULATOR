@@ -61,20 +61,24 @@ function voyage({boatId,kind,wind,angle,dt=1/60,extra,sheetSetting,crewSetting})
   }
   return result;
  }
- let status='timeout',lastControl={heading,steer:0},managedHike=false;
+ let status='timeout',lastControl={heading,steer:0},managedHike=false,tackCrossed=false;
  const stride=Math.round(.25/dt);
  for(let k=0;k<Math.round(duration/dt);k++){
   const t=k*dt;
   const tack=kind==='tack'&&t>=8;
+  const startingSide=initial.crewSide;
+  if(tack&&state.wind.twa*startingSide<-3*D)tackCrossed=true;
+  const crewSide=tackCrossed?-startingSide:startingSide;
   if(managed&&state.speed>2.6)managedHike=true;
   const desiredHeading=tack?(90+angle)*D:kind==='foil'&&t>=24&&t<36?heading+18*D:heading;
-  const crewPose=managed?(managedHike?3:1):kind==='calm'?1:tack&&t<8.35?1:kind==='trapeze'&&t<12?2:kind==='puff'&&t>=12?2:pose;
+  let crewPose=managed?(managedHike?3:1):kind==='calm'?1:kind==='trapeze'&&t<12?2:kind==='puff'&&t>=12?2:pose;
+  if(tack)crewPose=tackCrossed&&state.crewSideBlend*crewSide>=.95?2:1;
   const trim=managed&&managedHike?.61:kind==='puff'&&t>=9.25&&t<13.5?.30:kind==='puff'&&t>=13.5?.48:kind==='foil'&&t>=36?.05:sheet;
   if(kind.startsWith('puff'))env.speed=wind+4*Math.max(0,Math.min(1,(t-8)*2,(12-t)*2));
   if(kind==='foil'&&t>=36)env.speed=Math.max(0,wind-(t-36)*4);
   const steer=kind==='calm'||kind==='capsize'?0:clamp(-2.1*wrap(desiredHeading-state.theta)+1.12*state.omega,-.80,.80);
   lastControl={heading:desiredHeading,steer,steerDigital:false,crewPose,trim:kind==='calm'?0:clamp((trim-state.sheet)*6,-1,1),trimFast:true,
-   ...(extra?{spinnaker:true,downwindType:extra}:{}),...(kind==='reef'&&t>=14?{reef:1,headsail:1}:{})};
+   ...(kind==='tack'?{crew:crewSide}:{}),...(extra?{spinnaker:true,downwindType:extra}:{}),...(kind==='reef'&&t>=14?{reef:1,headsail:1}:{})};
   P.step(state,lastControl,env,dt);
   if(![state.x,state.y,state.vx,state.vy,state.heave,state.heel,state.theta].every(Number.isFinite)){status='invalid';break;}
   if(state.capsized&&kind!=='capsize'){status='capsize';break;}

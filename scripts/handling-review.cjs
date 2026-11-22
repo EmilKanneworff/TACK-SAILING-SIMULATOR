@@ -5,8 +5,8 @@ const {pathToFileURL}=require('node:url');
 const {chromium}=require('@playwright/test');
 
 const dt=1/60;
-async function measure(page,task,quick){
- return page.evaluate(({task,dt,quick})=>{
+async function measure(page,task,quick,tackApproachTrim=.73){
+ return page.evaluate(({task,dt,quick,tackApproachTrim})=>{
   const P=SailPhysics,D=P.DEG;
   const control=(s,target,trim,pose)=>({
    steer:P.clamp(-1.8*P.wrap(target-s.theta)+1.05*s.omega,-.80,.80),
@@ -57,19 +57,22 @@ async function measure(page,task,quick){
    const model=SailingBoats.get('laser'),clearance=SailingBoats.boomDistance||boomDistance;
    for(const wind of [8,9])for(const tack of [-1,1])for(const waves of quick?[0]:[0,.35]){
     for(const kind of ['in','out','abort','slow','straight']){
-     const {env,initial}=setup('laser',wind,49*tack,.73,3,waves,3.1);
+     const {env,initial}=setup('laser',wind,49*tack,tackApproachTrim,3,waves,3.1);
+     env.autoBalance=false;
      const s=P.createState(initial,env);
      const target=(90+49*tack)*D,trace=[];
-     for(let i=0;i<480;i++)P.step(s,control(s,initial.theta,.73,3),env,dt);
-     const before={speed:P.instruments(s,null,env).waterSpeed,theta:s.theta,side:s.crewSide,boom:s.boom};
+     for(let i=0;i<480;i++)P.step(s,control(s,initial.theta,tackApproachTrim,3),env,dt);
+     const before={speed:P.instruments(s,null,env).waterSpeed,theta:s.theta,side:s.crewSide,boom:s.boom,heel:s.heel/D};
      const duration=kind==='straight'?3:12;
      let minimum=s.speed,maxHeel=0,turned=null,switched=null,enter=null,pass=null,minClearance=Infinity,minTorsoClearance=Infinity;
-     let capsized=false,fastExitOld=false;
+     let capsized=false;
      for(let i=0;i<duration/dt;i++){
       const t=i*dt;
-      const pose=kind==='out'&&t>.32?3:kind==='slow'&&t>7?2:1;
+      const clear=pass!==null&&t-pass>.40;
+      const pose=kind==='out'&&clear||kind==='slow'&&t>7?2:1;
       const wanted=kind==='straight'||(kind==='abort'&&t>1.0)?initial.theta:target;
       const u=control(s,wanted,.73,pose);
+      u.crew=turned===null?before.side:-before.side;
       if(kind==='slow'&&t<4.7)u.steer*=.45;
       P.step(s,u,env,dt);
       const head=s.crewJoints.head;
@@ -81,7 +84,6 @@ async function measure(page,task,quick){
       if(turned===null&&Math.sign(Math.cos(s.theta))!==Math.sign(Math.cos(before.theta)))turned=t;
       if(switched===null&&s.crewSide===-before.side)switched=t;
       if(pass===null&&s.crewSideBlend*(-before.side)>.80)pass=t;
-      if(kind==='out'&&t>.48&&turned===null&&s.crewPoseBlend>2.25)fastExitOld=true;
       if(s.capsized)capsized=true;
       const speed=P.instruments(s,null,env).waterSpeed;
       if(t<7)minimum=Math.min(minimum,speed);
@@ -89,7 +91,7 @@ async function measure(page,task,quick){
       if(i%8===0)trace.push({t,speed,heel:s.heel/D,heading:s.theta/D,boom:s.boom/D,pose:s.crewPoseBlend,
        side:s.crewSideBlend,head:s.crewJoints.head.y,duck:s.crewDuck,gap,phase:s.crewTransfer?.phase,drive:s.sail.drive});
      }
-     results.push({wind,tack,waves,kind,before,minimum,maxHeel,turned,switched,enter,pass,minClearance,minTorsoClearance,capsized,fastExitOld,
+     results.push({wind,tack,waves,kind,before,minimum,maxHeel,turned,switched,enter,pass,minClearance,minTorsoClearance,capsized,
       after:{speed:s.speed,side:s.crewSide,heading:s.theta/D,pose:s.crewPose,actualPose:s.crewPoseBlend,boom:s.boom/D},trace});
     }
    }
@@ -143,7 +145,7 @@ async function measure(page,task,quick){
    return {shore,profile,open:windReading(0,-5000),sound,outward:voyage(true),inward:voyage(false),still};
   }
   return task==='tacks'?tacks():task==='lee'?lee():polar();
- },{task,dt,quick});
+ },{task,dt,quick,tackApproachTrim});
 }
 async function main(){
  const [url,file,task='polar',quickMode]=process.argv.slice(2);

@@ -63,7 +63,7 @@ Alle fire standardruter er gennemsejlet med fysisk ror og trim. Separate geometr
 
 ## Det Sydfynske Øhav omkring Faaborg
 
-Det lokale kortudsnit bruger nordvendte meter på begge akser. Afstanden i lige linje fra Faaborgs færgeleje er 3,08 km til Bjørnø Bro, 6,96 km til Lyø Havn og 6,11 km til Avernakø Havn. Kortets målestok og bådenes bevægelse bruger de samme koordinater.
+Spillets udgave af øhavet bruger en fjerdedel af de geografiske afstande. Fra Faaborgs færgeleje er der i lige linje cirka 770 m til Bjørnø Bro, 1.740 m til Lyø Havn og 1.527 m til Avernakø Havn. Søkortets målestok viser afstandene i spillet og bruger de samme koordinater som bådene, kysterne og havnene. Standardbanernes ben følger samme skala, og startlinjen afpasses efter bådenes længde. Gemte baner fra det tidligere kort omregnes, når de åbnes.
 
 Kystlinjer, veje og stednavne er udtrukket og forenklet fra OpenStreetMap. Terrænhøjden er interpoleret fra Copernicus GLO-30. Det samme terræn bruges af landkontakt, kystlæ og 3D-scenen, mens bølgefeltet også bruger vandstrækningen op mod vinden. Havbunden er en beregnet spilmodel, og havnenes bygningsdetaljer er stiliserede. [Datakilder og licenser](ASSETS.md)
 
@@ -106,7 +106,7 @@ Modellen bruger samme lokale vindfelt i pust og på vandet, men er ikke en målt
 
 ## Bådene og spileren
 
-Bådlisten består af Laserjolle (4,23 m), Racer 32 (9,75 m), Turbåd 43 (13,1 m), foilmonohull og foilkatamaran. De gamle interne identiteter `dinghy` og `yacht` er bevaret i live-protokollen af hensyn til kompatibilitet. Racer 32 er en fiktiv 9,75 m kølbåd. Sejlklar masse er 2.120 kg inklusive 760 kg ballast og to besætningsmedlemmer på hver 80 kg. Position 3 flytter begge sejlere ud i trapez. Deres led og masse indgår i tyngdepunkt og inerti. Turbådens model vejer 9.600 kg inklusive fire besætningsmedlemmer på tilsammen 300 kg og har separat ballast og inerti. Besætningens fire positioner indgår i tyngdepunktet og følger den samme animation hos alle spillere. Billederne `assets/model-*.webp` er optaget fra spillets egne 3D-modeller.
+Bådlisten består af Laserjolle (4,23 m), Racer 32 (9,75 m), Turbåd 43 (13,1 m), foilmonohull og foilkatamaran. De gamle interne identiteter `dinghy` og `yacht` er bevaret i live-protokollen af hensyn til kompatibilitet. Racer 32 er en fiktiv 9,75 m kølbåd. Sejlklar masse er 2.200 kg inklusive 760 kg ballast og tre besætningsmedlemmer på hver 80 kg. Position 3 flytter besætningen ud i trapez. Deres led og masse indgår i tyngdepunkt og inerti. Turbådens model vejer 9.600 kg inklusive fire besætningsmedlemmer på tilsammen 300 kg og har separat ballast og inerti. Besætningens fire positioner indgår i tyngdepunktet og følger den samme animation hos alle spillere. Billederne `assets/model-*.webp` er optaget fra spillets egne 3D-modeller.
 
 Turbåd 43 har tre ekstra forsejl. **Code 0** er et fladt sejl på 90 m² til skæring og halvvind i let vind. Den hvide **gennaker** på 105 m² har en rundere facon til slør. **Spiler** på 115 m² sættes med spilerbom til dybt slør og læns. Hvert sejl har sit eget arbejdsområde i den relative vind. Arealer og grænser er spilkalibrering. [UK Sailmakers om Code 0 og asymmetriske sejl](https://www.uksailmakers.com/2025/04/11/code-zero-reaching-spinnaker/) · [North Sails om gennaker og symmetrisk spiler](https://www.northsails.com/blogs/north-sails-blog/selecting-the-right-downwind-sails-for-your-multihull)
 
@@ -124,15 +124,17 @@ Bådenes geometri og animationer bygges i `index.html`. `gennemgang/modelkontrol
 
 ### Følsom foiling og trapez
 
-På **Svær** regulerer pilene rorvinklen. Rorets virkning afhænger af lokal vandstrøm og neddykning. På **Let** tilpasses den begrænsede hjælp til, om skroget fortsat er i vandet. Styringen på begge niveauer bevarer den beregnede masse, fart og kurs.
+Et kort tryk på en piletast giver et lille rorudslag. Et længere tryk drejer mere. Foilbådene får større rorudslag og reagerer hurtigere, når de løfter skroget fri af vandet. På begge niveauer styrer du ror og skøde. Når du slipper styrepilen, går roret tilbage mod midten. På **Let** flytter besætningen vægten automatisk. Du kan slå sejlbakning i vindøjet til under **Sejlhjælp**.
 
-På Racer 32 læner begge sejlere sig ud i trapez i position 3. Ved 8 m/s på halvvind øgede vægtskiftet det oprettende vægtmoment fra ca. 0,64 til 2,62 kNm i den kontrollerede prøve. Se [fysikgennemgangen](gennemgang/fysik/README.md) for fart, krængning og måleforhold.
+I hård vind kan båden skære op, miste fart eller kæntre. Slæk med **↓**. På foilmonohullen kan du også vælge mindre storsejl og fok under **Detaljer → Reb sejlene**.
+
+På Racer 32 læner besætningen sig ud i trapez i position 3. Se [fysikgennemgangen](gennemgang/fysik/README.md) for fart, krængning og måleforhold.
 
 ### Vægt og kamera
 
 Alle tre besætningsvalg flytter faktisk masse og ændrer tyngdepunkt og rullemoment. Mindre bevægelser i hoved, arme og ben er visuelle og ændrer ikke den fysiske massefordeling. På turbåden flytter de fire personer sig gradvist fra cockpit mod luv. På foilbådene flytter besætningen sig inden for arbejdspladserne, så hvert valg giver en særskilt modvægt. Størrelsen af virkningen afhænger af bådens og besætningens masse. Kamera skiftes trinvis med knappen i menuen til højre eller med C. Kortets størrelse gemmes lokalt og kan ændres med hjørnehåndtaget under multiplayer. Vejr og personlige indstillinger vises hver for sig.
 
-På **Svær** sidder Laserjollens sejler tættere på midten i position 2. Ved en vending eller bomning kan sejleren krydse dækket i position 1 eller 2. I fuld hængning vælger spilleren tidspunktet for vægtskiftet. **Q** vælger bagbord og **E** vælger styrbord. På touch findes de samme valg under vægtpositionerne. Vælg en anden vægtposition for igen at bruge sidehjælpen. **Z/X** flytter vægten langs båden. Samme indstilling findes som skyder under **Detaljer**. På foilbådene er bevægelsen begrænset til 15 cm frem eller tilbage inden for arbejdspladsen. **↓** slipper skødet hurtigt. Brug **1** til at få vægten ind, hvis jollen er på vej over mod den side, du hænger på. Roret bruger vandstrømmen langs den del af bladet, der er neddykket.
+På **Svær** vælger du vægtpositionen med **1–3**. Trykket placerer besætningen mod den lokale vind i forhold til stævnen. Tryk **2** i vindøjet under en stagvending for at flytte besætningen til den nye side. Ved vind lige for eller agter samt vindstille kan du vælge side med **Q/E** eller de tilsvarende touchknapper. **Z/X** flytter vægten langs båden. Samme indstilling findes som skyder under **Detaljer**. På foilbådene er bevægelsen begrænset til 15 cm frem eller tilbage inden for arbejdspladsen. **↓** slipper skødet hurtigt. Brug **1** til at få vægten ind, hvis jollen er på vej over mod den side, du hænger på. Roret bruger vandstrømmen langs den del af bladet, der er neddykket.
 
 
 Fysikkens aktuelle definitioner, kilder, kalibrering og kendte begrænsninger beskrives i [fysikoversigten](gennemgang/fysik/README.md).

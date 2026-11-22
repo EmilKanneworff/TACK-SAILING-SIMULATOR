@@ -17,7 +17,7 @@ class CourseEditor {
       const data=JSON.parse(localStorage.getItem(storageKey));
       const older=JSON.parse(localStorage.getItem('fri-vind.course.v1'));
       const records=Array.isArray(data?.courses)?data.courses:older?[older]:[];
-      this.library=records.filter(course=>!model.validate(course).length);
+      this.library=records.filter(course=>!model.validate(course).length).map(model.onCurrentMap);
       this.saved=this.library.find(course=>course.id===data?.selected)||this.library[0];
     }catch{}
     this.chart=new SailingMap($('editorMap'),{keepView:true,staticView:true,onWorldClick:p=>this.place(p)});
@@ -219,7 +219,7 @@ class CourseEditor {
     const status=$('editorFileStatus');
     try{
       if(file.size>120000)throw new Error('Banefilen er for stor.');
-      const draft=JSON.parse(await file.text()),issues=this.issues(draft);
+      const draft=model.onCurrentMap(JSON.parse(await file.text())),issues=this.issues(draft);
       if(issues.length)throw new Error(issues[0].message);
       this.compile(draft);
       this.history=[];this.rotation=null;this.freePlacement=false;this.draft={...draft,id:id(),revision:1};

@@ -163,7 +163,7 @@ test('separate sea controls, wind duration and shoals change the physical wave f
   const growth=[0,6,24,90].map(t=>({
    short:P.windWaveAt(t,state.waveProfile,windy).scale,long:P.longWaveAt(t,state.waveProfile,windy).scale
   }));
-  const island=SailingWorld.ISLANDS.find(i=>i.id==='bjorno'),x=1500;
+  const island=SailingWorld.ISLANDS.find(i=>i.id==='bjorno'),x=ArchipelagoData.fromMetric(1500,0).x;
   let shore=island.minY;while(SailingWorld.islandSample(island,x,shore).distance>=0)shore++;
   const y=shore-70,lee={...base,chop:1,waveHeight:1.15};
   const leeProfile=P.waveProfileFor(lee),swellPath=P.wavePathField(leeProfile);

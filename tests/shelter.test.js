@@ -3,7 +3,7 @@ const {test,expect}=require('@playwright/test');const {pathToFileURL}=require('n
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
 test('islands shelter the downwind side, while wind and swell can arrive from different directions',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
- const r=await page.evaluate(()=>{const i=SailingWorld.ISLANDS.find(x=>x.id==='bjorno'),x=1500;let shore=i.minY;while(SailingWorld.islandSample(i,x,shore).distance>=0)shore++;const y=shore-30,north=SailingShelter.sample(SailingShelter.field(0),x,y),south=SailingShelter.sample(SailingShelter.field(180),x,y),e={...SailPhysics.DEFAULT_ENV,speed:6,gusts:0,direction:0},wind=SailPhysics.windAt(x,y,0,e),high=SailPhysics.windAt(x,y,0,e,50),open=SailPhysics.windAt(x,y,0,{...e,shelter:false}),reverse=SailPhysics.windAt(x,y,0,{...e,direction:180});return {north,south,wind:wind.speed,high:high.speed,open:open.speed,reverse:reverse.speed,far:SailingShelter.sample(SailingShelter.field(0),0,SailingShelter.bounds.minY-500)};});
+ const r=await page.evaluate(()=>{const i=SailingWorld.ISLANDS.find(x=>x.id==='bjorno'),x=ArchipelagoData.fromMetric(1500,0).x;let shore=i.minY;while(SailingWorld.islandSample(i,x,shore).distance>=0)shore++;const y=shore-30,north=SailingShelter.sample(SailingShelter.field(0),x,y),south=SailingShelter.sample(SailingShelter.field(180),x,y),e={...SailPhysics.DEFAULT_ENV,speed:6,gusts:0,direction:0},wind=SailPhysics.windAt(x,y,0,e),high=SailPhysics.windAt(x,y,0,e,50),open=SailPhysics.windAt(x,y,0,{...e,shelter:false}),reverse=SailPhysics.windAt(x,y,0,{...e,direction:180});return {north,south,wind:wind.speed,high:high.speed,open:open.speed,reverse:reverse.speed,far:SailingShelter.sample(SailingShelter.field(0),0,SailingShelter.bounds.minY-500)};});
  expect(r.north).toBeLessThan(r.south-.1);expect(r.wind).toBeLessThan(r.reverse);expect(r.wind).toBeLessThan(r.high);expect(r.high).toBeLessThan(r.open);expect(r.far).toBe(1);
 });
 test('swell shadow follows swell direction independently of local wind',async({page})=>{
@@ -28,7 +28,7 @@ test('coastal wave height is the same in the physics and actual water shader',as
 });
 test('a boat accelerates differently when sailing in island shelter',async({page})=>{
  test.setTimeout(60000);await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
- const r=await page.evaluate(()=>{const P=SailPhysics,i=SailingWorld.ISLANDS.find(x=>x.id==='bjorno'),x=1500,base={...P.DEFAULT_ENV,boatId:'laser',direction:0,speed:7,gusts:0,waves:0};let shore=i.minY;while(SailingWorld.islandSample(i,x,shore).distance>=0)shore++;function run(shelter){const e={...base,shelter},s=P.createState({x,y:shore-22,theta:0,vx:0,vy:0},e);let sum=0;for(let k=0;k<120;k++){P.step(s,{steer:0,trim:0,crewPose:2},e,1/60);sum+=s.wind.tws}return {speed:Math.hypot(s.vx,s.vy),meanWind:sum/120,finite:Number.isFinite(s.x)&&Number.isFinite(s.heel)&&!s.capsized};}return {lee:run(true),open:run(false)};});
+ const r=await page.evaluate(()=>{const P=SailPhysics,i=SailingWorld.ISLANDS.find(x=>x.id==='bjorno'),x=ArchipelagoData.fromMetric(1500,0).x,base={...P.DEFAULT_ENV,boatId:'laser',direction:0,speed:7,gusts:0,waves:0};let shore=i.minY;while(SailingWorld.islandSample(i,x,shore).distance>=0)shore++;function run(shelter){const e={...base,shelter},s=P.createState({x,y:shore-22,theta:0,vx:0,vy:0},e);let sum=0;for(let k=0;k<120;k++){P.step(s,{steer:0,trim:0,crewPose:2},e,1/60);sum+=s.wind.tws}return {speed:Math.hypot(s.vx,s.vy),meanWind:sum/120,finite:Number.isFinite(s.x)&&Number.isFinite(s.heel)&&!s.capsized};}return {lee:run(true),open:run(false)};});
  expect(r.lee.finite&&r.open.finite).toBe(true);expect(r.lee.meanWind).toBeLessThan(r.open.meanWind*.9);expect(r.lee.speed).toBeLessThan(r.open.speed);
 });
 
@@ -110,7 +110,7 @@ test('wind sea follows wind rather than swell and needs more open water than the
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
-  const P=SailPhysics,i=SailingWorld.ISLANDS.find(a=>a.id==='bjorno'),x=1500;
+  const P=SailPhysics,i=SailingWorld.ISLANDS.find(a=>a.id==='bjorno'),x=ArchipelagoData.fromMetric(1500,0).x;
   let shore=i.minY;while(SailingWorld.islandSample(i,x,shore).distance>=0)shore++;
   const y=shore-55,base={...P.DEFAULT_ENV,speed:12,direction:0,gusts:0,waveCurrent:1};
   const estimate=env=>{

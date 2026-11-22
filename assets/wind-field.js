@@ -1,10 +1,14 @@
 /* Mean flow over the sailing terrain, plus deterministic travelling gusts.
  * World x is east, y north. Bearings are the direction the wind comes from. */
-(function (g) {
+(function(install){
+ if(typeof module!=='undefined'&&module.exports)module.exports=install;
+ else install(globalThis);
+})(function(g){
   'use strict';
 
+  const baseStep=g.ArchipelagoData?.fieldBounds?25:10;
   const CONFIG=Object.freeze({
-    referenceHeight:2,maxSpeed:20,gridStep:g.ArchipelagoData?.fieldBounds?25:10,directionStep:5,maxDeficit:.78,
+    referenceHeight:2,maxSpeed:20,gridStep:baseStep*(g.ArchipelagoData?.horizontalScale??1),directionStep:5,maxDeficit:.78,
     terrainMemory:155,landFetch:55,edgeFade:140,seed:2647
   });
   const B=Object.freeze(g.ArchipelagoData?.fieldBounds??{minX:-1300,maxX:1300,minY:-1500,maxY:600});
@@ -125,7 +129,8 @@
       }
       if(row%8===7)yield;
     }
-    const retainTerrain=Math.exp(-step/CONFIG.terrainMemory);
+    const retainTerrain=Math.exp(-step/CONFIG.terrainMemory),resolutionRatio=step/baseStep;
+    const retainCover=.87**resolutionRatio,retainSlope=.84**resolutionRatio,retainBreadth=.95**resolutionRatio;
     for(let col=0;col<cols;col++){
       const wakes=[];
       for(const section of sections[col]){
@@ -136,10 +141,10 @@
         for(let row=first;row<=last;row++){
           const k=row*cols+col;
           peak=Math.max(relief[k],peak*retainTerrain);
-          meanCover=mix(rough[k],meanCover,.87);
-          slope=Math.max(Math.abs(relief[k]-lastRelief)/step,slope*.84);
+          meanCover=mix(rough[k],meanCover,retainCover);
+          slope=Math.max(Math.abs(relief[k]-lastRelief)/step,slope*retainSlope);
           lastRelief=relief[k];
-          crossWidth=Math.max(breadth[k],crossWidth*.95);
+          crossWidth=Math.max(breadth[k],crossWidth*retainBreadth);
         }
         const wake={...section,...coefficients(peak,meanCover,slope,section.to-section.from,crossWidth)};
         if(wake.target<.01)continue;
@@ -315,4 +320,4 @@
     }
   `;
   g.SailingWind={at,terrain,field,prepare,grove,shader,seedPhase,CONFIG,bounds:B};
-})(globalThis);
+});

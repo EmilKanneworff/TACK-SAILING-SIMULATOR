@@ -89,9 +89,10 @@ test('a blank chart lets the player place both lines and a mark after choosing w
  const map=page.locator('#editorMap');
  const place=(x,y)=>map.evaluate((canvas,{x,y})=>{
   const rect=canvas.getBoundingClientRect(),bounds=SailingWorld.bounds;
+  const point=ArchipelagoData.fromMetric(x,y);
   const w=Math.round(rect.width),h=Math.round(rect.height);
   const scale=Math.min((w-50)/(bounds.maxX-bounds.minX),(h-91)/(bounds.maxY-bounds.minY));
-  const at={x:w/2+(x-(bounds.minX+bounds.maxX)/2)*scale,y:(h+7)/2-(y-(bounds.minY+bounds.maxY)/2)*scale};
+  const at={x:w/2+(point.x-(bounds.minX+bounds.maxX)/2)*scale,y:(h+7)/2-(point.y-(bounds.minY+bounds.maxY)/2)*scale};
   return {x:at.x*rect.width/w,y:at.y*rect.height/h};
  },{x,y}).then(position=>map.click({position,timeout:4000}));
  await expect(page.locator('#editorPoint')).toHaveValue('start-a');

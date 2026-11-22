@@ -1,8 +1,107 @@
 'use strict';
 const {test,expect}=require('@playwright/test');
-const {dragMap}=require('../scripts/browser-setup.cjs');
+const {dragMap,introOption}=require('../scripts/browser-setup.cjs');
 const {pathToFileURL}=require('node:url');const path=require('node:path');
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
+
+test('free sailing starts with clear water ahead when the wind is straight into the normal route',async({page})=>{
+  await page.clock.install();
+  await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+  await (await introOption(page,'#introWeatherEdit')).click();
+  await page.locator('#windSpeed').fill('10');
+  await page.locator('#windDirection').fill('153');
+  await page.keyboard.press('Escape');
+  await page.click('#startButton');
+  const windAngle=await page.evaluate(()=>Math.abs(SAILING_GAME.state.wind.twa)/SailPhysics.DEG);
+  expect(windAngle).toBeGreaterThan(55);
+  await page.keyboard.down('ArrowUp');
+  await page.clock.runFor(540);
+  await page.keyboard.up('ArrowUp');
+  await page.clock.runFor(7500);
+  const sailing=await page.evaluate(()=>{
+    const s=SAILING_GAME.state;
+    const axes=SailPhysics.axes(s.theta);
+    return {forward:s.vx*axes.fx+s.vy*axes.fy,ground:s.ground.contact,capsized:s.capsized,time:s.time};
+  });
+  expect(sailing).toMatchObject({ground:false,capsized:false});
+  expect(sailing.time).toBeGreaterThan(7.5);
+  // This departure reaches about 0.54 m/s with the short trim input.
+  expect(sailing.forward).toBeGreaterThan(.5);
+  await page.keyboard.down('ArrowRight');
+  await page.clock.runFor(370);
+  const rudder=await page.evaluate(()=>SAILING_GAME.state.rudder);
+  await page.keyboard.up('ArrowRight');
+  expect(rudder).toBeGreaterThan(.1);
+});
+
+test('a tap between physics frames gives one input step without sticking',async({page})=>{
+  await page.clock.install();
+  await page.goto(pathToFileURL(path.resolve('index.html')).href);
+  await page.click('#startButton');
+  await page.clock.pauseAt(await page.evaluate(()=>Date.now()+85));
+  const read=()=>page.evaluate(()=>{const s=SAILING_GAME.state;return {sheet:s.sheet,time:s.time,helm:s.rudder};});
+  const before=await read();
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('ArrowUp');
+  expect(await read()).toEqual(before);
+  const samples=[];
+  for(let i=0;i<5;i++){
+    await page.clock.runFor(16);
+    samples.push(await read());
+  }
+  expect(Math.max(...samples.map(s=>s.helm))).toBeGreaterThan(.01);
+  expect(samples.at(-1).helm).toBe(0);
+  expect(samples.at(-1).sheet-before.sheet).toBeCloseTo(.5/60,6);
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Space');
+  await page.clock.runFor(120);
+  await page.keyboard.press('Space');
+  await page.clock.runFor(100);
+  expect((await read()).helm).toBe(0);
+});
+
+test('focus loss clears held controls and discards accumulated time',async({page})=>{
+  await page.clock.install();
+  await page.goto(pathToFileURL(path.resolve('index.html')).href);
+  await page.click('#startButton');
+  await page.clock.runFor(2500);
+  await page.keyboard.down('ArrowRight');
+  await page.clock.runFor(350);
+  const read=()=>page.evaluate(()=>({pause:SAILING_GAME.paused,time:SAILING_GAME.state.time,input:SAILING_GAME.state.steerIntent}));
+  const sailing=await read();
+  expect(sailing.input).toBe(1);
+  // Chromium in Playwright keeps its automation tabs focused.
+  await page.evaluate(()=>window.dispatchEvent(new FocusEvent('blur')));
+  await page.clock.runFor(1200);
+  expect(await read()).toMatchObject({pause:true,time:sailing.time});
+  await page.evaluate(()=>window.dispatchEvent(new FocusEvent('focus')));
+  await page.clock.runFor(300);
+  const resumed=await read();
+  expect(resumed).toMatchObject({pause:false,input:0});
+  expect(resumed.time-sailing.time).toBeGreaterThan(.20);
+  expect(resumed.time-sailing.time).toBeLessThan(.4);
+  await page.keyboard.up('ArrowRight');
+});
+
+test('steering keys resume after using the chart selector and trim slider',async({page})=>{
+  await page.goto(pathToFileURL(path.resolve('index.html')).href);
+  await page.click('#startButton');
+  await page.locator('#courseCard').hover();
+  const view=page.locator('#mapView');
+  await view.focus();
+  await view.selectOption('area');
+  await page.mouse.move(10,220);
+  await expect(page.locator('#sea')).toBeFocused();
+  await page.keyboard.down('ArrowRight');
+  await page.waitForFunction(()=>SAILING_GAME.state.steerIntent===1&&SAILING_GAME.state.rudder>.05);
+  await page.keyboard.up('ArrowRight');
+  const slider=await page.locator('#sheetControl').boundingBox();
+  await page.mouse.click(slider.x+slider.width*.55,slider.y+slider.height/2);
+  await expect(page.locator('#sea')).toBeFocused();
+  await page.keyboard.down('ArrowLeft');
+  await page.waitForFunction(()=>SAILING_GAME.state.steerIntent===-1&&SAILING_GAME.state.rudder<-.05);
+  await page.keyboard.up('ArrowLeft');
+});
 test('dragging the map during a race keeps its anchor and view',async({page})=>{
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
@@ -103,24 +202,25 @@ test('solo race countdown stops during pause and resumes',async({page})=>{
  expect(after.t).toBeGreaterThan(before.t-.8);
 });
 test('held keyboard trim spans the full interval in about two seconds for all boats',async({page})=>{await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>!!window.SAILING_GAME);const results=await page.evaluate(()=>['laser','dinghy','yacht','ac75','ac72'].map(boatId=>{let env={...SAILING_GAME.env,boatId};let s=SailPhysics.createState({},env),out=[];for(const start of [0,1]){s.sheet=start;for(let i=0;i<120;i++)SailPhysics.step(s,{trim:start?-1:1,trimFast:true,crewPose:2},env,1/60);out.push(s.sheet)}return {boatId,out}}));for(const r of results){expect(r.out[0]).toBeGreaterThan(.98);expect(r.out[1]).toBeLessThan(.02)}});
-test('the crew holds its side while already hiking and crosses gradually at position 2',async({page})=>{
+test('all five boats accept the manual side commands on hard in calm air',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
- await page.waitForFunction(()=>window.SAILING_GAME);
- const results=await page.evaluate(()=>['laser','dinghy','yacht','ac75','ac72'].map(boatId=>{
-  const P=SailPhysics,env={...SAILING_GAME.env,boatId,difficulty:'hard',autoBalance:true};
-  const s=P.createState({crewPose:3,crewPoseBlend:3,crewSide:-1,crewSideBlend:-1},env);
-  s.wind={awa:Math.PI/3,aws:5,twa:Math.PI/3};
-  for(let i=0;i<60;i++)P.updateCrew(s,{crewPose:3},env,1/60);
-  const held=s.crewSide;
-  for(let i=0;i<30;i++)P.updateCrew(s,{crewPose:2},env,1/60);
-  return {boatId,held,side:s.crewSide,blend:s.crewSideBlend,pose:s.crewPoseBlend};
- }));
- for(const r of results){
-  expect(r.held).toBe(-1);
-  expect(r.side).toBe(1);
-  expect(r.blend).toBeGreaterThan(-1);
-  expect(r.blend).toBeLessThan(1);
-  expect(r.pose).toBeLessThan(3);
+ await (await introOption(page,'#introWeatherEdit')).click();
+ await page.locator('#windSpeed').fill('0');
+ await page.keyboard.press('Escape');
+ await page.click('#startButton');
+ for(const id of ['laser','dinghy','yacht','ac75','ac72']){
+  if(id!=='laser'){
+   await page.keyboard.press('KeyB');
+   await page.locator('[data-boat="'+id+'"]').click();
+  }
+  await page.keyboard.press('3');
+  for(const [key,side] of [['KeyE',1],['KeyQ',-1]]){
+   await page.keyboard.press(key);
+   await page.waitForFunction(({id,side})=>{
+    const s=SAILING_GAME.state;
+    return s.boatId===id&&s.crewDifficulty==='hard'&&s.crewSide===side&&s.crewPose===3;
+   },{id,side});
+  }
  }
 });
 test('the mobile chart resizes by touch and keeps zoom and navigation',async({browser})=>{

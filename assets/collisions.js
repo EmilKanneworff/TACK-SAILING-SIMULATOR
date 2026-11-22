@@ -15,5 +15,7 @@ function resolve(entries,models){const touched=new Set(),pairs=[];for(let i=0;i<
  const correction=Math.min(.5,Math.max(0,overlap-.02)*.6)/inv;a.x-=correction*ia*nx;a.y-=correction*ia*ny;b.x+=correction*ib*nx;b.y+=correction*ib*ny;
  touched.add(entries[i].id);touched.add(entries[j].id);pairs.push({a:entries[i].id,b:entries[j].id,overlap,impulse});
  }return {touched,pairs};}
-root.FriVindCollisions={resolve,radius};if(typeof module!=='undefined'&&module.exports)module.exports=root.FriVindCollisions;
+const api={resolve,radius};
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+else root.FriVindCollisions=api;
 })(typeof globalThis!=='undefined'?globalThis:window);

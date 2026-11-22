@@ -35,6 +35,86 @@ test('the two front-page buttons each enter live sailing with one click',async({
   }
 });
 
+test('the speed log damps short spikes, follows sustained changes and resets with the boat',async({page})=>{
+  await page.clock.install();
+  await page.goto(game);
+  await page.locator('#startButton:enabled').waitFor();
+  await page.evaluate(()=>{
+    const instruments=SailPhysics.instruments;
+    window.waterSpeedSample=5;
+    SailPhysics.instruments=(...args)=>({...instruments(...args),logKnots:window.waterSpeedSample});
+  });
+  const speed=page.locator('#speed');
+  await page.click('#startButton');
+  await expect(speed).toHaveText('5.0');
+
+  await page.clock.runFor(180);
+  await page.evaluate(()=>window.waterSpeedSample=7);
+  await page.clock.runFor(180);
+  expect(Number(await speed.textContent())).toBeLessThan(5.5);
+  await page.evaluate(()=>window.waterSpeedSample=5);
+  await page.clock.runFor(1400);
+
+  await page.evaluate(()=>{
+    const speed=document.getElementById('speed');
+    window.speedEdits=0;
+    new MutationObserver(records=>window.speedEdits+=records.length).observe(speed,{childList:true});
+    window.waterSpeedSample=9;
+  });
+  await page.clock.runFor(1000);
+  const settled=Number(await speed.textContent());
+  expect(settled).toBeGreaterThan(7);
+  expect(settled).toBeLessThan(8.2);
+  expect(await page.evaluate(()=>window.speedEdits)).toBeLessThanOrEqual(4);
+  await page.clock.runFor(3200);
+  expect(Number(await speed.textContent())).toBeGreaterThanOrEqual(8.9);
+
+  await page.evaluate(()=>window.waterSpeedSample=0);
+  await page.keyboard.press('KeyR');
+  await expect(speed).toHaveText('0.0');
+});
+
+test('the live chart shows wind direction without covering the race clock',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await sail(page);
+  await page.mouse.move(10,450);
+  const chart=page.locator('#courseCard'),wind=chart.locator('#mapWind');
+  await expect(chart.locator('.map-controls')).toBeHidden();
+  await expect(wind).toBeVisible();
+
+  const directions=await page.evaluate(()=>{
+    const {map,course}=SAILING_GAME,original=map.state;
+    const indicator=document.getElementById('mapWind');
+    const arrow=indicator.querySelector('.map-wind-arrow');
+    const rows=[[0,-8],[8,0],[0,8],[-8,0],[0,0]].map(([vx,vy])=>{
+      map.update({...original,wind:{vx,vy}},map.env,course);
+      const transform=getComputedStyle(arrow).transform;
+      const matrix=transform==='none'?null:new DOMMatrix(transform);
+      return {label:indicator.getAttribute('aria-label'),direction:matrix?[0-matrix.c,0-matrix.d]:null};
+    });
+    map.update(original,map.env,course);
+    return rows;
+  });
+  expect(directions).toEqual([
+    {label:'Vind fra N',direction:[0,1]},
+    {label:'Vind fra V',direction:[1,0]},
+    {label:'Vind fra S',direction:[0,-1]},
+    {label:'Vind fra Ø',direction:[-1,0]},
+    {label:'Vindstille',direction:null}
+  ]);
+
+  await page.click('#raceButton');
+  await page.evaluate(()=>{
+    document.documentElement.style.fontSize='150%';
+    document.getElementById('courseCard').style.setProperty('--map-width','168px');
+  });
+  const clock=chart.locator('#raceTime');
+  await expect(clock).toBeVisible();
+  await expect(wind).toBeVisible();
+  const [clockBox,windBox]=await Promise.all([clock.boundingBox(),wind.boundingBox()]);
+  expect(clockBox.x+clockBox.width).toBeLessThan(windBox.x);
+});
+
 test('course setup updates the next race without changing the current mode',async({page})=>{
   await sail(page);
   await page.click('#preferencesButton');
@@ -178,8 +258,9 @@ test('every boat loads the photographic environment and has skinned crew at phys
   test.setTimeout(60000);
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
-  for(const [boat,count] of [['laser',1],['dinghy',2],['yacht',4],['ac75',8],['ac72',11]]){
+  for(const [boat,count] of [['laser',1],['dinghy',3],['yacht',4],['ac75',8],['ac72',11]]){
     await sail(page,boat);
+    await page.waitForFunction(()=>SAILING_GAME.scene.skyPhotoLoaded);
     const result=await page.evaluate(()=>{
       const {scene,state}=SAILING_GAME;
       const people=scene.isFoiler?scene.foilingCrew.map(crew=>crew.person):[scene.person,...(scene.racingCrew||[]).map(crew=>crew.person)];

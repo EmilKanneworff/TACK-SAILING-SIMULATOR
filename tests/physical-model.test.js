@@ -15,23 +15,26 @@ test('hard steering uses a bounded actual rudder and the force ledger closes for
   return SailingBoats.LIST.map(c=>{
    const env={...P.DEFAULT_ENV,boatId:c.id,difficulty:'hard',waves:0,speed:0,gusts:0,shelter:false,forceDiagnostics:true};
    const s=P.createState({boatId:c.id,x:0,y:-13000,vx:3,vy:0,theta:0,crewPose:1,crewPoseBlend:1,crewSide:0,crewSideBlend:0},env);
-   let maximum=0,rate=0,forceError=0,momentError=0,assist=0;
+   let maximum=0,limitError=0,rate=0,forceError=0,momentError=0,assist=0;
    for(let i=0;i<120;i++){
     const before=s.rudder;
     P.step(s,{steer:1,crewPose:1},env,1/60);
     maximum=Math.max(maximum,Math.abs(s.rudder));rate=Math.max(rate,Math.abs(s.rudder-before)*60);
+    limitError=Math.max(limitError,Math.abs(s.helmTarget)-s.helmMaximum);
     assist=Math.max(assist,Math.abs(s.forces.yawAssist));
     const rows=Object.values(s.forces.ledger);
     for(const axis of ['x','y','z'])forceError=Math.max(forceError,Math.abs(s.forces.world[axis]-rows.reduce((sum,row)=>sum+row.force[axis],0)));
     for(const axis of ['roll','pitch','yaw'])momentError=Math.max(momentError,Math.abs(s.forces[axis]-rows.reduce((sum,row)=>sum+row.moment[axis],0)));
    }
-   return {id:c.id,maximum,rate,forceError,momentError,assist,turn:s.theta,limit:c.rudderMax,mechanicalRate:c.rudderRate};
+   return {id:c.id,maximum,limitError,rate,forceError,momentError,assist,turn:s.theta,
+    waterborneLimit:c.waterborneRudderMax??c.rudderMax,limit:c.rudderMax,mechanicalRate:c.rudderRate};
   });
  });
  for(const row of results){
   expect(row.assist,row.id).toBe(0);
-  expect(row.maximum,row.id).toBeGreaterThan(row.limit*.65);
+  expect(row.maximum,row.id).toBeGreaterThan(row.waterborneLimit*.65);
   expect(row.maximum,row.id).toBeLessThanOrEqual(row.limit);
+  expect(row.limitError,row.id).toBeLessThanOrEqual(1e-8);
   expect(row.rate,row.id).toBeLessThanOrEqual(row.mechanicalRate+1e-8);
   expect(row.turn,row.id).toBeLessThan(-.012);
   expect(row.forceError,row.id).toBeLessThan(1e-6);
