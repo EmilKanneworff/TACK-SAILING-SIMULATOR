@@ -38,9 +38,9 @@ function visualPose(view,now){
  return draw;
 }
 class Fleet {
- constructor(bridge,send){this.bridge=bridge;this.send=send;this.players=[];this.boats=new Map();this.actors=new Map();this.controls=new Map();this.views=new Map();this.seq=0;this.inputSeq=0;this.lastSend=0;this.lastInput=0;this.session=null;this.id=null;this.host=false;this.inWorld=false;this.synced=false;this.lastSnapshot=-1;this.pending=[];this.acks={};this.races=new Map();this.raceSerial=0;}
+ constructor(bridge,send){this.bridge=bridge;this.send=send;this.players=[];this.boats=new Map();this.actors=new Map();this.silhouettes=new Map();this.controls=new Map();this.views=new Map();this.seq=0;this.inputSeq=0;this.lastSend=0;this.lastInput=0;this.session=null;this.id=null;this.host=false;this.inWorld=false;this.synced=false;this.lastSnapshot=-1;this.pending=[];this.acks={};this.races=new Map();this.raceSerial=0;}
  joined(room,players){const resuming=this.session===room.session&&this.inWorld;if(this.session!==room.session)this.clear();Object.assign(this,{session:room.session,id:room.id,host:room.host});if(resuming&&!room.host){this.synced=false;this.pending=[];}this.roster(players);}
- roster(players){this.players=players||[];if(this.host&&this.inWorld)this.ensure();let ids=new Set(this.players.map(p=>p.id));for(const [id] of this.boats)if(!ids.has(id)){this.boats.delete(id);this.races.delete(id);this.controls.delete(id);this.views.delete(id);delete this.acks[id];}for(const [id,a] of this.actors)if(!ids.has(id)){a.disposeBoat();this.actors.delete(id);}}
+ roster(players){this.players=players||[];if(this.host&&this.inWorld)this.ensure();let ids=new Set(this.players.map(p=>p.id));for(const [id] of this.boats)if(!ids.has(id)){this.boats.delete(id);this.races.delete(id);this.controls.delete(id);this.views.delete(id);delete this.acks[id];}for(const [id,a] of this.actors)if(!ids.has(id)){a.disposeBoat();this.actors.delete(id);}for(const id of this.silhouettes.keys())if(!ids.has(id))this.dropSilhouette(id);}
  enter(){if(!this.session)return;this.bridge.enter();this.inWorld=true;this.synced=this.host;if(this.host){this.ensure();this.broadcast();}}
  ensure(){let env=this.bridge.env(),base=this.bridge.state();for(const [i,p] of this.players.entries()){if(p.id===this.id)continue;let b=this.boats.get(p.id);if(!b||b.boatId!==p.boat){const s=Sim.createBoat(p.boat,{x:b?.x??base.x+(i+1)*25,y:b?.y??base.y-(i+1)*25,time:base.time,vx:0,vy:0}, {...env,boatId:p.boat,difficulty:b?.crewDifficulty??'hard'});Sim.placeAtSafeSpawn(s);Sim.alignSpawn(s,base);this.boats.set(p.id,s);}}}
  onMessage(m){if(!this.session||m.session!==this.session)return;
@@ -125,38 +125,71 @@ class Fleet {
  largestBoat(){const ids=this.players.map(p=>p.boat);return ['ac72','ac75','yacht','dinghy','laser'].find(id=>ids.includes(id))||this.bridge.state().boatId;}
  ready(){return !this.inWorld||this.host||this.synced;}
  mapBoats(){return [...this.boats].filter(([id])=>id!==this.id).map(([id,s])=>({...s,player:this.players.find(p=>p.id===id)}));}
+ makeNameplate(scene,id,boatId){
+  const info=this.players.find(p=>p.id===id);
+  const label=new THREE.Sprite(new THREE.SpriteMaterial({
+   map:scene.makeLabel(info?.name||'Sejler',false,info?.color||'#ffffff'),transparent:true,depthWrite:false
+  }));
+  label.position.set(0,scene.modelFor(boatId).mastHeight*.5+2,0);
+  label.scale.set(5,2.2,1);
+  return label;
+ }
+ updateNameplate(label,distance){
+  label.visible=distance<460;label.material.opacity=clamp((460-distance)/150,0,1);
+ }
+ dropSilhouette(id){
+  const silhouette=this.silhouettes.get(id);
+  silhouette.root.removeFromParent();
+  if(silhouette.nameplate){
+   silhouette.nameplate.material.map.dispose();silhouette.nameplate.material.dispose();
+  }
+  this.silhouettes.delete(id);
+ }
  render(dt){
   if(!this.inWorld||!this.session)return;
   const scene=this.bridge.scene(),env=this.bridge.env(),world=this.bridge.state(),now=performance.now();
   const {remoteDistance}=scene.graphicsProfile,eye=scene.camera.position;
   for(const [id,s] of this.boats){
    if(id===this.id)continue;
-   let actor=this.actors.get(id);
+   let actor=this.actors.get(id),silhouette=this.silhouettes.get(id);
    if(actor&&actor.boatId!==s.boatId){actor.disposeBoat();this.actors.delete(id);actor=null;}
-   if(Math.hypot(s.x-eye.x,s.y+eye.z)>remoteDistance+35){
-    if(actor){actor.boatRoot.visible=false;actor.hull.visible=false;}
-    continue;
+   if(silhouette&&(silhouette.boatId!==s.boatId||silhouette.root.parent!==scene.scene)){
+    this.dropSilhouette(id);silhouette=null;
    }
-   const view=this.views.get(id),pose=view?visualPose(view,now):s;
-   const distance=Math.hypot(pose.x-eye.x,pose.y+eye.z);
+   const view=this.views.get(id);
+   const fraction=view?clamp((now-view.at)/view.duration,0,1):1;
+   const bodyPose=view?blendFields(view.from,view.to,fraction,['x','y','heave','heel','pitch','boom']):s;
+   const distance=Math.hypot(bodyPose.x-eye.x,bodyPose.y+eye.z);
+   const detailRange=scene.graphicsProfile.detailRanges[1];
+   const showDetail=distance<detailRange+(actor?.boatRoot.visible?20:0);
+   if(!showDetail&&actor){actor.boatRoot.visible=actor.hull.visible=false;}
    if(distance>=remoteDistance){
-    if(actor){actor.boatRoot.visible=false;actor.hull.visible=false;}
+    if(silhouette)silhouette.root.visible=false;
     continue;
    }
+   if(!showDetail){
+    if(!silhouette){silhouette=scene.createBoatSilhouette(s.boatId);this.silhouettes.set(id,silhouette);}
+    silhouette.root.visible=true;
+    silhouette.root.position.set(bodyPose.x,bodyPose.heave,-bodyPose.y);
+    silhouette.root.rotation.y=view?view.from.theta+P.wrap(view.to.theta-view.from.theta)*fraction:s.theta;
+    silhouette.body.rotation.set(bodyPose.heel,0,bodyPose.pitch||0,'ZXY');
+    silhouette.boom.rotation.y=bodyPose.boom||0;
+    if(distance<460&&!silhouette.nameplate){
+     silhouette.nameplate=this.makeNameplate(scene,id,s.boatId);silhouette.body.add(silhouette.nameplate);
+    }
+    if(silhouette.nameplate)this.updateNameplate(silhouette.nameplate,distance);
+    continue;
+   }
+   if(silhouette)silhouette.root.visible=false;
    if(!actor){
-    actor=Object.create(scene);actor.boatRoot=null;actor.boatId=null;actor.isRemoteActor=true;
-    actor.configureWaterMask=()=>{};actor.updateWaterMask=()=>{};
-    actor.buildBoat(s.boatId);
-    const info=this.players.find(p=>p.id===id);
-    const name=new THREE.Sprite(new THREE.SpriteMaterial({map:scene.makeLabel(info?.name||'Sejler',false,info?.color||'#ffffff'),transparent:true,depthWrite:false}));
-    name.position.set(0,scene.modelFor(s.boatId).mastHeight*.5+2,0);
-    name.scale.set(5,2.2,1);actor.nameplate=name;actor.hull.add(name);
+    actor=scene.createBoatActor(s.boatId);
+    actor.nameplate=this.makeNameplate(scene,id,s.boatId);actor.hull.add(actor.nameplate);
     this.actors.set(id,actor);
    }
+   const pose=view?visualPose(view,now):s;
    const draw={...pose,time:world.time,seaState:world.seaState,waveProfile:world.waveProfile};
    actor.boatRoot.visible=actor.hull.visible=true;
-   actor.nameplate.visible=distance<460;
-   actor.nameplate.material.opacity=clamp((460-distance)/150,0,1);
+   this.updateNameplate(actor.nameplate,distance);
    actor.crewDetail=distance<(scene.quality==='low'?34:96);
    const detailInterval=scene.quality==='low'?(distance<37?65:140):distance<160?30:125;
    if(!actor.lastDetailAt||now-actor.lastDetailAt>=detailInterval){
@@ -169,7 +202,7 @@ class Fleet {
    scene.hullWater.remote(id,actor,draw,env,distance<(scene.quality==='low'?20:50));
   }
  }
- clear(){clearTimeout(this.weatherCommit);this.weatherCommit=null;this.sentWeather=null;for(const a of this.actors.values())a.disposeBoat();this.actors.clear();this.boats.clear();this.controls.clear();this.views.clear();this.pending=[];this.acks={};this.races.clear();this.raceActive=false;this.session=null;this.inWorld=false;this.synced=false;this.lastSnapshot=-1;}
+ clear(){clearTimeout(this.weatherCommit);this.weatherCommit=null;this.sentWeather=null;for(const a of this.actors.values())a.disposeBoat();this.actors.clear();for(const id of this.silhouettes.keys())this.dropSilhouette(id);this.boats.clear();this.controls.clear();this.views.clear();this.pending=[];this.acks={};this.races.clear();this.raceActive=false;this.session=null;this.inWorld=false;this.synced=false;this.lastSnapshot=-1;}
 }
 globalThis.FriVindFleet=Fleet;
 })();

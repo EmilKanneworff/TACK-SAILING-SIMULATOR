@@ -61,7 +61,7 @@ test('long waves carry most of the energy while shorter waves respond to wind up
   await page.waitForFunction(()=>window.SAILING_GAME);
   const result=await page.evaluate(()=>{
     const P=SailPhysics,base={...SAILING_GAME.env,waves:.85,speed:5,direction:270,shelter:false};
-    const windWaves=P.WAVE_COMPONENTS.filter(w=>w.windSea);
+    const windWaves=P.WAVE_COMPONENTS.filter(w=>w.windSea&&!w.managedOnly);
     const lengths=windWaves.map(w=>2*Math.PI/Math.hypot(w.kx,w.ky));
     const energy=w=>w.reduce((sum,c)=>sum+c.amplitude**2,0);
     const windy=P.WAVE_COMPONENTS.indexOf(windWaves[1]);
@@ -80,7 +80,7 @@ test('long waves carry most of the energy while shorter waves respond to wind up
     const slopeEnergy=waves=>waves.reduce((sum,w)=>sum+(w.amplitude*w.k)**2,0);
     const shortSlopes=slopeEnergy(windWaves)*energeticWind**2/slopeEnergy(longWaves);
     const mainAngle=Math.atan2(longWaves[0].ky,longWaves[0].kx);
-    const maxSpread=Math.max(...P.WAVE_COMPONENTS.map(w=>Math.abs(Math.atan2(w.ky,w.kx)-mainAngle)/P.DEG));
+    const maxSpread=Math.max(...[...longWaves,...windWaves].map(w=>Math.abs(Math.atan2(w.ky,w.kx)-mainAngle)/P.DEG));
     return {lengths,longLengths:longWaves.map(w=>2*Math.PI/w.k),longEnergy,shortSlopes,maxSpread,
       short:[sample(3,windy),sample(11,windy)],long:[sample(3,0),sample(11,0)],
       heights:[height(5),height(12),height(20)],velocityError:Math.abs(slope-y.velocity)};
@@ -141,7 +141,7 @@ test('wave fronts stay coherent across the chosen direction and pass spaced prob
   }
 });
 
-test('separate sea controls, wind duration and shoals change the physical wave field',async({page})=>{
+test('Chop crossfades swell and short waves while wind duration, fetch and depth still matter',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
@@ -153,7 +153,7 @@ test('separate sea controls, wind duration and shoals change the physical wave f
     .reduce((sum,h)=>sum+h,0)/480);
   }
   const offshore={...base,shelter:false},big={...offshore,waveHeight:1.15},choppy={...offshore,chop:1};
-  const combined={...big,chop:1};
+  const combined={...big,chop:.5},shortSea={...big,chop:1};
   const depths=[40,3,.02].map(h=>D.phaseVelocity(30,h));
   const k0=2*Math.PI/30,k=D.waveNumber(k0,3);
   const state={time:0};
@@ -173,7 +173,8 @@ test('separate sea controls, wind duration and shoals change the physical wave f
    onlyLong:[rms({...big,waveComponent:long},0,-10000),rms({...big,waveComponent:short},0,-10000)],
    onlyShort:[rms({...choppy,waveComponent:long},0,-10000),rms({...choppy,waveComponent:short},0,-10000)],
    combined:[rms({...combined,waveComponent:long},0,-10000),rms({...combined,waveComponent:short},0,-10000)],
-   calm:rms(offshore,0,-10000),growth, lee:rms(lee,x,y), open:rms(combined,x,y),
+   pureChop:[rms({...shortSea,waveComponent:long},0,-10000),rms({...shortSea,waveComponent:short},0,-10000)],
+   calm:rms(offshore,0,-10000),growth, lee:rms(lee,x,y), open:rms(shortSea,x,y),
    fetch:P.waveExposureAt(leeProfile,x,y).fetch,measuredPaths
   };
  });
@@ -186,13 +187,59 @@ test('separate sea controls, wind duration and shoals change the physical wave f
  expect(result.onlyLong[0]).toBeGreaterThan(.1);
  expect(result.onlyLong[1]).toBe(0);
  expect(result.onlyShort[0]).toBe(0);
- expect(result.onlyShort[1]).toBeGreaterThan(.10);
- expect(result.combined[0]).toBeCloseTo(result.onlyLong[0],8);
- expect(result.combined[1]).toBeCloseTo(result.onlyShort[1],8);
+ expect(result.onlyShort[1]).toBeGreaterThan(.045);
+ expect(result.combined[0]).toBeGreaterThan(result.onlyLong[0]*.55);
+ expect(result.combined[0]).toBeLessThan(result.onlyLong[0]*.74);
+ expect(result.combined[1]).toBeCloseTo(result.onlyShort[1]*.5,3);
+ expect(result.pureChop).toEqual(result.onlyShort);
  expect(result.growth[1].short).toBeGreaterThan(result.growth[0].short);
  expect(result.growth[2].long).toBeGreaterThan(result.growth[1].long);
  expect(result.growth[3].long).toBeGreaterThan(result.growth[2].long);
  expect(result.fetch).toBeLessThan(140);
  expect(result.lee).toBeLessThan(result.open*.25);
  expect(Math.max(...result.measuredPaths)-Math.min(...result.measuredPaths)).toBeGreaterThan(.10);
+});
+
+test('managed swell gives its shortest band a full swell wavelength',async({page})=>{
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const result=await page.evaluate(()=>{
+  const P=SailPhysics,component=P.WAVE_COMPONENTS.findLastIndex(w=>!w.windSea),w=P.WAVE_COMPONENTS[component];
+  const env={speed:8,direction:270,swellDirection:270,waveHeight:1.3,chop:0,
+   wavePeriod:P.BASE_WAVE_PERIOD,waveComponent:component,shelter:false};
+  const profile=P.waveProfileFor(env),bearing=Math.atan2(w.ky,w.kx)+profile.angle+w.spreadAngle*(profile.spread-1);
+  const height=distance=>P.waveAt(distance*Math.cos(bearing),-10000+distance*Math.sin(bearing),.7,env).height;
+  const error=Math.abs(height(0)-height(18.8));
+  return {error,half:Math.abs(height(0)-height(9.4))};
+ });
+ expect(result.error).toBeLessThan(1e-8);
+ expect(result.half).toBeGreaterThan(.1);
+});
+
+test('depth-limited sea reduces shoal height smoothly and tracks the changing wave velocity',async({page})=>{
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const result=await page.evaluate(()=>{
+  const P=SailPhysics,D=SailingWaterDepth,x=1343.778,y=-1149.262,time=7.5,dt=.0001;
+  const env={speed:20,direction:270,swellDirection:270,waveHeight:1.5,chop:.12,shelter:true};
+  const depth=D.sample(x,y).depth;
+  function heightRMS(){
+   let sum=0;
+   for(let i=0;i<720;i++){const height=P.waveAt(x,y,i*.18,env).height;sum+=height*height;}
+   return 4*Math.sqrt(sum/720);
+  }
+  const cap=D.breakingRatio,limited=heightRMS();
+  let unlimited;
+  try{D.breakingRatio=100;unlimited=heightRMS();}
+  finally{D.breakingRatio=cap;}
+  const scale=P.seaTarget(env),rate=.45;
+  const height=t=>P.waveAt(x,y,t,{...env,waveCurrent:scale+(t-time)*rate}).height;
+  const wave=P.waveAt(x,y,time,{...env,waveCurrent:scale,waveCurrentRate:rate});
+  const derivative=(height(time+dt)-height(time-dt))/(2*dt);
+  return {depth,cap,limited,unlimited,error:Math.abs(wave.velocity-derivative)};
+ });
+ expect(result.depth).toBeGreaterThan(1);
+ expect(result.unlimited).toBeGreaterThan(result.limited*1.1);
+ expect(result.limited).toBeLessThan(result.depth*result.cap);
+ expect(result.error).toBeLessThan(1e-5);
 });

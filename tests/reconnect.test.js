@@ -12,7 +12,7 @@ test('guest rejoins the same boat and menus keep the shared world running',async
    const context=await browser.newContext();contexts.push(context);const page=await context.newPage();
    await page.addInitScript(()=>{window.FRI_VIND_REALTIME_URL='ws://127.0.0.1:33114';const Native=window.WebSocket;window.testSockets=[];window.WebSocket=class extends Native{constructor(...args){super(...args);window.testSockets.push(this)}};});
    await page.goto('http://127.0.0.1:34114');await page.waitForFunction(()=>window.SAILING_GAME);
-   await page.locator('#quality').evaluate(select=>{select.value='low';select.dispatchEvent(new Event('change',{bubbles:true}));});
+   await page.locator('#quality').evaluate(select=>{select.value='1';select.dispatchEvent(new Event('change',{bubbles:true}));});
    await (await introOption(page, '#introLobby')).click();await page.fill('#lobbyName',i?'Gæst':'Vært');
    if(i){await page.fill('#lobbyCodeInput',await contexts[0].pages()[0].locator('#lobbyCode').innerText());await page.click('#lobbyJoin');}else await page.click('#lobbyCreate');
    await expect(page.locator('#lobbyRoom')).toBeVisible();

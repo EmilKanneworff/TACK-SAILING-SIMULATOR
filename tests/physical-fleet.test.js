@@ -39,7 +39,12 @@ test('six connected boats physically sail a shared course and receive the same r
   }
   for(const page of pages)await page.click('#lobbySail');
   const [host]=pages;
-  await host.waitForFunction(()=>FriVindLobby.fleet.actors.size===5);
+  const revision=await host.locator('meta[name=fri-vind-revision]').getAttribute('content');
+  await host.waitForFunction(()=>{
+   const fleet=FriVindLobby.fleet;
+   return [...fleet.actors.values()].filter(a=>a.boatRoot.visible).length+
+    [...fleet.silhouettes?.values()||[]].filter(a=>a.root.visible).length===5;
+  });
   await host.addScriptTag({path:'scripts/course-pilot.js'});
   await host.click('#preferencesButton');
   await host.click('#raceSetup');
@@ -87,7 +92,7 @@ test('six connected boats physically sail a shared course and receive the same r
    result=await host.evaluate(()=>sailBatch());
    if(result.rows.every(row=>row.finished))break;
   }
-  console.log('PHYSICAL FLEET',JSON.stringify(result));
+  console.log('PHYSICAL FLEET',JSON.stringify({revision,...result}));
   expect(result.rows).toHaveLength(6);
   for(const row of result.rows)expect(row.finished,JSON.stringify(row)).toBe(true);
   const shared=await host.locator('#raceResults').textContent();

@@ -4,6 +4,33 @@ const {dragMap,introOption}=require('../scripts/browser-setup.cjs');
 const {pathToFileURL}=require('node:url');const path=require('node:path');
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
 
+test('the boat picker opens all five sizes in one view with room to scroll on a phone',async({page})=>{
+  await page.setViewportSize({width:1280,height:720});
+  await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+  await page.click('#startButton');
+  await page.click('#boatMenuButton');
+  const opened=page.waitForEvent('popup');
+  await page.getByRole('link',{name:'Sammenlign størrelser'}).click();
+  const comparison=await opened;
+  const viewport=comparison.locator('.comparison-viewport');
+  const labels=comparison.locator('.comparison-labels li');
+  await expect(comparison.locator('#boatComparison')).toHaveAttribute('data-ready','true');
+  await expect(labels.locator('strong')).toHaveText(['Laserjolle','Racer 32','Turbåd 43','Foilmonohull','Foilkatamaran']);
+  await expect(labels.locator('span')).toHaveText(['4,23 m','9,75 m','13,1 m','20,7 m','22 m']);
+  await expect(labels.last()).toBeInViewport({ratio:.99});
+  expect(await viewport.evaluate(element=>element.scrollWidth)).toBe(await viewport.evaluate(element=>element.clientWidth));
+  expect(await comparison.evaluate(()=>typeof window.SAILING_GAME)).toBe('undefined');
+
+  await comparison.setViewportSize({width:390,height:844});
+  await expect(comparison.getByText('Rul sidelæns for at se alle fem både.')).toBeVisible();
+  await labels.last().scrollIntoViewIfNeeded();
+  await expect(labels.last()).toBeInViewport();
+  expect(await viewport.evaluate(element=>element.scrollLeft)).toBeGreaterThan(0);
+  await comparison.getByRole('link',{name:'Tilbage til spillet'}).click();
+  await expect(comparison.locator('#startButton')).toBeEnabled();
+  await expect(page.locator('#boatPicker')).toBeVisible();
+});
+
 test('free sailing starts with clear water ahead when the wind is straight into the normal route',async({page})=>{
   await page.clock.install();
   await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
@@ -25,13 +52,91 @@ test('free sailing starts with clear water ahead when the wind is straight into 
   });
   expect(sailing).toMatchObject({ground:false,capsized:false});
   expect(sailing.time).toBeGreaterThan(7.5);
-  // This departure reaches about 0.54 m/s with the short trim input.
   expect(sailing.forward).toBeGreaterThan(.5);
   await page.keyboard.down('ArrowRight');
   await page.clock.runFor(370);
   const rudder=await page.evaluate(()=>SAILING_GAME.state.rudder);
   await page.keyboard.up('ArrowRight');
   expect(rudder).toBeGreaterThan(.1);
+});
+
+test('all five boats start underway in deep water with manual steering and trim',async({page})=>{
+  await page.clock.install();
+  await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+  await (await introOption(page,'#introBoat')).selectOption('yacht');
+  await (await introOption(page,'#introDifficulty')).selectOption('hard');
+  await page.clock.pauseAt(await page.evaluate(()=>Date.now()+100));
+  await page.click('#startButton');
+
+  const read=()=>page.evaluate(()=>{
+    const {state,env,paused}=SAILING_GAME,P=SailPhysics,model=SailingBoats.get(state),axes=P.axes(state.theta);
+    return {boat:state.boatId,depth:-SailingWorld.heightAt(state.x,state.y),
+      ground:state.ground?.contact??SailingWorld.contact(state,model,env).contact,
+      speed:Math.hypot(state.vx,state.vy),forward:state.vx*axes.fx+state.vy*axes.fy,
+      sheet:state.sheet,boom:state.boom,awa:state.wind.awa,drive:state.sail.drive,
+      rudder:state.rudder,capsized:state.capsized,paused};
+  });
+
+  for(const id of ['yacht','dinghy','laser','ac75','ac72']){
+    if(id!=='yacht'){
+      await page.click('#boatMenuButton');
+      await page.locator('[data-boat="'+id+'"]').click();
+    }
+    const start=await read();
+    expect(start).toMatchObject({boat:id,ground:false,capsized:false,paused:false});
+    expect(start.depth).toBeGreaterThan(15);
+    expect(start.forward).toBeGreaterThan(.9);
+    expect(start.boom*start.awa).toBeLessThan(0);
+    expect(start.drive).toBeGreaterThan(0);
+    await page.clock.runFor(2000);
+    const settled=await read();
+    expect(settled).toMatchObject({ground:false,capsized:false,sheet:start.sheet});
+    expect(settled.forward).toBeGreaterThan(start.forward);
+
+    await page.keyboard.down('ArrowRight');
+    await page.keyboard.down('ArrowUp');
+    await page.clock.runFor(350);
+    await page.keyboard.up('ArrowRight');
+    await page.keyboard.up('ArrowUp');
+    const steered=await read();
+    expect(steered.rudder).toBeGreaterThan(.01);
+    expect(steered.sheet).toBeGreaterThan(settled.sheet);
+  }
+});
+
+test('solo race trim builds forward drive from rest during the countdown',async({page})=>{
+  await page.clock.install();
+  await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+  await (await introOption(page,'#introBoat')).selectOption('yacht');
+  await page.clock.pauseAt(await page.evaluate(()=>Date.now()+100));
+  await page.click('#introCourse');
+  const read=()=>page.evaluate(()=>{
+    const {state,course}=SAILING_GAME;
+    const {fx,fy}=SailPhysics.axes(state.theta);
+    const {normal,centre}=course.model.startLine;
+    return {boat:state.boatId,drive:state.sail.drive,forward:state.vx*fx+state.vy*fy,ground:state.ground?.contact,
+      countdown:course.countdown,early:course.ocs,lineDistance:(state.x-centre.x)*normal.x+(state.y-centre.y)*normal.y};
+  });
+  for(const boat of ['yacht','ac75','ac72','laser']){
+    if(boat!=='yacht'){
+      await page.click('#boatMenuButton');
+      await page.locator('[data-boat="'+boat+'"]').click();
+    }
+    const start=await read();
+    expect(start.boat).toBe(boat);
+    expect(start.forward).toBeCloseTo(0,8);
+    expect(start.drive).toBeGreaterThan(0);
+    await page.clock.runFor(2000);
+    const moving=await read();
+    expect(moving.forward).toBeGreaterThan(.15);
+    expect(moving.countdown).toBeLessThan(start.countdown);
+    expect(moving.lineDistance).toBeLessThan(0);
+    expect(moving.ground).toBe(false);
+  }
+  await page.clock.runFor(28400);
+  const atSignal=await read();
+  expect(atSignal.early).toBe(false);
+  expect(atSignal.lineDistance).toBeLessThan(0);
 });
 
 test('a tap between physics frames gives one input step without sticking',async({page})=>{

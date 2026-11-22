@@ -12,6 +12,133 @@ test('recorded inputs replay headlessly across all five boats', () => {
   assert.equal(globalThis.SailingWorld, undefined);
 });
 
+test('the eased half of the mainsheet opens more travel and lets soft sails feather on either tack', () => {
+  const { physics: P, fixedDt } = createSimulation();
+  for (const boatId of ['laser', 'dinghy', 'yacht', 'ac75']) {
+    const boat = P.configFor(boatId);
+    let last = -1;
+    for (let i = 0; i <= 100; i++) {
+      const sheet = P.sheetFromTrim(i / 100, boat);
+      assert.ok(sheet > last, boatId);
+      last = sheet;
+    }
+    const looseTravel = P.boomLimit(0, boat) - P.boomLimit(P.sheetFromTrim(.5, boat), boat);
+    const tightTravel = P.boomLimit(P.sheetFromTrim(.5, boat), boat) - P.boomLimit(1, boat);
+    assert.ok(looseTravel > 2 * tightTravel, boatId);
+    for (const tack of [-1, 1]) {
+      const env = { boatId, speed: 8, direction: 0, gusts: 0, waves: 0, shelter: false };
+      const theta = (90 - tack * 68) * P.DEG;
+      const load = trim => {
+        const sheet = P.sheetFromTrim(trim, boat);
+        assert.ok(Math.abs(P.trimFromSheet(sheet, boat) - trim) < 1e-12);
+        const state = P.createState({ boatId, theta, x: 0, y: -9500, vx: 0, vy: 0, sheet, boom: tack * .2 }, env);
+        // Hold the hull attitude so this measures the rig rather than a course change.
+        for (let i = 0; i < 360; i++) {
+          state.time += fixedDt;
+          P.updateRig(state, boat, fixedDt, true);
+          state.sail = P.aero(state, env);
+          P.updateBoom(state, boat, state.sail, env, fixedDt, true);
+        }
+        return { boom: state.boom, limit: P.boomLimit(sheet, boat), sail: P.aero(state, env) };
+      };
+      const half = load(.5), loose = load(0);
+      const force = ({ sail }) => Math.hypot(sail.main.drive, sail.main.sideForce);
+      assert.ok(Math.abs(loose.boom) > Math.abs(half.boom) + 23 * P.DEG, boatId);
+      assert.ok(Math.abs(loose.boom + loose.sail.wind.awa) < 3 * P.DEG, boatId);
+      assert.equal(P.sheetTorque({ boom: loose.boom, boomRate: 0 }, loose.limit, boat), 0);
+      assert.ok(loose.sail.main.luff > .85 && force(loose) < force(half) * .15, boatId);
+    }
+  }
+  const wing = P.configFor('ac72');
+  assert.equal(P.boomLimit(.5, wing), wing.boomMax + (wing.boomMin - wing.boomMax) * .5);
+  assert.equal(P.sheetFromTrim(.5, wing), .5);
+});
+
+test('the sheet takes up slack before pulling and cannot push the boom out', () => {
+  const { physics: P, fixedDt } = createSimulation();
+  const c = P.configFor('laser');
+  const calm = { wind: { awa: 0, aws: 0 }, main: { boomTorque: 0 }, qArea: 0 };
+  const env = { speed: 0, shelter: false };
+  for (const side of [-1, 1]) {
+    const state = { sheet: 0, boom: side * 40 * P.DEG, boomRate: 0, rig: {} };
+    const start = state.boom;
+    for (let i = 0; i < 20; i++) {
+      P.updateSheet(state, c, { trim: 1, trimFast: true }, env, fixedDt);
+      P.updateBoom(state, c, calm, env, fixedDt, false);
+      assert.equal(state.boom, start);
+      assert.equal(state.sheetLoad.taut, false);
+    }
+    let peakMoment = 0;
+    for (let i = 0; i < 73; i++) {
+      P.updateSheet(state, c, { trim: 1, trimFast: true }, env, fixedDt);
+      const before = state.boom;
+      P.updateBoom(state, c, calm, env, fixedDt, false);
+      peakMoment = Math.max(peakMoment, state.sheetLoad.momentNm);
+      assert.ok(Math.abs(state.boom - before - state.boomRate * fixedDt) < 1e-12);
+      assert.ok(side * state.boom <= side * before + 1e-12);
+    }
+    assert.ok(Math.abs(state.boom) < Math.abs(start));
+    assert.ok(peakMoment > 0);
+    const hauled = state.boom;
+    state.boomRate = 0;
+    for (let i = 0; i < 90; i++) {
+      P.updateSheet(state, c, { trim: -1, trimFast: true }, env, fixedDt);
+      P.updateBoom(state, c, calm, env, fixedDt, false);
+      assert.ok(side * state.boom <= side * hauled + 1e-12);
+    }
+    assert.equal(state.sheet, 0);
+    assert.equal(state.sheetLoad.momentNm, 0);
+
+    state.sheet = 1;
+    state.boom = start;
+    state.boomRate = 0;
+    P.updateBoom(state, c, calm, env, fixedDt, false);
+    assert.ok(Math.abs(state.boomRate) <= 5.5);
+    assert.ok(Math.abs(start - state.boom) <= 5.5 * fixedDt + 1e-12);
+  }
+});
+
+test('releasing the manual gennaker sheet spills its load while the sail stays hoisted', () => {
+  const sim = createSimulation(), P = sim.physics;
+  const field = { boatId: 'yacht', speed: 8, direction: 0, gusts: 0, waves: 0, shelter: false, difficulty: 'hard' };
+  const boat = sim.createBoat('yacht', { x: 0, y: -9500, theta: -42 * P.DEG, vx: 1.5, vy: -1, sheet: .48 }, field);
+  const sail = (state, extraSheet, ticks) => {
+    const control = { spinnaker: true, downwindType: 'gennaker', rig: { extraSheet } };
+    for (let i = 0; i < ticks; i++) sim.stepBoat(state, control, field, sim.fixedDt);
+    return state;
+  };
+  sail(boat, .48, 350);
+  const held = sail(structuredClone(boat), .48, 160);
+  const eased = sail(structuredClone(boat), 0, 160);
+  assert.equal(eased.spinnaker.hoist, 1);
+  assert.ok(eased.spinnaker.luff > .9);
+  assert.ok(eased.sail.spinnaker.drive < held.sail.spinnaker.drive * .15);
+});
+
+test('the Laser pitches more often in pure chop than in long swell', () => {
+  const sim = createSimulation(), P = sim.physics;
+  const countPitchReversals = chop => {
+    const field = { boatId: 'laser', shelter: false, speed: 10, direction: 270,
+      waveHeight: 1, chop, gusts: 0, autoBalance: false };
+    const boat = sim.createBoat('laser', { x: 0, y: -9500, vx: -2.5, vy: 0,
+      theta: Math.PI, boom: 0, sheet: 0, crewPose: 1 }, field);
+    let turns = 0, previousSign = 0;
+    for (let tick = 0; tick < 1800; tick++) {
+      const steer = P.clamp(P.wrap(boat.theta - Math.PI) * 2 + boat.omega * .9, -1, 1);
+      sim.stepBoat(boat, { steer, steerDigital: false, crewPose: 1 }, field, sim.fixedDt);
+      if (Math.abs(boat.pitchRate) < .015) continue;
+      const sign = Math.sign(boat.pitchRate);
+      if (previousSign && sign !== previousSign) turns++;
+      previousSign = sign;
+    }
+    assert.ok(!boat.capsized);
+    return turns;
+  };
+  const swell = countPitchReversals(0);
+  assert.ok(swell >= 10);
+  assert.ok(countPitchReversals(1) >= 1.5 * swell);
+});
+
 test('independent simulations can sample separate fluids', () => {
   const water = height => () => ({
     height, dx: 0, dy: 0, velocity: 0, waterVx: 0, waterVy: 0, waterVz: 0, waterAx: 0, waterAy: 0, curvature: 0
@@ -175,9 +302,10 @@ test('Laser passive damping and known moment separate dry and entrained-water in
 });
 
 test('the flat-water launch and relative water correction match separate recorded trials', () => {
-  const { before, after, afterBalance } = require('../gennemgang/fysik/laser-rotation.json');
+  const { before, after } = require('../gennemgang/fysik/laser-rotation.json');
+  const reference = require('./fixtures/laser-rotation-sheet.json');
   const current = JSON.parse(JSON.stringify(run()));
-  for (const [stage, shots] of Object.entries(current)) verify(shots, afterBalance[stage], stage);
+  for (const [stage, shots] of Object.entries(current)) verify(shots, reference[stage], stage);
   for (const [i, row] of after.broadReach.entries()) verify(row.heading, before.broadReach[i].heading, 'heading ' + row.t);
   assert.ok(before.acceleratingWater.boatAccelerationAtCG < .65);
 });

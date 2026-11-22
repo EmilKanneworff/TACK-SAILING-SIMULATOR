@@ -43,7 +43,8 @@
       const time=state.time,scene=this.scene,P=scene.P;
       if(reset||time<this.last){this.patches.length=0;this.recent.clear();this.last=-Infinity;this.index=0;}
       this.patches=this.patches.filter(p=>time-p.time<p.life);
-      if(scene.graphicsProfile.ambientFoam&&time-this.last>.14&&state.seaState>.14){
+      const windSea=(env.chop??0)>.3&&(env.speed??0)>.15;
+      if(scene.graphicsProfile.ambientFoam&&time-this.last>.14&&(state.seaState>.14||windSea)){
         this.last=time;
         const step=3.8,ix=Math.round(state.x/step),iy=Math.round(state.y/step);
         const radius=scene.graphicsProfile.id==='balanced'?9:13;
@@ -60,14 +61,17 @@
           const wave=P.waveAt(x,y,time,env);
           if(wave.height<.075||wave.curvature<.020)continue;
           const slope=Math.hypot(wave.dx,wave.dy);
-          const coast=depth<1.7&&wave.height>.26*depth&&slope>.060;
+          const coast=depth<2.8&&wave.height>.20*depth&&slope>.070;
           const crest=wave.height>.20&&wave.curvature>.036&&slope>.14;
-          if(!coast&&!crest)continue;
+          const smallCrest=windSea&&wave.curvature>.13&&slope>.13;
+          if(!coast&&!crest&&!smallCrest)continue;
           const wind=P.windAt(x,y,time,env);
-          if(!coast&&wind.speed<7.5)continue;
+          const shortPatch=!coast&&!crest;
+          if(!coast&&wind.speed<(shortPatch?10:7.5))continue;
           const strength=coast?.61:clamp((slope-.122)*3.7,.19,.72);
+          const size=shortPatch?.55:1;
           this.recent.set(key,time);
-          this.patches.push({x,y,time,life:1.6+random*2.2,length:1.05+random*.98+strength*.7,width:.23+random*.25,
+          this.patches.push({x,y,time,life:(1.6+random*2.2)*(.65+.35*size),length:(1.05+random*.98+strength*.7)*size,width:(.23+random*.25)*size,
             angle:Math.atan2(wave.dx,wave.dy)+(random-.5)*.22,noise:random*81,strength,vx:.29*wave.waterVx+.010*wind.vx,vy:.29*wave.waterVy+.010*wind.vy});
         }
       }

@@ -47,12 +47,17 @@ test('breaking foam leaves a fading patch and calm water supplies no new patches
   fx.update({...steady,time:Math.max(1.29,first.time+first.life*.73)},live,false);
   const retained=fx.patches.some(p=>p===first),faded=sample();
   fx.update({...steady,time:12},live,false);
-  return {count,retained,before,faded,cleared:fx.patches.length};
+  const cleared=fx.patches.length;
+  const chop={speed:20,direction:270,waveHeight:0,chop:1,shelter:false};
+  const forChop=P.createState({boatId:'yacht',x:0,y:-5000,time:0},chop);
+  for(let i=0;i<=12;i++)fx.update({...forChop,time:i*.17},{...chop,waveProfile:forChop.waveProfile},i===0);
+  return {count,retained,before,faded,cleared,chopPatches:fx.patches.length};
  });
  expect(result.count).toBeGreaterThan(0);
  expect(result.retained).toBe(true);
  expect(result.before).toBeGreaterThan(result.faded);
  expect(result.cleared).toBe(0);
+ expect(result.chopPatches).toBeGreaterThan(0);
 });
 
 test('hull contact includes angular motion and chooses the wet side',async({page})=>{

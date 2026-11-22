@@ -51,7 +51,7 @@ function personal(values={}){
     ?{width:Math.max(1,Math.round(size.width)),height:Math.max(1,Math.round(size.height))}
     :values.mapSize===1?{width:470,height:330}:values.mapSize===2?{width:920,height:600}:null;
   return {camera:integer(numeric(values.camera,0),0,FIRST_PERSON_CAMERA),mapDimensions,
-    quality:['auto','low','high'].includes(values.quality)?values.quality:'auto',
+    quality:['auto','low','balanced','high'].includes(values.quality)?values.quality:'auto',
     volume:clamp(numeric(values.volume,values.soundEnabled===false?0:1),0,1),windArrows:values.windArrows!==false,
     difficulty:values.difficulty==='easy'?'easy':'hard'};
 }

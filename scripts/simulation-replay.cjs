@@ -60,7 +60,10 @@ function verifyReference() {
     ...require('../tests/fixtures/simulation-laser-crossing.json'),
     ...require('../tests/fixtures/simulation-windward-crew.json'),
     ...require('../tests/fixtures/simulation-yacht-balance.json'),
-    ...require('../tests/fixtures/simulation-laser-balance.json')
+    ...require('../tests/fixtures/simulation-laser-balance.json'),
+    ...require('../tests/fixtures/simulation-waves.json'),
+    ...require('../tests/fixtures/simulation-chop.json'),
+    ...require('../tests/fixtures/simulation-sheet.json')
   ].map(run => [run.name, run]));
   const expected = reference.map(run => corrections.get(run.name) ?? run);
   verify(actual, expected);

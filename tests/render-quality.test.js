@@ -30,7 +30,7 @@ test('low graphics lowers the drawing resolution and keeps the active frame cade
   await page.clock.install();
   await page.goto(game);
   await page.locator('#quality').evaluate(select => {
-    select.value = 'low';
+    select.value = '1';
     select.dispatchEvent(new Event('change', { bubbles: true }));
   });
   await page.click('#startButton');
@@ -51,14 +51,27 @@ test('low graphics lowers the drawing resolution and keeps the active frame cade
     far: SAILING_GAME.scene.camera.far,
     waterTriangles: SAILING_GAME.scene.water.geometry.index.count / 3,
     reflection: SAILING_GAME.scene.hullWater.uniforms.boatReflectionEnabled.value,
-    decorations: SAILING_GAME.scene.coastDecorations.visible,
-    shoreInRange: SAILING_GAME.scene.coastTerrain.some(tile => tile.visible),
-    shoreCulled: SAILING_GAME.scene.coastTerrain.some(tile => !tile.visible)
+    activeScenery: SAILING_GAME.scene.decorationSectors.filter(t => t.mesh.visible).length,
+    availableScenery: SAILING_GAME.scene.decorationSectors.length,
+    coastPreserved: SAILING_GAME.scene.terrainRegions.every(({merged,tiles})=>!merged||
+      (merged.geometry.index.count===tiles.reduce((sum,t)=>sum+t.mesh.geometry.index.count,0)&&
+        tiles.every(t=>t.mesh.geometry.attributes.position===merged.geometry.attributes.position)&&
+        !(merged.visible&&tiles.some(t=>t.mesh.visible)))),
+    visibleShores: SAILING_GAME.scene.coastTerrain.filter(tile => tile.visible).length,
+    fog: SAILING_GAME.scene.scene.fog.density,
+    weatherFog: SAILING_GAME.scene.atmosphere.fogDensity,
+    opponentRange: SAILING_GAME.scene.graphicsProfile.remoteDistance,
+    waterRadius: SAILING_GAME.scene.water.geometry.attributes.position.array.at(-3),
+    displayedQuality: document.querySelector('#qualityValue').textContent
   }));
   expect(result.draws).toBeGreaterThanOrEqual(26);
-  expect(result.ratio).toBeCloseTo(result.device * .78, 5);
+  expect(result.ratio).toBeLessThanOrEqual(result.device * .74);
   expect(result.waterTriangles).toBeLessThan(31_000);
-  expect(result).toMatchObject({ far: 1500, reflection: 0, decorations: false, shoreInRange: true, shoreCulled: true });
+  expect(result).toMatchObject({ far: 8000, opponentRange: 1850, reflection: 0, displayedQuality: 'Lav', coastPreserved:true });
+  expect(result.fog).toBeCloseTo(result.weatherFog,7);
+  expect(result.visibleShores).toBeGreaterThan(0);
+  expect(result.activeScenery).toBeLessThan(result.availableScenery * .6);
+  expect(result.waterRadius).toBeGreaterThan(10000);
 });
 
 test('the simulator resumes sailing after the browser restores WebGL', async ({ page }) => {
@@ -138,6 +151,9 @@ test('remote hulls blend uneven snapshots, snap after rescue and release unused 
       receive(10_000, 0);
       fleet.render(1 / 60);
       const farBoat = { built: fleet.actors.has('remote'), onMap: fleet.mapBoats().length === 1 };
+      receive(500, 0);
+      fleet.render(1 / 60);
+      const middleBoat = { detailed: fleet.actors.has('remote'), shown: fleet.silhouettes.get('remote')?.root.visible };
       receive(0, Math.PI - .08);
       show();
       now += 43;
@@ -157,13 +173,14 @@ test('remote hulls blend uneven snapshots, snap after rescue and release unused 
       fleet.roster([]);
       receive(32, 0);
       fleet.render(1 / 60);
-      return { farBoat, before, after, next, rescued, removed: !root.parent, disposed, views: fleet.views.size, actors: fleet.actors.size };
+      return { farBoat, middleBoat, before, after, next, rescued, removed: !root.parent, disposed, views: fleet.views.size, actors: fleet.actors.size };
     } finally {
       performance.now = originalNow;
       fleet.clear();
     }
   });
   expect(result.farBoat).toEqual({ built: false, onMap: true });
+  expect(result.middleBoat).toEqual({ detailed:false,shown:true });
   expect(result.before.x).toBeGreaterThan(0);
   expect(result.before.x).toBeLessThan(2);
   expect(Math.abs(result.before.heading)).toBeGreaterThan(3);
@@ -204,11 +221,11 @@ test('auto scales the 3D scene down and recovers gradually after steady renderin
       const shortRecovery = step(6000, 16);
       const stableRecovery = step(6600, 16);
       const select = document.querySelector('#quality');
-      select.value = 'high';
+      select.value = '3';
       select.dispatchEvent(new Event('change'));
       const manualHigh = step(3500, 50);
       const highFar = scene.camera.far, highTriangles = scene.water.geometry.index.count / 3;
-      select.value = 'auto';
+      select.value = '0';
       select.dispatchEvent(new Event('change'));
       const severe = step(1600, 100);
       return { start, singleSlowWindow, sustainedSlow, lowFar, lowTriangles, shortRecovery, stableRecovery,
@@ -216,8 +233,46 @@ test('auto scales the 3D scene down and recovers gradually after steady renderin
     } finally { scene.update = update; }
   });
   expect(result).toMatchObject({
-    start: 'high', singleSlowWindow: 'high', sustainedSlow: 'minimum', lowFar: 850,
+    start: 'balanced', singleSlowWindow: 'balanced', sustainedSlow: 'minimum', lowFar: 8000,
     shortRecovery: 'minimum', stableRecovery: 'low', manualHigh: 'high', highFar: 8000, severe: 'minimum'
   });
-  expect(result.lowTriangles).toBeLessThan(result.highTriangles * .45);
+  expect(result.lowTriangles).toBeLessThan(result.highTriangles * .65);
+});
+
+
+test('slow frames retain the fixed-step time and give the same physical result across graphics tiers', async ({ browser }) => {
+  async function sail(quality, cadence) {
+    const page = await browser.newPage();
+    try {
+      await page.addInitScript(quality => {
+        localStorage.setItem('fri-vind.settings.v3', JSON.stringify({ personal: { quality } }));
+        let time = 0;
+        performance.now = () => time;
+        const raf = window.requestAnimationFrame;
+        window.requestAnimationFrame = callback => {
+          if (callback.name !== 'frame') return raf(callback);
+          window.tickGame = elapsed => callback(time += elapsed);
+          return 0;
+        };
+      }, quality);
+      await page.goto(game);
+      await page.click('#startButton');
+      return await page.evaluate(cadence => {
+        const {scene, state} = SAILING_GAME;
+        scene.update = () => {};
+        document.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowRight',code:'ArrowRight',bubbles:true}));
+        tickGame(1);
+        for (const dt of cadence) tickGame(dt);
+        return { time: state.time, x: state.x, y: state.y, theta: state.theta,
+          heel: state.heel, rudder: state.rudder, tier:scene.graphicsProfile.id };
+      }, cadence);
+    } finally { await page.close(); }
+  }
+  const fast = await sail('high', Array(60).fill(1000/60));
+  const slow = await sail('low', [380, 160, 160, 100, 100, 100]);
+  expect(fast.tier).toBe('high');
+  expect(slow.tier).toBe('low');
+  expect(slow.time).toBeCloseTo(1,1);
+  expect(Math.abs(slow.rudder)).toBeGreaterThan(.05);
+  for (const key of ['time','x','y','theta','heel','rudder']) expect(slow[key],key).toBeCloseTo(fast[key],7);
 });
