@@ -74,8 +74,8 @@ class Fleet {
  step(control,now,dt){
   if(!this.inWorld||!this.synced)return;
   const seq=this.inputSeq++;
-  this.pending.push({seq,control:{...control},dt});
-  if(this.pending.length>90)this.pending.shift();
+  const predict=this.bridge.state().time+dt<=this.serverTime+.30;
+  if(predict)this.pending.push({seq,control:{...control},dt});
   const old=this.lastControl;
   // Send small analogue changes on the network cadence, and key changes
   // immediately so a quick tap can reach an authority tick.
@@ -85,6 +85,7 @@ class Fleet {
    this.lastControl=control;
    this.send({type:'input',seq,...control});
   }
+  return predict;
  }
  release(){
   if(!this.inWorld||!this.lastControl)return;
@@ -109,6 +110,7 @@ class Fleet {
  }
  receive(packet){
   if(!this.inWorld)return;
+  this.serverTime=packet.time;
   if(!this.host)this.bridge.weather(packet.env);
   this.bridge.results(packet.results||[]);
   const ownRace=packet.races?.[this.id],my=packet.boats[this.id];
@@ -222,7 +224,7 @@ class Fleet {
   this.actors.clear();
   for(const id of this.silhouettes.keys())this.dropSilhouette(id);
   this.boats.clear();this.views.clear();this.pending=[];this.lastControl=null;
-  this.inWorld=false;this.synced=false;this.lastInput=-Infinity;this.serial=null;
+  this.inWorld=false;this.synced=false;this.lastInput=-Infinity;this.serial=null;this.serverTime=0;
  }
  clear(){
   clearTimeout(this.weatherCommit);this.weatherCommit=null;

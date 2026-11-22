@@ -162,6 +162,11 @@
     $('lobbyCreate').onclick=()=>connect('create');
     $('lobbyJoinForm').onsubmit=event=>{event.preventDefault();connect('join');};
     $('lobbyCodeInput').oninput=event=>{event.target.value=event.target.value.replace(/\D/g,'').slice(0,6);};
+    $('lobbyCodeInput').onpaste=event=>{
+      const code=event.clipboardData.getData('text').replace(/\D/g,'');
+      if(code.length!==6)return;
+      event.preventDefault();event.currentTarget.value=code;
+    };
     $('lobbySail').onclick=()=>send({type:'start',settings:settingsFromForm()});
     $('lobbyReturn').onclick=()=>send({type:'lobby'});
     $('lobbyReady').onclick=()=>send({type:'ready',ready:$('lobbyReady').getAttribute('aria-pressed')!=='true'});

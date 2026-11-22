@@ -5102,9 +5102,8 @@ function input(){
 }
 function fixedStep(stepNowMs=performance.now()){
   const control=input();pendingTaps.clear();pendingTouchSteer=null;previous=snapshot(state);
-  Sim.stepBoat(state,control,env,Sim.fixedDt,{diagnostics:debug});
   const live=globalThis.FriVindLobby;
-  live?.step(control,stepNowMs,Sim.fixedDt);
+  if(live?.step(control,stepNowMs,Sim.fixedDt)!==false)Sim.stepBoat(state,control,env,Sim.fixedDt,{diagnostics:debug});
   if(state.recovering||previous.recovering||control.trimKey)sheetTarget=state.sheet;
   if(!live?.fleet?.inWorld)raceEvents(course.update(previous,state,Sim.fixedDt,{nowMs:stepNowMs,discontinuity:!!(state.recovering||previous.recovering||state.capsized||previous.capsized)}));
   synchronizeRecovery(performance.now());
