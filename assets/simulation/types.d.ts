@@ -77,6 +77,9 @@ export interface BoatState extends BoatPose {
   boatId: BoatId;
   rudder: number;
   sheet: number;
+  boom: number;
+  /** Angular limits in radians and estimated reaction at the boom in Nm. */
+  sheetLoad?: { limit: number; stop: number; taut: boolean; momentNm: number; mechanicalStop: boolean };
   /** Ordered stance and side, then the smooth physical actuator positions. */
   crewPose: CrewPose;
   crewSide: number;
@@ -94,7 +97,7 @@ export interface BoatState extends BoatPose {
 }
 
 export type StartState = Partial<BoatPose & Pick<BoatState,
-  'crewPose' | 'crewPoseBlend' | 'crewSide' | 'crewSideBlend' | 'sheet' | 'rudder'>>;
+  'crewPose' | 'crewPoseBlend' | 'crewSide' | 'crewSideBlend' | 'sheet' | 'rudder' | 'boom'>>;
 
 export interface Diagnostics {
   yaw?: number;

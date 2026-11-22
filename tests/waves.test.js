@@ -1,5 +1,5 @@
 const {test,expect}=require('@playwright/test');const {pathToFileURL}=require('node:url');const path=require('node:path');test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
-test('wave dispersion, surface derivatives and orbital velocities use one field',async({page})=>{await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);const v=await page.evaluate(()=>{let e={...SAILING_GAME.env,waveCurrent:.8},x=13,y=-8,t=9,h=.0001,w=SailPhysics.waveAt(x,y,t,e),wx=SailPhysics.waveAt(x+h,y,t,e),wy=SailPhysics.waveAt(x,y+h,t,e),wt=SailPhysics.waveAt(x,y,t+h,e),deep=SailPhysics.waveAt(x,y,t,e,100),shader=SAILING_GAME.scene.waveComponents;return {components:SailPhysics.WAVE_COMPONENTS.map(q=>({...q})),shader:shader.map(q=>({...q})),w,dx:(wx.height-w.height)/h,dy:(wy.height-w.height)/h,dt:(wt.height-w.height)/h,deep}});expect(v.components.length).toBe(7);expect(v.shader).toEqual(v.components);for(const w of v.components)expect(w.omega*w.omega).toBeCloseTo(9.82*Math.hypot(w.kx,w.ky),8);expect(v.dx).toBeCloseTo(v.w.dx,4);expect(v.dy).toBeCloseTo(v.w.dy,4);expect(v.dt).toBeCloseTo(v.w.velocity,4);expect(Math.hypot(v.deep.waterVx,v.deep.waterVy,v.deep.waterVz)).toBeLessThan(.00001)});
+test('wave dispersion, surface derivatives and orbital velocities use one field',async({page})=>{await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);const v=await page.evaluate(()=>{let e={...SAILING_GAME.env,waveCurrent:.8},x=13,y=-8,t=9,h=.0001,w=SailPhysics.waveAt(x,y,t,e),wx=SailPhysics.waveAt(x+h,y,t,e),wy=SailPhysics.waveAt(x,y+h,t,e),wt=SailPhysics.waveAt(x,y,t+h,e),deep=SailPhysics.waveAt(x,y,t,e,100),shader=SAILING_GAME.scene.waveComponents;return {components:SailPhysics.WAVE_COMPONENTS.map(q=>({...q})),shader:shader.map(q=>({...q})),w,dx:(wx.height-w.height)/h,dy:(wy.height-w.height)/h,dt:(wt.height-w.height)/h,deep}});expect(v.components.filter(w=>!w.managedOnly)).toHaveLength(7);expect(v.components.filter(w=>w.windSea)).toHaveLength(6);expect(v.shader).toEqual(v.components);for(const w of v.components)expect(w.omega*w.omega).toBeCloseTo(9.82*Math.hypot(w.kx,w.ky),8);expect(v.dx).toBeCloseTo(v.w.dx,4);expect(v.dy).toBeCloseTo(v.w.dy,4);expect(v.dt).toBeCloseTo(v.w.velocity,4);expect(Math.hypot(v.deep.waterVx,v.deep.waterVy,v.deep.waterVz)).toBeLessThan(.00001)});
 test('five boats remain finite in moderate and hard wind with real waves',async({page})=>{
  test.setTimeout(90000);
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
@@ -96,10 +96,11 @@ test('GPU wave shader matches the physics field at sampled coordinates',async({p
   const target=new T.WebGLRenderTarget(1,1),old=renderer.getRenderTarget(),pixel=new Uint8Array(4);
   scene.add(quad);
   const coast={...env,shelter:true,waveHeight:.45,swellDirection:165,chop:.12};
-  const samples=[[3,5],[38,-42],[-98,64],[57.5,6.72],[57.5,2.72],[57.5,-2.28],[275,-1039]];
+  const shoal={...coast,speed:20,direction:270,swellDirection:270,waveHeight:1.5,chop:1};
+  const samples=[[3,5],[38,-42],[-98,64],[57.5,6.72],[57.5,2.72],[57.5,-2.28],[275,-1039],[1343.778,-1149.262]];
   const values=samples.map(([x,y],index)=>{
-   const field=index<3?env:coast;
-   if(index===3){
+   const field=index<3?env:index===samples.length-1?shoal:coast;
+   if(index===3||field===shoal){
     const profile=P.waveProfileFor(field);
     s.waveProfile={from:profile,to:profile,start:time-P.PROFILE_SECONDS};
     s.seaState=P.seaTarget(field);

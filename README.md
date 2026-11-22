@@ -74,7 +74,7 @@ Kystprofilerne fra spillets tidligere komprimerede kort er bevaret i de historis
 
 Se [vandgennemgangen](gennemgang/vand/README.md) for før/efter-lag, kontrolpunkter og sejlads i mod-, tværs- og medsø.
 
-**Chop** styrer korte, krydsende vindbølger på ca. 2,4–4,7 m med en selvstændig skyder fra 0 til 100 %. **Bølger** styrer de længere, sammenhængende fronter med en målhøjde på 0–1,50 m på åbent vand. Grundvinden kan indstilles til 20 m/s. Begge familier vokser med fri vandstrækning og vedvarende vind. Efter en vindændring tilpasser de sig med tidskonstanter på seks og 24 simulationsekunder. Tiderne er afstemt til spillet. [US Army Corps of Engineers om vindbølger og fri vandstrækning](https://usace.contentdm.oclc.org/digital/api/collection/p266001coll1/id/2320/download)
+**Chop** blander to typer sø. Ved 0 % er der lange, bløde dønninger, som kan give båden fart på forsiden og bremse den på bagsiden. Ved 100 % dominerer korte, krydsende vindbølger med bølgelængder på ca. 2–5 m. Vindbølgerne møder skroget hyppigere. **Bølger** bestemmer dønningens højde ved 0 % Chop på åbent vand. Grundvinden kan indstilles til 20 m/s. Vind og kystlæ påvirker den korte sø, og dønningens påvirkning aftager, efterhånden som Chop skrues op. [NOAA om forskellen på vindbølger og dønning](https://www.ndbc.noaa.gov/waveobs.shtml)
 
 Vandshaderen og bådfysikken deler bølgefelterne og dybdekortet. Spillet beregner kortere bølgelængder over lavere bund med `ω² = gk tanh(kh)` og lægger faseændringen langs indfaldsretningen. Højden kan stige på vej over en banke, før meget lavt vand dæmper bølgerne. Fronterne bruger en repræsentativ periode for hver bølgefamilie. [WMO om bølger i lavt vand](https://www.imgw.pl/sites/default/files/2021-06/guidetowave-analysisandforecasting.pdf)
 
@@ -86,9 +86,13 @@ De tidligere målinger og klip i `gennemgang/` viser den forrige bølgekalibreri
 
 ## Trim og besætning
 
+På både med storsejl ændrer en bevægelse på skyderens slække halvdel, 0–50 %, bommens frie vandring mere end på den stramme halvdel. Ved 0 % er skødet sluppet helt, så vinden kan føre sejlet ud, så langt riggen tillader. På læns kan sejlet stadig trække.
+
 [Sejladsgennemgangen](gennemgang/haandtering/README.md) viser vindlæ ved Faaborg, Laserjollens stagvending med tastatur og den målte fartforskel til Racer 32.
 
-Tastaturet flytter skødeindstillingen over 0–100 % på cirka to sekunder i hver retning; bommens bevægelse og sejlkraften afhænger fortsat af vind og båd. `gennemgang/trim-malinger.json` indeholder tidligere browsermålinger fra før Racer 32-revisionen og beskriver ikke den aktuelle båd 2. Den assisterede position 2 flytter vægten gradvist gennem båden ved sideskift; position 3 holder den tidligere side, indtil spilleren vælger position 2. Totalmassen er konstant. En browserkontrol med påtvunget kæntring målte automatisk opretning på højst 4,4 aktive sekunder for de fem både i de testede forhold.
+Hastigheden falder gradvist under indhaling, så små tryk på ↑ giver finere justeringer tæt på 100 %. På Laserjollen tog 0–50 % cirka 1,47 sekunder og 50–100 % cirka 2,45 sekunder. Fuldt udslæk med ↓ tog 0,63 sekunder. Bommens bevægelse og sejlkraften afhænger af vind og båd. Se [skødegennemgangen](gennemgang/skode/README.md) for målinger og optagelse.
+
+Den assisterede position 2 flytter vægten gradvist gennem båden ved sideskift; position 3 holder den tidligere side, indtil spilleren vælger position 2. Totalmassen er konstant. En browserkontrol med påtvunget kæntring målte automatisk opretning på højst 4,4 aktive sekunder for de fem både i de testede forhold.
 
 Gæstens kontrolpakker bærer hvert sit sekvensnummer og den faktiske type af trim- og rorinput. Efter genforbindelse venter gæsten på et autoritativt snapshot. Snapshots kvitterer for seneste behandlede input, hvorefter nyere input genafspilles. Dette er en forenklet klientforudsigelse; længere forløb med varierende forsinkelse og pakketab mangler stadig systematisk måling.
 
@@ -116,7 +120,7 @@ Katamaranen har et opdelt stift vingeprofil med flap og en separat, blød fok. V
 
 ## Visuel kontrol og ydelse
 
-**Grafikkvalitet → Auto** sænker automatisk opløsning, detaljeniveau og synsafstand, når billedhastigheden falder vedvarende. Ved lavt detaljeniveau er synsafstanden ca. 1,5 km og ved det laveste trin ca. 850 m. Grafikken øges igen trinvis efter stabil billedhastighed. **Lav** og **Høj** kan vælges manuelt. Søkortsvisning, fysik og vindpilene følger fortsat spillets tilstand.
+**Grafikkvalitet** står på **Auto** som standard. Spillet sænker 3D-opløsning og detaljeafstand efter vedvarende lav billedhastighed og hæver dem gradvist igen. Skyderen kan også sættes på **Lav**, **Mellem** eller **Høj**. Alle niveauer bruger samme vejrsigt, kystkonturer og synsafstand til andre både. Se [ydelsesmålingen](gennemgang/ydelse/README.md) for målinger, reproduktion og billeder.
 
 Bådenes geometri og animationer bygges i `index.html`. `gennemgang/modelkontrol/sammenlign.html` sammenstiller den aktuelle model med de valgte referencebilleder, herunder et manuelt justerbart overlay. Referencerne er kun til kontrol og er ikke spillets assets. `node scripts/boat-presentations.cjs` genskaber alle fem bådvælgerbilleder fra spillets scene, mens spillet kører lokalt på port 5173.
 

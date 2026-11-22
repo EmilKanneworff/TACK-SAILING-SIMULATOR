@@ -38,7 +38,15 @@
     const q=Math.max(0,Math.min(1,depth/limit));
     return {value:q*q*(3-2*q),slope:6*q*(1-q)/limit};
   };
-  const gravity=9.82,phaseRange=1024;
+  const gravity=9.82,phaseRange=1024,breakingRatio=.68,breakingOnset=.6;
+  // Smooth saturation of the combined significant height above a shoal.
+  // The derivative is with respect to Hs / (breakingRatio * depth).
+  function breakingLimit(ratio){
+    if(ratio<=breakingOnset)return {gain:1,derivative:0};
+    const span=1-breakingOnset,tail=span/(span+ratio-breakingOnset);
+    const gain=(1-span*tail)/ratio;
+    return {gain,derivative:(tail*tail-gain)/ratio};
+  }
   // Invert omega²=g*k*tanh(k*h). The polynomial gives a close initial k in
   // intermediate depth as well as the deep- and shallow-water limits.
   function waveNumber(deepK,depth){
@@ -139,6 +147,13 @@
       float groupRatio=deepK/k*(1.+relativeDepth/max(.000001,.5*(exp(relativeDepth)-exp(-relativeDepth))));
       return bottom*min(1.55,inversesqrt(groupRatio));
     }
+    vec2 breakingLimit(float ratio){
+      const float span=${(1-breakingOnset).toFixed(2)};
+      float tail=span/(span+ratio-${breakingOnset});
+      float gain=(1.-span*tail)/ratio;
+      return vec2(gain,(tail*tail-gain)/ratio);
+    }
   `;
-  root.SailingWaterDepth={data,sample,damp,width,height,shader,waveNumber,phaseVelocity,waveGain,pathField,samplePath,swellDepth:2.4,chopDepth:1.4};
+  root.SailingWaterDepth={data,sample,damp,width,height,shader,waveNumber,phaseVelocity,waveGain,pathField,samplePath,
+    breakingLimit,breakingRatio,breakingOnset,swellDepth:2.4,chopDepth:1.4};
 });

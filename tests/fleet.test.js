@@ -32,7 +32,7 @@ test('six isolated clients each see six independently configured boats',async({b
     // Exercise network steering with eight to eleven moving crew per foil boat
     // without trying to benchmark six WebGL renderers in the same browser.
     await page.locator('#quality').evaluate(select=>{
-     select.value='low';
+     select.value='1';
      select.dispatchEvent(new Event('change',{bubbles:true}));
     });
     await (await introOption(page,'#introBoat')).selectOption(boat);
@@ -47,7 +47,13 @@ test('six isolated clients each see six independently configured boats',async({b
   const [host]=pages;
   await test.step('display all boats and share the host wave clock',async()=>{
    for(const page of pages)await page.click('#lobbySail');
-   await Promise.all(pages.map(page=>page.waitForFunction(()=>FriVindLobby.fleet.actors.size===5,null,{timeout:40000})));
+   await Promise.all(pages.map(page=>page.waitForFunction(()=>{
+     const fleet=FriVindLobby.fleet,visible=new Set([
+      ...[...fleet.actors].filter(([,a])=>a.boatRoot.visible).map(([id])=>id),
+      ...[...fleet.silhouettes].filter(([,a])=>a.root.visible).map(([id])=>id)
+     ]);
+     return visible.size===5;
+   },null,{timeout:40000})));
    const boats=await host.evaluate(()=>[SAILING_GAME.state,...FriVindLobby.fleet.boats.values()].map(s=>({type:s.boatId,time:s.time,sea:s.seaState})));
    expect(boats.map(boat=>boat.type).sort()).toEqual(types.slice().sort());
    for(const boat of boats){expect(boat.time).toBeCloseTo(boats[0].time,6);expect(boat.sea).toBeCloseTo(boats[0].sea,6);}

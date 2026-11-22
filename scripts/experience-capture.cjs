@@ -28,7 +28,7 @@ async function run(browser) {
     await page.waitForFunction(() => window.SAILING_GAME);
     await (await introOption(page, '#introBoat')).selectOption(boat);
     await page.locator('#quality').evaluate(element => {
-      element.value = 'high';
+      element.value = '3';
       element.dispatchEvent(new Event('change', { bubbles: true }));
     });
     await page.click('#startButton');

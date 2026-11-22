@@ -63,7 +63,7 @@ for(const {type,button,waiting,bearing} of [
     vx:1.7*Math.cos(theta),vy:1.7*Math.sin(theta),sheet:.52},env));
    SailingWeather.initialize(state,env);
    const sheet=document.querySelector('#sheetControl');
-   sheet.value='52';sheet.dispatchEvent(new Event('input',{bubbles:true}));
+   sheet.value=String(P.trimFromSheet(.52,state)*100);sheet.dispatchEvent(new Event('input',{bubbles:true}));
   });
   await page.clock.runFor(6500);
   const sail=()=>page.evaluate(()=>{
@@ -154,7 +154,7 @@ test('Gennaker and four crew are synchronised between two live browser clients',
  });
  await h.waitForFunction(id=>{
   const f=FriVindLobby.fleet,s=f.boats.get(id),a=f.actors.get(id),r=s?.cruiserRig;
-  if(!r||r.reef!==2||r.headsail!==1||Math.abs(r.jibSheet-.22)>.002||s.spinnaker.hoist>0)return false;
+  if(!r||r.reef!==2||r.headsail!==1||Math.abs(r.jibSheet-SailPhysics.sheetFromTrim(.22,s))>.002||s.spinnaker.hoist>0)return false;
   const shape=a.sailMesh.geometry.attributes.position,head=shape.getY(shape.count-1);
   const reduced=18.0-(18.0-2.0)*.44;
   return Math.abs(head-reduced)<.16&&Math.abs(s.sail.main.area-26.88)<.01&&Math.abs(s.sail.jib.area-18.56)<.01;

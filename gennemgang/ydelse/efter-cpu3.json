@@ -1,0 +1,1732 @@
+{
+  "machine": "Apple M5",
+  "arch": "arm64",
+  "os": "25.3.0",
+  "ram": 34359738368,
+  "browser": "157.0.8103.79",
+  "viewport": {
+    "width": 1120,
+    "height": 700
+  },
+  "deviceScaleFactor": 1.5,
+  "revision": "d4145a82173b",
+  "tier": "low",
+  "throttle": 3,
+  "device": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+    "gpuTimer": true,
+    "three": "160"
+  },
+  "readyMs": 4101,
+  "firstSailMs": 356,
+  "errors": [],
+  "passes": [
+    {
+      "name": "havn",
+      "camera": 0,
+      "snapshot": {
+        "ratio": 0.74,
+        "size": [
+          828,
+          518
+        ],
+        "tier": "low",
+        "geometries": 221,
+        "textures": 24,
+        "waterTriangles": 24864,
+        "activeLand": 44,
+        "activeScenery": 1,
+        "shoreFoam": 0,
+        "activeFixtures": 1,
+        "fixtureCache": 1,
+        "activeTerrainRegions": 25,
+        "simulationDebt": 0.016600000000000555,
+        "fleetSize": 1,
+        "detailedRemotes": 0,
+        "simpleRemotes": 0,
+        "x": 4.352770728782099,
+        "y": -51.98836902642973,
+        "time": 2.7833333333333283,
+        "grounded": false
+      },
+      "stalls50": 0,
+      "stalls100": 0,
+      "skippedDraws": 1,
+      "metrics": {
+        "interval": {
+          "n": 144,
+          "p50": 16.7,
+          "p95": 16.7,
+          "p99": 16.8
+        },
+        "drawInterval": {
+          "n": 143,
+          "p50": 16.7,
+          "p95": 16.7,
+          "p99": 16.8
+        },
+        "cpu": {
+          "n": 145,
+          "p50": 6.2,
+          "p95": 9.4,
+          "p99": 14.2
+        },
+        "simulation": {
+          "n": 127,
+          "p50": 2.5,
+          "p95": 5,
+          "p99": 13.7
+        },
+        "scene": {
+          "n": 144,
+          "p50": 3.3,
+          "p95": 4.2,
+          "p99": 5
+        },
+        "boat": {
+          "n": 144,
+          "p50": 0.6,
+          "p95": 1,
+          "p99": 1.2
+        },
+        "crew": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.6
+        },
+        "waterContact": {
+          "n": 144,
+          "p50": 0.1,
+          "p95": 0.6,
+          "p99": 0.7
+        },
+        "map": {
+          "n": 48,
+          "p50": 0.4,
+          "p95": 0.8,
+          "p99": 1.1
+        },
+        "ui": {
+          "n": 145,
+          "p50": 0,
+          "p95": 1.2,
+          "p99": 1.3
+        },
+        "interpolate": {
+          "n": 144,
+          "p50": 0.1,
+          "p95": 0.6,
+          "p99": 0.6
+        },
+        "terrainRange": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0.1
+        },
+        "atmosphere": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0.2,
+          "p99": 0.7
+        },
+        "reflection": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "renderer": {
+          "n": 144,
+          "p50": 1.8,
+          "p95": 2.4,
+          "p99": 2.6
+        },
+        "fleetPhysics": {
+          "n": 127,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "fleetGraphics": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "boatBuild": null,
+        "gpu": {
+          "n": 48,
+          "p50": 2.006,
+          "p95": 2.077,
+          "p99": 2.391
+        },
+        "calls": {
+          "n": 144,
+          "p50": 200,
+          "p95": 200,
+          "p99": 200
+        },
+        "triangles": {
+          "n": 144,
+          "p50": 64128,
+          "p95": 64200,
+          "p99": 64208
+        }
+      }
+    },
+    {
+      "name": "kyst-indgang",
+      "snapshot": {
+        "ratio": 0.74,
+        "size": [
+          828,
+          518
+        ],
+        "tier": "low",
+        "geometries": 338,
+        "textures": 29,
+        "waterTriangles": 24864,
+        "activeLand": 21,
+        "activeScenery": 0,
+        "shoreFoam": 0,
+        "activeFixtures": 0,
+        "fixtureCache": 0,
+        "activeTerrainRegions": 28,
+        "simulationDebt": 0.033133333333333764,
+        "fleetSize": 1,
+        "detailedRemotes": 0,
+        "simpleRemotes": 0,
+        "x": -179.3771461453274,
+        "y": -340.3353324855416,
+        "time": 0.19999999999999998,
+        "grounded": true
+      },
+      "stalls50": 1,
+      "stalls100": 1,
+      "skippedDraws": 0,
+      "metrics": {
+        "interval": {
+          "n": 2,
+          "p50": 33.3,
+          "p95": 166.6,
+          "p99": 166.6
+        },
+        "drawInterval": {
+          "n": 2,
+          "p50": 33.3,
+          "p95": 166.6,
+          "p99": 166.6
+        },
+        "cpu": {
+          "n": 3,
+          "p50": 21.8,
+          "p95": 124,
+          "p99": 124
+        },
+        "simulation": {
+          "n": 3,
+          "p50": 13.4,
+          "p95": 13.5,
+          "p99": 13.5
+        },
+        "scene": {
+          "n": 3,
+          "p50": 6.1,
+          "p95": 120.4,
+          "p99": 120.4
+        },
+        "boat": {
+          "n": 3,
+          "p50": 1.9,
+          "p95": 4.8,
+          "p99": 4.8
+        },
+        "crew": {
+          "n": 3,
+          "p50": 0.1,
+          "p95": 0.1,
+          "p99": 0.1
+        },
+        "waterContact": {
+          "n": 3,
+          "p50": 0.1,
+          "p95": 0.1,
+          "p99": 0.1
+        },
+        "map": {
+          "n": 1,
+          "p50": 0.5,
+          "p95": 0.5,
+          "p99": 0.5
+        },
+        "ui": {
+          "n": 3,
+          "p50": 0.5,
+          "p95": 1.6,
+          "p99": 1.6
+        },
+        "interpolate": {
+          "n": 3,
+          "p50": 0,
+          "p95": 0.2,
+          "p99": 0.2
+        },
+        "terrainRange": {
+          "n": 3,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.1
+        },
+        "atmosphere": {
+          "n": 3,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.1
+        },
+        "reflection": {
+          "n": 3,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "renderer": {
+          "n": 3,
+          "p50": 3.1,
+          "p95": 93.9,
+          "p99": 93.9
+        },
+        "fleetPhysics": {
+          "n": 3,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "fleetGraphics": {
+          "n": 3,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "boatBuild": {
+          "n": 1,
+          "p50": 19.7,
+          "p95": 19.7,
+          "p99": 19.7
+        },
+        "gpu": null,
+        "calls": {
+          "n": 3,
+          "p50": 316,
+          "p95": 316,
+          "p99": 316
+        },
+        "triangles": {
+          "n": 3,
+          "p50": 109666,
+          "p95": 109694,
+          "p99": 109694
+        }
+      }
+    },
+    {
+      "name": "kameraskift",
+      "snapshot": {
+        "ratio": 0.74,
+        "size": [
+          828,
+          518
+        ],
+        "tier": "low",
+        "geometries": 358,
+        "textures": 29,
+        "waterTriangles": 24864,
+        "activeLand": 21,
+        "activeScenery": 1,
+        "shoreFoam": 0,
+        "activeFixtures": 0,
+        "fixtureCache": 0,
+        "activeTerrainRegions": 28,
+        "simulationDebt": 0.016400000000001146,
+        "fleetSize": 1,
+        "detailedRemotes": 0,
+        "simpleRemotes": 0,
+        "x": -175.12547686575897,
+        "y": -344.5268814738967,
+        "time": 1.9833333333333312,
+        "grounded": false
+      },
+      "stalls50": 0,
+      "stalls100": 0,
+      "skippedDraws": 0,
+      "metrics": {
+        "interval": {
+          "n": 104,
+          "p50": 16.7,
+          "p95": 16.8,
+          "p99": 16.8
+        },
+        "drawInterval": {
+          "n": 104,
+          "p50": 16.7,
+          "p95": 16.8,
+          "p99": 16.8
+        },
+        "cpu": {
+          "n": 105,
+          "p50": 7.5,
+          "p95": 9,
+          "p99": 10.4
+        },
+        "simulation": {
+          "n": 105,
+          "p50": 2,
+          "p95": 2.5,
+          "p99": 2.9
+        },
+        "scene": {
+          "n": 105,
+          "p50": 4.9,
+          "p95": 5.7,
+          "p99": 6.2
+        },
+        "boat": {
+          "n": 105,
+          "p50": 1.2,
+          "p95": 1.7,
+          "p99": 1.9
+        },
+        "crew": {
+          "n": 105,
+          "p50": 0,
+          "p95": 0.3,
+          "p99": 0.6
+        },
+        "waterContact": {
+          "n": 105,
+          "p50": 0.1,
+          "p95": 0.7,
+          "p99": 0.8
+        },
+        "map": {
+          "n": 35,
+          "p50": 0.4,
+          "p95": 0.8,
+          "p99": 0.9
+        },
+        "ui": {
+          "n": 105,
+          "p50": 0.1,
+          "p95": 1.2,
+          "p99": 1.3
+        },
+        "interpolate": {
+          "n": 105,
+          "p50": 0.1,
+          "p95": 0.7,
+          "p99": 0.7
+        },
+        "terrainRange": {
+          "n": 105,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.4
+        },
+        "atmosphere": {
+          "n": 105,
+          "p50": 0,
+          "p95": 0.2,
+          "p99": 0.5
+        },
+        "reflection": {
+          "n": 105,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "renderer": {
+          "n": 105,
+          "p50": 2.5,
+          "p95": 3.1,
+          "p99": 3.3
+        },
+        "fleetPhysics": {
+          "n": 105,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0.1
+        },
+        "fleetGraphics": {
+          "n": 105,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "boatBuild": null,
+        "gpu": {
+          "n": 35,
+          "p50": 1.768,
+          "p95": 1.816,
+          "p99": 1.82
+        },
+        "calls": {
+          "n": 105,
+          "p50": 275,
+          "p95": 281,
+          "p99": 281
+        },
+        "triangles": {
+          "n": 105,
+          "p50": 130832,
+          "p95": 133770,
+          "p99": 133770
+        }
+      }
+    },
+    {
+      "name": "kyst",
+      "camera": 0,
+      "snapshot": {
+        "ratio": 0.74,
+        "size": [
+          828,
+          518
+        ],
+        "tier": "low",
+        "geometries": 368,
+        "textures": 29,
+        "waterTriangles": 24864,
+        "activeLand": 26,
+        "activeScenery": 0,
+        "shoreFoam": 0,
+        "activeFixtures": 0,
+        "fixtureCache": 0,
+        "activeTerrainRegions": 27,
+        "simulationDebt": 0.016333333333335514,
+        "fleetSize": 1,
+        "detailedRemotes": 0,
+        "simpleRemotes": 0,
+        "x": -174.1610837310796,
+        "y": -351.8437464075684,
+        "time": 4.39999999999999,
+        "grounded": false
+      },
+      "stalls50": 0,
+      "stalls100": 0,
+      "skippedDraws": 0,
+      "metrics": {
+        "interval": {
+          "n": 143,
+          "p50": 16.7,
+          "p95": 16.7,
+          "p99": 16.8
+        },
+        "drawInterval": {
+          "n": 143,
+          "p50": 16.7,
+          "p95": 16.7,
+          "p99": 16.8
+        },
+        "cpu": {
+          "n": 144,
+          "p50": 6.7,
+          "p95": 8,
+          "p99": 8.9
+        },
+        "simulation": {
+          "n": 144,
+          "p50": 1.9,
+          "p95": 2.2,
+          "p99": 2.4
+        },
+        "scene": {
+          "n": 144,
+          "p50": 4.4,
+          "p95": 5.1,
+          "p99": 5.6
+        },
+        "boat": {
+          "n": 144,
+          "p50": 1.1,
+          "p95": 1.5,
+          "p99": 1.6
+        },
+        "crew": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.6
+        },
+        "waterContact": {
+          "n": 144,
+          "p50": 0.1,
+          "p95": 0.6,
+          "p99": 0.8
+        },
+        "map": {
+          "n": 48,
+          "p50": 0.3,
+          "p95": 0.7,
+          "p99": 0.8
+        },
+        "ui": {
+          "n": 144,
+          "p50": 0,
+          "p95": 1.1,
+          "p99": 1.2
+        },
+        "interpolate": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0.5,
+          "p99": 0.6
+        },
+        "terrainRange": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0.1
+        },
+        "atmosphere": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0.4,
+          "p99": 0.6
+        },
+        "reflection": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "renderer": {
+          "n": 144,
+          "p50": 2.3,
+          "p95": 2.9,
+          "p99": 3.1
+        },
+        "fleetPhysics": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "fleetGraphics": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "boatBuild": null,
+        "gpu": {
+          "n": 48,
+          "p50": 1.936,
+          "p95": 5.412,
+          "p99": 5.709
+        },
+        "calls": {
+          "n": 144,
+          "p50": 330,
+          "p95": 334,
+          "p99": 334
+        },
+        "triangles": {
+          "n": 144,
+          "p50": 84113,
+          "p95": 86921,
+          "p99": 86933
+        }
+      }
+    },
+    {
+      "name": "aabent",
+      "camera": 0,
+      "snapshot": {
+        "ratio": 0.74,
+        "size": [
+          828,
+          518
+        ],
+        "tier": "low",
+        "geometries": 258,
+        "textures": 25,
+        "waterTriangles": 24864,
+        "activeLand": 12,
+        "activeScenery": 0,
+        "shoreFoam": 0,
+        "activeFixtures": 0,
+        "fixtureCache": 0,
+        "activeTerrainRegions": 29,
+        "simulationDebt": 0.016266666666668105,
+        "fleetSize": 1,
+        "detailedRemotes": 0,
+        "simpleRemotes": 0,
+        "x": -1890.79870165832,
+        "y": -2175.9207897282568,
+        "time": 2.5999999999999956,
+        "grounded": false
+      },
+      "stalls50": 0,
+      "stalls100": 0,
+      "skippedDraws": 0,
+      "metrics": {
+        "interval": {
+          "n": 144,
+          "p50": 16.7,
+          "p95": 16.7,
+          "p99": 16.8
+        },
+        "drawInterval": {
+          "n": 144,
+          "p50": 16.7,
+          "p95": 16.7,
+          "p99": 16.8
+        },
+        "cpu": {
+          "n": 145,
+          "p50": 5.3,
+          "p95": 6.5,
+          "p99": 7
+        },
+        "simulation": {
+          "n": 145,
+          "p50": 1.8,
+          "p95": 2.2,
+          "p99": 2.3
+        },
+        "scene": {
+          "n": 145,
+          "p50": 2.9,
+          "p95": 3.5,
+          "p99": 3.7
+        },
+        "boat": {
+          "n": 145,
+          "p50": 0.5,
+          "p95": 0.9,
+          "p99": 1
+        },
+        "crew": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.5
+        },
+        "waterContact": {
+          "n": 145,
+          "p50": 0.1,
+          "p95": 0.7,
+          "p99": 0.8
+        },
+        "map": {
+          "n": 48,
+          "p50": 0.4,
+          "p95": 0.8,
+          "p99": 0.9
+        },
+        "ui": {
+          "n": 145,
+          "p50": 0,
+          "p95": 1.2,
+          "p99": 1.5
+        },
+        "interpolate": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0.5,
+          "p99": 0.7
+        },
+        "terrainRange": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0.1
+        },
+        "atmosphere": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0.3,
+          "p99": 0.5
+        },
+        "reflection": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "renderer": {
+          "n": 145,
+          "p50": 1.5,
+          "p95": 2,
+          "p99": 2.1
+        },
+        "fleetPhysics": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "fleetGraphics": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "boatBuild": null,
+        "gpu": {
+          "n": 48,
+          "p50": 2.108,
+          "p95": 5.383,
+          "p99": 5.476
+        },
+        "calls": {
+          "n": 145,
+          "p50": 164,
+          "p95": 181,
+          "p99": 181
+        },
+        "triangles": {
+          "n": 145,
+          "p50": 54740,
+          "p95": 64459,
+          "p99": 64463
+        }
+      }
+    },
+    {
+      "name": "foil-indgang",
+      "snapshot": {
+        "ratio": 0.74,
+        "size": [
+          828,
+          518
+        ],
+        "tier": "low",
+        "geometries": 354,
+        "textures": 33,
+        "waterTriangles": 24864,
+        "activeLand": 12,
+        "activeScenery": 0,
+        "shoreFoam": 0,
+        "activeFixtures": 0,
+        "fixtureCache": 0,
+        "activeTerrainRegions": 29,
+        "simulationDebt": 0.0828666666666685,
+        "fleetSize": 1,
+        "detailedRemotes": 0,
+        "simpleRemotes": 0,
+        "x": -1608.643577603418,
+        "y": -1930.5723511608203,
+        "time": 0.13333333333333333,
+        "grounded": false
+      },
+      "stalls50": 1,
+      "stalls100": 1,
+      "skippedDraws": 1,
+      "metrics": {
+        "interval": {
+          "n": 3,
+          "p50": 33.3,
+          "p95": 133.2,
+          "p99": 133.2
+        },
+        "drawInterval": {
+          "n": 2,
+          "p50": 50,
+          "p95": 133.2,
+          "p99": 133.2
+        },
+        "cpu": {
+          "n": 4,
+          "p50": 26.2,
+          "p95": 131.2,
+          "p99": 131.2
+        },
+        "simulation": {
+          "n": 4,
+          "p50": 13.1,
+          "p95": 18.5,
+          "p99": 18.5
+        },
+        "scene": {
+          "n": 3,
+          "p50": 7,
+          "p95": 116.2,
+          "p99": 116.2
+        },
+        "boat": {
+          "n": 3,
+          "p50": 3.7,
+          "p95": 6.2,
+          "p99": 6.2
+        },
+        "crew": {
+          "n": 3,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.1
+        },
+        "waterContact": {
+          "n": 3,
+          "p50": 0.2,
+          "p95": 0.9,
+          "p99": 0.9
+        },
+        "map": {
+          "n": 2,
+          "p50": 0.5,
+          "p95": 0.6,
+          "p99": 0.6
+        },
+        "ui": {
+          "n": 4,
+          "p50": 0.1,
+          "p95": 1.9,
+          "p99": 1.9
+        },
+        "interpolate": {
+          "n": 3,
+          "p50": 0.1,
+          "p95": 0.4,
+          "p99": 0.4
+        },
+        "terrainRange": {
+          "n": 3,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "atmosphere": {
+          "n": 3,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.1
+        },
+        "reflection": {
+          "n": 3,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "renderer": {
+          "n": 3,
+          "p50": 2.4,
+          "p95": 87.2,
+          "p99": 87.2
+        },
+        "fleetPhysics": {
+          "n": 4,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "fleetGraphics": {
+          "n": 3,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "boatBuild": {
+          "n": 1,
+          "p50": 21.2,
+          "p95": 21.2,
+          "p99": 21.2
+        },
+        "gpu": {
+          "n": 1,
+          "p50": 4.379,
+          "p95": 4.379,
+          "p99": 4.379
+        },
+        "calls": {
+          "n": 3,
+          "p50": 264,
+          "p95": 264,
+          "p99": 264
+        },
+        "triangles": {
+          "n": 3,
+          "p50": 98456,
+          "p95": 98464,
+          "p99": 98464
+        }
+      }
+    },
+    {
+      "name": "foil",
+      "camera": 1,
+      "snapshot": {
+        "ratio": 0.74,
+        "size": [
+          828,
+          518
+        ],
+        "tier": "low",
+        "geometries": 354,
+        "textures": 33,
+        "waterTriangles": 24864,
+        "activeLand": 12,
+        "activeScenery": 0,
+        "shoreFoam": 0,
+        "activeFixtures": 0,
+        "fixtureCache": 0,
+        "activeTerrainRegions": 29,
+        "simulationDebt": 0.01610000000000211,
+        "fleetSize": 1,
+        "detailedRemotes": 0,
+        "simpleRemotes": 0,
+        "x": -1581.3809799053347,
+        "y": -1943.2690544321479,
+        "time": 2.6500000000000266,
+        "grounded": false
+      },
+      "stalls50": 0,
+      "stalls100": 0,
+      "skippedDraws": 0,
+      "metrics": {
+        "interval": {
+          "n": 142,
+          "p50": 16.7,
+          "p95": 16.8,
+          "p99": 33.2
+        },
+        "drawInterval": {
+          "n": 142,
+          "p50": 16.7,
+          "p95": 16.8,
+          "p99": 33.2
+        },
+        "cpu": {
+          "n": 143,
+          "p50": 11.9,
+          "p95": 13.6,
+          "p99": 26.2
+        },
+        "simulation": {
+          "n": 143,
+          "p50": 5.7,
+          "p95": 6.2,
+          "p99": 17.6
+        },
+        "scene": {
+          "n": 143,
+          "p50": 5.5,
+          "p95": 6.4,
+          "p99": 7.4
+        },
+        "boat": {
+          "n": 143,
+          "p50": 2.6,
+          "p95": 3.1,
+          "p99": 3.8
+        },
+        "crew": {
+          "n": 143,
+          "p50": 0,
+          "p95": 0.2,
+          "p99": 0.5
+        },
+        "waterContact": {
+          "n": 143,
+          "p50": 0.2,
+          "p95": 0.7,
+          "p99": 0.8
+        },
+        "map": {
+          "n": 49,
+          "p50": 0.4,
+          "p95": 0.8,
+          "p99": 0.8
+        },
+        "ui": {
+          "n": 143,
+          "p50": 0,
+          "p95": 1.2,
+          "p99": 1.3
+        },
+        "interpolate": {
+          "n": 143,
+          "p50": 0.1,
+          "p95": 0.7,
+          "p99": 0.7
+        },
+        "terrainRange": {
+          "n": 143,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0.2
+        },
+        "atmosphere": {
+          "n": 143,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.6
+        },
+        "reflection": {
+          "n": 143,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "renderer": {
+          "n": 143,
+          "p50": 2.2,
+          "p95": 2.7,
+          "p99": 3.1
+        },
+        "fleetPhysics": {
+          "n": 143,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0.1
+        },
+        "fleetGraphics": {
+          "n": 143,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "boatBuild": null,
+        "gpu": {
+          "n": 47,
+          "p50": 2.038,
+          "p95": 2.055,
+          "p99": 2.07
+        },
+        "calls": {
+          "n": 143,
+          "p50": 264,
+          "p95": 264,
+          "p99": 264
+        },
+        "triangles": {
+          "n": 143,
+          "p50": 98736,
+          "p95": 99004,
+          "p99": 99028
+        }
+      }
+    },
+    {
+      "name": "seks",
+      "camera": 1,
+      "snapshot": {
+        "ratio": 0.74,
+        "size": [
+          828,
+          518
+        ],
+        "tier": "low",
+        "geometries": 422,
+        "textures": 68,
+        "waterTriangles": 24864,
+        "activeLand": 12,
+        "activeScenery": 0,
+        "shoreFoam": 0,
+        "activeFixtures": 0,
+        "fixtureCache": 0,
+        "activeTerrainRegions": 29,
+        "simulationDebt": 1.5998333333333365,
+        "fleetSize": 6,
+        "detailedRemotes": 4,
+        "simpleRemotes": 1,
+        "x": -1894.3295693566067,
+        "y": -2173.188124354438,
+        "time": 1.5833333333333326,
+        "grounded": false
+      },
+      "stalls50": 14,
+      "stalls100": 0,
+      "skippedDraws": 43,
+      "metrics": {
+        "interval": {
+          "n": 87,
+          "p50": 33.3,
+          "p95": 33.4,
+          "p99": 50
+        },
+        "drawInterval": {
+          "n": 44,
+          "p50": 50,
+          "p95": 66.7,
+          "p99": 66.8
+        },
+        "cpu": {
+          "n": 88,
+          "p50": 26.7,
+          "p95": 34.7,
+          "p99": 38
+        },
+        "simulation": {
+          "n": 88,
+          "p50": 21.5,
+          "p95": 23.3,
+          "p99": 24.1
+        },
+        "scene": {
+          "n": 45,
+          "p50": 5.2,
+          "p95": 6.2,
+          "p99": 6.9
+        },
+        "boat": {
+          "n": 45,
+          "p50": 2.8,
+          "p95": 8.4,
+          "p99": 9.3
+        },
+        "crew": {
+          "n": 45,
+          "p50": 0,
+          "p95": 0.4,
+          "p99": 0.6
+        },
+        "waterContact": {
+          "n": 45,
+          "p50": 0.1,
+          "p95": 0.6,
+          "p99": 0.7
+        },
+        "map": {
+          "n": 45,
+          "p50": 0.4,
+          "p95": 0.8,
+          "p99": 0.9
+        },
+        "ui": {
+          "n": 88,
+          "p50": 0.1,
+          "p95": 1.3,
+          "p99": 1.4
+        },
+        "interpolate": {
+          "n": 45,
+          "p50": 0.1,
+          "p95": 0.4,
+          "p99": 0.7
+        },
+        "terrainRange": {
+          "n": 45,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0.1
+        },
+        "atmosphere": {
+          "n": 45,
+          "p50": 0,
+          "p95": 0.3,
+          "p99": 0.7
+        },
+        "reflection": {
+          "n": 45,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "renderer": {
+          "n": 45,
+          "p50": 3.8,
+          "p95": 4.8,
+          "p99": 5.4
+        },
+        "fleetPhysics": {
+          "n": 88,
+          "p50": 19.7,
+          "p95": 21.3,
+          "p99": 22.3
+        },
+        "fleetGraphics": {
+          "n": 45,
+          "p50": 2.7,
+          "p95": 8.3,
+          "p99": 8.7
+        },
+        "boatBuild": null,
+        "gpu": {
+          "n": 14,
+          "p50": 2.267,
+          "p95": 2.332,
+          "p99": 2.332
+        },
+        "calls": {
+          "n": 45,
+          "p50": 213,
+          "p95": 299,
+          "p99": 313
+        },
+        "triangles": {
+          "n": 45,
+          "p50": 100399,
+          "p95": 111289,
+          "p99": 113283
+        }
+      }
+    },
+    {
+      "name": "retur",
+      "camera": 0,
+      "snapshot": {
+        "ratio": 0.74,
+        "size": [
+          828,
+          518
+        ],
+        "tier": "low",
+        "geometries": 292,
+        "textures": 26,
+        "waterTriangles": 24864,
+        "activeLand": 44,
+        "activeScenery": 1,
+        "shoreFoam": 0,
+        "activeFixtures": 1,
+        "fixtureCache": 1,
+        "activeTerrainRegions": 25,
+        "simulationDebt": 0.01659999999999869,
+        "fleetSize": 1,
+        "detailedRemotes": 0,
+        "simpleRemotes": 0,
+        "x": 4.310244304852782,
+        "y": -51.564738963041734,
+        "time": 2.5166666666666626,
+        "grounded": false
+      },
+      "stalls50": 0,
+      "stalls100": 0,
+      "skippedDraws": 0,
+      "metrics": {
+        "interval": {
+          "n": 144,
+          "p50": 16.7,
+          "p95": 16.8,
+          "p99": 16.8
+        },
+        "drawInterval": {
+          "n": 144,
+          "p50": 16.7,
+          "p95": 16.8,
+          "p99": 16.8
+        },
+        "cpu": {
+          "n": 145,
+          "p50": 5.7,
+          "p95": 8.1,
+          "p99": 8.4
+        },
+        "simulation": {
+          "n": 111,
+          "p50": 2.3,
+          "p95": 4.3,
+          "p99": 4.6
+        },
+        "scene": {
+          "n": 145,
+          "p50": 3.1,
+          "p95": 3.8,
+          "p99": 4.2
+        },
+        "boat": {
+          "n": 145,
+          "p50": 0.6,
+          "p95": 0.9,
+          "p99": 1
+        },
+        "crew": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.5
+        },
+        "waterContact": {
+          "n": 145,
+          "p50": 0.1,
+          "p95": 0.6,
+          "p99": 0.7
+        },
+        "map": {
+          "n": 48,
+          "p50": 0.3,
+          "p95": 0.7,
+          "p99": 0.8
+        },
+        "ui": {
+          "n": 145,
+          "p50": 0,
+          "p95": 1,
+          "p99": 1.5
+        },
+        "interpolate": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0.4,
+          "p99": 0.6
+        },
+        "terrainRange": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0.5
+        },
+        "atmosphere": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.3
+        },
+        "reflection": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "renderer": {
+          "n": 145,
+          "p50": 1.7,
+          "p95": 2.1,
+          "p99": 2.4
+        },
+        "fleetPhysics": {
+          "n": 111,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "fleetGraphics": {
+          "n": 145,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "boatBuild": null,
+        "gpu": {
+          "n": 48,
+          "p50": 1.996,
+          "p95": 2.047,
+          "p99": 2.087
+        },
+        "calls": {
+          "n": 145,
+          "p50": 200,
+          "p95": 200,
+          "p99": 200
+        },
+        "triangles": {
+          "n": 145,
+          "p50": 64128,
+          "p95": 64200,
+          "p99": 64208
+        }
+      }
+    },
+    {
+      "name": "aabent-igen",
+      "camera": 0,
+      "snapshot": {
+        "ratio": 0.74,
+        "size": [
+          828,
+          518
+        ],
+        "tier": "low",
+        "geometries": 292,
+        "textures": 26,
+        "waterTriangles": 24864,
+        "activeLand": 12,
+        "activeScenery": 0,
+        "shoreFoam": 0,
+        "activeFixtures": 0,
+        "fixtureCache": 0,
+        "activeTerrainRegions": 29,
+        "simulationDebt": 0.016466666666666446,
+        "fleetSize": 1,
+        "detailedRemotes": 0,
+        "simpleRemotes": 0,
+        "x": -1891.083745955741,
+        "y": -2175.694225885813,
+        "time": 2.5166666666666626,
+        "grounded": false
+      },
+      "stalls50": 0,
+      "stalls100": 0,
+      "skippedDraws": 0,
+      "metrics": {
+        "interval": {
+          "n": 143,
+          "p50": 16.7,
+          "p95": 16.7,
+          "p99": 16.8
+        },
+        "drawInterval": {
+          "n": 143,
+          "p50": 16.7,
+          "p95": 16.7,
+          "p99": 16.8
+        },
+        "cpu": {
+          "n": 144,
+          "p50": 5,
+          "p95": 5.7,
+          "p99": 7
+        },
+        "simulation": {
+          "n": 139,
+          "p50": 1.8,
+          "p95": 2.2,
+          "p99": 3.7
+        },
+        "scene": {
+          "n": 144,
+          "p50": 2.8,
+          "p95": 3.3,
+          "p99": 3.6
+        },
+        "boat": {
+          "n": 144,
+          "p50": 0.5,
+          "p95": 0.9,
+          "p99": 0.9
+        },
+        "crew": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0.3
+        },
+        "waterContact": {
+          "n": 144,
+          "p50": 0.1,
+          "p95": 0.6,
+          "p99": 0.7
+        },
+        "map": {
+          "n": 48,
+          "p50": 0.3,
+          "p95": 0.7,
+          "p99": 0.7
+        },
+        "ui": {
+          "n": 144,
+          "p50": 0,
+          "p95": 1,
+          "p99": 1.4
+        },
+        "interpolate": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0.4,
+          "p99": 0.6
+        },
+        "terrainRange": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0.4
+        },
+        "atmosphere": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.6
+        },
+        "reflection": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "renderer": {
+          "n": 144,
+          "p50": 1.4,
+          "p95": 2,
+          "p99": 2.1
+        },
+        "fleetPhysics": {
+          "n": 139,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "fleetGraphics": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "boatBuild": null,
+        "gpu": {
+          "n": 48,
+          "p50": 1.96,
+          "p95": 2.01,
+          "p99": 2.014
+        },
+        "calls": {
+          "n": 144,
+          "p50": 170,
+          "p95": 181,
+          "p99": 181
+        },
+        "triangles": {
+          "n": 144,
+          "p50": 54850,
+          "p95": 64511,
+          "p99": 64519
+        }
+      }
+    },
+    {
+      "name": "retur-igen",
+      "camera": 0,
+      "snapshot": {
+        "ratio": 0.74,
+        "size": [
+          828,
+          518
+        ],
+        "tier": "low",
+        "geometries": 292,
+        "textures": 26,
+        "waterTriangles": 24864,
+        "activeLand": 44,
+        "activeScenery": 1,
+        "shoreFoam": 0,
+        "activeFixtures": 1,
+        "fixtureCache": 1,
+        "activeTerrainRegions": 25,
+        "simulationDebt": 0.01643333333333286,
+        "fleetSize": 1,
+        "detailedRemotes": 0,
+        "simpleRemotes": 0,
+        "x": 4.310244304852782,
+        "y": -51.564738963041734,
+        "time": 2.5166666666666626,
+        "grounded": false
+      },
+      "stalls50": 0,
+      "stalls100": 0,
+      "skippedDraws": 0,
+      "metrics": {
+        "interval": {
+          "n": 143,
+          "p50": 16.7,
+          "p95": 16.8,
+          "p99": 16.8
+        },
+        "drawInterval": {
+          "n": 143,
+          "p50": 16.7,
+          "p95": 16.8,
+          "p99": 16.8
+        },
+        "cpu": {
+          "n": 144,
+          "p50": 5.8,
+          "p95": 6.8,
+          "p99": 7
+        },
+        "simulation": {
+          "n": 144,
+          "p50": 2.1,
+          "p95": 2.5,
+          "p99": 2.6
+        },
+        "scene": {
+          "n": 144,
+          "p50": 3.1,
+          "p95": 3.6,
+          "p99": 3.9
+        },
+        "boat": {
+          "n": 144,
+          "p50": 0.5,
+          "p95": 0.9,
+          "p99": 0.9
+        },
+        "crew": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.5
+        },
+        "waterContact": {
+          "n": 144,
+          "p50": 0.1,
+          "p95": 0.6,
+          "p99": 0.7
+        },
+        "map": {
+          "n": 48,
+          "p50": 0.2,
+          "p95": 0.6,
+          "p99": 0.7
+        },
+        "ui": {
+          "n": 144,
+          "p50": 0,
+          "p95": 1.1,
+          "p99": 1.3
+        },
+        "interpolate": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0.5,
+          "p99": 0.7
+        },
+        "terrainRange": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "atmosphere": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0.1,
+          "p99": 0.5
+        },
+        "reflection": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "renderer": {
+          "n": 144,
+          "p50": 1.7,
+          "p95": 2.2,
+          "p99": 2.3
+        },
+        "fleetPhysics": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0.1
+        },
+        "fleetGraphics": {
+          "n": 144,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0
+        },
+        "boatBuild": null,
+        "gpu": {
+          "n": 48,
+          "p50": 2.045,
+          "p95": 4.547,
+          "p99": 4.611
+        },
+        "calls": {
+          "n": 144,
+          "p50": 200,
+          "p95": 200,
+          "p99": 200
+        },
+        "triangles": {
+          "n": 144,
+          "p50": 64128,
+          "p95": 64200,
+          "p99": 64212
+        }
+      }
+    }
+  ]
+}

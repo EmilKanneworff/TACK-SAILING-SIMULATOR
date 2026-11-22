@@ -11,3 +11,70 @@ test('trim responds through its range across headings and boat speeds',async({pa
  fs.writeFileSync('gennemgang/trim-malinger.json',JSON.stringify(rows,null,2));
  for(const row of rows){expect(row.immediate).toBeLessThan(row.first);expect(row.last).toBeLessThan(.02);expect(row.output.every(v=>Number.isFinite(v.drive)&&Number.isFinite(v.boom)&&Number.isFinite(v.heel))).toBe(true);expect(Math.max(...row.output.map(v=>v.drive))-Math.min(...row.output.map(v=>v.drive))).toBeGreaterThan(1);expect(Math.max(...row.output.map(v=>v.boom))-Math.min(...row.output.map(v=>v.boom))).toBeGreaterThan(.02);for(let i=1;i<row.output.length;i++)expect(row.output[i].limit).toBeLessThan(row.output[i-1].limit)}
 });
+
+test('easing the visible mainsheet from 50 to 0 releases the boom during free sailing',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.click('#startButton');
+ await page.evaluate(()=>{
+  const {state,env}=SAILING_GAME, P=SailPhysics;
+  Object.assign(env,{speed:6,direction:0,gusts:0,waveHeight:0,chop:0,shelter:false});
+  const boat=TackSimulation.createBoat('laser',{x:0,y:-9500,time:state.time,theta:22*P.DEG,
+   vx:0,vy:0,sheet:P.sheetFromTrim(.5,state),boom:.6,crewPose:2,crewSide:1},env);
+  Object.assign(state,boat);
+ });
+ const slider=page.locator('#sheetControl');
+ await slider.fill('50');
+ await page.waitForFunction(()=>Math.abs(SAILING_GAME.state.sheet-SailPhysics.sheetFromTrim(.5,SAILING_GAME.state))<.001);
+ await expect(page.locator('#sheetValue')).toHaveText('50,0 %');
+ const before=await page.evaluate(()=>({time:SAILING_GAME.state.time,boom:SAILING_GAME.state.boom}));
+ await slider.fill('0');
+ await page.waitForFunction(()=>SAILING_GAME.state.sheet===0);
+ await expect(page.locator('#sheetValue')).toHaveText('0,0 %');
+ const after=await page.evaluate(()=>({time:SAILING_GAME.state.time,boom:SAILING_GAME.state.boom}));
+ expect(after.time-before.time).toBeLessThan(.9);
+ expect(Math.abs(after.boom)).toBeGreaterThan(Math.abs(before.boom)+.2);
+});
+
+test('the held haul key crosses 0 to 50 faster than 50 to 100 and taps are fine near full trim',async({page})=>{
+ await page.clock.install();
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.click('#startButton');
+ await page.evaluate(()=>{
+  const {state,env}=SAILING_GAME;
+  Object.assign(env,{speed:0,gusts:0,waveHeight:0,chop:0,shelter:false});
+  Object.assign(state,TackSimulation.createBoat('laser',{x:0,y:-9500,time:state.time,sheet:0,crewPose:1},env));
+ });
+ const slider=page.locator('#sheetControl');
+ const reading=()=>page.evaluate(()=>{
+  const {applied,time}=SAILING_GAME.sheetDiagnostics;
+  return {applied,time};
+ });
+ await slider.fill('0');
+ await page.clock.runFor(1000);
+ const start=await reading();
+ expect(start.applied).toBeCloseTo(0,3);
+ await page.locator('#sea').focus();
+ await page.keyboard.down('ArrowUp');
+ let middle,end;
+ for(let i=0;i<25&&!end;i++){
+  await page.clock.runFor(200);
+  const value=await reading();
+  if(value.applied>=50)middle??=value;
+  if(value.applied>=99.99)end=value;
+ }
+ await page.keyboard.up('ArrowUp');
+ expect(middle).toBeDefined();
+ expect(end).toBeDefined();
+ expect(end.time-middle.time).toBeGreaterThan((middle.time-start.time)*1.3);
+
+ await slider.fill('85');
+ await page.clock.runFor(650);
+ await page.locator('#sea').focus();
+ const before=(await reading()).applied;
+ expect(before).toBeCloseTo(85,2);
+ await page.keyboard.press('ArrowUp');
+ await page.clock.runFor(120);
+ const change=(await reading()).applied-before;
+ expect(change).toBeGreaterThan(0);
+ expect(change).toBeLessThan(.5);
+});

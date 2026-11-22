@@ -1,26 +1,144 @@
 :root{
+ --control-radius:11px;
+ --card-radius:16px;
+ --dialog-radius:20px;
+ --select-caret:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='m1.5 1.5 4.5 4.5 4.5-4.5' fill='none' stroke='%23c4e0df' stroke-width='1.65' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
  --rail-stack:244px;
  --chart-room:calc(100dvh - var(--rail-bottom) - var(--rail-stack) - 2 * var(--edge));
  --small-chart-height:max(156px,min(295px,var(--chart-room)));
 }
+details > summary{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ min-height:40px;padding:8px 13px;border:1px solid var(--detail-border,var(--line));border-radius:var(--control-radius);
+ background:var(--detail-background,#a0d0d012);list-style:none;line-height:1.3;overflow-wrap:anywhere;
+}
+details > summary::-webkit-details-marker{display:none}
+details > summary::after{
+ content:"";flex:0 0 auto;width:8px;height:8px;margin-inline:2px;
+ border:solid currentColor;border-width:0 1.5px 1.5px 0;transform:translateY(-2px) rotate(45deg);
+}
+details[open] > summary::after{transform:translateY(2px) rotate(225deg)}
+details[open] > summary{margin-bottom:8px}
+details > summary:hover{background:var(--detail-hover,#a0d0d01e)}
+details > summary:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+#intro{
+ --detail-background:#e5eeea;
+ --detail-hover:#dbeae4;
+ --detail-border:#aebfb8;
+ --select-caret:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='m1.5 1.5 4.5 4.5 4.5-4.5' fill='none' stroke='%23274e53' stroke-width='1.65' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+#intro :is(select,summary,button):focus-visible{outline-color:#17695d}
+
+:is(#intro,#settings,#telemetryPanel,#racePreview,#courseEditor) select,
+#hud .map-tools select{
+ appearance:none;min-width:0;max-width:100%;
+ padding:8px 36px 8px 12px;border:1px solid #70939a;border-radius:var(--control-radius);
+ background:var(--select-caret) right 13px center / 12px 8px no-repeat #1b414c;
+ color:#f5f7f1;font-size:inherit;line-height:1.2;text-overflow:ellipsis;
+}
+#intro select{
+ color-scheme:light;border-color:#94ada7;
+ background-color:#f8faf5;color:#193b44;
+}
+#intro #introDifficulty{min-width:104px}
+#introBoat{min-height:44px}
+@media(forced-colors:active){
+ :is(#intro,#settings,#telemetryPanel,#racePreview,#courseEditor) select,
+ #hud .map-tools select{appearance:auto;background-image:none;padding-inline-end:12px}
+}
+
+.modal,#settings.drawer{border-radius:var(--dialog-radius)}
+.sailing-dock,.telemetry-panel{border-radius:var(--card-radius)}
+.modal .close,#settings .close,#telemetryClose{border-radius:var(--control-radius)}
+#telemetryClose{
+ display:grid;place-items:center;flex:none;width:40px;height:40px;padding:0;margin-left:0;
+ border:1px solid var(--line);background:#a0d0d012;line-height:1;
+}
+.telemetry-panel > header{column-gap:12px}
+.sailing-menu button,.intro-setup-actions button,#downwindControls button{border-radius:var(--control-radius)}
+
+body.boat-comparison{
+ overflow:auto;
+ background:#0b232d;
+ color:#eef4f1;
+}
+body.boat-comparison > :not(#boatComparison):not(script){display:none!important}
+#boatComparison{
+ --comparison-padding:clamp(16px,3vw,42px);
+ --comparison-aspect:2;
+ --comparison-min-width:900px;
+ --comparison-fit:calc((100dvh - 258px) * var(--comparison-aspect));
+ max-width:min(1740px,calc(max(var(--comparison-min-width),var(--comparison-fit)) + 2 * var(--comparison-padding) + 2px));
+ margin-inline:auto;
+ padding:var(--comparison-padding);
+}
+.comparison-header{
+ display:flex;
+ flex-wrap:wrap;
+ align-items:center;
+ justify-content:space-between;
+ gap:16px;
+ margin-bottom:clamp(18px,3vw,30px);
+}
+.comparison-header h1{margin:0;font-size:clamp(1.65rem,3.2vw,2.8rem);letter-spacing:-.035em;line-height:1.1}
+.comparison-header p,.comparison-scroll-note{margin:8px 0 0;color:#b4cfce}
+.comparison-back{
+ display:inline-flex;
+ align-items:center;
+ min-height:44px;
+ padding:0 14px;
+ border:1px solid #60858a;
+ border-radius:9px;
+ background:#173945;
+ color:#dcf7ee;
+ text-decoration:none;
+}
+.comparison-back:hover{background:#21505a}
+.comparison-viewport{
+ overflow-x:auto;
+ border:1px solid #4a7279;
+ border-radius:14px;
+ background:#143743;
+ scrollbar-color:#63958f #143743;
+}
+.comparison-viewport:focus-visible,.comparison-back:focus-visible{outline:2px solid #92e3d6;outline-offset:3px}
+.comparison-lineup{min-width:var(--comparison-min-width)}
+#comparisonSea{display:block;width:100%;aspect-ratio:var(--comparison-aspect);background:#4a7d89}
+#comparisonSea[hidden]{display:none}
+.comparison-labels{
+ display:grid;
+ list-style:none;
+ margin:0;
+ padding:0;
+ border-top:1px solid #4a7279;
+ text-align:center;
+}
+.comparison-labels li{padding:14px 4px 16px}
+.comparison-labels strong,.comparison-labels span{display:block}
+.comparison-labels strong{font-size:clamp(.81rem,1.45vw,1.05rem)}
+.comparison-labels span{margin-top:4px;color:#b6d8d2;font-variant-numeric:tabular-nums}
+.comparison-scroll-note{display:none;font-size:.875rem}
+@media(max-width:960px){.comparison-scroll-note{display:block}}
 #panelShade{position:fixed;inset:0;z-index:9;background:#051a2373;pointer-events:auto}
 #settings.drawer{z-index:22;left:auto;right:var(--edge);top:var(--edge);bottom:auto;
  width:min(400px,calc(100vw - 2 * var(--edge)));max-height:calc(100dvh - 2 * var(--edge));
  box-sizing:border-box;padding:16px 19px 13px;background:#102f3b;overscroll-behavior:contain;
- border:1px solid #60838c;border-radius:14px;color:#f2f5ee;overflow:auto}
+ border:1px solid #60838c;color:#f2f5ee;overflow:auto}
 #settings.drawer{padding-top:0;scroll-padding-top:60px}
 .settings-header{position:sticky;z-index:4;top:0;display:flex;justify-content:space-between;align-items:center;
  gap:10px;background:#102f3b;padding:9px 0 6px;border-bottom:1px solid #88b4bc36}
 #settings .close{position:static;width:44px;height:44px;min-width:44px;flex:none;margin:0;
- background:#214651;border:1px solid #60838c;border-radius:9px}
+ background:#214651;border:1px solid #60838c}
 #settings h2{margin:0;font-size:1.36rem;line-height:1.3;letter-spacing:0}
 #settings h3{font-size:.93rem;line-height:1.2;margin:14px 0 5px;color:#b8e1dd}
 #settings .weather-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 9px;align-items:center;
  min-height:44px;padding:4px 0;border-top:1px solid #88b4bc2c;font-size:.83rem;line-height:1.2}
+#settings .weather-row label{overflow-wrap:anywhere}
 .weather-row output{justify-self:end;color:#e9f3ef;text-align:right;font-variant-numeric:tabular-nums;min-width:5ch}
 .weather-row:has(input[type=range]) output{white-space:normal;max-width:16ch}
 .weather-row input[type=range]{grid-column:1/-1;margin:0;min-height:31px;width:100%;accent-color:#8de5d6}
-.weather-row select,.map-tools select{border:1px solid #70939a;border-radius:7px;color:#f5f7f1;background:#1b414c;min-height:44px;padding:2px 7px;font-size:inherit}
+#settings .weather-row select{min-height:44px;width:100%}
 #settings.drawer:has(#weatherControls:not([hidden])){
  width:min(500px,calc(100vw - 2 * var(--edge)));padding-inline:clamp(14px,4vw,22px)
 }
@@ -64,7 +182,8 @@
  display:flex;justify-content:space-between;padding-inline:calc(var(--weather-thumb) / 2);margin-bottom:6px
 }
 #weatherControls .weather-compass span{display:grid;place-content:center;width:0;white-space:nowrap}
-#weatherControls .weather-endpoints{display:flex;justify-content:space-between}
+#weatherControls .weather-endpoints{display:flex;justify-content:space-between;gap:12px}
+#weatherControls .weather-endpoints span:last-child{text-align:right}
 #weatherControls .weather-note{
  margin:0;font-size:.82rem;line-height:1.35;color:#c4dbdf
 }
@@ -77,13 +196,14 @@
 @media(pointer:coarse){#weatherControls .weather-range input{height:44px}}
 #hud .course-card{
  position:fixed;top:0;right:0;left:auto;z-index:8;
- display:block;overflow:hidden;border:0;border-radius:0 0 0 12px;background:#0b2b36;
+ display:block;overflow:hidden;border:0;border-radius:0 0 0 var(--card-radius);background:#0b2b36;
  width:clamp(168px,var(--map-width,var(--chart-width,286px)),100%);
  height:var(--map-height,var(--chart-height,214px));max-height:var(--map-limit,var(--small-chart-height))
 }
 #hud .course-card[hidden],.course-card.free-card .map-race-status{display:none}
 #hud .course-card #map{position:absolute;inset:0;display:block;width:100%;height:100%;min-height:0}
 #hud .course-card #map:focus-visible{outline:2px solid var(--teal);outline-offset:-2px}
+#hud .telemetry-panel{z-index:13;background:#112f3b}
 .map-attribution{
  position:absolute;right:4px;bottom:3px;padding:1px 4px;border-radius:3px;
  color:#d4e3e3;background:#0b2b36d9;font-size:9px;line-height:1.25
@@ -114,14 +234,16 @@
 .course-card:has(:focus-visible,.map-resize.dragging) .map-controls{visibility:visible}
 .map-details{
  position:absolute;top:37px;left:5px;right:5px;max-height:calc(100% - 107px);overflow:auto;
- border-radius:6px;background:#0b2b36f0;pointer-events:auto
+ border-radius:var(--control-radius);background:#0b2b36f0;pointer-events:auto
 }
 #hud .map-tools{
  position:absolute;bottom:28px;left:5px;right:5px;pointer-events:auto;
- display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;align-items:center;padding:3px;
- border-radius:7px;background:#102f3bf5
+ display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;padding:4px;
+ border-radius:var(--control-radius);background:#102f3bf5
 }
-#hud .map-tools button,#hud .map-tools select{min-height:34px;font-size:.68rem;line-height:1.15;padding:3px 6px}
+#hud .map-tools button,#hud .map-tools select{min-height:34px;font-size:.68rem;line-height:1.15}
+#hud .map-tools button{padding:3px 6px}
+#hud .map-tools select{width:100%;padding:4px 26px 4px 8px;background-position:right 8px center}
 .map-resize{
  position:absolute;bottom:0;left:0;display:grid;place-items:end start;width:42px;height:28px;
  padding:0 0 6px 8px;border-radius:0 7px 0 0;background:#0b2b36eb;pointer-events:auto;
@@ -137,11 +259,10 @@
 #hud .map-zoom button{min-width:27px}
 #hud .map-zoom button:first-child{border-radius:7px 0 0 7px}
 #hud .map-zoom button:last-child{border-radius:0 7px 7px 0}
-#hud .map-tools select{width:100%;text-overflow:ellipsis}
 .map-note{margin:0;padding:2px 8px 5px;color:#bcd2d5;font-size:.66rem;line-height:1.25}
 .sailing-dock,#settings,.map-tools{font-variant-numeric:tabular-nums}
-#hud .tools .icon{min-height:44px}
-#hud .tools{max-height:calc(100dvh - var(--rail-bottom) - var(--small-chart-height) - var(--edge) - 9px)}
+#hud .tools .icon{min-height:44px;border-radius:var(--control-radius)}
+#hud .tools{gap:6px;max-height:calc(100dvh - var(--rail-bottom) - var(--small-chart-height) - var(--edge) - 9px)}
 body.clear-view #hud .course-card{display:none}
 @media(max-width:850px){
  :root{--rail-stack:240px;--chart-width:255px;--chart-height:166px}
@@ -184,7 +305,6 @@ body.clear-view #hud .course-card{display:none}
 .editor-actions button:not(.primary){padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:#20434c}
 .editor-actions label,.editor-extra>label{display:grid;gap:3px}
 .editor-extra{margin:8px 0;border-top:1px solid var(--line);padding:6px 0;font-size:.85rem}
-.editor-extra summary{cursor:pointer;padding:5px 0}
 #editorImport{max-width:100%}
 @media(max-width:440px){.editor-fields{grid-template-columns:1fr}#courseEditor .modal{padding:13px}}
 
