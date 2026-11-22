@@ -5,6 +5,8 @@
   const protocol=globalThis.TackLiveProtocol, reconnectMs=30000, sessionKey='tack.live.session';
   const phases={lobby:'Venter på start',free:'Fri sejlads',countdown:'Nedtælling',race:'Kapsejlads',results:'Resultater'};
   let ws,room,adapter,fleet,pending,retryTimer,openTimer,reconnectDeadline=0,attempt=0;
+  let worker,workerRun;
+
   const message=text=>{ $('lobbyMessage').textContent=text; };
   const send=data=>{
     if(ws?.readyState===WebSocket.OPEN&&ws.bufferedAmount<65536) {
@@ -49,7 +51,8 @@
     const ready=$('lobbyReady');
     ready.textContent=self?.ready?'Meld ikke klar':'Meld klar';
     ready.setAttribute('aria-pressed',String(Boolean(self?.ready)));
-    $('lobbyCount').textContent=`${info.players.length} / 6 spillere`;
+    $('lobbyCount').textContent=`${info.players.length} / ${room.capacity} spillere`;
+    $('lobbyAuthority').hidden=room.authority!=='browser';
     $('lobbyPlayers').replaceChildren(...info.players.map(p=>{
       const li=document.createElement('li');
       const flag=p.host?' · Vært':'';
@@ -65,6 +68,7 @@
     if(info.settings.courseVariant!=='custom')$('lobbyCourse').value=info.settings.courseType+':'+info.settings.courseVariant;
     if(!room.host||!fleet.inWorld)adapter.weather(info.env);
     fleet.roster(info.players,info.phase);
+    if(info.phase==='lobby'||!room.host)stopWorker();
     view();
   }
   function saveSession(value){
@@ -73,19 +77,47 @@
       else sessionStorage.removeItem(sessionKey);
     }catch{}
   }
+  function stopWorker(){
+    worker?.terminate();
+    worker=undefined;
+    workerRun=undefined;
+  }
+  function onAuthority(data){
+    if(!room.host||room.authority!=='browser')return;
+    if(data.action==='start'){
+      stopWorker();
+      workerRun=data.run;
+      try{
+        const simulation=new Worker(new URL('assets/live-worker.js',document.baseURI));
+        simulation.onmessage=event=>{
+          if(worker===simulation)send(event.data);
+        };
+        simulation.onerror=()=>{
+          if(worker===simulation)send({type:'authority-failed',run:workerRun,message:'Værtens browser kunne ikke starte sejladsen. Prøv igen.'});
+        };
+        worker=simulation;
+      }catch{
+        send({type:'authority-failed',run:workerRun,message:'Værtens browser kunne ikke starte sejladsen. Prøv igen.'});
+      }
+    }
+    if(data.run===workerRun&&worker)worker.postMessage(data);
+    else if(data.action==='resume')
+      send({type:'authority-failed',run:data.run,message:'Værtens fane blev lukket eller genindlæst. Start igen fra lobbyen.'});
+  }
   function stop(text,open=false){
     clearTimeout(retryTimer);clearTimeout(openTimer);
     reconnectDeadline=attempt=0;
     const socket=ws;ws=null;
     if(socket?.readyState<2)socket.close();
     const active=fleet.inWorld;
-    fleet.clear();room=null;saveSession(null);setPending(null);view();
+    stopWorker();fleet.clear();room=null;saveSession(null);setPending(null);view();
     adapter.wait(false);
     if(active&&open)adapter.openPanel('lobbyPanel',null,false);
     message(text);
   }
   function retry(credentials){
     if(!reconnectDeadline)reconnectDeadline=Date.now()+reconnectMs;
+    worker?.postMessage({action:'pause',run:workerRun});
     if(fleet.inWorld){fleet.synced=false;adapter.wait(true);}
     const remaining=reconnectDeadline-Date.now();
     if(remaining<=0){stop('Sessionen er afsluttet. Prøv at tilslutte dig igen.',true);return;}
@@ -113,7 +145,7 @@
           return;
         }
         clearTimeout(openTimer);clearTimeout(retryTimer);reconnectDeadline=attempt=0;setPending(null);
-        room={code:m.code,session:m.session,id:m.id,token:m.token,host:m.host,phase:m.phase,settings:m.settings,nextSeq:m.nextSeq};
+        room={code:m.code,session:m.session,id:m.id,token:m.token,host:m.host,phase:m.phase,settings:m.settings,nextSeq:m.nextSeq,authority:m.authority,capacity:m.capacity};
         saveSession(room);
         adapter.weather(m.env);
         fleet.joined(room,m.players);
@@ -121,6 +153,11 @@
         message(recovering?'Forbindelsen er gendannet.':'Forbundet.');
       }else if(m.type==='roster'&&m.session===room?.session){
         roster(m);
+      }else if(m.type==='authority'&&m.session===room?.session){
+        onAuthority(m);
+      }else if(m.type==='authority-status'&&m.session===room?.session){
+        adapter.wait(m.waiting,'Værtens sejlads venter · hold fanen åben');
+        if(m.message)message(m.message);
       }else if(m.type==='closed'&&m.session===room?.session){
         stop(m.message,true);
       }else if(m.type==='error'){

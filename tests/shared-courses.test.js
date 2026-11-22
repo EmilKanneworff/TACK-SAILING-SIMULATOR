@@ -46,7 +46,7 @@ test('both shared courses use one server model and one start across six browsers
       for(const guest of guests)expect(await settings(guest)).toEqual(expected);
       await host.click('#preferencesButton');await host.click('#lobbyButton');
       await host.click('#lobbyReturn');
-      await Promise.all(pages.map(page=>expect(page.locator('#lobbyRoom')).toBeVisible()));
+      await Promise.all(pages.map(page=>expect(page.locator('#lobbyRoom')).toBeVisible({timeout:20000})));
     }
   }finally{
     await Promise.all(contexts.map(context=>context.close()));

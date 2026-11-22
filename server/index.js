@@ -10,8 +10,9 @@ const { RoomSimulation,Sim,neutral,roomWeather } = require('./room');
 
 const PORT = Number(process.env.PORT || 3001);
 const HOST = process.env.HOST || '0.0.0.0';
-const MAX_PLAYERS = 6, GRACE_MS = 30000, LOBBY_TTL = 60*60*1000;
-const MAX_MESSAGE = 65536, MAX_BUFFER = 256*1024;
+const browserAuthority = process.env.TACK_LIVE_AUTHORITY === 'browser';
+const MAX_PLAYERS = browserAuthority ? 2 : 6, GRACE_MS = 30000, LOBBY_TTL = 60*60*1000;
+const MAX_MESSAGE = browserAuthority ? 128*1024 : 65536, MAX_BUFFER = 256*1024;
 const playerPalette = ['#fbbf4c','#63cbd7','#ee785c','#bd9cf5','#8dcc6b','#ef89ba'];
 const rooms = new Map(), attempts = new Map();
 const origins = (process.env.TACK_WEB_ORIGINS || '').split(',').map(value=>value.trim()).filter(Boolean);
@@ -20,7 +21,7 @@ const build = process.env.RENDER_GIT_COMMIT || process.env.TACK_BUILD || (() => 
   try { return execFileSync('git',['rev-parse','--short','HEAD'],{ encoding:'utf8',stdio:['ignore','pipe','ignore'] }).trim(); }
   catch { return 'local'; }
 })();
-const identity = { protocol, build, world: Sim.map.version };
+const identity = { protocol, build, world: Sim.map.version, authority:browserAuthority?'browser':'server',capacity:MAX_PLAYERS };
 const log = (event, room, player, details = {}) => console.log(JSON.stringify({
   event, room: room?.id, player: player?.id, ...details
 }));
@@ -42,10 +43,31 @@ const members = room => [...room.players.values()].map(p=>({
   id:p.id,name:p.name,boat:p.boat,color:p.color,ready:p.ready,connected:!!p.ws,host:p.id===room.hostId
 }));
 const roomInfo = room => ({ phase:room.sim.phase, settings:room.sim.settings, env:room.sim.env, players:members(room), hostId:room.hostId });
-const roster = room => emit(room,{ type:'roster', ...roomInfo(room) });
+function roster(room) {
+  emit(room,{type:'roster',...roomInfo(room)});
+  if(room.run&&room.sim.phase!=='lobby')authority(room,'players',{players:authorityPlayers(room)});
+}
+function authorityPlayers(room) {
+  return members(room).map(player=>({...player,slot:room.players.get(player.id).slot}));
+}
+function authority(room,action,fields={}) {
+  send(room.players.get(room.hostId)?.ws,{type:'authority',session:room.id,run:room.run,action,...fields});
+}
+function waitForHost(room,waiting) {
+  if (room.waitingForHost===waiting) return;
+  room.waitingForHost=waiting;
+  emit(room,{type:'authority-status',waiting});
+}
+function resetLobby(room) {
+  room.sim.lobby();
+  room.relayState=null;
+  room.waitingForHost=false;
+  for(const player of room.players.values())player.ready=false;
+}
 const snapshot = (room,ws) => {
-  if (!room.sim.boats.size) return;
-  const message = { type:'snapshot',session:room.id,seq:++room.seq,sentAt:performance.now(),state:room.sim.packet() };
+  const state = browserAuthority ? room.relayState : room.sim.boats.size ? room.sim.packet() : null;
+  if (!state) return;
+  const message = {type:'snapshot',session:room.id,seq:++room.seq,sentAt:performance.now(),state};
   if (ws) send(ws,message);
   else emit(room,message,true);
 };
@@ -62,16 +84,21 @@ function joined(ws,room,p) {
     nextSeq:p.lastSeq+1,host:p.id===room.hostId,...roomInfo(room) });
   roster(room);
   snapshot(room,ws);
+  if(browserAuthority&&room.sim.phase!=='lobby'){
+    if(p.id===room.hostId)authority(room,'resume');
+    if(room.waitingForHost)send(ws,{type:'authority-status',session:room.id,waiting:true});
+  }
 }
 
 function add(ws,room,name,boat) {
-  const used = new Set([...room.players.values()].map(p=>p.color));
-  const p = { id:id(),token:id()+id(),name:name.trim(),boat,ws,ready:false,color:playerPalette.find(c=>!used.has(c)),
+  const used = new Set([...room.players.values()].map(p=>p.slot));
+  const slot = playerPalette.findIndex((_,index)=>!used.has(index));
+  const p = { id:id(),token:id()+id(),name:name.trim(),boat,ws,ready:false,slot,color:playerPalette[slot],
     lastSeq:-1,inputAt:0,control:neutral(),timer:null };
   // Membership and code reservation run synchronously on one process.
   room.players.set(p.id,p);
   if (!room.hostId) room.hostId=p.id;
-  room.sim.add(p,room.players);
+  room.sim.add(p);
   joined(ws,room,p);
   log(room.players.size===1?'create':'join',room,p);
 }
@@ -97,6 +124,7 @@ function remove(room,p) {
     return;
   }
   if (room.hostId===p.id) {
+    if(browserAuthority&&room.sim.phase!=='lobby')resetLobby(room);
     const players = [...room.players.values()];
     room.hostId = (players.find(player=>player.ws) || players[0]).id;
     log('host-transfer',room,room.players.get(room.hostId));
@@ -114,6 +142,7 @@ function disconnect(ws,explicit=false) {
   p.control=neutral(p.control);
   log(explicit?'leave':'disconnect',room,p);
   if (explicit) return remove(room,p);
+  if(browserAuthority&&room.sim.phase!=='lobby'&&p.id===room.hostId)waitForHost(room,true);
   p.timer=setTimeout(()=>{ if (!p.ws) remove(room,p); },GRACE_MS);
   p.timer.unref();
   roster(room);
@@ -172,14 +201,17 @@ function connect(ws,m) {
 function readControl(m,boat) {
   const validUnit=value=>value===undefined||Number.isFinite(value)&&Math.abs(value)<=1;
   const validSwitch=value=>value===undefined||typeof value==='boolean';
+  const inRange=(value,min,max)=>value===undefined||Number.isFinite(value)&&value>=min&&value<=max;
   if (!Number.isSafeInteger(m.seq)||m.seq<0||!Number.isFinite(m.steer)||!validUnit(m.steer)||
       !Number.isFinite(m.trim)||!validUnit(m.trim)||![1,2,3].includes(m.crewPose)||
       (m.difficulty!==undefined&&!['easy','hard'].includes(m.difficulty))||!validUnit(m.crew)||!validUnit(m.foreAft)||
       ![m.trimFast,m.steerDigital,m.spinnaker,m.ironsHelp].every(validSwitch)||
+      !inRange(m.controlRate,.6,1.6)||!inRange(m.controlSensitivity,.5,1.5)||!inRange(m.motionDamping,.6,1.6)||
       (m.downwindType!==undefined&&!['spinnaker','gennaker','code0'].includes(m.downwindType))) return null;
   const control={ steer:m.steer,trim:m.trim,crew:m.crew??0,foreAft:m.foreAft??0,crewPose:m.crewPose,
     difficulty:m.difficulty??'hard',ironsHelp:m.ironsHelp??false,spinnaker:m.spinnaker??false,
-    downwindType:m.downwindType??'spinnaker',trimFast:m.trimFast??true,steerDigital:m.steerDigital??true };
+    downwindType:m.downwindType??'spinnaker',trimFast:m.trimFast??true,steerDigital:m.steerDigital??true,
+    controlRate:m.controlRate??1,controlSensitivity:m.controlSensitivity??1,motionDamping:m.motionDamping??1 };
   if (m.rig===undefined) return control;
   const rig=m.rig;
   const sheet=value=>value===undefined||Number.isFinite(value)&&value>=0&&value<=1;
@@ -189,6 +221,39 @@ function readControl(m,boat) {
       (boat==='ac75'&&[rig.headsail,rig.jibSheet,rig.extraSheet].some(value=>value!==undefined))) return null;
   control.rig={reef:rig.reef,headsail:rig.headsail,jibSheet:rig.jibSheet,extraSheet:rig.extraSheet};
   return control;
+}
+
+function receiveAuthorityFrame(ws,room,m) {
+  const state=m.state,phase=room.sim.phase;
+  if (m.run!==room.run||phase==='lobby') return;
+  if(!state||state.serial!==room.run||!Number.isFinite(state.time)||state.time<0||
+    !state.boats||typeof state.boats!=='object'||Array.isArray(state.boats)||
+    state.mode!==room.sim.settings.mode||
+    (state.mode==='course'&&(!state.model||state.model.type!==room.sim.settings.courseType||
+      state.model.variant!==room.sim.settings.courseVariant||!Array.isArray(state.model.route)))||
+    !state.boats[room.hostId]||Object.keys(state.boats).length>MAX_PLAYERS)
+    return fail(ws,'Værtens sejlads kunne ikke synkroniseres.','authority');
+  if (room.relayState && state.time<=room.relayState.time) return;
+  const now=performance.now();
+  if(room.relayState&&now-room.relayAt<35)return;
+  const keep=(entries)=>Object.fromEntries([...room.players.keys()].filter(id=>Object.hasOwn(entries??{},id)).map(id=>[id,entries[id]]));
+  const boats = keep(state.boats);
+  if(Object.values(boats).some(boat=>!boat||!validBoat(boat.boatId)||
+    ![boat.time,boat.x,boat.y,boat.theta,boat.heave,boat.heel,boat.pitch,boat.vx,boat.vy].every(Number.isFinite)))
+    return fail(ws,'Værten sendte en ugyldig bådtilstand.','authority');
+  const races=keep(state.races);
+  room.relayAt=now;
+  const results=[...room.players.values()].filter(p=>races[p.id]?.finished&&
+    Number.isFinite(races[p.id].time)&&races[p.id].time>=0)
+    .map(p=>({id:p.id,name:p.name,boat:p.boat,time:races[p.id].time})).sort((a,b)=>a.time-b.time);
+  room.relayState={serial:room.run,time:state.time,mode:state.mode,env:room.sim.env,boats,races,results,
+    model:state.mode==='course'?state.model:undefined,acks:keep(state.acks)};
+  if (phase==='countdown'&&['race','results'].includes(m.phase)) room.sim.phase='race';
+  if (room.sim.phase==='race'&&m.phase==='results'&&Object.keys(races).length===room.players.size&&
+      Object.values(races).every(race=>race?.finished)) room.sim.phase='results';
+  if(room.sim.phase!==phase)roster(room);
+  waitForHost(room,false);
+  snapshot(room);
 }
 
 function handle(ws,m) {
@@ -214,13 +279,24 @@ function handle(ws,m) {
       if (sim.boats.has(p.id)) sim.spawn(p);
       roster(room);
       return snapshot(room);
+    case 'authority-frame':
+      if(!browserAuthority||!isHost) return fail(ws,'Kun værten kan sende sejladsens tilstand.','host');
+      return receiveAuthorityFrame(ws,room,m);
+    case 'authority-failed':
+      if(!browserAuthority||!isHost) return fail(ws,'Kun værten kan afslutte værtens simulation.','host');
+      if(m.run!==room.run||sim.phase==='lobby')return;
+      resetLobby(room);
+      roster(room);
+      return emit(room,{type:'authority-status',waiting:false,
+        message:typeof m.message==='string'?m.message.trim().slice(0,160):'Værtens sejlads blev lukket. Start igen fra lobbyen.'});
     case 'input': {
-      if (!sim.boats.has(p.id)) return;
+      if (browserAuthority?sim.phase==='lobby':!sim.boats.has(p.id)) return;
       const control=readControl(m,p.boat);
       if (!control || m.seq<=p.lastSeq) return fail(ws,'Ugyldigt eller forældet input.');
       p.lastSeq=m.seq;
       p.inputAt=performance.now();
       p.control=control;
+      if(browserAuthority)authority(room,'input',{id:p.id,seq:p.lastSeq,control});
       return;
     }
     case 'settings':
@@ -232,19 +308,32 @@ function handle(ws,m) {
   }
   if (m.type==='settings') {
     if (m.settings && !sim.configure(m.settings)) return fail(ws,'Ugyldig spiltype eller bane.');
-    if (m.env) sim.changeWeather(m.env);
+    if (m.env){
+      sim.changeWeather(m.env);
+      if(browserAuthority&&sim.phase!=='lobby')authority(room,'weather',{env:sim.env});
+    }
     return roster(room);
   }
   if (m.type==='start') {
     if (['countdown','race'].includes(sim.phase) && (m.settings?.mode??sim.settings.mode)==='course') return fail(ws,'Løbet er allerede i gang.');
     const previous=sim.settings;
     if (m.settings && !sim.configure(m.settings)) return fail(ws,'Ugyldig spiltype eller bane.');
+    if(browserAuthority){
+      room.run=(room.run??0)+1;
+      room.relayState=null;
+      room.relayAt=performance.now();
+      room.waitingForHost=false;
+      sim.phase=sim.settings.mode==='course'?'countdown':'free';
+      roster(room);
+      authority(room,'start',{settings:sim.settings,env:sim.env,players:authorityPlayers(room),draft:m.draft});
+      log('start',room,p,{phase:sim.phase,authority:'browser'});
+      return;
+    }
     try { sim.start(room.players,m.draft); }
     catch (err) { sim.settings=previous; return fail(ws,err.message,'course'); }
     log('start',room,p,{ phase:sim.phase });
   } else {
-    sim.lobby();
-    for (const player of room.players.values()) player.ready=false;
+    resetLobby(room);
   }
   roster(room);
   snapshot(room);
@@ -293,15 +382,28 @@ setInterval(()=>{
   const now=Date.now();
   for (const [ip,times] of attempts) if (now-times.at(-1)>60000) attempts.delete(ip);
   for (const room of rooms.values()) {
-    if (room.sim.boats.size || now-room.updated<LOBBY_TTL) continue;
+    if (room.sim.phase!=='lobby' || now-room.updated<LOBBY_TTL) continue;
     closeRoom(room,'Lobbyen er udløbet.');
   }
 },10000).unref();
 
+// A host that loses its transport retains its seat for the reconnect window.
+if(browserAuthority)setInterval(()=>{
+  const now=performance.now();
+  for(const room of rooms.values()){
+    if(room.sim.phase==='lobby')continue;
+    if(room.relayState&&now-room.relayAt>2500)waitForHost(room,true);
+    if(now-room.relayAt<45000)continue;
+    resetLobby(room);
+    roster(room);
+    emit(room,{type:'authority-status',waiting:false,message:'Værtens sejlads er stoppet. Start igen fra lobbyen.'});
+  }
+},1000).unref();
+
 // Fixed steps on one process. Collapse obsolete network frames independently
 // of the physics tick, and cap each burst so inbound input still runs.
 let lastUpdate=performance.now(),debt=0,lastSnapshot=lastUpdate;
-setInterval(()=>{
+if(!browserAuthority)setInterval(()=>{
   const now=performance.now(),dt=Sim.fixedDt*1000;
   debt+=now-lastUpdate;
   lastUpdate=now;

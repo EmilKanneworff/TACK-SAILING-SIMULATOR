@@ -648,6 +648,7 @@ body.easy-crew .pose-buttons{display:none}
       </div>
       <input id="lobbyInviteLink" type="text" readonly aria-label="Invitationslink" hidden>
       <p id="lobbyCount"></p>
+      <p id="lobbyAuthority" hidden>Værtens browser kører sejladsen. Hold fanen åben under spillet.</p>
       <ul id="lobbyPlayers" aria-label="Spillere"></ul>
       <p id="lobbySettingsSummary"></p>
       <div id="lobbySetup" hidden>
@@ -5094,8 +5095,8 @@ function input(){
   const crew=difficulty==='easy'?0:crewSideCommand;
   const foreAft=(controlPressed('KeyX')?1:0)-(controlPressed('KeyZ')?1:0)||foreAftTarget;
   const touch=helmPointer===null?pendingTouchSteer:touchSteer;
-  return {steer:steeringInput(touch),
-    steerDigital:touch===null,trimFast,trimKey,
+  return {steer:steeringInput(touch),controlRate:env.controlRate,
+    controlSensitivity:env.controlSensitivity,motionDamping:env.motionDamping,steerDigital:touch===null,trimFast,trimKey,
     trim:clamp(travel/travelLimit,-1,1),crew,foreAft,crewPose:env.crewPose,difficulty,
     ...(state.boatId==='yacht'?{rig:{...rigCommand}}:cfg.heavyAir?{rig:{reef:rigCommand.reef}}:{}),
     spinnaker:spinCommand,downwindType:spinType,ironsHelp:!!env.ironsHelp};
@@ -5663,8 +5664,8 @@ try{
     results:rows=>{
       $('raceResults').textContent=rows.length?'Resultater · '+rows.map((r,i)=>(i+1)+'. '+r.name+' · '+B.get(r.boat).name+' · '+timeText(r.time)).join(' | '):'';
     },
-    wait:waiting=>{
-      if(started&&paused!==waiting)setPause(waiting,'Forbindelsen er afbrudt · prøver igen');
+    wait:(waiting,reason='Forbindelsen er afbrudt · prøver igen')=>{
+      if(started&&paused!==waiting)setPause(waiting,reason);
     },
     enter:()=>{
       if(!started)startView('free');

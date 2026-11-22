@@ -3,11 +3,21 @@ const {test,expect}=require('@playwright/test');const {spawn}=require('node:chil
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
 test('two browser clients enter the same world and exchange independent steering',async({browser})=>{test.setTimeout(60000);const services=[spawn(process.execPath,['server/index.js'],{env:{...process.env,PORT:'33110'},stdio:['ignore','pipe','inherit']}),spawn(process.execPath,['server/static.js'],{env:{...process.env,FRONTEND_PORT:'34110'},stdio:['ignore','pipe','inherit']})];await Promise.all(services.map(p=>new Promise((r,j)=>{p.stdout.once('data',r);p.once('error',j)})));const contexts=[];try{for(let i=0;i<2;i++){let ctx=await browser.newContext();contexts.push(ctx);let p=await ctx.newPage();await p.addInitScript(()=>window.FRI_VIND_REALTIME_URL='ws://127.0.0.1:33110');p.on('pageerror',e=>console.log('PAGEERROR',i,e.message));await p.goto('http://127.0.0.1:34110');await p.waitForFunction(()=>!!window.SAILING_GAME);if(i)await p.selectOption('#introDifficulty','easy');await (await introOption(p, '#introLobby')).click();await p.fill('#lobbyName',i?'Gæst':'Vært');if(!i)await p.click('#lobbyCreate');else{await p.fill('#lobbyCodeInput',await contexts[0].pages()[0].locator('#lobbyCode').innerText());await p.click('#lobbyJoin')}await expect(p.locator('#lobbyRoom')).toBeVisible();}
  let host=contexts[0].pages()[0],guest=contexts[1].pages()[0];await host.click('#lobbySail');await host.waitForFunction(()=>FriVindLobby.fleet.actors.size===1,{timeout:15000});await guest.waitForFunction(()=>FriVindLobby.fleet.actors.size===1,{timeout:15000});await host.waitForFunction(()=>[...FriVindLobby.fleet.boats.values()][0]?.crewDifficulty==='easy');expect(await host.evaluate(()=>SAILING_GAME.state.crewDifficulty)).toBe('hard');const field=()=>{const s=SAILING_GAME.state,e=SAILING_GAME.env;return SailPhysics.waveAt(42,83,12,{...e,waveCurrent:s.seaState,waveProfile:s.waveProfile}).height};const hostWave=await host.evaluate(field),guestWave=await guest.evaluate(field);expect(guestWave).toBeCloseTo(hostWave,3);
+ const observed=page=>page.evaluate(()=>({remote:[...FriVindLobby.fleet.boats.values()][0].theta,own:SAILING_GAME.state.theta}));
+ for(const [helm,observer,key,intent] of [[guest,host,'ArrowRight',1],[host,guest,'ArrowLeft',-1]]){
+  await helm.bringToFront();
+  const before=await observed(observer);
+  await helm.keyboard.down(key);
+  try{
+   await observer.waitForFunction(intent=>[...FriVindLobby.fleet.boats.values()][0]?.steerIntent===intent,intent,{timeout:10000});
+   await observer.waitForFunction(before=>Math.abs(SailPhysics.wrap([...FriVindLobby.fleet.boats.values()][0].theta-before.remote))>.1,before,{timeout:10000});
+  }finally{await helm.keyboard.up(key);}
+  expect(Math.abs((await observed(observer)).own-before.own)).toBeLessThan(.25);
+ }
  await host.click('#settingsButton');await host.locator('#windDirection').fill('92');await host.locator('#windGusts').fill('.48');await host.keyboard.press('Escape');
  await guest.waitForFunction(()=>SAILING_GAME.env.direction===92&&SAILING_GAME.env.gusts===.48);
  const sharedWind=()=>SailPhysics.windAt(345,-155,12,SAILING_GAME.env,2);
  expect(await guest.evaluate(sharedWind)).toEqual(await host.evaluate(sharedWind));
- const before=await host.evaluate(()=>{const f=FriVindLobby.fleet;return {id:f.id,remote:[...f.boats.values()][0].theta,own:SAILING_GAME.state.theta}});await guest.keyboard.down('ArrowRight');await guest.waitForTimeout(1500);await guest.keyboard.up('ArrowRight');const after=await host.evaluate(()=>({remote:[...FriVindLobby.fleet.boats.values()][0].theta,own:SAILING_GAME.state.theta}));expect(Math.abs(after.remote-before.remote)).toBeGreaterThan(.1);expect(Math.abs(after.own-before.own)).toBeLessThan(.2);const guestBefore=await guest.evaluate(()=>[...FriVindLobby.fleet.boats.values()][0].theta);await host.keyboard.down('ArrowLeft');await host.waitForTimeout(1200);await host.keyboard.up('ArrowLeft');await guest.waitForFunction(before=>Math.abs(SailPhysics.wrap([...FriVindLobby.fleet.boats.values()][0].theta-before))>.1,guestBefore,{timeout:10000});
  }finally{await Promise.all(contexts.map(c=>c.close()));for(const s of services)s.kill()}});
 test('six isolated clients each see six independently configured boats',async({browser})=>{
  test.setTimeout(120000);

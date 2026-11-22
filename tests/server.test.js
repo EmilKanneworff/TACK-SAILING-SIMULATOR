@@ -98,6 +98,8 @@ test('the server sails boats, filters inputs and hands over while preserving ide
   assert.match((await next(guest,'error')).message,/forældet/);
   post(guest,input(session,2,{rig:{reef:20}}));
   assert.match((await next(guest,'error')).message,/Ugyldigt/);
+  post(guest,input(session,2,{controlRate:100}));
+  assert.match((await next(guest,'error')).message,/Ugyldigt/);
   post(guest,{type:'snapshot',session,seq:9,state:{time:9999}});
   assert.equal((await next(guest,'error')).message,'Ukendt besked.');
 
@@ -123,7 +125,7 @@ test('the server sails boats, filters inputs and hands over while preserving ide
   post(late,{type:'join',code:h.code,name:'Sen',boat:'laser'});
   assert.equal((await next(late,'error')).code,'race');
   post(guest,{type:'lobby',session});
-  await next(guest,'roster',m=>m.phase==='lobby');
+  await next(guest,'roster',m=>m.phase==='lobby'&&m.hostId===g.id);
   assert.equal((await join(late,h.code,'Sen')).session,session);
 });
 

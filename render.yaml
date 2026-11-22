@@ -14,3 +14,5 @@ services:
         value: 24.16.0
       - key: TACK_TRUST_PROXY
         value: "1"
+      - key: TACK_LIVE_AUTHORITY
+        value: browser
