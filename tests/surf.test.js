@@ -74,4 +74,5 @@ test('a following wave accelerates the dinghy on its face and brakes it on its b
  expect(result.flat.pressure).toBe(0);
  expect(result.face.log).toBeCloseTo(result.face.ground,8);
  expect(result.face.capsized).toBe(false);
+ console.log('Følgende bølge',JSON.stringify(result));
 });

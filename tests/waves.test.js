@@ -1,5 +1,19 @@
 const {test,expect}=require('@playwright/test');const {pathToFileURL}=require('node:url');const path=require('node:path');test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
 test('wave dispersion, surface derivatives and orbital velocities use one field',async({page})=>{await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);const v=await page.evaluate(()=>{let e={...SAILING_GAME.env,waveCurrent:.8},x=13,y=-8,t=9,h=.0001,w=SailPhysics.waveAt(x,y,t,e),wx=SailPhysics.waveAt(x+h,y,t,e),wy=SailPhysics.waveAt(x,y+h,t,e),wt=SailPhysics.waveAt(x,y,t+h,e),deep=SailPhysics.waveAt(x,y,t,e,100),shader=SAILING_GAME.scene.waveComponents;return {components:SailPhysics.WAVE_COMPONENTS.map(q=>({...q})),shader:shader.map(q=>({...q})),w,dx:(wx.height-w.height)/h,dy:(wy.height-w.height)/h,dt:(wt.height-w.height)/h,deep}});expect(v.components.filter(w=>!w.managedOnly)).toHaveLength(7);expect(v.components.filter(w=>w.windSea)).toHaveLength(6);expect(v.shader).toEqual(v.components);for(const w of v.components)expect(w.omega*w.omega).toBeCloseTo(9.82*Math.hypot(w.kx,w.ky),8);expect(v.dx).toBeCloseTo(v.w.dx,4);expect(v.dy).toBeCloseTo(v.w.dy,4);expect(v.dt).toBeCloseTo(v.w.velocity,4);expect(Math.hypot(v.deep.waterVx,v.deep.waterVy,v.deep.waterVz)).toBeLessThan(.00001)});
+test('one regular 2.5 metre wave has a 1.25 metre amplitude',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const result=await page.evaluate(()=>{
+  const P=SailPhysics,w=P.WAVE_COMPONENTS[0];
+  const env={waveHeight:2.5,chop:0,waveCurrent:1.25/w.amplitude,wavePeriod:P.BASE_WAVE_PERIOD,
+   direction:270,waveComponent:0,shelter:false};
+  const crest=P.waveAt((Math.PI/2-w.phase)/w.k,0,0,env).height;
+  const trough=P.waveAt((-Math.PI/2-w.phase)/w.k,0,0,env).height;
+  return {height:crest-trough,amplitude:(crest-trough)/2};
+ });
+ expect(result.height).toBeCloseTo(2.5,8);
+ expect(result.amplitude).toBeCloseTo(1.25,8);
+});
 test('five boats remain finite in moderate and hard wind with real waves',async({page})=>{
  test.setTimeout(90000);
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
@@ -26,7 +40,37 @@ test('five boats remain finite in moderate and hard wind with real waves',async(
  }
  expect(results.filter(r=>r.speed===20).every(r=>r.wave>1.4)).toBe(true);
 });
-test('weather height slider selects and phase in sea level',async({page})=>{await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);await page.click('#startButton');await page.click('#settingsButton');const before=await page.evaluate(()=>SAILING_GAME.state.seaState);await page.locator('#waveHeight').fill('0.85');expect(await page.evaluate(()=>SAILING_GAME.env.waveHeight)).toBe(.85);const now=await page.evaluate(()=>SAILING_GAME.state.seaState);expect(now).toBe(before);await page.keyboard.press('Escape');await page.waitForTimeout(450);expect(await page.evaluate(()=>SAILING_GAME.state.seaState)).toBeGreaterThan(now)});
+test('live sea settings apply while sailing and wait when manually paused',async({page})=>{
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+ await page.click('#startButton');
+ await page.click('#settingsButton');
+ const before=await page.evaluate(()=>SAILING_GAME.seaDiagnostics);
+ await page.locator('#waveHeight').fill('2.5');
+ await page.locator('#chop').fill('1');
+ const selected=await page.evaluate(()=>SAILING_GAME.seaDiagnostics);
+ expect(selected.selected).toEqual({waveHeight:2.5,chop:1});
+ await page.waitForFunction(before=>{
+  const {time,applied}=SAILING_GAME.seaDiagnostics;
+  return time>before.time&&applied.longOpen>=2.45&&applied.chop>.999;
+ },before);
+ const reached=await page.evaluate(()=>SAILING_GAME.seaDiagnostics);
+ console.log('Søindstilling under Fri sejlads',JSON.stringify({selected:selected.time,reached:reached.time,applied:reached.applied}));
+ await expect(page.locator('#liveSea')).toContainText('Aktuelt på åbent vand');
+ await page.keyboard.press('Escape');
+ await page.locator('#sea').focus();await page.keyboard.press('Space');
+ await page.click('#settingsButton');
+ const paused=await page.evaluate(()=>SAILING_GAME.seaDiagnostics);
+ await page.locator('#waveHeight').fill('0');
+ await page.locator('#chop').fill('0');
+ await expect(page.locator('#windLockNote')).toContainText('når du fortsætter');
+ expect(await page.evaluate(()=>SAILING_GAME.seaDiagnostics)).toMatchObject({
+  time:paused.time,applied:paused.applied,selected:{waveHeight:0,chop:0}
+ });
+ await page.keyboard.press('Escape');
+ await page.click('#resumeButton');
+ await page.waitForFunction(()=>SAILING_GAME.seaDiagnostics.applied.longOpen<.025&&SAILING_GAME.seaDiagnostics.applied.chop===0);
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem(SailingSettings.key)).weather)).toMatchObject({waveHeight:0,chop:0});
+});
 test('flat calm water has no horizontal energy source',async({page})=>{
  test.setTimeout(120000);
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
@@ -57,12 +101,13 @@ test('flat calm water has no horizontal energy source',async({page})=>{
 });
 test('a wind direction and sea change crossfade without jumping and share shader settings',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
- await page.click('#startButton');await page.click('#settingsButton');
+ await page.click('#startButton');await page.locator('#sea').focus();await page.keyboard.press('Space');await page.click('#settingsButton');
  const before=await page.evaluate(()=>({angle:SAILING_GAME.state.waveProfile.to.angle,t:SAILING_GAME.state.time}));
  await page.locator('#windDirection').fill('80');
  await page.locator('#waveHeight').fill('0.85');
  expect(await page.evaluate(()=>SAILING_GAME.state.time)).toBe(before.t);
  await page.keyboard.press('Escape');
+ await page.click('#resumeButton');
  await page.waitForFunction(time=>{const s=SAILING_GAME.state,u=SAILING_GAME.scene.waterUniforms;return s.time>time+.23&&u.waveBlend.value>0&&u.waveBlend.value<1;},before.t);
  const result=await page.evaluate(()=>{
   const {state:s,env,scene}=SAILING_GAME,P=SailPhysics,u=scene.waterUniforms;
@@ -84,14 +129,14 @@ test('GPU wave shader matches the physics field at sampled coordinates',async({p
  await page.waitForFunction(()=>window.SAILING_GAME);
  const values=await page.evaluate(()=>{
   const P=SailPhysics,T=THREE,g=SAILING_GAME,world=g.scene,renderer=world.renderer,time=7.5;
-  const env={...g.env,direction:0,speed:5,shelter:false};
+  const env={...g.env,direction:0,speed:5,waveHeight:2.5,chop:1,windSeed:189224,shelter:false};
   const s=P.createState({time},env);
   s.waveProfile={from:P.waveProfileFor(env),to:P.waveProfileFor({...env,direction:90,swellDirection:140,wavePeriod:8,shortSea:.7}),start:time-P.PROFILE_SECONDS/2};
   world.update(s,env,{marks:[]},1/60,{});
   const uniforms={...world.waterUniforms,coord:{value:new T.Vector2()}};
   const material=new T.ShaderMaterial({uniforms,vertexShader:'void main(){gl_Position=vec4(position,1.);}',
    fragmentShader:`uniform float time;uniform float sea;uniform vec2 coord;${world.waveShader}
-     void main(){gl_FragColor=vec4(.5+.4*wave(coord).x,(seaDepth(coord)+8.)/48.,0.,1.);}`});
+     void main(){gl_FragColor=vec4(.5+wave(coord).x/6.,(seaDepth(coord)+8.)/48.,0.,1.);}`});
   const scene=new T.Scene(),quad=new T.Mesh(new T.PlaneGeometry(2,2),material),camera=new T.OrthographicCamera(-1,1,1,-1,0,1);
   const target=new T.WebGLRenderTarget(1,1),old=renderer.getRenderTarget(),pixel=new Uint8Array(4);
   scene.add(quad);
@@ -108,7 +153,7 @@ test('GPU wave shader matches the physics field at sampled coordinates',async({p
    }
    uniforms.coord.value.set(x,-y);
    renderer.setRenderTarget(target);renderer.render(scene,camera);renderer.readRenderTargetPixels(target,0,0,1,1,pixel);
-   return {gpu:(pixel[0]/255-.5)/.4,cpu:P.waveAt(x,y,time,{...field,waveCurrent:s.seaState,waveProfile:s.waveProfile}).height,
+   return {gpu:(pixel[0]/255-.5)*6,cpu:P.waveAt(x,y,time,{...field,waveCurrent:s.seaState,waveProfile:s.waveProfile}).height,
     gpuDepth:pixel[1]/255*48-8,cpuDepth:SailingWaterDepth.sample(x,y).depth};
   });
   renderer.setRenderTarget(old);target.dispose();material.dispose();quad.geometry.dispose();
@@ -117,6 +162,48 @@ test('GPU wave shader matches the physics field at sampled coordinates',async({p
  for(const p of values){
   expect(Math.abs(p.gpu-p.cpu),JSON.stringify(p)).toBeLessThan(.015);
   expect(Math.abs(p.gpuDepth-p.cpuDepth),JSON.stringify(p)).toBeLessThan(.11);
+ }
+ console.log('Afvigelse mellem vandgrafik og fysik',Math.max(...values.map(p=>Math.abs(p.gpu-p.cpu))));
+});
+test('low and high preserve physical wave displacement at the hull',async({page})=>{
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const readings=await page.evaluate(()=>{
+  const {scene:world,env}=SAILING_GAME,P=SailPhysics,T=THREE,renderer=world.renderer;
+  const field={...env,waveHeight:2.5,chop:1,speed:8,direction:270,windSeed:2647};
+  const s=P.createState({boatId:'yacht',x:-1500,y:-1800,time:22},field);
+  const uniforms={...world.waterUniforms,coord:{value:new T.Vector2()},radial:{value:new T.Vector2()},spacing:{value:new T.Vector2()}};
+  const material=new T.ShaderMaterial({uniforms,vertexShader:'void main(){gl_Position=vec4(position,1.);}',
+   fragmentShader:`uniform float time;uniform float sea;uniform vec2 coord,radial,spacing;${world.waveShader}
+     void main(){float h=waveWithLod(coord,radial,spacing).x;
+       float code=floor(clamp(.5+h/6.,0.,1.)*65535.+.5);gl_FragColor=vec4(floor(code/256.)/255.,mod(code,256.)/255.,0.,1.);}`});
+  const scene=new T.Scene(),quad=new T.Mesh(new T.PlaneGeometry(2,2),material),camera=new T.OrthographicCamera(-1,1,1,-1,0,1);
+  const target=new T.WebGLRenderTarget(1,1),old=renderer.getRenderTarget(),pixel=new Uint8Array(4),rows=[];
+  scene.add(quad);
+  try{
+   for(const quality of ['low','high']){
+    world.update(s,field,{marks:[]},1/60,{quality});
+    const {position,waveSpacing}=world.water.geometry.attributes;
+    for(let i=0;i<position.count;i++){
+     const x=position.getX(i),z=position.getZ(i),r=Math.hypot(x,z);
+     if(r<5.9||r>6.6||i%13)continue;
+     uniforms.coord.value.set(s.x+x,-s.y+z);
+     uniforms.radial.value.set(x/r,z/r);
+     uniforms.spacing.value.set(waveSpacing.getX(i),waveSpacing.getY(i));
+     renderer.setRenderTarget(target);renderer.render(scene,camera);renderer.readRenderTargetPixels(target,0,0,1,1,pixel);
+     const cpu=P.waveHeightAt(s.x+x,s.y-z,s.time,{...field,waveCurrent:s.seaState,waveProfile:s.waveProfile});
+     rows.push({quality,cpu,drawn:((pixel[0]*256+pixel[1])/65535-.5)*6});
+    }
+   }
+  }finally{renderer.setRenderTarget(old);target.dispose();material.dispose();quad.geometry.dispose();}
+  return rows;
+ });
+ for(const quality of ['low','high']){
+  const rows=readings.filter(r=>r.quality===quality);
+  expect(rows.length).toBeGreaterThan(5);
+  const worst=Math.max(...rows.map(r=>Math.abs(r.cpu-r.drawn)));
+  expect(worst,quality).toBeLessThan(.025);
+  console.log('Forskydning af det tegnede vand ved skroget',quality,rows.length,worst);
  }
 });
 test('fixed-step sailing in waves agrees at 30, 60 and 120 render rates',async({page})=>{await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);const runs=await page.evaluate(()=>[30,60,120].map(fps=>{const e={...SAILING_GAME.env,waves:.85,boatId:'laser'},s=SailPhysics.createState({},e);let acc=0;for(let f=0;f<fps*12;f++){acc+=1/fps;while(acc+1e-12>=1/60){SailPhysics.step(s,{steer:s.time<3?.2:0,trim:0,crewPose:2},e,1/60);acc-=1/60}}return {x:s.x,y:s.y,heave:s.heave,heel:s.heel,time:s.time}}));for(const r of runs.slice(1))for(const k of ['x','y','heave','heel','time'])expect(r[k]).toBeCloseTo(runs[0][k],7)});

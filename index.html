@@ -564,15 +564,16 @@ body.easy-crew .pose-buttons{display:none}
     <input id="windGusts" data-weather-key="gusts" type="range" min="0" max="1" step=".01">
    </div>
    <div class="weather-range">
-    <label for="chop">Chop</label><output id="chopValue" for="chop"></output>
-    <input id="chop" data-weather-key="chop" type="range" min="0" max="1" step=".01" aria-describedby="chopHelp">
-    <div id="chopHelp" class="weather-scale weather-endpoints"><span>0 % · Blød dønning</span><span>100 % · Korte, urolige bølger</span></div>
+    <label for="waveHeight">Bølger</label><output id="waveHeightValue" for="waveHeight"></output>
+    <input id="waveHeight" data-weather-key="waveHeight" type="range" min="0" max="2.5" step=".05" aria-describedby="waveHeightHelp">
+    <small id="waveHeightHelp" class="weather-scale">Dønningens signifikante højde på åbent vand</small>
    </div>
    <div class="weather-range">
-    <label for="waveHeight">Bølger</label><output id="waveHeightValue" for="waveHeight"></output>
-    <input id="waveHeight" data-weather-key="waveHeight" type="range" min="0" max="1.5" step=".05" aria-describedby="waveHeightHelp">
-    <small id="waveHeightHelp" class="weather-scale">Dønningens højde ved 0 % Chop</small>
+    <label for="chop">Chop</label><output id="chopValue" for="chop"></output>
+    <input id="chop" data-weather-key="chop" type="range" min="0" max="1" step=".01" aria-describedby="chopHelp">
+    <div id="chopHelp" class="weather-scale weather-endpoints"><span>0 % · Ingen kort sø</span><span>100 % · Mest kort sø</span></div>
    </div>
+   <p class="weather-note" id="liveSea" hidden></p>
    <p class="weather-note" id="windAtBoat"><span id="liveWindLabel">Vind ved båden</span><span><b id="liveWind">—</b><span id="windShelter" hidden> · I læ</span></span></p>
   </section>
   <section class="weather-section" aria-labelledby="skyLightTitle">
@@ -1599,29 +1600,24 @@ class SailingScene {
     this.waterUniforms={...this.hullWater.uniforms,skyPhoto:sky.skyPhoto,skyOvercast:sky.skyOvercast,overcastMix:sky.overcastMix,photoMix:sky.photoMix,skyBlue:sky.top,skyCloud:sky.cloudColor,cloudCover:sky.cover,windFieldFrom:{value:null},windFieldTo:{value:null},windFieldBlend:{value:0},windFieldEnabled:{value:0},windSeedPhase:{value:0},waveShelterEnabled:{value:0},waveExposureFrom:{value:null},waveExposureTo:{value:null},waveFrom:{value:new T.Vector3(0,1,1)},waveTo:{value:new T.Vector3(0,1,1)},waveBlend:{value:1},waveWindAngles:{value:new T.Vector2()},waveSpread:{value:new T.Vector2(1,1)},seaRipples:{value:1},waveCoupled:{value:new T.Vector2()},windWaveScale:{value:1},waveFlow:{value:new T.Vector2(0,1)},rippleNormals:{value:this.buildRippleNormals()},bathymetryMap:{value:bathymetryMap},waterView:{value:0},time:{value:0},sea:{value:.4},windSpeed:{value:5},windDirection:{value:0},gustStrength:{value:.2},rain:{value:0},fogDensity:{value:.0018},sunStrength:{value:1},sunTint:{value:new T.Color('#fff0d6')},
       sunDir:{value:this.V(-.45,.72,-.52).normalize()},nearColor:{value:new T.Color('#138c96')},deepColor:{value:new T.Color('#277b98')},horizonColor:{value:new T.Color('#c1e1e6')},hullInverse:{value:new T.Matrix4()},hullBounds:{value:new T.Vector4(-2.1,2.2,.685,.222)},hullShape:{value:new T.Vector4(.34,.08,1.7,.04)},hullStations:{value:Array.from({length:16},()=>new T.Vector2(0,0))},hullStationCount:{value:0},hullCount:{value:1},hullOffsets:{value:new T.Vector2(0,0)},cockpitBox:{value:new T.Vector4(-1.25,.32,.35,.015)},cockpitWet:{value:0},cockpitRadius:{value:.12},cockpitTaper:{value:1}};
     Object.assign(this.waterUniforms,{windChopDrift:{value:new T.Vector2()},
-      waterDetail:{value:1},waterFade:{value:new T.Vector2()},waterOptics:{value:new T.Vector2()},waveManaged:{value:new T.Vector2()},waveSwell:{value:new T.Vector2(1,1)},longWaveScale:{value:1},wavePathFrom:{value:null},wavePathTo:{value:null}});
+      waterDetail:{value:1},waterFade:{value:new T.Vector2()},waterOptics:{value:new T.Vector2()},waveManaged:{value:new T.Vector2()},waveSeed:{value:new T.Vector2()},wavePathFrom:{value:null},wavePathTo:{value:null}});
     const wc=this.P.WAVE_COMPONENTS,n=x=>'('+Number(x).toFixed(9)+')';
     const wavesGLSL=`
       ${depth.shader}
       ${global.SailingShelter.shader}
-      uniform vec3 waveFrom,waveTo;uniform float waveBlend,windWaveScale,longWaveScale;
-      uniform vec2 waveWindAngles,waveCoupled,waveSpread,waveManaged,waveSwell;
+      uniform vec3 waveFrom,waveTo;uniform float waveBlend,windWaveScale;
+      uniform vec2 waveWindAngles,waveCoupled,waveSpread,waveManaged,waveSeed;
       uniform sampler2D wavePathFrom,wavePathTo;
-      vec2 waveChannels(sampler2D tex,vec2 p,float coupled,float managed){
+      vec2 waveChannels(sampler2D tex,vec2 p,float coupled){
         vec4 fields=coastWaveFields(tex,p);
         vec2 gain=vec2(mix(fields.r,fields.b,coupled),fields.g);
-        if(managed>.5){
-          float fetch=fields.a*${global.SailingShelter.fetchLimit}.0;
-          gain.x*=mix(1.,.24+.76*smoothstep(0.,5200.,fetch),coupled);
-          gain.y*=.55+.45*smoothstep(0.,2900.,fetch);
-        }
         return gain;
       }
-      void waveExposure(sampler2D tex,vec2 p,float coupled,float managed,out vec3 swell,out vec3 chop){
+      void waveExposure(sampler2D tex,vec2 p,float coupled,out vec3 swell,out vec3 chop){
         if(waveShelterEnabled<.5){swell=vec3(1.,0.,0.);chop=swell;return;}
-        vec2 gain=waveChannels(tex,p,coupled,managed);
-        vec2 dx=(waveChannels(tex,p+vec2(.1,0.),coupled,managed)-waveChannels(tex,p-vec2(.1,0.),coupled,managed))*5.;
-        vec2 dy=(waveChannels(tex,p+vec2(0.,-.1),coupled,managed)-waveChannels(tex,p+vec2(0.,.1),coupled,managed))*5.;
+        vec2 gain=waveChannels(tex,p,coupled);
+        vec2 dx=(waveChannels(tex,p+vec2(.1,0.),coupled)-waveChannels(tex,p-vec2(.1,0.),coupled))*5.;
+        vec2 dy=(waveChannels(tex,p+vec2(0.,-.1),coupled)-waveChannels(tex,p+vec2(0.,.1),coupled))*5.;
         swell=vec3(gain.x,dx.x,dy.x);chop=vec3(gain.y,dx.y,dy.y);
       }
       vec2 depthGradient(vec2 p){
@@ -1641,9 +1637,9 @@ class SailingScene {
         float g=(shallowWaveGain(d+.02,limit,k)-shallowWaveGain(d-.02,limit,k))*25.;
         return vec3(exposure.x*a,exposure.yz*a+exposure.x*g*depthGradient(p));
       }
-      void limitBreaking(vec2 p,float d,float swellMix,float shortScale,inout vec3 swell,inout vec3 chop){
+      void limitBreaking(vec2 p,float d,float shortScale,inout vec3 swell,inout vec3 chop){
         if(d<=0.)return;
-        vec2 heights=vec2(sea*longWaveScale*swellMix*${n(this.P.LONG_HEIGHT_UNIT)},shortScale*windWaveScale*${n(this.P.SHORT_HEIGHT_UNIT)});
+        vec2 heights=vec2(sea*${n(this.P.LONG_HEIGHT_UNIT)},shortScale*windWaveScale*${n(this.P.SHORT_HEIGHT_UNIT)});
         heights/=${n(depth.breakingRatio)}*d;
         vec2 ratios=heights*vec2(swell.x,chop.x);
         float norm=dot(ratios,ratios);
@@ -1654,16 +1650,16 @@ class SailingScene {
         swell=vec3(swell.x*limit.x,swell.yz*limit.x+swell.x*slope);
         chop=vec3(chop.x*limit.x,chop.yz*limit.x+chop.x*slope);
       }
-      vec4 waveOne(vec2 p,vec3 profile,float windAngle,float coupled,float spread,float managed,float swellMix,sampler2D exposureMap,sampler2D pathMap,vec2 radial,vec2 spacing,float d){
+      vec4 waveOne(vec2 p,vec3 profile,float windAngle,float coupled,float spread,float managed,float seed,sampler2D exposureMap,sampler2D pathMap,vec2 radial,vec2 spacing,float d){
         float h=0.,dx=0.,dz=0.,curvature=0.;
         
         vec2 tangent=vec2(-radial.y,radial.x);
-        vec3 swell,shortSea;waveExposure(exposureMap,p,coupled,managed,swell,shortSea);
+        vec3 swell,shortSea;waveExposure(exposureMap,p,coupled*(1.-managed),swell,shortSea);
         vec2 phasePath=vec2(0.),phaseX=vec2(0.),phaseY=vec2(0.);
         if(managed>.5&&waveShelterEnabled>.5){
           swell=depthWave(swell,p,d,${depth.swellDepth},${n(wc[0].k)}/(profile.y*profile.y));
           shortSea=depthWave(shortSea,p,d,${depth.chopDepth},${n(wc.find(w=>w.windSea).k/(this.P.CHOP_PERIOD**2))});
-          limitBreaking(p,d,swellMix,profile.z,swell,shortSea);
+          limitBreaking(p,d,profile.z,swell,shortSea);
           phasePath=wavePath(pathMap,p);
           phaseX=(wavePath(pathMap,p+vec2(.2,0.))-wavePath(pathMap,p-vec2(.2,0.)))*2.5;
           phaseY=(wavePath(pathMap,p-vec2(0.,.2))-wavePath(pathMap,p+vec2(0.,.2)))*2.5;
@@ -1675,20 +1671,20 @@ class SailingScene {
       }
       vec4 waveWithLod(vec2 p,vec2 radial,vec2 spacing){
         float d=waveShelterEnabled>.5?seaDepth(p):40.;
-        if(waveBlend>=1.)return waveOne(p,waveTo,waveWindAngles.y,waveCoupled.y,waveSpread.y,waveManaged.y,waveSwell.y,waveExposureTo,wavePathTo,radial,spacing,d);
-        return mix(waveOne(p,waveFrom,waveWindAngles.x,waveCoupled.x,waveSpread.x,waveManaged.x,waveSwell.x,waveExposureFrom,wavePathFrom,radial,spacing,d),
-          waveOne(p,waveTo,waveWindAngles.y,waveCoupled.y,waveSpread.y,waveManaged.y,waveSwell.y,waveExposureTo,wavePathTo,radial,spacing,d),waveBlend);
+        if(waveBlend>=1.)return waveOne(p,waveTo,waveWindAngles.y,waveCoupled.y,waveSpread.y,waveManaged.y,waveSeed.y,waveExposureTo,wavePathTo,radial,spacing,d);
+        return mix(waveOne(p,waveFrom,waveWindAngles.x,waveCoupled.x,waveSpread.x,waveManaged.x,waveSeed.x,waveExposureFrom,wavePathFrom,radial,spacing,d),
+          waveOne(p,waveTo,waveWindAngles.y,waveCoupled.y,waveSpread.y,waveManaged.y,waveSeed.y,waveExposureTo,wavePathTo,radial,spacing,d),waveBlend);
       }
       vec4 wave(vec2 p){return waveWithLod(p,vec2(1.,0.),vec2(0.));}
     `;
     this.waveComponents=wc;this.waveShaderTemplate=wavesGLSL;
-    this.waveTermStrings=wc.map(w=>{
+    this.waveTermStrings=wc.map((w,i)=>{
       const path=w.windSea?'y':'x';
       const period=w.windSea?`mix(1.,${n(this.P.CHOP_PERIOD)},managed)`
         :w.managedPeriod===1?'profile.y':`profile.y*mix(1.,${n(w.managedPeriod)},managed)`;
       const scale=w.windSea
         ?`mix(sea,1.,managed)*profile.z*windWaveScale${w.managedOnly?'*managed':''}`
-        :'sea*mix(1.,longWaveScale*swellMix,managed)';
+        :'sea';
       const exposure=w.windSea?'shortSea':'swell',bearing=w.windSea?'windAngle':'profile.x';
       const width=w.windSea?`mix(spread,${n(this.P.CHOP_SPREAD)},managed)`:'spread';
       return `{
@@ -1705,7 +1701,7 @@ class SailingScene {
         float undersampled=max(0.,samples-.16);
         float lod=exp(-11.*undersampled*undersampled)*(1.-smoothstep(.31,.53,samples));
         if(lod>0.){
-          float q=k*(dot(p,vec2(forward.x,-forward.y))+phasePath.${path})-omega*time+${n(w.phase)},sn=sin(q),cs=cos(q);
+          float q=k*(dot(p,vec2(forward.x,-forward.y))+phasePath.${path})-omega*time+${n(w.phase)}+seed*${n(i+1)},sn=sin(q),cs=cos(q);
           vec3 exposure=${exposure};
           float a=amplitude*exposure.x;
           float bend=${n(this.P.CREST_BEND)}*k,crest=bend*a*a,cs2=1.-2.*sn*sn;
@@ -1885,13 +1881,15 @@ class SailingScene {
     this.waterMeshes.set(quality,this.water.geometry);
   }
   updateWaterSamples(s,env){
+    if(this.waterSamples)this.waterSamples.visible=this.waterSampleMode;
     if(!this.waterSampleMode)return;
-    this.waterSampleMode=true;
     const T=this.T;
     if(!this.waterSamples){
       const geometry=new T.BufferGeometry();
-      geometry.setAttribute('position',new T.Float32BufferAttribute(new Float32Array(75),3));
-      const material=new T.PointsMaterial({color:0x70f7c4,size:.15,depthTest:true});
+      geometry.setAttribute('position',new T.Float32BufferAttribute(new Float32Array(29*3),3));
+      const colors=Array.from({length:29},(_,i)=>i<25?[.16,.9,.56]:[1,.46,.10]).flat();
+      geometry.setAttribute('color',new T.Float32BufferAttribute(colors,3));
+      const material=new T.PointsMaterial({vertexColors:true,size:.18,depthTest:true});
       this.waterSamples=new T.Points(geometry,material);this.waterSamples.frustumCulled=false;this.scene.add(this.waterSamples);
       this.waterSamples.name='CPU wave samples';
       this.waterSampleOrigin={x:Math.round(s.x/5)*5,y:Math.round(s.y/5)*5};
@@ -1904,6 +1902,11 @@ class SailingScene {
       const east=x+(k%5-2)*4,north=y+(Math.floor(k/5)-2)*4;
       geometry.attributes.position.setXYZ(k,east,this.P.waveAt(east,north,s.time,env).height+.033,-north);
     }
+    const c=this.P.configFor(s),bow=this.P.bowWaterContact(s,c,env);
+    const beam=global.SailingBoats.halfBeamAt(c,0);
+    const contacts=[bow,...[[-.38*c.length,0],[0,-.8*beam],[0,.8*beam]].map(([x,z])=>
+      this.P.waterContact(s,{x,y:global.SailingBoats.hullBottom(c,x,z),z},env))];
+    contacts.forEach((p,i)=>geometry.attributes.position.setXYZ(25+i,p.x,p.height+.055,-p.y));
     geometry.attributes.position.needsUpdate=true;
   }
   waterGeometry({waterFade,waterSegments}){
@@ -4169,7 +4172,7 @@ class SailingScene {
     uniforms.waveWindAngles.value.set(from.windAngle??from.angle,to.windAngle??to.angle);
     uniforms.waveSpread.value.set(from.spread??1,to.spread??1);
     uniforms.waveManaged.value.set(Number(!!from.managed),Number(!!to.managed));
-    uniforms.waveSwell.value.set(from.long??1,to.long??1);
+    uniforms.waveSeed.value.set(from.seed??0,to.seed??0);
     const rippleTarget=to.managed?clamp(env.chop,0,1):Number.isFinite(env.waveHeight)&&!Number.isFinite(env.waves)?global.SailingSettings.seaShape(env.waveHeight).ripples:1;
     this.seaRipples=reset||this.seaRipples==null?rippleTarget:this.seaRipples+(rippleTarget-this.seaRipples)*(1-Math.exp(-(options.paused?0:dt)/1.5));
     uniforms.seaRipples.value=this.seaRipples;
@@ -4181,7 +4184,6 @@ class SailingScene {
     if(reset)drift.set(0,0);
     drift.set((drift.x-Math.sin(windBearing)*driftStep)%1,(drift.y+Math.cos(windBearing)*driftStep)%1);
     uniforms.windWaveScale.value=this.P.windWaveAt(s.time,wp,env).scale;
-    uniforms.longWaveScale.value=this.P.longWaveAt(s.time,wp,env).scale;
     this.waterUniforms.time.value=s.time;this.waterUniforms.sea.value=env.waveCurrent??env.waves??.4;this.waterUniforms.windSpeed.value=env.speed??5;this.waterUniforms.windDirection.value=env.direction??0;this.waterUniforms.gustStrength.value=env.gusts??.2;
     this.updateAtmosphere(s,env);this.updateBoat(s,env,dt);
     const contact=this.updateEffects(s,env,dt,reset);
@@ -4472,7 +4474,8 @@ function updatePanelPause(){
   const panel=gamePanels.find(id=>!$(id).hidden);
   for(const id of ['hud','intro','sea'])$(id).inert=!!panel;
   $('panelShade').hidden=!panel;
-  modalPaused=!multiplayer&&!!panel;
+  const liveWeather=panel==='settings'&&!$('weatherControls').hidden&&mode==='free';
+  modalPaused=!multiplayer&&!!panel&&!liveWeather;
   if(modalPaused&&started&&mode==='course'&&coursePauseAt===null)coursePauseAt=performance.now();
   acc=0;
   syncPause();
@@ -4677,7 +4680,7 @@ function openSettings(view,opener){
   $('settingsTitle').textContent=personal?'Menu':'Vejr';
   if(switching){
     if(opener)panelOpeners.set('settings',opener);
-    syncPanelTriggers();
+    updatePanelPause();
   }else openPanel('settings',opener);
   if(!personal&&!$('settings').hidden){syncWeatherFields();updateWeatherWind();}
 }
@@ -4733,8 +4736,9 @@ function saveWeather(){
 function applyWeather(patch,remote=false){
   if(!remote&&weatherLocked())return;
   const next=Settings.normalize(patch,env);
-  const changed=Object.keys(next).some(key=>next[key]!==env[key]);
+  const changed=Number.isFinite(env.waves)||Object.keys(next).some(key=>next[key]!==env[key]);
   if(changed&&started&&!state.windClimate)state.windClimate={speed:env.speed,direction:env.direction,gusts:env.gusts};
+  delete env.waves;
   Object.assign(env,next);
   if(remote){
     receivedWeather=true;
@@ -4782,6 +4786,18 @@ function syncWeatherFields(){
     input.setAttribute('aria-valuetext',spoken);
   }
 }
+function seaDiagnostics(){
+  const actual=liveEnv(),profile=state.waveProfile,to=profile?.to||P.waveProfileFor(actual),from=profile?.from||to;
+  const blend=P.waveBlendAt(state.time,profile),mix=(a,b)=>a+(b-a)*blend;
+  const shortScale=mix(from.short,to.short)*P.SHORT_HEIGHT_UNIT;
+  const a=P.waveExposureAt(from,state.x,state.y),b=from===to?a:P.waveExposureAt(to,state.x,state.y);
+  return {time:state.time,selected:{waveHeight:env.waveHeight,chop:env.chop},
+    applied:{longOpen:state.seaState*P.LONG_HEIGHT_UNIT,chop:shortScale/P.CHOP_HEIGHT,
+      shortOpen:shortScale*P.windWaveAt(state.time,profile,actual).scale},
+    depth:SailingWaterDepth.sample(state.x,state.y).depth,
+    exposure:{long:mix(a.long.v,b.long.v),short:mix(a.short.v,b.short.v),fetch:mix(a.fetch,b.fetch)},
+    height:P.waveHeightAt(state.x,state.y,state.time,{...actual,waveCurrent:state.seaState,waveProfile:profile})};
+}
 function updateWeatherWind(){
   if(!state)return;
   const actual=liveEnv(),locked=weatherLocked(),stopped=started&&(paused||modalPaused);
@@ -4790,6 +4806,13 @@ function updateWeatherWind(){
   $('liveWindLabel').textContent=pending?'Ved båden før ændring':'Vind ved båden';
   $('liveWind').textContent=local.speed<.05?'Vindstille':speedLabel(local.speed);
   $('windShelter').hidden=local.speed<.05||local.exposure>.92;
+  const liveSea=$('liveSea');
+  liveSea.hidden=!started;
+  if(started&&!$('settings').hidden&&!$('weatherControls').hidden){
+    const {applied,exposure}=seaDiagnostics(),meter=height=>fmt(height,2).replace('.',',')+' m';
+    const sheltered=(applied.longOpen>.05&&exposure.long<.75)||(applied.shortOpen>.05&&exposure.short<.75);
+    liveSea.textContent='Aktuelt på åbent vand · '+meter(applied.longOpen)+' dønning · '+meter(applied.shortOpen)+' kort sø'+(sheltered?' · Dæmpet ved båden':'');
+  }
   const note=$('windLockNote');
   note.textContent=locked?'Værten styrer vejret':stopped?'Vejret skifter, når du fortsætter sejladsen.':'';
   note.hidden=!note.textContent;
@@ -5086,11 +5109,11 @@ function input(){
   const trimKey=selected==='main'?trimKeys:0,difference=sheetTarget-state.sheet;
   const trimFast=!!trimKey||(!cfg.rigidWing&&difference!==0);
   const time=clamp(env.controlRate??1,.35,2)*Sim.fixedDt;
-  const travelLimit=P.sheetRateFor(cfg,trimKey||difference,trimFast,difficulty)*time;
-  const requestedTravel=trimKey?trimKey*travelLimit:difference;
-  const travel=requestedTravel>0&&!cfg.rigidWing
-    ?Math.min(requestedTravel,P.haulSheetTravel(state.sheet,cfg,time))
-    :requestedTravel;
+  const trimRate=P.sheetRateFor(cfg,trimKey||difference,trimFast,difficulty);
+  const travelLimit=trimRate*time;
+  let travel=trimKey?trimKey*travelLimit:difference;
+  if(!cfg.rigidWing&&travel>0)travel=Math.min(travel,P.haulSheetTravel(state.sheet,cfg,time));
+  if(!cfg.rigidWing&&travel<0)travel=Math.max(travel,P.easeSheetTravel(state.sheet,cfg,trimRate,time));
   const crew=difficulty==='easy'?0:crewSideCommand;
   const foreAft=(controlPressed('KeyX')?1:0)-(controlPressed('KeyZ')?1:0)||foreAftTarget;
   const touch=helmPointer===null?pendingTouchSteer:touchSteer;
@@ -5203,9 +5226,8 @@ function frame(now){
   if(now-lastUi>65){updateUI(now);lastUi=now;}if(toastTime&&now>toastTime){$('toast').hidden=true;toastTime=0;}
 }
 
-/* Fast feedback is independent of the slower compass/minimap redraw. It shows
- * raw desired input separately from the actual latest physical actuator state.
- * No extra input smoothing or rendering timer delays the keys/angle/trim. */
+/* The sheet slider sets the target. The numeric readout for the mainsheet
+ * follows the actuator at each frame, independently of the compass redraw. */
 function setText(element,value){
   if(element.textContent!==value)element.textContent=value;
 }
@@ -5226,7 +5248,8 @@ function updateLiveControls(){
   const sail=activeTrimSail(selected);
   const loaded=sail?.area>0&&Math.hypot(sail.drive,sail.sideForce,sail.vertical??0)>sail.area*.1;
   setText($('trimTitle'),label);
-  setText($('sheetValue'),fmt(displayTrim(target)*100).replace('.',',')+' %');
+  const readout=selected==='main'&&!c.rigidWing?activeSheet:target;
+  setText($('sheetValue'),fmt(displayTrim(readout)*100).replace('.',',')+' %');
   const min=c.rigidWing?'Vinge åben':'Helt slækket',max=c.rigidWing?'Vinge ind':'Helt indhalet';
   setText($('sheetMinLabel'),min);setText($('sheetMaxLabel'),max);
   setText($('sheetLine'),selected==='main'&&!c.rigidWing&&state.sheetLoad&&!state.recovering
@@ -5655,7 +5678,7 @@ try{
   $('loadingText').hidden=true;
   $('coach').hidden=true;
   // Read-only state inspection plus reusable pure numerical checks for development.
-  window.SAILING_GAME={get state(){return state;},get env(){return env;},get course(){return course;},get scene(){return world;},get map(){return raceMap;},get previewMap(){return previewMap;},get track(){return track;},get networkView(){return {...networkView};},get simulationDebt(){return acc;},get sheetDiagnostics(){return sheetDiagnostics();},get paused(){return paused||modalPaused;},selfTests};
+  window.SAILING_GAME={get state(){return state;},get env(){return env;},get course(){return course;},get scene(){return world;},get map(){return raceMap;},get previewMap(){return previewMap;},get track(){return track;},get networkView(){return {...networkView};},get simulationDebt(){return acc;},get sheetDiagnostics(){return sheetDiagnostics();},get seaDiagnostics(){return seaDiagnostics();},get paused(){return paused||modalPaused;},selfTests};
   requestAnimationFrame(frame);
 }catch(e){fatal(e);}
 })();

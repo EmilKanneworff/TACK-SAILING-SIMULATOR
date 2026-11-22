@@ -31,11 +31,11 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
   const WAVE_COMPONENTS=Object.freeze([
     ...band(false,[[27,.161,0,.2],[34,.098,3.2,2.1],[22.5,.070,-4.2,4.7],[9.4,.075,.8,3.4,18.8]]),
     ...band(true,[[7.9,.052,3.5,1.1],[5.6,.025,-5,3.9],[4.0,.010,2,5.1]]),
-    // Crossing crests with distinct periods and phases in the live Chop mix.
+    // Crossing crests with distinct periods and phases in the live short sea.
     ...band(true,[[5.1,.022,8.8,2.8],[3.3,.016,-10.4,.6],[4.25,.014,-2.2,5.9]],true)
   ]);
-  const CREST_BEND=.22,PROFILE_SECONDS=1.8,WIND_WAVE_SECONDS=6,SWELL_GROWTH_SECONDS=24,MAX_WAVE_HEIGHT=root.SailingSettings.MAX_WAVE_HEIGHT;
-  const CHOP_PERIOD=.77,CHOP_SPREAD=5.1,CHOP_SCALE=1.23;
+  const CREST_BEND=.22,PROFILE_SECONDS=1.8,WIND_WAVE_SECONDS=6,MAX_WAVE_HEIGHT=root.SailingSettings.MAX_WAVE_HEIGHT;
+  const CHOP_PERIOD=.77,CHOP_SPREAD=5.1,CHOP_HEIGHT=.40;
   const FIRST_CHOP=WAVE_COMPONENTS.findIndex(w=>w.windSea);
   const LEGACY_WAVE_COUNT=WAVE_COMPONENTS.findIndex(w=>w.managedOnly);
   const waveBlendAt=(time,profile)=>profile?smooth(0,1,(time-profile.start)/PROFILE_SECONDS):1;
@@ -53,10 +53,13 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
   const waveHeightUnit=(short=1)=>4*Math.sqrt(WAVE_COMPONENTS.reduce((sum,w)=>sum+(w.managedOnly?0:w.amplitude*(w.windSea?short:1))**2,0)/2);
   const WAVE_HEIGHT_UNIT=waveHeightUnit(),LONG_HEIGHT_UNIT=waveHeightUnit(0);
   const SHORT_HEIGHT_UNIT=4*Math.sqrt(WAVE_COMPONENTS.reduce((sum,w)=>sum+(w.windSea?w.amplitude**2:0),0)/2);
+  const CHOP_SCALE=CHOP_HEIGHT/SHORT_HEIGHT_UNIT;
   function windWaveTarget(env){
     const wind=Number.isFinite(env?.speed)?env.speed:DEFAULT_ENV.speed;
-    // Fast wind can keep building the short sea even beyond a fresh breeze.
-    return wind<5?Math.sqrt(Math.max(0,wind)/5):1+clamp((wind-5)/15,0,1)*.51;
+    const strength=wind<5?Math.sqrt(Math.max(0,wind)/5):1+clamp((wind-5)/15,0,1)*.51;
+    // The manually specified short sea includes residual motion. Limit its
+    // open-water steepness at high winds before applying the shoal limit.
+    return independentSea(env)?clamp(strength,.45,1.40):strength;
   }
   function waveGrowthAt(time,growth,seconds,fallback){
     if(!growth)return {scale:fallback,rate:0};
@@ -67,13 +70,6 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
   function windWaveAt(time,profile,env){
     return waveGrowthAt(time,profile?.wind,WIND_WAVE_SECONDS,windWaveTarget(env));
   }
-  function longWaveTarget(env){
-    if(Number.isFinite(env?.swellDirection))return 1;
-    return .68+.32*Math.pow(clamp((env?.speed??DEFAULT_ENV.speed)/16,0,1),.65);
-  }
-  function longWaveAt(time,profile,env){
-    return waveGrowthAt(time,profile?.longWind,SWELL_GROWTH_SECONDS,longWaveTarget(env));
-  }
   function waveProfileFor(env={}){
     const wind=Number.isFinite(env.direction)?env.direction:BASE_WAVE_DIRECTION;
     const sea=seaShape(env),managed=independentSea(env),separateSwell=Number.isFinite(env.swellDirection);
@@ -81,24 +77,23 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
     const period=clamp(env.wavePeriod??sea?.period??BASE_WAVE_PERIOD,3,12);
     const chop=managed?clamp(env.chop,0,1):0;
     const short=managed?CHOP_SCALE*chop:clamp(env.shortSea??sea?.short??1,0,2);
+    const seeded=root.SailingWind.seedPhase(env.windSeed)-root.SailingWind.seedPhase(root.SailingWind.CONFIG.seed);
     return {angle:wrap((BASE_WAVE_DIRECTION-incoming)*DEG),windAngle:wrap((BASE_WAVE_DIRECTION-wind)*DEG),
-      coupled:(env.speed??DEFAULT_ENV.speed)>.05&&!separateSwell,
-      period:period/BASE_WAVE_PERIOD,long:1-chop**1.5,short,spread:sea?.spread??1,managed};
+      coupled:!managed&&(env.speed??DEFAULT_ENV.speed)>.05&&!separateSwell,
+      period:period/BASE_WAVE_PERIOD,short,spread:sea?.spread??1,seed:managed?seeded:0,managed};
   }
   function advanceWaveProfile(s,env){
     const desired=waveProfileFor(env),p=s.waveProfile;
     const target=windWaveTarget(env);
     const wind=p?.wind?.to===target?p.wind:{from:windWaveAt(s.time,p,env).scale,to:target,start:s.time};
-    const longTarget=longWaveTarget(env);
-    const longWind=p?.longWind?.to===longTarget?p.longWind:{from:longWaveAt(s.time,p,env).scale,to:longTarget,start:s.time};
-    if(!p){s.waveProfile={from:desired,to:desired,start:s.time-PROFILE_SECONDS,wind,longWind};return;}
+    if(!p){s.waveProfile={from:desired,to:desired,start:s.time-PROFILE_SECONDS,wind};return;}
     const finished=s.time-p.start>=PROFILE_SECONDS;
     const changed=Math.abs(wrap(desired.angle-p.to.angle))>1e-5
       ||Math.abs(wrap(desired.windAngle-(p.to.windAngle??p.to.angle)))>1e-5||desired.coupled!==p.to.coupled
       ||Math.abs(desired.spread-(p.to.spread??1))>1e-5||Math.abs(desired.period-p.to.period)>1e-5
-      ||Math.abs(desired.long-(p.to.long??1))>1e-5||Math.abs(desired.short-p.to.short)>1e-5||desired.managed!==!!p.to.managed;
-    if(finished&&changed)s.waveProfile={from:p.to,to:desired,start:s.time,wind,longWind};
-    else if(wind!==p.wind||longWind!==p.longWind)s.waveProfile={...p,wind,longWind};
+      ||Math.abs(desired.short-p.to.short)>1e-5||desired.seed!==(p.to.seed??0)||desired.managed!==!!p.to.managed;
+    if(finished&&changed)s.waveProfile={from:p.to,to:desired,start:s.time,wind};
+    else if(wind!==p.wind)s.waveProfile={...p,wind};
   }
 
   function seaTarget(env={}){
@@ -113,6 +108,19 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
       CONFIG.seaBaseFraction,CONFIG.seaMaxScale);
     return waves*scale;
   }
+  function advanceSea(s,env,dt){
+    if(env.sharedSea){
+      s.seaState=env.sharedSea.seaState;
+      s.seaStateRate=env.sharedSea.seaStateRate;
+      s.waveProfile=env.sharedSea.waveProfile;
+      return;
+    }
+    advanceWaveProfile(s,env);
+    const target=seaTarget(env),response=configFor(s).seaTimeConstant;
+    s.seaState+=(target-s.seaState)*(1-Math.exp(-dt/response));
+    if(independentSea(env)&&Math.abs(target-s.seaState)*LONG_HEIGHT_UNIT<.0005)s.seaState=target;
+    s.seaStateRate=(target-s.seaState)/response;
+  }
   const windAt=root.TackFieldSamplers?.wind??root.SailingWind.at;
   const injectedWater=root.TackFieldSamplers?.water;
   const waveAt=injectedWater??analyticWaveAt;
@@ -121,18 +129,18 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
   const waveBands=new WeakMap(),openWater={v:1,dx:0,dy:0},openPath={v:0,dx:0,dy:0};
   function waveBand(profile){
     const old=waveBands.get(profile);
-    const {angle,windAngle=angle,period,short,spread=1,managed=false}=profile;
-    if(old&&old.angle===angle&&old.windAngle===windAngle&&old.period===period&&old.short===short&&old.spread===spread&&old.managed===managed)return old;
-    const terms=WAVE_COMPONENTS.map(w=>{
+    const {angle,windAngle=angle,period,short,spread=1,seed=0,managed=false}=profile;
+    if(old&&old.angle===angle&&old.windAngle===windAngle&&old.period===period&&old.short===short&&old.spread===spread&&old.seed===seed&&old.managed===managed)return old;
+    const terms=WAVE_COMPONENTS.map((w,i)=>{
       const stretch=w.windSea?(managed?CHOP_PERIOD:1):period*(managed?w.managedPeriod:1);
       const k=w.k/(stretch*stretch),omega=w.omega/stretch;
       const rotation=(w.windSea?windAngle:angle)+w.spreadAngle*((w.windSea&&managed?CHOP_SPREAD:spread)-1);
       const c=Math.cos(rotation),s=Math.sin(rotation);
       const forwardX=(w.kx*c-w.ky*s)/w.k,forwardY=(w.kx*s+w.ky*c)/w.k;
       return {k,omega,forwardX,forwardY,amplitude:w.amplitude*(w.windSea?short:1),
-        bend:CREST_BEND*k,phase:w.phase,windSea:w.windSea};
+        bend:CREST_BEND*k,phase:w.phase+seed*(i+1),windSea:w.windSea};
     });
-    const prepared={angle,windAngle,period,short,spread,managed,terms,exposure:null,path:null};
+    const prepared={angle,windAngle,period,short,spread,seed,managed,terms,exposure:null,path:null};
     waveBands.set(profile,prepared);
     return prepared;
   }
@@ -147,7 +155,7 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
   }
   function waveExposureAt(p,x,y){
     const shelter=root.SailingShelter,field=waveExposureField(p);
-    return {long:shelter.sampleGradient(field,x,y,p.coupled?2:0),short:shelter.sampleGradient(field,x,y,1),
+    return {long:shelter.sampleGradient(field,x,y,p.coupled&&!p.managed?2:0),short:shelter.sampleGradient(field,x,y,1),
       fetch:shelter.sample(field,x,y,3)*shelter.fetchLimit};
   }
   function depthBreaking(swell,chop,site,scale,rate,wind,windRate){
@@ -172,7 +180,7 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
       return heightOnly?height:{height,dx,dy,velocity,waterVx,waterVy,waterVz,waterAx,waterAy,curvature};
     const transition=blend>0&&blend<1;
     const shelter=root.SailingShelter,covered=inputEnv?.shelter!==false&&shelter.contains(x,y),below=Math.max(0,depth);
-    const wind=windWaveAt(time,profile,inputEnv),grown=longWaveAt(time,profile,inputEnv);
+    const wind=windWaveAt(time,profile,inputEnv);
     const coast=root.SailingWaterDepth,site=covered?coast.sample(x,y):null;
     const swellDepth=site&&site.depth<coast.swellDepth?coast.damp(site.depth,coast.swellDepth):null;
     const chopDepth=site&&site.depth<coast.chopDepth?coast.damp(site.depth,coast.chopDepth):null;
@@ -182,7 +190,7 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
     const addBand=(p,weight)=>{
       const band=waveBand(p);
       const field=covered?band.exposure||waveExposureField(p,band):null;
-      let swell=field?shelter.sampleGradient(field,x,y,p.coupled?2:0):openWater;
+      let swell=field?shelter.sampleGradient(field,x,y,p.coupled&&!p.managed?2:0):openWater;
       let chop=field?shelter.sampleGradient(field,x,y,1):openWater;
       const dampen=(local,depth)=>depth?attenuate(local,depth.value,depth.slope*site.dx,depth.slope*site.dy):local;
       if(site&&p.managed){
@@ -197,21 +205,9 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
       }else{
         swell=dampen(swell,swellDepth);chop=dampen(chop,chopDepth);
       }
-      if(field&&p.managed){
-        const fetch=shelter.sampleGradient(field,x,y,3);
-        const grow=(local,length,floor)=>{
-          const q=clamp(fetch.v*shelter.fetchLimit/length,0,1);
-          const slope=(1-floor)*6*q*(1-q)*shelter.fetchLimit/length;
-          return attenuate(local,floor+(1-floor)*q*q*(3-2*q),slope*fetch.dx,slope*fetch.dy);
-        };
-        if(p.coupled)swell=grow(swell,5200,.24);
-        chop=grow(chop,2900,.55);
-      }
       const path=covered&&p.managed?wavePathField(p,band):null;
       const swellPath=path?coast.samplePath(path,x,y,0):openPath,chopPath=path?coast.samplePath(path,x,y,1):openPath;
-      const long=p.long??1;
-      const waveScale=p.managed?scale*grown.scale*long:scale;
-      const waveRate=p.managed?(scaleRate*grown.scale+scale*grown.rate)*long:scaleRate;
+      const waveScale=scale,waveRate=scaleRate;
       const windScale=p.managed?wind.scale:scale*wind.scale,windScaleRate=p.managed?wind.rate:scaleRate*wind.scale+scale*wind.rate;
       const breaking=p.managed&&site?.depth>0?depthBreaking(swell,chop,site,waveScale,waveRate,windScale*band.short,windScaleRate*band.short):null;
       const swellRate=breaking?swell.v*breaking.rate:0,chopRate=breaking?chop.v*breaking.rate:0;
@@ -945,6 +941,13 @@ function haulSheetTravel(sheet,model,dt){
  const rate=.58-.40*smooth(.35,.70,trim);
  return Math.max(0,sheetFromTrim(trim+rate*dt,model)-sheet);
 }
+function easeSheetTravel(sheet,model,rawRate,dt){
+ const c=configFor(model),trim=trimFromSheet(sheet,c);
+ // Match the maximum slope of the trim curve so the readout has a constant
+ // speed and the physical travel stays within the rig's release rate.
+ const rate=rawRate/(1+(c.sheetCurve??0));
+ return sheetFromTrim(trim-rate*dt,c)-sheet;
+}
 function boomLimit(sheet,model){
  const c=configFor(model);
  return c.boomMax+(c.boomMin-c.boomMax)*clamp(sheet,0,1);
@@ -1148,7 +1151,7 @@ function updateCruiserSail(s,controls,env,c,dt){
 function step(s,controls,inputEnv,dt){
  if(configFor(s).kind==='foiler')return root.FoilingPhysics.step(s,controls,inputEnv,dt);
  const env=environment(inputEnv),c=configFor(s),rescueActive=!!root.SailingRecovery?.active(s),ctrl=rescueActive?{steer:0,trim:0,crewPose:1,crew:0}:controls||{},h=dt==null?c.fixedDt:Math.max(0,Math.min(dt,.05));if(h===0)return s;
- s.time+=h;advanceWaveProfile(s,env);s.seaState+=(seaTarget(env)-s.seaState)*(1-Math.exp(-h/c.seaTimeConstant));s.seaStateRate=(seaTarget(env)-s.seaState)/c.seaTimeConstant;
+ s.time+=h;advanceSea(s,env,h);
  updateSheet(s,c,ctrl,env,h);
  if(rescueActive){s.rudder=move(s.rudder,0,h*c.rudderCenterRate);s.helmTarget=0;}else updateHelm(s,ctrl,env,h);
  const lively=(ctrl.difficulty??env.difficulty)!=='easy'&&!rescueActive&&!s.capsized;
@@ -1232,6 +1235,6 @@ function recover(s,env,nowMs){const R=root.SailingRecovery;if(!R)throw Error('Op
 function instruments(s,target,env){const a=axes(s.theta),w=s.wind,speed=Math.hypot(s.vx,s.vy);
  const logSpeed=Math.hypot(s.vx-(s.waterX||0),s.vy-(s.waterY||0));
  const flow=waterVelocity(s,env?waveAt(s.x,s.y,s.time,{...env,waveCurrent:s.seaState,waveProfile:s.waveProfile},Math.max(0,-s.heave)):undefined),waterX=s.vx-flow.x,waterY=s.vy-flow.y,waterSpeed=Math.hypot(waterX,waterY);let distance=null,vmg=null,bearing=null;if(target){const dx=target.x-s.x,dy=target.y-s.y;distance=Math.hypot(dx,dy);vmg=distance>1e-8?(s.vx*dx+s.vy*dy)/distance:0;bearing=wrap360(Math.atan2(dx,dy)/DEG);}return{speed,knots:speed*1.9438444924,waterSpeed,waterKnots:waterSpeed*1.9438444924,logKnots:logSpeed*1.9438444924,heading:wrap360(90-s.theta/DEG),course:speed>.03?wrap360(Math.atan2(s.vx,s.vy)/DEG):null,leeway:waterSpeed>.03?Math.atan2(waterX*a.rx+waterY*a.ry,waterX*a.fx+waterY*a.fy):null,tws:w.tws,twd:w.twd,twa:w.twa,aws:w.aws,awa:w.awa,heel:s.heel,sheet:s.sheet,boom:s.boom,distance,vmg,bearing,boatId:s.boatId,crewPose:s.crewPose,heave:s.heave,pitch:s.pitch,vmgWind:w.tws>.01?-(waterX*w.vx+waterY*w.vy)/w.tws:null};}
-root.SailPhysics={CONFIG,DEFAULT_ENV,environment,WAVE_COMPONENTS,BASE_WAVE_DIRECTION,BASE_WAVE_PERIOD,WAVE_HEIGHT_UNIT,LONG_HEIGHT_UNIT,SHORT_HEIGHT_UNIT,CREST_BEND,PROFILE_SECONDS,MAX_WAVE_HEIGHT,CHOP_PERIOD,CHOP_SPREAD,waveHeightUnit,windWaveAt,windWaveTarget,longWaveAt,waveProfileFor,waveBlendAt,advanceWaveProfile,waveExposureField,waveExposureAt,wavePathField,DEG,clamp,wrap,wrap360,configFor,createState,step,windAt,waveAt,waveHeightAt,seaTarget,aero,sailCoefficients,foil,windForState,instruments,sheetFromTrim,trimFromSheet,haulSheetTravel,boomLimit,sheetRateFor,updateSheet,sheetTorque,integrateMass,recover,refresh,axes,windwardCrewSide,tackCrewSide,bodyPoint,bodyOffset,pointMotion,waterVelocity,waterContact,bowWaterContact,hydrostatics,equilibriumHeave,hullSamples,updateCrew,updateRig,updateBoom,sailFlutter,sailAirAt,updateHelm,backingBoomTorque};
+root.SailPhysics={CONFIG,DEFAULT_ENV,environment,WAVE_COMPONENTS,BASE_WAVE_DIRECTION,BASE_WAVE_PERIOD,WAVE_HEIGHT_UNIT,LONG_HEIGHT_UNIT,SHORT_HEIGHT_UNIT,CREST_BEND,PROFILE_SECONDS,MAX_WAVE_HEIGHT,CHOP_PERIOD,CHOP_SPREAD,CHOP_HEIGHT,waveHeightUnit,windWaveAt,windWaveTarget,waveProfileFor,waveBlendAt,advanceWaveProfile,advanceSea,waveExposureField,waveExposureAt,wavePathField,DEG,clamp,wrap,wrap360,configFor,createState,step,windAt,waveAt,waveHeightAt,seaTarget,aero,sailCoefficients,foil,windForState,instruments,sheetFromTrim,trimFromSheet,haulSheetTravel,easeSheetTravel,boomLimit,sheetRateFor,updateSheet,sheetTorque,integrateMass,recover,refresh,axes,windwardCrewSide,tackCrewSide,bodyPoint,bodyOffset,pointMotion,waterVelocity,waterContact,bowWaterContact,hydrostatics,equilibriumHeave,hullSamples,updateCrew,updateRig,updateBoom,sailFlutter,sailAirAt,updateHelm,backingBoomTorque};
 
 });

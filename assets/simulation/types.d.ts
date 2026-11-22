@@ -27,6 +27,7 @@ export interface FieldInputs {
   waveHeight?: number;
   chop?: number;
   waves?: number;
+  sharedSea?: Pick<BoatState, 'seaState' | 'seaStateRate' | 'waveProfile'>;
   shelter?: boolean;
   difficulty?: Difficulty;
   forceDiagnostics?: boolean;
@@ -91,6 +92,7 @@ export interface BoatState extends BoatPose {
   waveProfile?: object;
   atmosphere?: object;
   seaState: number;
+  seaStateRate?: number;
   recovering: boolean;
   capsized: boolean;
   forces: Diagnostics;

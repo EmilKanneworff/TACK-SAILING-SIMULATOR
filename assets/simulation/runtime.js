@@ -70,13 +70,12 @@
      * @param {number} nowMs
      */
     function stepFleetBoat(state, control, field, dt, host, nowMs) {
-      const localField = { ...field, boatId: state.boatId, crewPose: control.crewPose };
+      const localField = { ...field, boatId: state.boatId, crewPose: control.crewPose, sharedSea: host };
       state.time = host.time - dt;
-      state.waveProfile = host.waveProfile;
       SailingRecovery.update(state, localField, nowMs);
       stepPrepared(state, control, localField, dt);
-      state.seaState = host.seaState;
       SailingRecovery.update(state, localField, nowMs);
+      state.windClimate = host.windClimate;
     }
 
     /** @param {BoatState} state */
@@ -96,6 +95,7 @@
     function alignSpawn(state, host, retainClimate = false) {
       state.time = host.time;
       state.seaState = host.seaState;
+      state.seaStateRate = host.seaStateRate;
       state.waveProfile = host.waveProfile;
       if (retainClimate) {
         state.windClimate = host.windClimate;

@@ -78,3 +78,48 @@ test('the held haul key crosses 0 to 50 faster than 50 to 100 and taps are fine 
  expect(change).toBeGreaterThan(0);
  expect(change).toBeLessThan(.5);
 });
+
+for(const control of ['keyboard','slider']){
+ test('mainsheet eases at a steady displayed rate with '+control,async({page})=>{
+  await page.clock.install();
+  await page.goto(pathToFileURL(path.resolve('index.html')).href);
+  await page.click('#startButton');
+  await page.evaluate(()=>{
+   const {state,env}=SAILING_GAME,P=SailPhysics;
+   Object.assign(env,{speed:4,direction:0,gusts:0,waveHeight:0,chop:0,shelter:false});
+   Object.assign(state,TackSimulation.createBoat('laser',{x:0,y:-9500,time:state.time,theta:8*P.DEG,
+    vx:1.7,vy:0,sheet:1,crewSide:-1,crewPose:2},env));
+  });
+  const slider=page.locator('#sheetControl');
+  const sample=async (ms)=>{
+   await page.clock.runFor(ms);
+   return page.evaluate(()=>{
+    const {applied,time,limitDegrees}=SAILING_GAME.sheetDiagnostics;
+    const shown=parseFloat(document.getElementById('sheetValue').textContent.replace(',','.'));
+    return {applied,time,limitDegrees,shown};
+   });
+  };
+  await slider.fill('100');
+  expect((await sample(500)).applied).toBeCloseTo(100,2);
+  if(control==='keyboard'){
+   await page.locator('#sea').focus();
+   await page.keyboard.down('ArrowDown');
+  }else await slider.fill('0');
+  const upperStart=await sample(120);
+  const upperEnd=await sample(280);
+  const lowerStart=await sample(320);
+  const lowerEnd=await sample(270);
+  expect(upperEnd.applied).toBeGreaterThan(50);
+  expect(lowerStart.applied).toBeLessThan(50);
+  expect(lowerEnd.applied).toBeGreaterThan(5);
+  for(const row of [upperStart,upperEnd,lowerStart,lowerEnd])expect(Math.abs(row.shown-row.applied)).toBeLessThan(.06);
+  const rate=(start,end,key)=>(end[key]-start[key])/(end.time-start.time);
+  const high=-rate(upperStart,upperEnd,'shown'),low=-rate(lowerStart,lowerEnd,'shown');
+  expect(high).toBeGreaterThan(75);
+  expect(high).toBeLessThan(90);
+  expect(Math.abs(high-low)).toBeLessThan(1);
+  expect(rate(lowerStart,lowerEnd,'limitDegrees')).toBeGreaterThan(1.6*rate(upperStart,upperEnd,'limitDegrees'));
+  expect((await sample(400)).applied).toBe(0);
+  if(control==='keyboard')await page.keyboard.up('ArrowDown');
+ });
+}
