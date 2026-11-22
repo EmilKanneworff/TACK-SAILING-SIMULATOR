@@ -7,7 +7,7 @@ test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/
 
 test('solo sliders preserve exact values and hold the simulated weather until resume',async({page})=>{
  await page.clock.install();await page.goto(pathToFileURL(path.resolve('index.html')).href);
- await page.click('#startButton');await page.clock.runFor(500);await page.click('#settingsButton');
+ await page.click('#startButton');await page.clock.runFor(500);await page.locator('#sea').focus();await page.keyboard.press('Space');await page.click('#settingsButton');
  const read=()=>page.evaluate(()=>{const g=SAILING_GAME;return {t:g.state.time,sea:g.state.seaState,sheet:g.state.sheet,
   steer:g.state.steerIntent,env:{...g.env},actual:SailingSettings.live(g.env,g.state),
   rain:g.state.atmosphere.rain,clouds:g.state.atmosphere.clouds,fog:g.state.atmosphere.fog,warmth:g.state.atmosphere.sunWarmth};});
@@ -31,13 +31,14 @@ test('solo sliders preserve exact values and hold the simulated weather until re
  await expect(page.locator('#liveWindLabel')).toHaveText('Ved båden før ændring');
  await page.keyboard.press('Escape');
  await expect(page.locator('#settingsButton')).toBeFocused();
+ await page.click('#resumeButton');
  await page.clock.runFor(2300);
  const after=await read();
  expect(after.sea).toBeGreaterThan(before.sea+.06);
  expect(after.actual.speed).toBeGreaterThan(before.actual.speed);
  for(const key of ['rain','clouds','fog','warmth'])expect(after[key]).toBeGreaterThan(before[key]);
  await page.click('#cameraButton');await dragMap(page,160,100);await page.click('#settingsButton');
- await expect(page.locator('#liveWindLabel')).toHaveText('Ved båden før ændring');
+ await expect(page.locator('#liveWindLabel')).toHaveText('Vind ved båden');
  await page.locator('#rainLevel').fill('0.21');
  await expect(page.locator('#waveHeight')).toHaveValue('0.45');
  await expect(page.locator('#chop')).toHaveValue('0.64');

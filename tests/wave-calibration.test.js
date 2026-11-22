@@ -141,7 +141,7 @@ test('wave fronts stay coherent across the chosen direction and pass spaced prob
   }
 });
 
-test('Chop crossfades swell and short waves while wind duration, fetch and depth still matter',async({page})=>{
+test('Chop adds independent short waves while wind duration, fetch and depth still matter',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
@@ -160,9 +160,7 @@ test('Chop crossfades swell and short waves while wind duration, fetch and depth
   const fresh={...base,speed:5,waveHeight:.9,chop:.85},windy={...fresh,speed:20};
   P.advanceWaveProfile(state,fresh);
   P.advanceWaveProfile(state,windy);
-  const growth=[0,6,24,90].map(t=>({
-   short:P.windWaveAt(t,state.waveProfile,windy).scale,long:P.longWaveAt(t,state.waveProfile,windy).scale
-  }));
+  const growth=[0,6,24,90].map(t=>P.windWaveAt(t,state.waveProfile,windy).scale);
   const island=SailingWorld.ISLANDS.find(i=>i.id==='bjorno'),x=ArchipelagoData.fromMetric(1500,0).x;
   let shore=island.minY;while(SailingWorld.islandSample(island,x,shore).distance>=0)shore++;
   const y=shore-70,lee={...base,chop:1,waveHeight:1.15};
@@ -175,7 +173,8 @@ test('Chop crossfades swell and short waves while wind duration, fetch and depth
    combined:[rms({...combined,waveComponent:long},0,-10000),rms({...combined,waveComponent:short},0,-10000)],
    pureChop:[rms({...shortSea,waveComponent:long},0,-10000),rms({...shortSea,waveComponent:short},0,-10000)],
    calm:rms(offshore,0,-10000),growth, lee:rms(lee,x,y), open:rms(shortSea,x,y),
-   fetch:P.waveExposureAt(leeProfile,x,y).fetch,measuredPaths
+   fetch:P.waveExposureAt(leeProfile,x,y).fetch,measuredPaths,
+   windlessSwell:rms({...big,speed:0},0,-10000),swell:rms(big,0,-10000)
   };
  });
  expect(result.deep).toBeCloseTo(Math.sqrt(9.82*30/(2*Math.PI)),3);
@@ -188,15 +187,16 @@ test('Chop crossfades swell and short waves while wind duration, fetch and depth
  expect(result.onlyLong[1]).toBe(0);
  expect(result.onlyShort[0]).toBe(0);
  expect(result.onlyShort[1]).toBeGreaterThan(.045);
- expect(result.combined[0]).toBeGreaterThan(result.onlyLong[0]*.55);
- expect(result.combined[0]).toBeLessThan(result.onlyLong[0]*.74);
+ expect(result.combined[0]).toBeCloseTo(result.onlyLong[0],8);
  expect(result.combined[1]).toBeCloseTo(result.onlyShort[1]*.5,3);
- expect(result.pureChop).toEqual(result.onlyShort);
- expect(result.growth[1].short).toBeGreaterThan(result.growth[0].short);
- expect(result.growth[2].long).toBeGreaterThan(result.growth[1].long);
- expect(result.growth[3].long).toBeGreaterThan(result.growth[2].long);
+ expect(result.pureChop[0]).toBeCloseTo(result.onlyLong[0],8);
+ expect(result.pureChop[1]).toBeCloseTo(result.onlyShort[1],8);
+ expect(result.growth[1]).toBeGreaterThan(result.growth[0]);
+ expect(result.growth[2]).toBeGreaterThan(result.growth[1]);
+ expect(result.growth[3]).toBeCloseTo(1.40,5);
+ expect(result.windlessSwell).toBeCloseTo(result.swell,8);
  expect(result.fetch).toBeLessThan(140);
- expect(result.lee).toBeLessThan(result.open*.25);
+ expect(result.lee).toBeLessThan(result.open*.65);
  expect(Math.max(...result.measuredPaths)-Math.min(...result.measuredPaths)).toBeGreaterThan(.10);
 });
 

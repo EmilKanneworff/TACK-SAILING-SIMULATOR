@@ -60,6 +60,7 @@ function installReader() {
         Math.sin(s.pitch)*(q.r*part.drive-q.f*part.sideForce)+q.dHeel*part.vertical;
     },0)??s.sail.accumulator?.items.find(p=>p.label==='main')?.roll;
     return { wall: performance.now(), t:s.time, requested:Number(document.querySelector('#sheetControl').value),
+      displayed:parseFloat(document.querySelector('#sheetValue').textContent.replace(',','.')),
       applied:P.trimFromSheet(s.sheet,cfg)*100, raw:s.sheet, limit:limit/P.DEG, boom:s.boom/P.DEG,
       boomRate:s.boomRate/P.DEG, stop:Math.min(cfg.boomMax,limit+5*P.DEG)/P.DEG,
       rigState:cfg.rigidWing?null:reported?.line??(guess>0?'belastet':'slapt'),
@@ -135,26 +136,29 @@ async function keyTrial(page,hz,quality) {
   return {hz,quality,rows};
 }
 
-async function haulTrial(page, control) {
+async function travelTrial(page, control, scenario, direction) {
   const frame=duration=>page.evaluate(duration=>runSheetFrames(duration,60,false),duration);
   const slider=page.locator('#sheetControl');
-  await page.evaluate(seed,{id:'laser',twa:88,tee:1,startingTrim:0,wind:0});
-  await frame(.1);
-  await slider.fill('0');
+  const hauling=direction==='haul';
+  await slider.fill(hauling?'0':'100');
+  await page.evaluate(seed,{...scenario,startingTrim:hauling?0:1});
   const start=(await frame(.5)).at(-1);
   let rows;
+  const duration=hauling?5:3;
   if(control==='slider'){
-    await slider.fill('100');
-    rows=await frame(5);
+    await slider.fill(hauling?'100':'0');
+    rows=await frame(duration);
   }else{
+    const key=hauling?'ArrowUp':'ArrowDown';
     await page.locator('#sea').focus();
-    await page.keyboard.down('ArrowUp');
-    rows=await frame(5);
-    await page.keyboard.up('ArrowUp');
+    await page.keyboard.down(key);
+    rows=await frame(duration);
+    await page.keyboard.up(key);
   }
-  const at=value=>rows.find(row=>row.applied>=value-.001)?.t;
-  const middle=at(50),end=at(100);
-  return {control,start,rows,firstHalf:middle-start.t,secondHalf:end-middle};
+  const at=value=>rows.find(row=>hauling?row.applied>=value-.001:row.applied<=value+.001);
+  const middle=at(50),end=at(hauling?100:0);
+  return {control,scenario,start,rows,firstHalf:middle?.t-start.t,secondHalf:end?.t-middle?.t,
+    firstBoom:middle?.boom-start.boom,secondBoom:end?.boom-middle?.boom};
 }
 
 async function turnTrial(page, type, side) {
@@ -252,7 +256,7 @@ async function cruiserTrial(page, name, twa, loadedTrim) {
 
 async function main() {
   const [, , url, output, mode='sweep']=process.argv;
-  if(!url||!output)throw Error('node scripts/sheet-trials.cjs URL MAPPE [sweep|haul|turns|cruiser|live|video]');
+  if(!url||!output)throw Error('node scripts/sheet-trials.cjs URL MAPPE [sweep|haul|ease|turns|cruiser|live|video]');
   const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']});
   await fs.mkdir(output,{recursive:true});
@@ -274,10 +278,15 @@ async function main() {
       const high=await open(browser,url,{quality:'high'});
       try{result.keys.push(await keyTrial(high.page,120,'high'));result.errors.push(...high.errors);}
       finally{await high.context.close();}
-    }else if(mode==='haul'){
-      for(const control of ['keyboard','slider']){
+    }else if(mode==='haul'||mode==='ease'){
+      const laser=mode==='haul'?{id:'laser',twa:88,tee:1,wind:0}:scenarios[1];
+      const trials=[[laser,'keyboard'],[laser,'slider']];
+      if(mode==='ease'){
+        for(const i of [3,4,5,7])trials.push([scenarios[i],'keyboard']);
+      }
+      for(const [scenario,control] of trials){
         const {context,page,revision,errors}=await open(browser,url);
-        try{result.revision=revision;result.runs.push({...await haulTrial(page,control),errors});}
+        try{result.revision=revision;result.runs.push({...await travelTrial(page,control,scenario,mode),errors});}
         finally{await context.close();}
       }
     }else if(mode==='turns'){

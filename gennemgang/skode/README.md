@@ -1,5 +1,11 @@
 # Skøde og bom i TACK
 
+## Jævnt udslæk
+
+I build `7ff40a671e84` falder hovedskødets procent med jævn hastighed under udslæk. Procenttallet viser den faktiske indstilling, mens skyderens position kan angive et nyt mål. Kurven mellem procent og line giver gradvist mere line pr. procent mod 0 %.
+
+På Laserjollen på halvvind ved 3,5 m/s tog 100–50 % og 50–0 % begge 0,62 s med ↓ eller skyderen. Før tog de to intervaller henholdsvis 0,18 og 0,47 s i samme prøve. Bommen flyttede sig cirka 18° i den øverste halvdel og 28° i den nederste. Prøven kan gentages med tilstanden `ease` i `scripts/sheet-trials.cjs`.
+
 ## Opfølgning på indhaling
 
 Build `7a3e175e9b60` sænker indhalingshastigheden mod 100 % på den viste skala. Den tidligere styring holdt linehastigheden næsten konstant under indhaling. Kurven mellem line og procent fik derfor procenttallet til at løbe hurtigere, jo længere ind skødet kom.

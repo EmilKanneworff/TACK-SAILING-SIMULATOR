@@ -403,7 +403,7 @@ function updateRigidWing(s,c,dt,rescuing){
  wing.twist=move(wing.twist??0,twist,5*D*dt);
 }
 function advance(s,controls,env,h){
- const c=cfg(s),rescueActive=!!root.SailingRecovery?.active(s),ctrl=rescueActive?{steer:0,trim:0,crewPose:1,crew:0}:controls||{};s.time+=h;P.advanceWaveProfile(s,env);s.seaState+=(P.seaTarget(env)-s.seaState)*(1-Math.exp(-h/c.seaTimeConstant));s.seaStateRate=(P.seaTarget(env)-s.seaState)/c.seaTimeConstant;// Foil boats use the same keyboard response; the rig retains its own dynamics.
+ const c=cfg(s),rescueActive=!!root.SailingRecovery?.active(s),ctrl=rescueActive?{steer:0,trim:0,crewPose:1,crew:0}:controls||{};s.time+=h;P.advanceSea(s,env,h);// Foil boats use the same keyboard response; the rig retains its own dynamics.
  P.updateSheet(s,c,ctrl,env,h);
  if(rescueActive){s.rudder=move(s.rudder,0,h*c.rudderCenterRate);s.helmTarget=0;}else P.updateHelm(s,ctrl,env,h);
  P.updateCrew(s,ctrl,env,h);

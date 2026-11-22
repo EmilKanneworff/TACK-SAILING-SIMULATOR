@@ -1,7 +1,7 @@
 (function(root){
 'use strict';
 
-const MAX_WAVE_HEIGHT=1.5;
+const MAX_WAVE_HEIGHT=2.5;
 const FIRST_PERSON_CAMERA=4;
 const oldSeaHeights=Object.freeze({calm:0,small:.35,large:.85});
 const seaShapes=[

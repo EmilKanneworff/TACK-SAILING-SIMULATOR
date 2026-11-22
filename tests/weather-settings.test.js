@@ -19,6 +19,7 @@ test('weather migration preserves anchor values and existing numeric selections'
  assert.equal(Settings.migrate({sea:'calm'}).chop,0);
  assert.equal(Settings.migrate({sea:'small'}).waveHeight,.35);
  assert.equal(Settings.migrate({sea:'small',waveHeight:.36}).waveHeight,.36);
+ assert.equal(Settings.migrate({sea:'small',waveHeight:2.5}).waveHeight,2.5);
 });
 
 test('weather edits preserve independent values and wind takes the short path around north',()=>{
