@@ -396,6 +396,10 @@ and application hashes so results can be matched to this deliverable.
 .telemetry-panel{bottom:calc(var(--footer-height,100px) + 8px)}
 .course-card .course-top,.course-card .course-foot{min-width:0;overflow-wrap:anywhere}
 .course-card #raceResults{overflow-wrap:anywhere;max-height:3.3rem;overflow:auto}
+#lobbyConnect,#lobbyJoinForm,#lobbySetup{display:grid;gap:.55rem}
+.lobby-code-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.lobby-code-row strong{display:block;font-size:2.4rem;font-variant-numeric:tabular-nums;letter-spacing:.1em}
+.lobby-share{display:flex;gap:.45rem;flex-wrap:wrap}
 .lobby-modal li,.lobby-modal p,.race-preview h3,.race-preview p{overflow-wrap:anywhere}
 @media(min-width:851px) and (max-width:1050px){.sailing-dock{width:calc(100% - var(--rail-width) - 34px);left:calc((100% - var(--rail-width))/2)}}
 @media(max-width:850px){
@@ -527,6 +531,7 @@ body.easy-crew .pose-buttons{display:none}
     <div class="intro-actions">
       <button id="startButton" class="primary" type="button" disabled>Fri sejlads</button>
       <button id="introCourse" class="primary" type="button" disabled>Kapsejlads</button>
+      <button id="introLobby" type="button" disabled>Sejl sammen</button>
     </div>
     <button id="introStartLocation" class="intro-start-location" type="button" aria-haspopup="dialog" aria-controls="startLocationPicker" disabled>Startsted · Faaborg</button>
     <details id="introSetup" class="intro-setup">
@@ -538,7 +543,6 @@ body.easy-crew .pose-buttons{display:none}
       <div class="intro-setup-actions">
         <button id="introWeatherEdit" type="button">Vejr</button>
         <button id="introCourseSetup" type="button">Banevalg</button>
-        <button id="introLobby" type="button">Lobby</button>
       </div>
     </details>
     <p class="loading" id="loadingText" role="status">Indlæser spillet …</p>
@@ -622,7 +626,47 @@ body.easy-crew .pose-buttons{display:none}
   </details>
   <details class="weather-custom"><summary>Om spillet</summary><p>Version <code id="buildRevision">Lokal fil</code></p></details>
 </div></aside>
-<section class="modal-layer" id="lobbyPanel" role="dialog" aria-label="Lobby" aria-modal="true" hidden><div class="modal lobby-modal"><button class="close" id="lobbyClose" aria-label="Luk lobby">×</button><h2>Lobby</h2><div id="lobbyConnect"><label for="lobbyName">Dit navn</label><input id="lobbyName" maxlength="32" autocomplete="nickname" placeholder="Navn"><label for="lobbyCodeInput">Lobbykode</label><input id="lobbyCodeInput" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="6 cifre"><div class="lobby-actions"><button id="lobbyCreate" class="primary">Opret lobby</button><button id="lobbyJoin" class="primary">Deltag</button></div></div><div id="lobbyRoom" hidden><p>Kode <strong id="lobbyCode">------</strong> <button id="lobbyCopy" type="button">Kopiér</button></p><div id="lobbyCount"></div><ul id="lobbyPlayers"></ul><div class="lobby-actions"><button id="lobbySail">Sejl sammen</button><button id="lobbyReady">Klar</button><button id="lobbyLeave">Forlad lobby</button></div></div><p id="lobbyMessage" role="status"></p></div></section>
+<section class="modal-layer" id="lobbyPanel" role="dialog" aria-labelledby="lobbyTitle" aria-modal="true" hidden>
+  <div class="modal lobby-modal">
+    <button class="close" id="lobbyClose" aria-label="Luk lobby">×</button>
+    <h2 id="lobbyTitle">Sejl sammen</h2>
+    <div id="lobbyConnect">
+      <label for="lobbyName">Dit navn</label>
+      <input id="lobbyName" type="text" maxlength="32" autocomplete="nickname">
+      <button type="button" class="primary" id="lobbyCreate">Opret spil</button>
+      <form id="lobbyJoinForm">
+        <label for="lobbyCodeInput">Lobbykode</label>
+        <input id="lobbyCodeInput" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off">
+        <button type="submit" id="lobbyJoin">Deltag i spil</button>
+      </form>
+    </div>
+    <div id="lobbyRoom" hidden>
+      <div class="lobby-code-row">
+        <div><span class="eyebrow">Lobbykode</span><strong id="lobbyCode"></strong></div>
+        <div class="lobby-share"><button type="button" id="lobbyCopy">Kopiér kode</button>
+        <button type="button" id="lobbyInvite">Kopiér invitationslink</button></div>
+      </div>
+      <input id="lobbyInviteLink" type="text" readonly aria-label="Invitationslink" hidden>
+      <p id="lobbyCount"></p>
+      <p id="lobbyAuthority" hidden>Værtens browser kører sejladsen. Hold fanen åben under spillet.</p>
+      <ul id="lobbyPlayers" aria-label="Spillere"></ul>
+      <p id="lobbySettingsSummary"></p>
+      <div id="lobbySetup" hidden>
+        <label for="lobbyMode">Sejlads</label>
+        <select id="lobbyMode"><option value="free">Fri sejlads</option><option value="course">Kapsejlads</option></select>
+        <label id="lobbyCourseLabel" for="lobbyCourse" hidden>Bane</label>
+        <select id="lobbyCourse" hidden><option value="gates:short">Op/ned · Kort</option><option value="gates:long">Op/ned · Lang</option><option value="triangle:short">Trekant · Kort</option><option value="triangle:long">Trekant · Lang</option></select>
+      </div>
+      <div class="two-buttons">
+        <button type="button" id="lobbyReady" aria-pressed="false">Meld klar</button>
+        <button type="button" class="primary" id="lobbySail" hidden>Start sejlads</button>
+        <button type="button" id="lobbyReturn" hidden>Tilbage til lobby</button>
+        <button type="button" id="lobbyLeave">Forlad lobby</button>
+      </div>
+    </div>
+    <p id="lobbyMessage" role="status"></p>
+  </div>
+</section>
 <section class="modal-layer boat-picker" id="boatPicker" role="dialog" aria-label="Bådvalg" aria-modal="true" hidden><div class="modal"><button class="close" data-close="boatPicker" aria-label="Luk bådvalg">×</button><h2>Vælg din båd</h2><div class="boat-options" role="group" aria-label="Vælg båd"><button class="boat-option" data-boat="laser" aria-pressed="false"><img src="assets/model-laser.webp" alt=""><strong>Laserjolle</strong><span>Let og aktiv</span></button><button class="boat-option" data-boat="dinghy" aria-pressed="false"><img src="assets/model-dinghy.webp" alt=""><strong>Racer 32</strong><span>Let racer · to i besætningen</span></button><button class="boat-option" data-boat="yacht" aria-pressed="false"><img src="assets/model-yacht.webp" alt=""><strong>Turbåd 43</strong><span>Lettest at sejle</span></button><button class="boat-option" data-boat="ac75" aria-pressed="false"><img src="assets/model-ac75.webp" alt=""><strong>Foilmonohull</strong><span>Præcis og krævende</span></button><button class="boat-option" data-boat="ac72" aria-pressed="false"><img src="assets/model-ac72.webp" alt=""><strong>Foilkatamaran</strong><span>Hurtig foiling</span></button></div><a href="assets/sammenlign.html" target="_blank" rel="noopener">Sammenlign størrelser</a></div></section>
 <section class="modal-layer" id="help" hidden=""><div class="modal"><button class="close" data-close="help" aria-label="Luk hjælp">×</button><div class="eyebrow">LÆR BÅDEN AT KENDE</div><h2>Kurs. Trim. Balance.</h2><p>Vindpile på vandet viser, hvor den lokale vind blæser hen. Instrumenterne viser, hvor vinden kommer fra.</p><div class="foil-help" id="foilHelp" hidden=""><div class="help-grid"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Sejltrimmet bliver stående.</span><span>1 / 2 / 3</span><span>På Svær flytter 1, 2 og 3 besætningens vægt. På Let flytter besætningen sig selv.</span><span>Q / E</span><span>Vælg side manuelt i stille luft, eller når vinden står lige for eller agter.</span><span>Skærmknapper</span><span>Pause, genstart, kamera og bådvalg.</span></div><p><b>Byg fart først.</b> Begynd på en åben kurs med slækket sejl. Når farten stiger, trækker den relative vind frem; hal gradvist ind med korte tryk på ↑. For stramt sejl giver ikke automatisk mere fart: hold øje med den orange relative vind og sejlrådet.</p><p><b>Lad løftet vokse.</b> Foilerne overtager vægten, når strømningen kan bære båden. Højde, pitch, foilnedsænkning og kontakt med bølgerne bestemmer kræfterne. Der er ingen knap til takeoff.</p><p><b>Sejl rolige vendinger.</b> Brug korte rortryk ved høj fart. På monohullen sænker besætningen den nye foil før den gamle hæves. Katamaranen holder begge løftende sværd nede og fordeler støtten over fire foilflader som en tilgivende spilforenkling. Store rorudslag bremser og kan koste løft. For lidt sejltryk, lav fart eller en foil tæt på overfladen kan give touchdown.</p><p><b>Vingesejlet.</b> På katamaranen styrer ↑ / ↓ den samlede vingeåbning. Den stive vinge drejer sammenhængende; dens belastning og strømning vises i instrumenterne. Mere indtrimning kan også give stall og mindre fremdrift.</p><p><b>Automatisk foiltrim.</b> Flapper, rorflader og monohullens bevægelige arme justeres automatisk med begrænset hastighed og korrektion. Reguleringen tillader krængning i sving og korte reaktioner på bølger og pust. Instrumenterne viser de faktiske indstillinger.</p><p><b>Flyvehøjde:</b> Afstanden fra skrogbunden midtskibs til den lokale vandoverflade. På katamaranen vises den laveste af de to skrogbunde. Foilernes dybde vises separat. Begge hovedfoils kan være nede under acceleration og manøvrer.</p><p><b>Banen:</b> Vælg op/ned med gates eller trekant. Begge baner har seks ben og 30 sekunders nedtælling. Se rute, rundingspile og næste mål på kortet. Cup-bådene får længere baner og mere plads til runding.</p></div><div class="help-grid dinghy-only"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Skødet bliver stående.</span><span>1 · 2 · 3</span><span>På Svær vælger du Inde, Kant eller Fuld hængning. På Let vælger besætningen selv og kan slække Laserjollens sejl ved stor krængning.</span><span>Q / E</span><span>1–3 placerer besætningen i luv på Svær. Tryk 2 i vindøjet for at krydse. Q vælger bagbord, og E vælger styrbord, når vinden ikke har en tydelig side.</span><span>C · Mellemrum</span><span>Skift kamera · Pause og fortsæt</span><span>R · H · V · B</span><span>Genstart · Hjælp · Vejr og vind · Vælg båd (sætter på pause)</span><span>Touch</span><span>Træk rorkontrollen til venstre. Skødeskyderen til højre bliver stående. Begge kan bruges samtidig.</span></div><p class="help-tip"><b>Ror og trim:</b> Korte tryk giver små rorudslag. Hold en pil for at dreje mere. Brug ↑ og ↓ til skødet. På Let flytter besætningen vægten, også gennem en vending. Roret skal have vandstrøm for at dreje båden.</p><div class="help-tip dinghy-only"><p><b>Vejr og vind:</b> Tryk V eller vælg Vejr øverst. Vælg mellem solskin, overskyet, regn, tåge, bygevejr og solnedgang. Vindstyrke, retning, pust, bølger, regn, skyer og tåge kan justeres hver for sig.</p><p><b>På kryds:</b> Hold vinden skråt forfra. Hal ind, til sejlet trækker uden at stalle. Skift hals ved at dreje stævnen gennem vinden med restfart.</p><p><b>Med vinden:</b> Slæk gradvist ud. På læns skubber vinden på sejlet; dragdomineret strømning er normal her.</p><p><b>Gennem banen:</b> Sejl gennem hver lysende port i pilens retning, med den orange bøje om bagbord. Sejl mellem gatebøjerne og rund en af dem udad, eller rund trekantens mærker om bagbord. Følg ruten i rækkefølge. En forkert passage bliver ved med at være aktiv, så den kan rettes.</p><p><b>Vægtplacering på Svær.</b> 2 – Kant er den tilgivende standardstilling. Brug 1 – Inde i svag vind og 3 – Hæng, når sejltrykket kræver større modvægt. Fuld hængning kan give overbalance ved et vindhul. Kroppen og det beregnede tyngdepunkt flyttes sammen. På kølbåden flytter én person kun lidt på den samlede balance.</p><p><b>Krængning:</b> Stor krængning koster fart. Slæk i et pust. Ved kæntring flyder jollen videre. Automatisk opretning starter med det samme og afleverer kontrollen senest efter fem sekunder, mens fanen er aktiv. Sejlet aflastes, og besætningen sættes ind i båden. Øvelsens rekord bortfalder.</p></div><div class="help-tip"><p><b>Små korrektioner:</b> Korte styretryk giver små kurskorrektioner. Et længere tryk øger gradvist den ønskede drejehastighed. Modsat pil begynder straks at bremse drejningen. De lysende pile viser din kommando; rorvisningen viser den faktiske vinkel. Følsomhed, kontrolhastighed, fysisk dæmpning og kamera kan justeres hver for sig i Vejr.</p><p><b>Kom ud af vindøjet:</b> Hold venstre eller højre pil, indtil stævnen peger ud på en sejlbar kurs. Roret skal have vandstrøm for at kunne dreje båden. På Let kan du selv slå sejlbakning til under Sejlhjælp. Indstillingen “Bak sejlet i vindøjet” giver desuden besætningen lov til kortvarigt at bakke sejlet. Fremdriften kræver stadig en brugbar kurs og passende trim.</p><p><b>Se, hvor vinden går hen:</b> De fine strøg på vandet driver med den sande vind. Grønne og orange pile på instrumentet viser derimod, hvor vinden kommer fra. Kyst, fyr, mole og kølvand ligger fast i verden.</p></div><button class="primary" data-close="help">Tilbage til vandet <span>→</span></button></div></section>
 <section class="modal-layer" id="details" hidden=""><div class="modal"><button class="close" data-close="details" aria-label="Luk instrumenter">×</button><div class="eyebrow">SAMME TILSTAND · ALLE INSTRUMENTER</div><h2>Vind &amp; bevægelse</h2><div class="detail-grid"><div><small>TWS · sand vindhastighed</small><b id="twsDetail">—</b></div><div><small>TWD · sand vind fra</small><b id="twdDetail">—</b></div><div><small>TWA · sand vindvinkel</small><b id="twaDetail">—</b></div><div><small>AWS · relativ vindhastighed</small><b id="awsDetail">—</b></div><div><small>AWA · relativ vindvinkel</small><b id="awaDetail">—</b></div><div><small>VMG mod næste mærke</small><b id="vmgDetail">—</b></div></div><p>Grøn viser sand vind. Orange viser relativ vind. Pilene viser, hvor vinden kommer <b>fra</b>. Både bådens fart og dens kurs ændrer den relative vind. Vindvinklen er ubestemt ved næsten nul vind.</p>
@@ -767,229 +811,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 <script src="assets/simulation/foils.js"></script>
 <script src="assets/simulation/recovery.js"></script>
 <script src="assets/simulation/weather.js"></script>
-<script>
-/* FRI VIND v11 — one world-fixed race model for physics registration, map and 3D.
- * SI metres/seconds. World x=east, y=north; theta CCW from east.
- * Simplified solo sailing instructions inspired by RRS 2025–2028 definitions
- * Start / Sail the Course / Finish and Appendix S. NOT a complete RRS engine:
- * no right-of-way, protests, mark-touch penalties or rule 30 starting flags.
- * Roundings follow the actual swept track and required side. No maximum
- * rounding radius; proximity alone never advances a visit. Gates require
- * entry between the pair, followed by an outward turn around either buoy.
- * Start/finish use hull only, never rig, foils, sailor or wake. Monotonic
- * elapsed time from the gun includes pauses, suspensions and recovery.
- */
-(function(g){
-'use strict';
-const PI=Math.PI,TAU=PI*2,EPS=1e-7,clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
-const dot=(a,b)=>a.x*b.x+a.y*b.y,cross=(a,b)=>a.x*b.y-a.y*b.x;
-const sub=(a,b)=>({x:a.x-b.x,y:a.y-b.y}),add=(a,b)=>({x:a.x+b.x,y:a.y+b.y});
-const mul=(a,k)=>({x:a.x*k,y:a.y*k}),len=a=>Math.hypot(a.x,a.y);
-const unit=a=>{const n=len(a);return n>EPS?mul(a,1/n):{x:0,y:1};};
-const right=a=>({x:a.y,y:-a.x}),neg=a=>({x:-a.x,y:-a.y});
-const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a)),positive=a=>(a%TAU+TAU)%TAU;
-const mix=(a,b,t)=>a+(b-a)*t,along=(p,c,d)=>dot(sub(p,c),d);
-const interpolate=(a,b,t)=>({x:mix(a.x,b.x,t),y:mix(a.y,b.y,t),theta:(a.theta||0)+wrap((b.theta||0)-(a.theta||0))*t,heel:(a.heel||0)+wrap((b.heel||0)-(a.heel||0))*t,pitch:(a.pitch||0)+wrap((b.pitch||0)-(a.pitch||0))*t});
-const monotonic=()=>typeof performance!=='undefined'?performance.now():Date.now();
-const courseDistanceScale=g.ArchipelagoData?.horizontalScale??1;
-// Game course dimensions based on useful upwind VMG and turning room.
-// These are design values, not measured boat polars or racing class rules.
-const SIZES={laser:{length:210,gateWidth:36,roundingRadius:11,expectedUpwindVMG:1.8},dinghy:{length:280,gateWidth:50,roundingRadius:16,expectedUpwindVMG:2.45},yacht:{length:480,gateWidth:118,roundingRadius:40,expectedUpwindVMG:3.8},ac75:{length:960,gateWidth:230,roundingRadius:76,expectedUpwindVMG:7.6},ac72:{length:1120,gateWidth:270,roundingRadius:86,expectedUpwindVMG:8.8}};
-const TYPES={gates:'Op/ned',triangle:'Trekant'};
-function planeCross(a,b,c,n){const x=along(a,c,n),y=along(b,c,n);return x<=EPS&&y>EPS&&y-x>EPS?clamp(-x/(y-x),0,1):null;}
-function closestSegment(a,b,p){const d=sub(b,a),q=dot(d,d),t=q>EPS?clamp(dot(sub(p,a),d)/q,0,1):0;return len(sub(add(a,mul(d,t)),p));}
-function boundsOf(points,margin=0){return {minX:Math.min(...points.map(p=>p.x))-margin,maxX:Math.max(...points.map(p=>p.x))+margin,minY:Math.min(...points.map(p=>p.y))-margin,maxY:Math.max(...points.map(p=>p.y))+margin};}
-function rounding(buoy,incoming,outgoing,side='port'){
- const rotation=side==='port'?1:-1,start=mul(right(incoming),rotation),end=mul(right(outgoing),rotation),startAngle=Math.atan2(start.y,start.x),sweep=positive(rotation*(Math.atan2(end.y,end.x)-startAngle))||TAU;
- return {buoyId:buoy.id,side,rotation,startAngle,endAngle:startAngle+rotation*sweep,sweep,entryDirection:{...incoming},outgoingDirection:{...outgoing}};
-}
-function terrainPlacement(localPoints,axis,rt,shapeCentre,margin){
- // Validate the tactical envelope, including tacking room and turns, using
- // the actual contact-physics bathymetry, not a separate decorative coast.
- const terrain=g.SailingWorld,raw=boundsOf(localPoints,margin),samples=[],step=55*courseDistanceScale,
-  nx=Math.max(2,Math.ceil((raw.maxX-raw.minX)/step)),ny=Math.max(2,Math.ceil((raw.maxY-raw.minY)/step));
- for(let i=0;i<=nx;i++)for(let j=0;j<=ny;j++)samples.push({x:mix(raw.minX,raw.maxX,i/nx),y:mix(raw.minY,raw.maxY,j/ny)});
- const candidates=[{x:0,y:0}];for(const distance of[250,500,750,1000,1400,1900,2500,3200,4000,5000])for(let k=0;k<24;k++){const a=k*TAU/24,radius=distance*courseDistanceScale;candidates.push({x:Math.cos(a)*radius,y:Math.sin(a)*radius});}
- let chosen=null,best=-Infinity;
- for(const centre of candidates){const origin=sub(centre,add(mul(rt,shapeCentre.x),mul(axis,shapeCentre.y)));let depth=90,safe=true;for(const q of samples){const p=add(origin,add(mul(rt,q.x),mul(axis,q.y))),h=terrain?terrain.heightAt(p.x,p.y):-90;depth=Math.min(depth,-h);if(h> -10){safe=false;break;}}if(safe){chosen={origin,depth,centre};break;}if(depth>best){best=depth;chosen={origin,depth,centre};}}
- return {...chosen,localBounds:raw,checkedSamples:samples.length};
-}
-function makeModel(env,c,type){
- const base=SIZES[c.id]||SIZES.laser,sz={...base,length:base.length*courseDistanceScale,
-  gateWidth:base.gateWidth*courseDistanceScale,roundingRadius:base.roundingRadius*courseDistanceScale};
- const L=sz.length,a=(90-(Number(env.direction)||0))*PI/180,axis={x:Math.cos(a),y:Math.sin(a)},rt=right(axis),isTriangle=type==='triangle',variant=env.courseVariant==='long'?'long':'short';
- const turn=sz.roundingRadius,lineWidth=Math.max(7*c.length,sz.gateWidth*.82),lineU=-.24*L,finishU=isTriangle?1.24*L:lineU;
- const tactical=[{x:-.90*L,y:0},{x:.48*L,y:0},{x:-.90*L,y:1.24*L},{x:.48*L,y:1.24*L},{x:0,y:lineU}],centre={x:isTriangle?-.20*L:0,y:.5*L},placed=terrainPlacement(tactical,axis,rt,centre,turn*1.4+c.length),origin=placed.origin;
- const point=(r,u)=>add(origin,add(mul(rt,r),mul(axis,u))),buoyScale=clamp(Math.sqrt(c.length/4.23),1,2.15),buoyRadius=.65*buoyScale,buoys=[];
- const buoy=(id,label,r,u,color,role,scale=buoyScale)=>{const b={id,label,name:label,...point(r,u),color,role,radius:.65*scale,scale};buoys.push(b);return b;};
- const startA=buoy('start-port','S',-lineWidth/2,lineU,'#ff9f36','start'),startB=buoy('start-starboard','S',lineWidth/2,lineU,'#ff9f36','start-boat'),lineCentre=point(0,lineU);
- const startLine={id:'start',a:{x:startA.x,y:startA.y},b:{x:startB.x,y:startB.y},normal:{...axis},centre:lineCentre,buoyIds:[startA.id,startB.id],label:'Start'};
- let finishLine;
- if(isTriangle){const fa=buoy('finish-port','M',-lineWidth/2,finishU,'#4299ed','finish'),fb=buoy('finish-starboard','M',lineWidth/2,finishU,'#4299ed','finish');finishLine={id:'finish',a:{x:fa.x,y:fa.y},b:{x:fb.x,y:fb.y},normal:{...axis},centre:point(0,finishU),buoyIds:[fa.id,fb.id],label:'Mål'};}
- else finishLine={...startLine,id:'finish',normal:neg(axis),label:'Mål'};
- const one=buoy('mark-1','1',0,L,'#ffad37','windward');
- let targets,gateGroups=[];
- if(isTriangle){const two=buoy('mark-2','2',-.72*L,.53*L,'#ffad37','wing');const left=buoy('gate-left','3s',-sz.gateWidth/2,0,'#ffad37','leeward'),rightBuoy=buoy('gate-right','3b',sz.gateWidth/2,0,'#ffad37','leeward');const gate={id:'gate-3',label:'Gate 3',...point(0,0),pair:[left,rightBuoy]};gateGroups.push({id:gate.id,label:gate.label,buoyIds:gate.pair.map(b=>b.id),x:gate.x,y:gate.y});targets=variant==='long'?[one,two,gate,one,gate]:[one,two,gate];}
- else {const offset=buoy('mark-1a','1a',-.18*L,.94*L,'#e04b3f','offset',buoyScale*.72);const left=buoy('gate-left','2s',-sz.gateWidth/2,0,'#ffad37','leeward'),rightBuoy=buoy('gate-right','2b',sz.gateWidth/2,0,'#ffad37','leeward');const gate={id:'gate-2',label:'Gate 2',...point(0,0),pair:[left,rightBuoy]};gateGroups.push({id:gate.id,label:gate.label,buoyIds:gate.pair.map(b=>b.id),x:gate.x,y:gate.y});targets=variant==='long'?[one,offset,gate,one,offset,gate,one,offset]:[one,offset,gate,one,offset];}
- const route=[];
- for(let i=0;i<targets.length;i++){
-  const target=targets[i],from=i?targets[i-1]:lineCentre,to=targets[i+1]||finishLine.centre,incoming=unit(sub(target,from)),outgoing=unit(sub(to,target));
-  if(target.pair){const gateIn=neg(axis),gateOut=axis;route.push({id:'visit-'+(i+1),kind:'gate',label:target.label,gateId:target.id,x:target.x,y:target.y,buoyIds:target.pair.map(b=>b.id),side:'choice',incoming:gateIn,outgoing:gateOut,roundings:[rounding(target.pair[0],gateIn,gateOut,'starboard'),rounding(target.pair[1],gateIn,gateOut,'port')]});}
-  else route.push({id:'visit-'+(i+1),kind:'round',label:target.label,x:target.x,y:target.y,buoyIds:[target.id],side:'port',incoming,outgoing,roundings:[rounding(target,incoming,outgoing,'port')]});
- }
- route.push({id:'visit-'+(targets.length+1),kind:'finish',label:'Mål',...finishLine.centre,buoyIds:finishLine.buoyIds,side:'line',incoming:{...finishLine.normal},outgoing:{...finishLine.normal},line:finishLine,roundings:[]});
- const lb=placed.localBounds,corners=[point(lb.minX,lb.minY),point(lb.minX,lb.maxY),point(lb.maxX,lb.minY),point(lb.maxX,lb.maxY)],spawnPoint=point(-lineWidth*.16,lineU-Math.max(c.length*2.4,L*.105));
- return {type,variant,name:TYPES[type],axis,right:rt,origin,buoys,gateGroups,startLine,finishLine,route,bounds:boundsOf(corners),roundingRadius:turn,gateWidth:sz.gateWidth,spawn:{...spawnPoint,theta:Math.atan2(axis.y,axis.x)-55*PI/180},meta:{version:12,length:L,gateWidth:sz.gateWidth,startLineWidth:lineWidth,startOffset:lineU,roundingRadius:turn,expectedUpwindVMG:sz.expectedUpwindVMG,expectedUpwindSeconds:L/sz.expectedUpwindVMG,minimumDepth:placed.depth,terrainSamples:placed.checkedSamples,tacticalCorners:corners,calibration:'Banestørrelse er spilkalibrering.'}};
-}
-const hullCache=new Map();
-function hullGeometry(c){
- if(hullCache.has(c.id))return hullCache.get(c.id);const vertices=[],edges=[],sections=c.hullSections||[[-c.length/2,c.beam/2],[c.length/2,c.beam/2]],B=g.SailingBoats;
- for(const offset of c.hullOffsets||[0]){let previous=null;for(const[x,w]of sections){const coords=[[w,c.deckY],[0,c.deckY],[-w,c.deckY],[-w*.5,B?.hullBottom(c,x,-w*.5)??c.deckY-c.hullDepth],[0,B?.hullBottom(c,x,0)??c.deckY-c.hullDepth],[w*.5,B?.hullBottom(c,x,w*.5)??c.deckY-c.hullDepth]],ring=[];for(const[z,y]of coords){ring.push(vertices.length);vertices.push({x,y,z:z+offset});}for(let i=0;i<ring.length;i++){edges.push([ring[i],ring[(i+1)%ring.length]]);if(previous)edges.push([previous[i],ring[i]]);}previous=ring;}}
- const out={vertices,edges};hullCache.set(c.id,out);return out;
-}
-function projectedHull(state,c){
- const{vertices}=hullGeometry(c),theta=state.theta||0,fx=Math.cos(theta),fy=Math.sin(theta),rx=fy,ry=-fx,ch=Math.cos(state.heel||0),sh=Math.sin(state.heel||0),cp=Math.cos(state.pitch||0),sp=Math.sin(state.pitch||0);
- return vertices.map(p=>{const up=ch*p.y-sh*p.z,r=sh*p.y+ch*p.z,f=cp*p.x-sp*up;return{x:state.x+f*fx+r*rx,y:state.y+f*fy+r*ry};});
-}
-function wholeHullBefore(state,c,line){return projectedHull(state,c).every(p=>along(p,line.a,line.normal)<=EPS);}
-function roots(a,b,c){if(Math.abs(a)<1e-12)return Math.abs(b)>1e-12?[-c/b]:[];const d=b*b-4*a*c;if(d<0)return[];const sq=Math.sqrt(Math.max(0,d));return[(-b-sq)/(2*a),(-b+sq)/(2*a)];}
-function sweptHullCross(previous,state,c,line){
- const old=projectedHull(previous,c),now=projectedHull(state,c),d=sub(line.b,line.a),l2=dot(d,d),n=line.normal,candidates=[];
- for(let i=0;i<old.length;i++){const a=along(old[i],line.a,n),b=along(now[i],line.a,n);if(a<=EPS&&b>EPS&&b-a>EPS){const t=clamp(-a/(b-a),0,1),p=add(old[i],mul(sub(now[i],old[i]),t)),u=dot(sub(p,line.a),d)/l2;if(u>=-EPS&&u<=1+EPS)candidates.push(t);}}
- // A finite line endpoint can enter a swept hull edge although every
- // vertex passes outside the line. Solve this moving-edge quadratic too.
- for(const[i,j]of hullGeometry(c).edges){const p=old[i],dp=sub(now[i],p),e=sub(old[j],p),de=sub(sub(now[j],old[j]),dp);for(const q of[line.a,line.b]){const r=sub(q,p),a=-cross(de,dp),b=cross(de,r)-cross(e,dp),cc=cross(e,r);for(const t of roots(a,b,cc))if(t>=-EPS&&t<=1+EPS){const tt=clamp(t,0,1),v=add(e,mul(de,tt)),r2=sub(q,add(p,mul(dp,tt))),v2=dot(v,v),u=v2>EPS?dot(r2,v)/v2:-1;if(u>=-EPS&&u<=1+EPS&&dot(add(dp,mul(de,clamp(u,0,1))),n)>EPS)candidates.push(tt);}}}
- return candidates.length?Math.min(...candidates):null;
-}
-class SailingCourse{
- constructor(env={},mode='free',type=env.courseType||'gates',model){this.reset(env,mode,type,model);}
- reset(env={},mode='free',type=env.courseType||'gates',model){
-  this.mode=mode;this.type=model?.type||(Object.hasOwn(TYPES,type)?type:'gates');this.config=g.SailingBoats?.get(env.boatId)||{id:'laser',length:4.23,beam:1.37,deckY:.245,hullDepth:.385};
-  const courseBoat=env.courseScaleBoatId?g.SailingBoats?.get(env.courseScaleBoatId):this.config;
-  this.model=model||makeModel(env,courseBoat||this.config,this.type);this.marks=mode==='free'?[]:this.model.buoys;this.route=mode==='free'?[]:this.model.route;
-  this.index=0;this.phase=mode==='course'?'preview':'free';this.time=0;this.countdown=30;this.finished=false;this.valid=true;this.newBest=false;this.recoveries=0;this.ocs=false;this.startArmed=false;this.started=false;this.lastEvent=null;this.lastEvents=[];this.storage=true;this._clockMs=null;this._routeState=null;this._lastMissKey=null;this._lastMissMs=-Infinity;this._suppressSegment=false;
-  this.startVisit={id:'start',kind:'start',label:'Startlinjen',...this.model.startLine.centre,buoyIds:this.model.startLine.buoyIds,side:'line',incoming:this.model.axis,outgoing:this.model.axis,line:this.model.startLine,roundings:[]};
-  const foiler=this.config.kind==='foiler';this.settings={version:13,rules:'swept-hull-ordered-track-v12',type:this.type,variant:this.model.variant,courseLength:this.model.meta.length,origin:this.model.origin,boatId:this.config.id,steering:'authority-yaw-assist-v10',balance:'bounded-crew-v10',recovery:'automatic-wall-clock-v10',speed:env.speed,direction:env.direction,gusts:env.gusts,waveHeight:env.waveHeight??env.waves,autoBalance:foiler?'automatic-foil-crew':env.autoBalance,ironsHelp:env.ironsHelp!==false,helpers:env.helpers!==false,controlSensitivity:env.controlSensitivity??1,controlRate:env.controlRate??1,motionDamping:env.motionDamping??1,daylight:env.daylight??env.weather??'day',rain:env.rain||0,fog:env.fog||0,clouds:env.clouds||0,seed:env.seed||1};
-  if(this.model.variant==='custom')Object.assign(this.settings,{customId:this.model.meta.customId,customVersion:this.model.meta.customVersion});
-  if(Number.isFinite(env.chop)&&Number.isFinite(env.waveHeight)&&!Number.isFinite(env.waves))this.settings.chop=env.chop;
-  if(env.difficulty==='easy')this.settings.balance='automatic-crew-v1';
-  this.key='frivind-v12:'+JSON.stringify({...this.settings,map:g.ArchipelagoData?.version});this.best=null;
-  try{
-   let best=g.localStorage?.getItem(this.key);
-   const {chop,...previousSettings}=this.settings;
-   const comparableLegacy=chop===undefined||chop===g.SailingSettings.migrate({waveHeight:previousSettings.waveHeight}).chop;
-   if(best==null&&chop!==undefined&&comparableLegacy)best=g.localStorage?.getItem('frivind-v12:'+JSON.stringify(previousSettings));
-   const sea=Number.isFinite(env.waveHeight)?g.SailingSettings.legacySeaName(env.waveHeight):env.waves;
-   const light=this.settings.daylight===0?'day':this.settings.daylight===1?'evening':this.settings.daylight;
-   // Records made with the old menu remain comparable at its exact settings.
-   if(best==null&&comparableLegacy&&sea!==undefined&&(light==='day'||light==='evening')){
-    const legacy=Object.fromEntries(Object.entries(previousSettings).map(([name,value])=>
-     name==='waveHeight'?['sea',sea]:[name,name==='daylight'?light:value]));
-    best=g.localStorage?.getItem('frivind-v12:'+JSON.stringify(legacy));
-   }
-   if(Number.isFinite(+best)&&+best>0)this.best=+best;
-  }catch(e){this.storage=false;}return this;
- }
- beginCountdown(nowMs=monotonic(),state){
-  if(this.mode!=='course'||this.phase!=='preview')return false;
-  this.countdownAtMs=nowMs;this.gunAtMs=nowMs+30000;this._clockMs=nowMs;this.phase='countdown';this.countdown=30;this.time=0;this._lastState=state?interpolate(state,state,0):null;return true;
- }
- _event(type,message,extra={}){const e={type,message,index:this.index,visitId:this.route[this.index]?.id||null,time:this.time,...extra};this.lastEvent=e;return e;}
- _miss(message,code,events,fraction=0){const key=this.index+':'+code,now=this._clockMs??0;if(key!==this._lastMissKey||now-this._lastMissMs>2500){events.push(this._event('miss',message,{code,fraction}));this._lastMissKey=key;this._lastMissMs=now;}}
- advanceClock(nowMs=monotonic(),state){
-  const events=[];if(this.mode!=='course'||this.phase==='preview'||this.finished)return events;
-  if(!Number.isFinite(nowMs))nowMs=monotonic();this._clockMs=Math.max(this._clockMs??nowMs,nowMs);this.countdown=Math.max(0,(this.gunAtMs-this._clockMs)/1000);this.time=Math.max(0,(this._clockMs-this.gunAtMs)/1000);
-  if(this.phase==='countdown'&&this._clockMs>=this.gunAtMs){this.phase='starting';this.startArmed=!!state&&wholeHullBefore(state,this.config,this.model.startLine);this.ocs=!this.startArmed;if(this.ocs)this._miss('Tilbage over startlinjen — hele skroget skal tilbage.','ocs',events);}
-  if(state)this._lastState=interpolate(state,state,0);return events;
- }
- invalidate(reason){if(this.mode==='course'&&!this.finished){this.valid=false;this.invalidReason=reason;}}
- target(){if(this.mode!=='course'||this.finished)return null;return this.started?this.route[this.index]||null:this.startVisit;}
- activeBuoyIds(){return this.target()?.buoyIds?.slice()||[];}
-  status(){if(this.mode!=='course')return'Fri sejlads';if(this.phase==='preview')return this.model.name+' · Baneoversigt';if(this.phase==='countdown')return'Start om '+Math.ceil(this.countdown)+' s';if(this.phase==='starting')return this.ocs?'Tilbage over startlinjen':'Start! Kryds linjen i pilens retning';if(this.finished)return'Mål · '+this.model.name;return'Trin '+(this.index+1)+' af '+this.route.length+' · Næste: '+this.route[this.index].label;}
-  hint(){if(this.phase==='preview')return'Ruten ligger fast. Start en 30 sekunders nedtælling, når du er klar.';if(this.phase==='countdown')return'Placér hele skroget på startsiden ved eller efter signalet.';if(this.phase==='starting')return this.ocs?'Vend tilbage, til hele skroget er på startsiden. Følg derefter startlinjens pil.':'Sejl mellem startbøjerne i pilens retning.';const v=this.route[this.index];if(!v)return this.finished?'Banen er gennemført.':'';if(v.kind==='gate')return this._routeState?.entered?'Rund en gatebøje udad, og sejl mod næste mærke.':'Sejl ind mellem gatebøjerne, og rund en af dem udad.';if(v.kind==='finish')return'Kryds mellem målbøjerne i pilens retning.';return'Hold mærket til '+(v.side==='starboard'?'styrbord':'bagbord')+'. Sejl rundt og ud mod næste ben.';}
- noteDiscontinuity(state,nowMs){if(nowMs!==undefined)this.advanceClock(nowMs,state);this._routeState=null;this.startArmed=false;this._suppressSegment=true;this._lastState=state?interpolate(state,state,0):null;}
- _stateFor(v,p){if(!this._routeState||this._routeState.id!==v.id)this._routeState={id:v.id,armed:along(p,v,v.incoming)<-EPS,entered:false,candidates:[]};return this._routeState;}
- _visitSegment(a,b,v,events,fa,fb){
-  const rs=this._stateFor(v,a),n=v.incoming;if(along(a,v,n)<-EPS)rs.armed=true;
-  if(!rs.entered){
-   const t=planeCross(a,b,v,n);if(t===null||!rs.armed){if(along(b,v,n)<-EPS)rs.armed=true;return null;}
-   const p=interpolate(a,b,t),eventFraction=mix(fa,fb,t);rs.armed=false;
-   if(v.kind==='gate'){
-    const pair=v.buoyIds.map(id=>this.model.buoys.find(q=>q.id===id)),gateVector=sub(pair[1],pair[0]),u=dot(sub(p,pair[0]),gateVector)/dot(gateVector,gateVector),edgeMargin=Math.min(.12,(pair[0].radius+.12*this.config.beam)/len(gateVector));
-    if(u<=edgeMargin||u>=1-edgeMargin){this._miss('Sejl ind mellem '+v.label.toLowerCase()+'s to bøjer fra det foregående ben.','gate-entry',events,eventFraction);return null;}
-   }else{
-    const r=v.roundings[0],buoy=this.model.buoys.find(q=>q.id===r.buoyId),side=dot(sub(p,buoy),mul(right(n),r.rotation));
-    if(side<=buoy.radius){this._miss(v.label+' skal holdes til '+(v.side==='starboard'?'styrbord':'bagbord')+'. Gå tilbage og rund på den viste side.','round-side',events,eventFraction);return null;}
-   }
-   rs.entered=true;rs.candidates=v.roundings.map(r=>({...r,progress:0,buoy:this.model.buoys.find(q=>q.id===r.buoyId)}));
-   return this._afterEntry(p,b,v,rs,events,eventFraction,fb,t);
-  }
-  return this._afterEntry(a,b,v,rs,events,fa,fb,0);
- }
- _afterEntry(a,b,v,rs,events,fa,fb,baseFraction){
-  const hits=[];
-  for(const c of rs.candidates){
-   const u=sub(a,c.buoy),w=sub(b,c.buoy),delta=Math.atan2(cross(u,w),dot(u,w))*c.rotation;
-   if(closestSegment(a,b,c.buoy)<c.buoy.radius*.72){c.invalid=true;continue;}
-   const t=planeCross(a,b,c.buoy,c.outgoingDirection);
-   if(!c.invalid&&t!==null){const p=interpolate(a,b,t),z=sub(p,c.buoy),at=c.progress+Math.atan2(cross(u,z),dot(u,z))*c.rotation,side=dot(z,mul(right(c.outgoingDirection),c.rotation));if(at>=c.sweep-1e-5&&side>c.buoy.radius)hits.push({t,c});}
-   c.progress+=delta;
-  }
-  if(hits.length){hits.sort((p,q)=>p.t-q.t);const h=hits[0];return{t:baseFraction+(1-baseFraction)*h.t,rounding:h.c,fraction:mix(fa,fb,h.t)};}
-  const back=planeCross(a,b,v,neg(v.incoming));
-  if(back!==null&&rs.candidates.every(c=>c.invalid||c.progress<c.sweep-.08)){
-   const p=interpolate(a,b,back),between=v.kind==='gate'&&Math.abs(dot(sub(p,v),right(v.incoming)))<this.model.gateWidth/2;
-   if(between||rs.candidates.every(c=>c.invalid||c.progress<-.05)){rs.entered=false;rs.armed=true;rs.candidates=[];this._miss(v.kind==='gate'?'Gateindgangen er passeret, men rundingen mangler. Sejl ind og rundt om ydersiden.':'Rund på den viste bagbordside og fortsæt mod næste ben.','round-incomplete',events,mix(fa,fb,back));}
-  }
-  return null;
- }
- _advanceVisit(events,fraction,rounding){const done=this.route[this.index];this.index++;this._routeState=null;this._lastMissKey=null;const next=this.route[this.index];events.push(this._event('mark',done.label+' gennemført — næste: '+next.label+'.',{fraction,completedVisitId:done.id,roundingBuoyId:rounding?.buoyId,roundingSide:rounding?.side}));}
- _finish(events,fraction,eventTimeMs){
-  this.index=this.route.length;this.finished=true;this.phase='finished';this.time=Math.max(0,(eventTimeMs-this.gunAtMs)/1000);this.previousBest=this.best;this.newBest=this.valid&&(this.best===null||this.time<this.best);
-  if(this.newBest){this.best=this.time;if(this.storage)try{g.localStorage?.setItem(this.key,String(this.time));}catch(e){this.storage=false;}}
-  events.push(this._event('finish','Mål! '+this.model.name+' er gennemført.',{fraction,time:this.time,visitId:this.route.at(-1)?.id}));
- }
- update(previous,state,dt,meta={}){
-  const events=[];if(this.mode!=='course'||this.finished||this.phase==='preview')return events;
-  const end=Number.isFinite(meta.nowMs)?meta.nowMs:(this._clockMs??monotonic())+Math.max(0,dt||0)*1000,start=end-Math.max(0,dt||0)*1000;let from=previous,beginFraction=0;
-  // The caller may have advanced its UI clock before dispatching queued
-  // physics segments. Clip by absolute gun time regardless of current phase.
-  // A pre-gun path can never become a valid start merely because a RAF was late.
-  if(end<=this.gunAtMs){events.push(...this.advanceClock(end,state));this.lastEvents=events;return events;}
-  if(start<this.gunAtMs){beginFraction=clamp((this.gunAtMs-start)/Math.max(1e-9,end-start),0,1);from=interpolate(previous,state,beginFraction);if(!this.started){this.startArmed=wholeHullBefore(from,this.config,this.model.startLine);this.ocs=!this.startArmed;}events.push(...this.advanceClock(this.gunAtMs,from));}
-  events.push(...this.advanceClock(end,state));
-  if(meta.discontinuity||state.recovering||state.capsized||previous.recovering||previous.capsized){this.noteDiscontinuity(state);this.lastEvents=events;return events;}
-  if(this._suppressSegment){this._suppressSegment=false;this._routeState=null;this.startArmed=false;this._lastState=interpolate(state,state,0);this.lastEvents=events;return events;}
-  if(this.phase==='countdown')return events;
-  const angle=Math.max(Math.abs(wrap((state.theta||0)-(from.theta||0))),Math.abs(wrap((state.heel||0)-(from.heel||0))),Math.abs(wrap((state.pitch||0)-(from.pitch||0))));
-  const count=Math.min(2048,Math.max(1,Math.ceil(angle/(2*PI/180)),Math.ceil(len(sub(state,from))/Math.max(3,this.config.length*.65))));
-  for(let k=0;k<count&&!this.finished;k++){
-   let a=interpolate(from,state,k/count),b=interpolate(from,state,(k+1)/count),fa=mix(beginFraction,1,k/count),fb=mix(beginFraction,1,(k+1)/count),loops=0;
-   while(loops++<12&&!this.finished){
-    if(!this.started){
-     if(wholeHullBefore(a,this.config,this.model.startLine)){this.startArmed=true;this.ocs=false;}
-     const t=this.startArmed?sweptHullCross(a,b,this.config,this.model.startLine):null;
-     if(t!==null){const f=mix(fa,fb,t);this.started=true;this.phase='racing';this.ocs=false;this._routeState=null;this.startedAtMs=mix(start,end,f);events.push(this._event('start','Gyldig start — næste: '+this.route[0].label+'.',{fraction:f,time:Math.max(0,(this.startedAtMs-this.gunAtMs)/1000)}));a=interpolate(a,b,Math.min(1,t+1e-9));fa=f;continue;}
-     if(wholeHullBefore(b,this.config,this.model.startLine)){this.startArmed=true;this.ocs=false;}break;
-    }
-    const visit=this.route[this.index];
-    if(visit.kind==='finish'){
-     const rs=this._stateFor(visit,a);if(wholeHullBefore(a,this.config,this.model.finishLine))rs.armed=true;
-     const t=rs.armed?sweptHullCross(a,b,this.config,this.model.finishLine):null;
-     if(t!==null){const f=mix(fa,fb,t);this._finish(events,f,mix(start,end,f));}else if(wholeHullBefore(b,this.config,this.model.finishLine))rs.armed=true;break;
-    }
-    const hit=this._visitSegment(a,b,visit,events,fa,fb);if(!hit)break;
-    const f=hit.fraction;this._advanceVisit(events,f,hit.rounding);a=interpolate(a,b,Math.min(1,hit.t+1e-9));fa=f;
-   }
-  }
-  this._lastState=interpolate(state,state,0);this.lastEvents=events;return events;
- }
-}
-SailingCourse.TYPES=TYPES;SailingCourse.SIZES=SIZES;SailingCourse.geometry={projectedHull,wholeHullBefore,sweptHullCross,rounding,makeModel};
-g.SailingCourse=SailingCourse;if(typeof module!=='undefined'&&module.exports)module.exports=SailingCourse;
-})(typeof globalThis!=='undefined'?globalThis:window);
-
-</script>
+<script src="assets/simulation/course.js"></script>
 <script>
 /* FRI VIND v11 — interactive north-up course chart.
  * World coordinates are metres: x east, y north. Nothing here changes helm,
@@ -4303,6 +4125,7 @@ global.SailingScene=SailingScene;
 <script src="assets/course-editor.js"></script>
 <script src="assets/collisions.js"></script>
 <script src="assets/simulation/runtime.js"></script>
+<script src="assets/live-protocol.js"></script>
 <script src="assets/fleet.js"></script>
 <script src="assets/lobby.js"></script>
 <script src="assets/boat-comparison.js"></script>
@@ -4447,7 +4270,7 @@ class SeaAudio{
 }
 const audio=new SeaAudio();
 function toast(message,seconds=4){$('toast').textContent=message;$('toast').hidden=false;toastTime=performance.now()+seconds*1000;}
-function clearInput(){keys.clear();pendingTaps.clear();pendingTouchSteer=null;touchSteer=0;helmPointer=null;sheetPointer=null;$('helmThumb').style.transform='translateX(0px)';$('touchHelm').setAttribute('aria-valuenow','0');}
+function clearInput(){globalThis.FriVindLobby?.release();keys.clear();pendingTaps.clear();pendingTouchSteer=null;touchSteer=0;helmPointer=null;sheetPointer=null;$('helmThumb').style.transform='translateX(0px)';$('touchHelm').setAttribute('aria-valuenow','0');}
 function setPause(value,reason='Pause',source='user'){
   if(value&&!paused&&started&&mode==='course'&&coursePauseAt===null)coursePauseAt=performance.now();
   if(value!==paused){lastFrame=0;acc=0;}
@@ -4469,7 +4292,7 @@ function cancelRecoveryWatchdog(){if(recoveryWatchdog!==null)clearTimeout(recove
  * It never restores pre-capsize trim. Held steering survives the rescue, while
  * focus loss continues to clear every key to prevent stuck controls. */
 function synchronizeRecovery(now=performance.now()){
-  if(!started||!state)return;
+  if(!started||!state||globalThis.FriVindLobby?.fleet?.inWorld)return;
   const result=R.update(state,liveEnv(),now),record=state.recoveryState;
   if(!record)return;
   const raceClock=paused||modalPaused?undefined:now;
@@ -4668,7 +4491,8 @@ function drawStartLocationMarker(map){
 function reset(which=mode,preparedCourse){
   cancelRecoveryWatchdog();networkView.x=networkView.y=networkView.theta=0;spinCommand=false;crewSideCommand=0;resetRigControls();recoveryNotice=null;focusPaused=false;resumeRecoveryOnFocus=false;toggleTelemetry(false);
   speedReadout=null;
-  const fleet=globalThis.FriVindLobby?.fleet,oldWorld=state;if(fleet?.inWorld&&fleet.host&&which==='course')env.courseScaleBoatId=fleet.largestBoat();else if(!fleet?.inWorld)delete env.courseScaleBoatId;
+  const fleet=globalThis.FriVindLobby?.fleet;
+  if(!fleet?.inWorld)delete env.courseScaleBoatId;
   if(!fleet?.inWorld)env.crewPose=2;
   mode=which;coursePauseAt=null;course=mode==='course'?preparedCourse||selectedCourse():new SailingCourse(env);
   const ordinaryFree=mode==='free'&&!fleet?.inWorld&&!waveTrial&&!windTrial;
@@ -4680,9 +4504,8 @@ function reset(which=mode,preparedCourse){
     const theta=-105*DEG,speed=B.get(env.boatId).kind==='foiler'?4.5:2.6;
     Object.assign(freeSpawn,globalThis.ArchipelagoData.windTrial,{theta,sheet:.32,vx:speed*Math.cos(theta),vy:speed*Math.sin(theta)});
   }
-  const groupSpawn=mode==='course'&&fleet?.inWorld&&fleet.host?fleet.startGrid(course.model).get(fleet.id):null;
-  const spawn=mode==='course'?groupSpawn||course.model?.spawn:freeSpawn;
-  if(groupSpawn||freeSpawn&&(waveTrial||windTrial)){
+  const spawn=mode==='course'?course.model?.spawn:freeSpawn;
+  if(freeSpawn&&(waveTrial||windTrial)){
     const {x,y}=R.safeLocation(spawn,B.get(env.boatId),spawn.theta);
     Object.assign(spawn,{x,y});
   }
@@ -4702,7 +4525,7 @@ function reset(which=mode,preparedCourse){
     initial=trimAtLaunch(initial,model,wind);
   }
   state=Sim.createBoat(env.boatId,initial,env);
-  if(fleet?.inWorld)Sim.alignSpawn(state,oldWorld,true);sheetTarget=state.sheet;previous=snapshot(state);acc=0;track=[];lastTrack=-1;
+  sheetTarget=state.sheet;previous=snapshot(state);acc=0;track=[];lastTrack=-1;
   if(world){world.lastTime=-1;world.cameraReady=false;}
   $('finish').hidden=true;$('recoverPanel').hidden=true;$('toast').hidden=true;
   for(const id of gamePanels)$(id).hidden=true;
@@ -4721,14 +4544,24 @@ function reset(which=mode,preparedCourse){
   }
 }
 function start(which=mode,preparedCourse){
-  const fleet=globalThis.FriVindLobby?.fleet;
-  if(fleet?.inWorld&&!fleet.host){toast('Værten vælger sejltilstand.');return;}
+  const live=globalThis.FriVindLobby,fleet=live?.fleet;
+  if(fleet?.session){
+    if(!fleet.host){toast('Værten vælger sejltilstand.');return;}
+    if(which==='free')live.startFree();
+    else{
+      const race=preparedCourse||selectedCourse({...env,courseScaleBoatId:fleet.largestBoat()});
+      live.startRace(race,race.model.variant==='custom'?editor?.saved:undefined);
+    }
+    return;
+  }
+  startView(which,preparedCourse);
+}
+function startView(which,preparedCourse){
   started=true;
   $('intro').hidden=true;
   $('hud').hidden=false;
   $('sea').tabIndex=0;
   reset(which,preparedCourse);
-  if(which==='free'&&fleet?.inWorld)globalThis.FriVindLobby.startFree();
   audio.start();
 }
 function showRacePreview(){
@@ -4751,7 +4584,7 @@ function showRacePreview(){
   previewMap?.resize();previewMap?.fitCourse(preview);previewMap?.draw();
 }
 function beginRace(){
-  const now=performance.now();course.beginCountdown(now,state);globalThis.FriVindLobby?.startRace(course,now);lastFrame=now;
+  const now=performance.now();course.beginCountdown(now,state);lastFrame=now;
   syncPause();updateUI();$('sea').focus({preventScroll:true});audio.start();toast('30 sekunder til start · manøvrér frit, og hold hele skroget bag linjen.',5);
 }
 function raceEvents(events){for(const event of (Array.isArray(events)?events:events?[events]:[])){
@@ -4759,7 +4592,11 @@ function raceEvents(events){for(const event of (Array.isArray(events)?events:eve
   if(event.message)toast(event.message,event.type==='miss'?4:2.8);
 }}
 function finishRace(){
-  if(!globalThis.FriVindLobby?.fleet?.inWorld)setPause(true);$('finish').hidden=false;$('finishTime').textContent=timeText(course.time);$('finishBest').textContent=timeText(course.previousBest);
+  const fleet=globalThis.FriVindLobby?.fleet;
+  if(!fleet?.inWorld)setPause(true);
+  $('raceAgain').hidden=!!fleet?.inWorld;
+  $('finishFree').textContent=fleet?.inWorld?'Til lobby':'Fri sejlads';
+  $('finish').hidden=false;$('finishTime').textContent=timeText(course.time);$('finishBest').textContent=timeText(course.previousBest);
   const title=(course.model?.name||'Banen')+' · '+B.get(env.boatId).name+'. ';
   $('finishMessage').textContent=title+(!course.valid?'Gennemført som træning. Ændrede forhold, opretning eller kontakt med land udelukker rekord.':course.newBest?'Ny personlig rekord under samme vind, båd, bane og hjælpemidler.':'Alle mærker og målpassagen er gennemført i rigtig rækkefølge.');$('pauseBadge').hidden=true;
 }
@@ -4827,7 +4664,7 @@ function chooseBoat(id){
   if(globalThis.FriVindLobby?.boatChanged(id)===false){syncSettings();return;}
   if(id===env.boatId){if(!$('boatPicker').hidden)closePanel('boatPicker');return;}
   crewSideCommand=0;resetRigControls();speedReadout=null;
-  if(globalThis.FriVindLobby?.fleet?.inWorld){const old=state;networkView.x=networkView.y=networkView.theta=0;spinCommand=false;env.boatId=id;env.crewPose=2;state=Sim.createBoat(id,{x:old.x,y:old.y,theta:old.theta,time:old.time,vx:old.vx,vy:old.vy},env);Sim.alignSpawn(state,old,true);previous=snapshot(state);sheetTarget=state.sheet;closePanel('boatPicker');syncSettings();return;}
+  if(globalThis.FriVindLobby?.fleet?.inWorld){closePanel('boatPicker');return;}
   env.boatId=id;env.crewPose=2;reset();
   if(started&&mode==='free')toast(B.get(id).name,2);
 }
@@ -4838,7 +4675,7 @@ function settingChanged(){
 }
 function weatherLocked(){
   const f=globalThis.FriVindLobby?.fleet;
-  return !!(f?.inWorld&&!f.host);
+  return !!(f?.session&&!f.host);
 }
 let weatherSaveTimer=null;
 function saveWeather(){
@@ -4859,11 +4696,10 @@ function applyWeather(patch,remote=false){
     if(!changed)return;
   }else if(changed){
     localWeather=Settings.normalize(env);
+    globalThis.FriVindLobby?.fleet?.flushWeather();
     clearTimeout(weatherSaveTimer);
     weatherSaveTimer=setTimeout(saveWeather,180);
     course.invalidate('Vejret er ændret');
-    const fleet=globalThis.FriVindLobby?.fleet;
-    if(fleet?.host)for(const race of fleet.races.values())race.invalidate('Vejret er ændret');
   }
   syncWeatherFields();
   updateWeatherWind();
@@ -5066,7 +4902,13 @@ function bind(){
     savePreferences();
     start('free');
   };
-  $('finishFree').onclick=()=>start('free');
+  $('finishFree').onclick=()=>{
+    const live=globalThis.FriVindLobby;
+    if(!live?.fleet?.inWorld){start('free');return;}
+    $('finish').hidden=true;
+    if(live.fleet.host&&live.fleet.phase==='results')live.back();
+    else openPanel('lobbyPanel',null,false);
+  };
   $('raceAgain').onclick=()=>start('course');
   $('cameraButton').onclick=switchCamera;$('pauseButton').onclick=()=>{if(started){closePanel('settings');audio.start();setPause(!paused);}};$('resumeButton').onclick=()=>{audio.start();setPause(false);};
   $('soundSetting').oninput=()=>{personal.volume=+$('soundSetting').value/100;if(personal.volume>0)audio.start();savePreferences();syncSettings();};
@@ -5253,20 +5095,20 @@ function input(){
   const crew=difficulty==='easy'?0:crewSideCommand;
   const foreAft=(controlPressed('KeyX')?1:0)-(controlPressed('KeyZ')?1:0)||foreAftTarget;
   const touch=helmPointer===null?pendingTouchSteer:touchSteer;
-  return {steer:steeringInput(touch),
-    steerDigital:touch===null,trimFast,trimKey,
+  return {steer:steeringInput(touch),controlRate:env.controlRate,
+    controlSensitivity:env.controlSensitivity,motionDamping:env.motionDamping,steerDigital:touch===null,trimFast,trimKey,
     trim:clamp(travel/travelLimit,-1,1),crew,foreAft,crewPose:env.crewPose,difficulty,
     ...(state.boatId==='yacht'?{rig:{...rigCommand}}:cfg.heavyAir?{rig:{reef:rigCommand.reef}}:{}),
-    spinnaker:spinCommand,downwindType:spinType};
+    spinnaker:spinCommand,downwindType:spinType,ironsHelp:!!env.ironsHelp};
 }
 function fixedStep(stepNowMs=performance.now()){
   const control=input();pendingTaps.clear();pendingTouchSteer=null;previous=snapshot(state);
-  Sim.stepBoat(state,control,env,Sim.fixedDt,{diagnostics:debug});
-  const contact=globalThis.FriVindLobby?.step(control,stepNowMs,Sim.fixedDt);
+  const live=globalThis.FriVindLobby;
+  if(live?.step(control,stepNowMs,Sim.fixedDt)!==false)Sim.stepBoat(state,control,env,Sim.fixedDt,{diagnostics:debug});
   if(state.recovering||previous.recovering||control.trimKey)sheetTarget=state.sheet;
-  if(!globalThis.FriVindLobby?.fleet?.inWorld||globalThis.FriVindLobby.fleet.host)raceEvents(course.update(previous,state,Sim.fixedDt,{nowMs:stepNowMs,discontinuity:!!(contact||state.recovering||previous.recovering||state.capsized||previous.capsized)}));
+  if(!live?.fleet?.inWorld)raceEvents(course.update(previous,state,Sim.fixedDt,{nowMs:stepNowMs,discontinuity:!!(state.recovering||previous.recovering||state.capsized||previous.capsized)}));
   synchronizeRecovery(performance.now());
-  if(state.ground?.contact&&!previous.ground?.contact){course.invalidate('Kontakt med havbunden');toast('Lavt vand · kontakt med bunden bremser båden.',4);}
+  if(state.ground?.contact&&!previous.ground?.contact){if(!live?.fleet?.inWorld)course.invalidate('Kontakt med havbunden');toast('Lavt vand · kontakt med bunden bremser båden.',4);}
   if(!state.recovering&&!state.capsized&&state.time-lastTrack>.35){track.push({x:state.x,y:state.y,t:state.time,time:state.time});lastTrack=state.time;if(track.length>600)track.shift();}
 }
 function interpolate(alpha){
@@ -5315,14 +5157,18 @@ function frame(now){
   lastFrame=now;synchronizeRecovery(now);
   const multiplayer=!!globalThis.FriVindLobby?.fleet?.inWorld;
   if(multiplayer!==wasMultiplayer){wasMultiplayer=multiplayer;updatePanelPause();}
-  if(receivedWeather&&!multiplayer){Object.assign(env,localWeather);receivedWeather=false;syncSettings();}
+  if(receivedWeather&&!globalThis.FriVindLobby?.fleet?.session){Object.assign(env,localWeather);receivedWeather=false;syncSettings();}
   const active=started&&!paused&&!modalPaused&&(!graphicsUnavailable||multiplayer)&&(!course.finished||multiplayer)&&(!multiplayer||globalThis.FriVindLobby.fleet.ready());
   if(!active||graphicsUnavailable)updateRenderBudget(0,false);
   // Freeze the solo race clock over a pause, including a hidden browser tab.
   const fleet=globalThis.FriVindLobby?.fleet;
-  if(mode==='course'&&course.phase!=='preview'&&(!course.finished||(multiplayer&&fleet.host&&fleet.raceActive))){
+  if(!multiplayer&&mode==='course'&&course.phase!=='preview'&&!course.finished){
     if(!active&&coursePauseAt===null)coursePauseAt=now;
-    if(active&&coursePauseAt!==null){const gap=Math.max(0,now-coursePauseAt),races=[course,...(multiplayer&&fleet.host?[...fleet.races.values()]:[])];for(const race of races){if(race.finished)continue;for(const k of ['gunAtMs','countdownAtMs','_clockMs','startedAtMs'])if(Number.isFinite(race[k]))race[k]+=gap;}coursePauseAt=null;}
+    if(active&&coursePauseAt!==null){
+      const gap=Math.max(0,now-coursePauseAt);
+      for(const k of ['gunAtMs','countdownAtMs','_clockMs','startedAtMs'])if(Number.isFinite(course[k]))course[k]+=gap;
+      coursePauseAt=null;
+    }
   }
   if(active){
     // Keep elapsed simulation time even after a stalled render. Bound each
@@ -5334,8 +5180,8 @@ function frame(now){
       if(performance.now()>=deadline)break;
     }
   }else acc=0;
-  if(active&&(!multiplayer||fleet.host))raceEvents(course.advanceClock?.(now-acc*1000,state));
-  if(multiplayer&&!fleet.host){
+  if(active&&!multiplayer)raceEvents(course.advanceClock?.(now-acc*1000,state));
+  if(multiplayer){
     const decay=Math.exp(-elapsed/.20);networkView.x*=decay;networkView.y*=decay;networkView.theta*=decay;
   }
   // Graphics quality changes drawing work, not camera cadence or input.
@@ -5347,7 +5193,7 @@ function frame(now){
     updateRenderBudget(renderSeconds,active);
     const renderDt=Math.min(.12,renderSeconds);lastRenderAt=now;
     const render=active?interpolate(clamp(acc/Sim.fixedDt,0,1)):{...state};
-    if(multiplayer&&!fleet.host){render.x+=networkView.x;render.y+=networkView.y;render.theta+=networkView.theta;}
+    if(multiplayer){render.x+=networkView.x;render.y+=networkView.y;render.theta+=networkView.theta;}
     const weather=liveEnv();
     world.setGraphicsProfile(effectiveQuality);globalThis.FriVindLobby?.render(renderDt);world.update(render,weather,course,renderDt,{cameraMode,quality:effectiveQuality,helpers:env.helpers,windArrows:personal.windArrows,paused:!active});
     if(started&&raceMap&&!$('courseCard').hidden&&(!raceMap.lastRenderAt||now-raceMap.lastRenderAt>=45)){
@@ -5811,12 +5657,79 @@ try{
       if(!fleet?.inWorld||fleet.host){env.courseType=draft.template;env.courseVariant='custom';}
       closePanel('courseEditor');
     }});
-  bind();if(globalThis.FriVindLobby)globalThis.FriVindLobby.init({openPanel,closePanel,getBoat:()=>env.boatId,state:()=>state,env:()=>liveEnv(),sharedWeather:()=>({...Settings.normalize(env),windSeed:env.windSeed}),scene:()=>world,course:()=>course,results:rows=>{$('raceResults').textContent=rows?.length?'Resultater: '+rows.map((r,i)=>(i+1)+'. '+r.name+' · '+B.get(r.boat).name+' · '+timeText(r.time)).join(' | '):'';},wait:waiting=>{if(!started)return;if(waiting&&!paused)setPause(true,'Venter på værten');else if(!waiting&&paused&&$('pauseReason').textContent==='Venter på værten')setPause(false);},enter:()=>{if(!started)start('free');else if(paused)setPause(false);},free:()=>{if(mode==='free')return;mode='free';course=new SailingCourse(env,'free',env.courseType);$('courseCard').classList.add('free-card');$('finish').hidden=true;updateRaceUI();},race:r=>{if(!r?.model)return;if(mode!=='course'||course.networkSerial!==r.serial){mode='course';env.courseType=r.model.type;course=new SailingCourse(env,'course',r.model.type,r.model);course.networkSerial=r.serial;$('courseCard').classList.remove('free-card');closePanel('racePreview',false);}Object.assign(course,{index:r.index,phase:r.phase,time:r.time,countdown:r.countdown,startAtHostMs:r.startAtHostMs,spectating:!!r.spectating,ocs:r.ocs,started:r.started,finished:r.finished,valid:r.valid});},weather:e=>{if(e)applyWeather({...Settings.migrate(e),windSeed:e.windSeed},true);},correct:(s,pending)=>{if(!s||s.boatId!==state.boatId)return;const shown={x:state.x+networkView.x,y:state.y+networkView.y,theta:state.theta+networkView.theta};state=s;for(const p of pending||[])Sim.stepBoat(state,p.control,env,p.dt,{waitForWind:false});const dx=shown.x-state.x,dy=shown.y-state.y,limit=Math.max(6,B.get(state).length*2);if(Math.hypot(dx,dy)<=limit&&!state.recovering){networkView.x=dx;networkView.y=dy;networkView.theta=P.wrap(shown.theta-state.theta);}else{networkView.x=networkView.y=networkView.theta=0;}previous=snapshot(state);}});syncSettings();$('configSummary').textContent=configSummary();
+  bind();
+  globalThis.FriVindLobby?.init({
+    openPanel,closePanel,getBoat:()=>env.boatId,state:()=>state,env:()=>liveEnv(),
+    sharedWeather:()=>Settings.normalize(env),scene:()=>world,
+    results:rows=>{
+      $('raceResults').textContent=rows.length?'Resultater · '+rows.map((r,i)=>(i+1)+'. '+r.name+' · '+B.get(r.boat).name+' · '+timeText(r.time)).join(' | '):'';
+    },
+    wait:(waiting,reason='Forbindelsen er afbrudt · prøver igen')=>{
+      if(started&&paused!==waiting)setPause(waiting,reason);
+    },
+    enter:()=>{
+      if(!started)startView('free');
+      else if(paused)setPause(false);
+      closePanel('lobbyPanel',false);
+    },
+    lobby:()=>{
+      started=false;paused=false;lastFrame=0;acc=0;
+      $('intro').hidden=false;$('hud').hidden=true;$('courseCard').hidden=true;$('finish').hidden=true;
+      openPanel('lobbyPanel',null,false);
+    },
+    free:()=>{
+      if(mode==='free')return;
+      mode='free';course=new SailingCourse(env);
+      $('courseCard').classList.add('free-card');$('finish').hidden=true;updateRaceUI();
+    },
+    race:r=>{
+      const changed=mode!=='course'||course.networkSerial!==r.serial;
+      if(changed){
+        mode='course';
+        env.courseType=r.model.type;
+        env.courseVariant=r.model.variant;
+        course=new SailingCourse(env,'course',r.model.type,r.model);
+        course.networkSerial=r.serial;
+        $('courseCard').classList.remove('free-card');
+        closePanel('racePreview',false);
+        raceMap.fitCourse(course);
+        $('finish').hidden=true;
+      }
+      const finished=course.finished,oldIndex=course.index;
+      Object.assign(course,{index:r.index,phase:r.phase,time:r.time,countdown:r.countdown,startAtHostMs:r.startAtHostMs,
+        ocs:r.ocs,started:r.started,finished:r.finished,valid:r.valid});
+      if(r.finished&&!finished)finishRace();
+      else if(!changed&&r.started&&r.index>oldIndex)toast('Mærke gennemført',2);
+    },
+    weather:e=>{if(e)applyWeather({...Settings.migrate(e),windSeed:e.windSeed},true);},
+    correct:(s,pending,launch)=>{
+      if(!s)return;
+      const shown={x:state.x+networkView.x,y:state.y+networkView.y,theta:state.theta+networkView.theta};
+      const old=state;
+      const boatChanged=s.boatId!==env.boatId;
+      if(boatChanged)env.boatId=s.boatId;
+      state=s;
+      if(launch){
+        sheetTarget=s.sheet;resetRigControls();clearInput();speedReadout=null;
+        track=[];lastTrack=-1;world.lastTime=-1;
+        if(boatChanged)syncSettings();
+      }
+      if(s.recovering&&!old.recovering){sheetTarget=s.sheet;toast('Automatisk opretning · sejlet aflastes',2);}
+      if(!s.recovering&&old.recovering){sheetTarget=s.sheet;toast('Båden er klar igen',2);}
+      for(const p of pending)Sim.stepBoat(state,p.control,env,p.dt,{waitForWind:false});
+      const dx=shown.x-state.x,dy=shown.y-state.y,limit=Math.max(6,B.get(state).length*2);
+      if(!launch&&Math.hypot(dx,dy)<=limit&&!state.recovering){
+        networkView.x=dx;networkView.y=dy;networkView.theta=P.wrap(shown.theta-state.theta);
+      }else networkView.x=networkView.y=networkView.theta=0;
+      previous=snapshot(state);
+    }
+  });
+  syncSettings();$('configSummary').textContent=configSummary();
   if(world.renderer.debug)world.renderer.debug.onShaderError=(gl,program,vertex,fragment)=>fatal(new Error('WebGL kunne ikke kompilere en shader. '+gl.getShaderInfoLog(vertex)+' '+gl.getShaderInfoLog(fragment)));
   $('buildRevision').textContent=document.querySelector('meta[name="fri-vind-revision"]')?.content||'Lokal fil';
   $('trialIntro').hidden=!waveTrial&&!windTrial;
   if(windTrial)$('trialIntro').textContent='Sejl ud af læ ved Faaborg med 8,5 m/s fra nord';
-  for(const id of ['startButton','introCourse','beginRace','introStartLocation'])$(id).disabled=false;
+  for(const id of ['startButton','introCourse','introLobby','beginRace','introStartLocation'])$(id).disabled=false;
   $('introStartLocation').hidden=waveTrial||windTrial;
   $('loadingText').hidden=true;
   $('coach').hidden=true;

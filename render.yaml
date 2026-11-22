@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: tack-sailing-live
+    runtime: node
+    region: frankfurt
+    plan: free
+    numInstances: 1
+    buildCommand: npm ci --omit=dev
+    startCommand: npm run realtime
+    healthCheckPath: /health
+    autoDeployTrigger: "off"
+    envVars:
+      - key: NODE_VERSION
+        value: 24.16.0
+      - key: TACK_TRUST_PROXY
+        value: "1"
+      - key: TACK_LIVE_AUTHORITY
+        value: browser

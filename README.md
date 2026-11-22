@@ -18,7 +18,7 @@ npm run dev         # http://localhost:5173
 npm run realtime    # WebSocket på port 3001
 ```
 
-Åbn [TACK på localhost](http://localhost:5173/). Vælg **Fri sejlads** eller **Kapsejlads** for at gå i gang. Brug venstre og højre pil til ror, op og ned til trim samt 1–3 til besætningen. Kameraet skifter ét trin pr. tryk. Førsteperson viser udsigten fra rorsmandens øjenhøjde. Før musen over kortet eller tryk på det på touchskærme for at vise kortværktøjerne. Træk i kortets nederste venstre hjørne for at ændre størrelsen. Grafik, kort, kamera og vindpile er personlige valg. Lobbyen bruger en sekscifret kode og accepterer op til seks spillere. Værten vælger fælles vejr og bane.
+Åbn [TACK på localhost](http://localhost:5173/). Vælg **Fri sejlads** eller **Kapsejlads** for at gå i gang. Brug venstre og højre pil til ror, op og ned til trim samt 1–3 til besætningen. Kameraet skifter ét trin pr. tryk. Førsteperson viser udsigten fra rorsmandens øjenhøjde. Før musen over kortet eller tryk på det på touchskærme for at vise kortværktøjerne. Træk i kortets nederste venstre hjørne for at ændre størrelsen. Grafik, kort, kamera og vindpile er personlige valg. Lobbyen bruger en sekscifret kode. Den offentlige gratisversion har to pladser, og den lokale serversimulation kan køre med seks. Værten vælger fælles vejr og bane.
 
 Byg og afprøv produktionsfrontenden med samme lokale live-tjeneste.
 
@@ -27,7 +27,19 @@ npm run build
 FRONTEND_DIR=dist FRONTEND_PORT=4173 npm run dev   # http://localhost:4173
 ```
 
-Lokal produktion bruger port 3001, når `VITE_REALTIME_URL` er tom. Til en offentlig statisk build sættes buildvariablen til den separate live-tjenestes `wss://`-adresse. `vercel.json` peger på `dist/`. Live-tjenesten kører med `npm run realtime` og læser `PORT`. Lobbyerne ligger i én proces i hukommelsen og går tabt ved genstart. Den aktuelle leverance er afprøvet lokalt.
+Uden en offentlig adresse bruger en lokal HTTP-side WebSocket på samme værtsnavn og port 3001.
+
+### Offentlig multiplayer
+
+[Vercel-frontend](https://tack-sailing-simulator.vercel.app/) bygger `dist/` med `npm run build`. Fejlen om en manglende live-adresse kommer fra `assets/lobby.js`, når `dist/assets/config.js` har en tom `FRI_VIND_REALTIME_URL`. Buildet læser **`VITE_REALTIME_URL`** for historisk kompatibilitet med projektets deployment. Projektet bygger med Node og bruger ikke Vite.
+
+1. Opret en Render Web Service fra GitHub med `render.yaml` eller de samme felter manuelt. Kør én instans i Frankfurt med `npm ci --omit=dev` og `npm run realtime`. Serveren lytter på `0.0.0.0` og Render-porten `PORT`. Render afslutter TLS for WebSocket-adressen.
+2. Sæt `TACK_LIVE_AUTHORITY=browser` i Render-miljøet eller i tjenestens startkommando for at bruge gratisversionen. Kontrollér `https://<server>/health` og gennemfør en rigtig WebSocket-oprettelse med `node scripts/smoke-live.cjs wss://<server> https://tack-sailing-simulator.vercel.app`. Svaret viser serverbuild, protokol og verdensversion. Smoke-prøven opretter og lukker en lobby.
+3. Sæt `VITE_REALTIME_URL=wss://<server>` i Vercel **Production** og **Preview**. Byg og deploy på ny. `dist/assets/config.js` i den byggede version skal indeholde adressen. Brug spillets **Sejl sammen** fra den publicerede adresse til den afsluttende prøve.
+
+`render.yaml` vælger én gratis instans og to spillerpladser. En gratis instans kan gå i dvale efter inaktivitet, og næste opstart kan tage omkring et minut. [Render om WebSocket og TLS](https://render.com/docs/websocket) · [Render om Free-instansers dvale](https://render.com/docs/free) · [Vercel om miljøvariabler](https://vercel.com/docs/environment-variables)
+
+`TACK_WEB_ORIGINS` kan afgrænse forbindelser til en kommasepareret liste af de godkendte frontendadresser. Med en tom liste kan Production og genererede Preview-adresser forbinde. `TACK_TRUST_PROXY=1` er til brug bag hostingmiljøets proxy. Serveren logger lobby- og spiller-id’er, oprettelse, tilslutning, afbrydelse, fejl og værtskift. Genforbindelsesnøgler behandles gennem WebSocket-forbindelsen og browserens sessionslager.
 
 ### Test
 
@@ -44,10 +56,12 @@ Browserprøverne bruger Playwright og Chrome. Standardkørslen bruger én testar
 
 ## Simulation og live-tjeneste
 
-- Frontenden tegner øhavet, riggen og vandet i Three.js. Kort, 3D og passagekontrol bruger det samme banemodelobjekt.
-- Værtens browser kører den fælles fysik med et fast tidsskridt på 1/60 sekund. Den beregner gæsternes både, kollisioner, redninger og resultater. Bådkontakt bruger en forenklet ellipsemodel.
-- Live-tjenesten håndterer lobbyer, tilladelser og videresendelse af styreinput og snapshots. Gæster genafspiller input, som endnu ikke er bekræftet, og udglatter positionen i visningen. Et værtsstop sætter den fælles sejlads på pause, mens klienterne venter på genforbindelse.
-- Lokal kontrol har gennemført et helt seksbådsløb og verificeret fælles resultater. Separate prøver kontrollerer individuelle styreinput, andre rigtyper, kort afbrydelse, genforbindelse og 150 ms rundtur. Se [resultater og testbetingelser](gennemgang/aflevering/README.md).
+- Den offentlige gratisversion bruger én Render-proces til lobbykoder, invitationer, adgang, genforbindelse, fælles indstillinger og videresendelse via WSS. Værtens browser beregner bådene, fælles vand og vind, kollisioner, startlinje, mærker og målgang i en Web Worker. Render samler den fælles resultatliste fra værtens rapporter. Hold værtens fane åben under sejladsen. Værtens browser er en del af fysikkens tillidsmodel.
+- `TACK_LIVE_AUTHORITY=server` er standard lokalt og lader Node køre samme `RoomSimulation` til seks spillere. Begge driftstilstande bruger de samme bådprofiler, kræfter og faste trin på 1/60 sekund. Én instans bør vælges efter målt kapacitet, hvis den skal beregne fysikken for flere aktive både.
+- Gratisversionen sender tilstandsopdateringer op til ca. 15 gange i sekundet. Node-simulationen sender op til ca. 20. Egen båd forudsiges lokalt og rettes efter kvitterede input. Andre både udglattes mellem modtagne tilstande. Forældede positionsopdateringer springes over ved sendekø.
+- Én proces ejer lobbyerne i hukommelsen. En plads er reserveret i 30 sekunder under genforbindelse. Fri sejlads tillader nye deltagere, når der er plads. Kapsejlads låser nye pladser fra nedtællingen, til værten vender tilbage til lobbyen.
+- Ved et kort udfald kan værten genforbinde fra den samme fane og fortsætte med sin worker. Ved lukning, genindlæsning uden en aktiv worker eller overdragelse af værtsrollen går gratisversionen tilbage til lobbyen med de tilbageværende spillere. Værtsrollen går til den først tilsluttede forbundne spiller. Genstart af Render afslutter de midlertidige lobbyer.
+- `npm run test:physical-fleet` afprøver serverens fysiske sejlads fra start til mål på begge banetyper og kører en særskilt seksbrowserprøve for fælles bane og starttid. `tests/lobby.test.js` afprøver invitation, sejlads og genforbindelse. `tests/latency.test.js` afprøver styringen med 150 ms rundtur.
 
 ## Billeder
 
@@ -57,7 +71,7 @@ De tidligere, bevarede præsentationsbilleder i `assets/` er genereret med OpenA
 
 Version 12 af banemodellen har Op/ned og Trekant i kort og lang udgave. Modellens mærker, linjer og sekvens bruges af kort, 3D-scene og passageregistrering. Banen lægges efter vindretningen ved opsætning og flyttes ikke ved senere vindskift. Geometrien og rutevalgene bygger på [Dansk Sejlunions kapsejladsbaner](https://dansksejlunion.dk/kapsejlads/information-om-maerkebaade/kapsejladsbanen) og opgavebeskrivelsen. Banestørrelser er spilkalibrering.
 
-Alle fire standardruter er gennemsejlet med fysisk ror og trim. Separate geometriprøver dækker blandt andet rundingsside, gatevalg, tyvstart, genstart ved redning og hurtige linjepassager. Kort Trekant er derudover gennemført med seks tilsluttede browserklienter og fælles resultat. En sent tilsluttet gæst ser den aktive bane som tilskuer og deltager fra næste start.
+Alle fire standardruter er gennemsejlet med fysisk ror og trim. Separate geometriprøver dækker blandt andet rundingsside, gatevalg, tyvstart, genstart ved redning og hurtige linjepassager. Kort Trekant er derudover gennemført med seks tilsluttede browserklienter og fælles resultat. Nye spillere venter med at deltage, til værten har åbnet lobbyen igen.
 
 Åbn **Kapsejlads** og vælg **Baneeditor** i baneopsætningen. Indstil referencevinden. Vælg **Læg udkast** for et forslag, eller **Byg selv** for at placere start, mærker og mål på et tomt søkort. Redigér derefter rækkefølgen og rundingssiderne. Stedernes position er fast under sejlads, også efter vejrskift. **Tilpas til aktuel vind** ændrer placeringen eksplicit med mulighed for at fortryde. Baner gemmes i browserens eget bibliotek og kan eksporteres og importeres som JSON. En gæst kan redigere sine egne baner. Værten vælger den fælles bane, og de andre klienter modtager modellen, når løbet startes.
 

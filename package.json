@@ -22,7 +22,7 @@
     "test:long-sea": "playwright test tests/long-sea.test.js --workers=1 --reporter=line",
     "test:shared-courses": "playwright test tests/shared-courses.test.js --workers=1 --reporter=line",
     "test:physical-courses": "playwright test tests/physical-course.test.js --workers=1 --reporter=line",
-    "test:physical-fleet": "playwright test tests/physical-fleet.test.js --workers=1 --reporter=line",
+    "test:physical-fleet": "node --test tests/live-course.test.js && playwright test tests/shared-courses.test.js --workers=1 --reporter=line",
     "test:racer27": "playwright test tests/racer27.test.js --workers=1 --reporter=line",
     "test:turbaad": "playwright test tests/gennaker-side.test.js tests/turbaad-sejl.test.js tests/spinnaker.test.js tests/spinnaker-network.test.js --workers=1 --reporter=line",
     "test:foil-respons": "playwright test tests/foil-respons.test.js --workers=1 --reporter=line",

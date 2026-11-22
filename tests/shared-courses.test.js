@@ -1,25 +1,55 @@
-const { introOption } = require('../scripts/browser-setup.cjs');
-const {test,expect}=require('@playwright/test');const {spawn}=require('node:child_process');
+'use strict';
+
+const { test,expect } = require('@playwright/test');
+const { spawn } = require('node:child_process');
+const { once } = require('node:events');
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
-test('six clients share all four courses and their authoritative results',async({browser})=>{
- test.setTimeout(240000);const services=[spawn(process.execPath,['server/index.js'],{env:{...process.env,PORT:'33119'},stdio:['ignore','pipe','inherit']}),spawn(process.execPath,['server/static.js'],{env:{...process.env,FRONTEND_PORT:'34119'},stdio:['ignore','pipe','inherit']})];await Promise.all(services.map(p=>new Promise((r,j)=>{p.stdout.once('data',r);p.once('error',j)})));const contexts=[];
- try{
-  for(let i=0;i<6;i++){const c=await browser.newContext({viewport:{width:600,height:500}});contexts.push(c);const p=await c.newPage();await p.addInitScript(()=>window.FRI_VIND_REALTIME_URL='ws://127.0.0.1:33119');await p.goto('http://127.0.0.1:34119');await p.waitForFunction(()=>window.SAILING_GAME);await (await introOption(p, '#introLobby')).click();await p.fill('#lobbyName',`Sejler ${i+1}`);if(i){await p.fill('#lobbyCodeInput',await contexts[0].pages()[0].locator('#lobbyCode').innerText());await p.click('#lobbyJoin')}else await p.click('#lobbyCreate');await expect(p.locator('#lobbyRoom')).toBeVisible();}
-  for(const c of contexts)await c.pages()[0].click('#lobbySail');const host=contexts[0].pages()[0];await host.waitForFunction(()=>FriVindLobby.fleet.boats.size===5,null,{timeout:45000});
-  for(const [type,variant] of [['gates','short'],['gates','long'],['triangle','short'],['triangle','long']]){
-   await host.click('#preferencesButton');await host.click('#raceSetup');await host.click(`[data-racetype="${type}"]`);await host.selectOption('#courseVariant',variant);await host.click('#beginRace');
-   const model=await host.evaluate(()=>SAILING_GAME.course.model),start=await host.evaluate(()=>SAILING_GAME.course.gunAtMs);await expect(host.locator('#raceResults')).toHaveText('');
-   for(const c of contexts.slice(1)){const p=c.pages()[0];try { await p.waitForFunction(([type,variant,start])=>SAILING_GAME.course.model.type===type&&SAILING_GAME.course.model.variant===variant&&['countdown','starting','racing'].includes(SAILING_GAME.course.phase)&&SAILING_GAME.course.startAtHostMs===start,[type,variant,start],{timeout:30000}); } catch(e) { console.log('COURSE_DIAGNOSTIC',JSON.stringify({expected:{type,variant,start},host:await host.evaluate(()=>({phase:SAILING_GAME.course.phase,start:SAILING_GAME.course.gunAtMs,time:SAILING_GAME.state.time,seq:FriVindLobby.fleet.seq,session:FriVindLobby.fleet.session,inWorld:FriVindLobby.fleet.inWorld,boats:FriVindLobby.fleet.boats.size})),guest:await p.evaluate(()=>({phase:SAILING_GAME.course.phase,type:SAILING_GAME.course.model.type,variant:SAILING_GAME.course.model.variant,start:SAILING_GAME.course.startAtHostMs,time:SAILING_GAME.state.time,paused:SAILING_GAME.paused,last:FriVindLobby.fleet.lastSnapshot,session:FriVindLobby.fleet.session,inWorld:FriVindLobby.fleet.inWorld,boats:FriVindLobby.fleet.boats.size,body:document.body.innerText.slice(-500)}))})); throw e; }const current=await p.evaluate(()=>SAILING_GAME.course.model);expect(JSON.parse(JSON.stringify(current))).toEqual(JSON.parse(JSON.stringify(model)));await expect(p.locator('#raceResults')).toHaveText('');await p.waitForFunction(([type,count])=>SAILING_GAME.scene.courseVisualAudit?.type===type&&SAILING_GAME.map.lastFrame?.buoys?.length===count,[type,model.buoys.length],{timeout:30000});const visual=await p.evaluate(()=>({scene:SAILING_GAME.scene.courseVisualAudit,chart:SAILING_GAME.map.lastFrame}));for(const buoy of model.buoys){expect(visual.scene.buoys.find(b=>b.id===buoy.id)).toMatchObject({x:buoy.x,y:buoy.y,label:buoy.label});expect(visual.chart.buoys.find(b=>b.id===buoy.id)).toMatchObject({position:{x:buoy.x,y:buoy.y},label:buoy.label});}}
-   // Supply swept tracks to the host's actual ordered-course objects. This is a
-   // geometry/transport test, not a claim that physics sailed those tracks.
-   const completed=await host.evaluate(()=>{const f=FriVindLobby.fleet,add=(a,b)=>({x:a.x+b.x,y:a.y+b.y}),mul=(a,k)=>({x:a.x*k,y:a.y*k}),tracks=[SAILING_GAME.course,...f.races.values()];
-    for(const [choice,c] of tracks.entries()){const axis=c.model.axis,line=c.model.startLine.centre;let pos={...add(line,mul(axis,-30)),theta:Math.atan2(axis.y,axis.x),heel:0,pitch:0},ms=c.gunAtMs+1000;c.advanceClock(c.gunAtMs,pos);function go(p){const next={...p,theta:pos.theta,heel:0,pitch:0};ms+=100;c.update(pos,next,.1,{nowMs:ms});pos=next}go(add(line,mul(axis,30)));
-     for(let i=0;i<c.route.length-1;i++){const v=c.route[i],arc=v.roundings[v.kind==='gate'?choice%2:0],mark=c.model.buoys.find(b=>b.id===arc.buoyId),r=v.kind==='gate'?c.model.gateWidth*.2:c.model.roundingRadius,rad={x:Math.cos(arc.startAngle),y:Math.sin(arc.startAngle)};if(v.kind==='gate'){go(add(v,mul(v.incoming,-r*2)));go(add(v,mul(v.incoming,1)))}else{go(add(add(mark,mul(rad,r)),mul(v.incoming,-r)));go(add(add(mark,mul(rad,r)),mul(v.incoming,.01)))}for(let j=0;j<=64;j++){const a=arc.startAngle+arc.rotation*(arc.sweep+.08)*j/64;go({x:mark.x+Math.cos(a)*r,y:mark.y+Math.sin(a)*r})}if(c.index!==i+1)break;}
-     const finish=c.model.finishLine;go(add(finish.centre,mul(finish.normal,-30)));go(add(finish.centre,mul(finish.normal,30)));}
-    f.broadcast();return tracks.map(c=>({finished:c.finished,index:c.index,total:c.route.length}));});
-   expect(completed).toHaveLength(6);for(const r of completed)expect(r).toEqual({finished:true,index:r.total,total:r.total});
-   await expect.poll(()=>host.locator('#raceResults').textContent(),{timeout:30000}).toContain('Sejler 6');const result=await host.locator('#raceResults').textContent();for(const c of contexts.slice(1))await expect.poll(()=>c.pages()[0].locator('#raceResults').textContent(),{timeout:30000}).toBe(result);
-   await host.waitForFunction(()=>!FriVindLobby.fleet.raceActive,null,{timeout:30000});
+
+test('both shared courses use one server model and one start across six browsers',async({ browser })=>{
+  test.setTimeout(120000);
+  const servers=[
+    spawn(process.execPath,['server/index.js'],{env:{...process.env,PORT:'33123'}}),
+    spawn(process.execPath,['server/static.js'],{env:{...process.env,FRONTEND_PORT:'34123',FRONTEND_DIR:process.env.FRI_VIND_TEST_FRONTEND||'.'}})
+  ];
+  const contexts=[],pages=[];
+  try{
+    await Promise.all(servers.map(server=>once(server.stdout,'data')));
+    let code;
+    for(let i=0;i<6;i++){
+      const context=await browser.newContext({viewport:{width:780,height:584}});
+      contexts.push(context);
+      const page=await context.newPage();
+      pages.push(page);
+      await page.addInitScript(()=>{
+        Object.defineProperty(window,'FRI_VIND_REALTIME_URL',{get:()=> 'ws://127.0.0.1:33123',set:()=>{}});
+        localStorage.setItem('fri-vind.settings.v3',JSON.stringify({personal:{quality:'low'}}));
+      });
+      await page.goto('http://127.0.0.1:34123/'+(code?'?lobby='+code:''));
+      await page.locator('#startButton:enabled').waitFor();
+      if(!code)await page.click('#introLobby');
+      await page.fill('#lobbyName','Sejler '+(i+1));
+      await page.click(code?'#lobbyJoin':'#lobbyCreate');
+      await expect(page.locator('#lobbyRoom')).toBeVisible();
+      if(!code)code=await page.locator('#lobbyCode').innerText();
+    }
+    const [host,...guests]=pages;
+    await expect(host.locator('#lobbyCount')).toHaveText('6 / 6 spillere');
+    for(const courseType of ['gates','triangle']){
+      await host.selectOption('#lobbyMode','course');
+      await host.selectOption('#lobbyCourse',courseType+':short');
+      await host.click('#lobbySail');
+      await Promise.all(pages.map(page=>page.waitForFunction(type=>{
+        return FriVindLobby.fleet.synced&&SAILING_GAME.course.phase==='countdown'&&SAILING_GAME.course.model.type===type;
+      },courseType)));
+      const settings=page=>page.evaluate(()=>({model:SAILING_GAME.course.model,start:SAILING_GAME.course.startAtHostMs}));
+      const expected=await settings(host);
+      for(const guest of guests)expect(await settings(guest)).toEqual(expected);
+      await host.click('#preferencesButton');await host.click('#lobbyButton');
+      await host.click('#lobbyReturn');
+      await Promise.all(pages.map(page=>expect(page.locator('#lobbyRoom')).toBeVisible({timeout:20000})));
+    }
+  }finally{
+    await Promise.all(contexts.map(context=>context.close()));
+    servers.forEach(server=>server.kill());
   }
- }finally{await Promise.all(contexts.map(c=>c.close()));services.forEach(p=>p.kill());}
 });
