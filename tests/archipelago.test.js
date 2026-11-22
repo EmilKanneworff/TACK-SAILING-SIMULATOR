@@ -21,13 +21,13 @@ test('the chart, land mesh and collision use the same archipelago',async({page})
  const marks=id=>W.LANDMARKS.find(mark=>mark.id===id),ferry=marks('faaborg-havn');
  const distance=id=>{const p=marks(id);return Math.hypot(p.x-ferry.x,p.y-ferry.y);};
  const fyn=map._shoreCache[0].shore;
- return{comparisons,water:W.sample(0,0),waterSouth:W.heightAt(0,-2000),mode:map.mode,version:W.version,
+ return{comparisons,water:W.sample(0,0),waterSouth:W.heightAt(0,-500),mode:map.mode,version:W.version,
   harborDistances:['bjorno-havn','lyo-havn','avernako-havn'].map(distance),ends:[fyn[0].x,fyn.at(-1).x]};});
  expect(r.comparisons.map(x=>x.id)).toEqual(expect.arrayContaining(['fyn','bjorno','lyo','avernako','svelmo']));
  for(const c of r.comparisons){expect(c.identical).toBe(true);expect(c.missing,c.id).toBe(0)}
- expect(r.version).toBe('faaborg-metric-1');
- for(const [measured,reference] of r.harborDistances.map((d,i)=>[d,[3080,6960,6110][i]]))expect(Math.abs(measured-reference)).toBeLessThan(20);
- expect(r.ends[0]).toBeGreaterThan(9800);expect(r.ends[1]).toBeLessThan(-8500);
+ expect(r.version).toBe('faaborg-quarter-1');
+ for(const [measured,reference] of r.harborDistances.map((d,i)=>[d,[3080,6960,6110][i]/4]))expect(Math.abs(measured-reference)).toBeLessThan(5);
+ expect(r.ends[0]).toBeGreaterThan(2450);expect(r.ends[1]).toBeLessThan(-2125);
  expect(r.water.height).toBeLessThan(-2);expect(r.waterSouth).toBeLessThan(-10);expect(r.mode).toBe('area');
 });
 test('dry shore triangles rise above calm water and offscreen terrain tiles are culled',async({page})=>{
@@ -38,7 +38,9 @@ test('dry shore triangles rise above calm water and offscreen terrain tiles are 
   const islands=new Map(W.ISLANDS.map(island=>[island.id,island]));
   let flatLandArea=0,total=0,submitted=0;
   scene.camera.position.set(0,5,0);
-  scene.camera.lookAt(200,5,900);
+  scene.camera.lookAt(50,5,225);
+  scene.camera.far*=ArchipelagoData.horizontalScale;
+  scene.camera.updateProjectionMatrix();
   scene.camera.updateMatrixWorld();
   const frustum=new THREE.Frustum().setFromProjectionMatrix(
    new THREE.Matrix4().multiplyMatrices(scene.camera.projectionMatrix,scene.camera.matrixWorldInverse));
@@ -64,15 +66,26 @@ test('dry shore triangles rise above calm water and offscreen terrain tiles are 
 });
 test('courses and their tactical envelopes stay in deep water in changing wind',async({page})=>{
  test.setTimeout(90000);await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
- const cases=await page.evaluate(()=>{let result=[];for(const boatId of ['laser','ac72'])for(const type of ['gates','triangle'])for(const direction of [0,90,180,270]){const c=new SailingCourse({...SAILING_GAME.env,boatId,direction},'course',type),m=c.model;result.push({boatId,type,direction,length:m.meta.length,depth:m.meta.minimumDepth,markDepth:Math.min(...m.buoys.map(b=>-SailingWorld.heightAt(b.x,b.y)))});}return result;});
- expect(cases.find(c=>c.boatId==='ac72').length).toBeGreaterThan(cases.find(c=>c.boatId==='laser').length);
- for(const c of cases){expect(c.depth,JSON.stringify(c)).toBeGreaterThanOrEqual(10);expect(c.markDepth,JSON.stringify(c)).toBeGreaterThanOrEqual(10);}
+ const cases=await page.evaluate(()=>SailingBoats.LIST.flatMap(boat=>['gates','triangle'].flatMap(type=>[0,90,180,270].map(direction=>{
+  const {model:m}=new SailingCourse({...SAILING_GAME.env,boatId:boat.id,direction},'course',type);
+  return {boatId:boat.id,type,direction,length:m.meta.length,depth:m.meta.minimumDepth,
+   startWidth:m.meta.startLineWidth,boatLength:boat.length,spawnDepth:-SailingWorld.heightAt(m.spawn.x,m.spawn.y),
+   markDepth:Math.min(...m.buoys.map(b=>-SailingWorld.heightAt(b.x,b.y)))};
+ }))));
+ const originalLegs={laser:210,dinghy:280,yacht:480,ac75:960,ac72:1120};
+ for(const c of cases){
+  expect(c.length).toBe(originalLegs[c.boatId]/4);
+  expect(c.startWidth).toBeGreaterThanOrEqual(7*c.boatLength);
+  expect(c.depth,JSON.stringify(c)).toBeGreaterThanOrEqual(10);
+  expect(c.markDepth,JSON.stringify(c)).toBeGreaterThanOrEqual(10);
+  expect(c.spawnDepth,JSON.stringify(c)).toBeGreaterThan(5);
+ }
 });
 test('shore contact remains bounded and recovery returns the boat to navigable water',async({page})=>{
  test.setTimeout(60000);await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
  const r=await page.evaluate(()=>{
   const P=SailPhysics,R=SailingRecovery,e={...SAILING_GAME.env,speed:0,gusts:0,waves:0,boatId:'laser'};
-  const s=P.createState({x:230,y:26,theta:Math.PI/2,vx:0,vy:2},e);
+  const s=P.createState({...ArchipelagoData.fromMetric(230,26),theta:Math.PI/2,vx:0,vy:2},e);
   let t=0,contacts=0,max=0;
   function step(){
    t+=1000/60;P.step(s,{steer:0,trim:-1,trimFast:true,crewPose:2},e,1/60);
@@ -87,27 +100,45 @@ test('shore contact remains bounded and recovery returns the boat to navigable w
  });
  expect(r.contacts).toBeGreaterThan(0);expect(r.max).toBeLessThan(8);expect(r.depth).toBeGreaterThan(2);expect(r.capsized).toBe(false);expect(r.recovering).toBe(false);
 });
-test('the deeper coastal shelf lets the catamaran pass while very shallow water still grounds it',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
+test('the beach stays shallow and all five boats clear the coastal shelf',async({page})=>{
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
  const checkpoints=await page.evaluate(()=>{
-  const P=SailPhysics,W=SailingWorld,c=SailingBoats.get('ac72'),e={...P.DEFAULT_ENV,boatId:c.id,speed:0,waves:0,gusts:0};
-  const x=230,coast=W.ISLANDS.find(i=>i.id==='fyn').chartCoast;
+  const P=SailPhysics,W=SailingWorld,weather={...P.DEFAULT_ENV,speed:0,waves:0,gusts:0};
+  const x=ArchipelagoData.fromMetric(230,0).x,coast=W.ISLANDS.find(i=>i.id==='fyn').chartCoast;
   const crossings=coast.slice(1).flatMap((b,i)=>{const a=coast[i];return (a.x>x)!==(b.x>x)?[a.y+(b.y-a.y)*(x-a.x)/(b.x-a.x)]:[];});
   const shore=Math.min(...crossings);
-  return [0,10,38,60].map(offset=>{
-   const y=shore-offset;
-   const s=P.createState({boatId:c.id,x,y,theta:0,vx:0,vy:0},e);
-   const ground=W.contact(s,c,e);
-   return {offset,depth:ground.depth,contact:ground.contact,waveDepth:SailingWaterDepth.sample(x,y).depth};
+  return [0,1,2.5,5,10,15,40].map(offset=>{
+   const y=shore-offset,contacts=SailingBoats.LIST.flatMap(boat=>{
+    const env={...weather,boatId:boat.id};
+    const state=P.createState({boatId:boat.id,x,y,theta:0,vx:0,vy:0},env);
+    const hit=W.contact(state,boat,env);
+    return hit.contact?[{boatId:boat.id,part:hit.part,point:hit.point}]:[];
+   });
+   const raisedFoils=offset===10?['ac75','ac72'].map(boatId=>{
+    const boat=SailingBoats.get(boatId),env={...weather,boatId};
+    const state=P.createState({boatId,x,y,theta:0,vx:0,vy:0},env);
+    for(const side of ['port','starboard'])state.foils[side].arm=boat.foilUpAngle;
+    return W.contact(state,boat,env).contact;
+   }):[];
+   return {depth:-W.heightAt(x,y),contacts,waveDepth:SailingWaterDepth.sample(x,y).depth,raisedFoils};
   });
  });
- const [shore,shallow,channel,outside]=checkpoints;
+ const [shore,beach,near,drop,shelf,channel,outer]=checkpoints;
  expect(shore.depth).toBeCloseTo(0,6);
- expect(shallow.contact).toBe(true);
- expect(channel.depth).toBeGreaterThan(4);
+ expect(beach.depth).toBeLessThan(1.2);
+ expect(beach.contacts.map(hit=>hit.boatId)).toEqual(['laser','dinghy','yacht','ac75','ac72']);
+ expect(near.contacts.map(hit=>hit.boatId)).toEqual(['ac75','ac72']);
+ expect(drop.depth).toBeGreaterThan(7);
+ expect(shelf.depth).toBeGreaterThan(9);
+ expect(shelf.contacts).toMatchObject([{boatId:'ac72',part:'port foil'}]);
+ expect(shelf.raisedFoils).toEqual([false,false]);
+ const tip=shelf.contacts[0].point;
+ expect(tip.bedHeight).toBeGreaterThan(tip.z);
+ expect(tip.penetration).toBeCloseTo(tip.bedHeight-tip.z,8);
  expect(Math.abs(channel.waveDepth-channel.depth)).toBeLessThan(.65);
- expect(channel.contact).toBe(false);
- expect(outside.depth).toBeGreaterThan(channel.depth);
+ expect(channel.contacts).toEqual([]);
+ expect(outer.contacts).toEqual([]);
+ for(let i=1;i<checkpoints.length;i++)expect(checkpoints[i].depth).toBeGreaterThan(checkpoints[i-1].depth);
 });
 test('named settlements and island roads appear on the shared chart and in the scene',async({page})=>{
  await page.setViewportSize({width:1440,height:900});

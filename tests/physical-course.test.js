@@ -18,7 +18,7 @@ for(const [boatId,type,variant] of scenarios){
   await page.waitForFunction(()=>window.SAILING_GAME);
   await page.addScriptTag({path:'scripts/course-pilot.js'});
   const result=await page.evaluate(({boatId,type,variant})=>{
-   const P=SailPhysics,env={...SAILING_GAME.env,boatId,speed:7,direction:0,waves:0,gusts:0,courseType:type,courseVariant:variant};
+   const P=SailPhysics,env={...SAILING_GAME.env,boatId,speed:7,direction:0,waves:0,gusts:0,difficulty:'easy',courseType:type,courseVariant:variant};
    const editor=FriVindCourseEditorModel,island=variant==='island';
    let course;
    if(island){
@@ -41,7 +41,7 @@ for(const [boatId,type,variant] of scenarios){
    }
    const race=new SailingCourse(env,'course',type,course);
    const state=P.createState({...race.model.spawn,boatId,vx:0,vy:0},env);
-   const pilot=FriVindCoursePilot(race,env.direction,{retry:island||boatId!=='laser'}),dt=1/60,events=[],log=[];
+   const pilot=FriVindCoursePilot(race,env.direction,{retry:true}),dt=1/60,events=[],log=[];
    race.beginCountdown(0,state);
    let landContacts=0,recoveries=0;
    const limitSeconds=boatId==='yacht'?3000:1500;

@@ -1,0 +1,965 @@
+{
+  "measuredOn": "2026-11-21",
+  "live": {
+    "device": {
+      "hardware": "Apple M5",
+      "memoryGiB": 32,
+      "browser": "157.0.8103.79",
+      "node": "v24.16.0",
+      "target": "http://localhost:4173/",
+      "quality": "high",
+      "notes": "One real Chrome host; other players use the live server through lightweight WebSocket clients.",
+      "os": "macOS 26.3 (25D125)",
+      "darwinRelease": "25.3.0"
+    },
+    "runs": [
+      {
+        "round": 1,
+        "count": 1,
+        "device": {
+          "device": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+          "buffer": [
+            1280,
+            800
+          ],
+          "quality": "high",
+          "viewport": [
+            1280,
+            800
+          ],
+          "hard": "hard"
+        },
+        "shapes": [
+          "laser"
+        ],
+        "revision": "5f1e60cd58d9",
+        "elapsedMs": 6846.9,
+        "simulatedSeconds": 6.85,
+        "errors": [],
+        "finite": true,
+        "triangles": 146674,
+        "visibleBoatActors": 1,
+        "timings": {
+          "frames": {
+            "n": 408,
+            "p50": 16.7,
+            "p95": 16.8,
+            "max": 50,
+            "sum": 6833.1
+          },
+          "stepBoat": {
+            "n": 411,
+            "p50": 0.8,
+            "p95": 0.9,
+            "max": 1.2,
+            "sum": 323.4
+          },
+          "render": {
+            "n": 614,
+            "p50": 0.8,
+            "p95": 1,
+            "max": 1.3,
+            "sum": 400.4
+          },
+          "pose": {
+            "n": 409,
+            "p50": 0.2,
+            "p95": 0.3,
+            "max": 0.5,
+            "sum": 78.4
+          },
+          "scene": {
+            "n": 409,
+            "p50": 1.5,
+            "p95": 1.8,
+            "max": 2.7,
+            "sum": 622.9
+          },
+          "inputToState": {
+            "n": 8,
+            "p50": 7.8,
+            "p95": 18.5,
+            "max": 18.5,
+            "sum": 83.3
+          },
+          "inputToScene": {
+            "n": 8,
+            "p50": 9.4,
+            "p95": 20.1,
+            "max": 20.1,
+            "sum": 98.5
+          },
+          "fleet": {
+            "n": 411,
+            "p50": 0,
+            "p95": 0.1,
+            "max": 0.2,
+            "sum": 11.1
+          }
+        },
+        "cpu": {
+          "(program)": {
+            "ms": 216.4,
+            "msPerFrame": 0.53,
+            "wallPercent": 3.16
+          },
+          "wind/water within simulation": {
+            "ms": 227.6,
+            "msPerFrame": 0.558,
+            "wallPercent": 3.32
+          },
+          "solver excluding field": {
+            "ms": 191.7,
+            "msPerFrame": 0.47,
+            "wallPercent": 2.8
+          },
+          "pose/animation": {
+            "ms": 31.6,
+            "msPerFrame": 0.077,
+            "wallPercent": 0.46
+          },
+          "scene/render submission": {
+            "ms": 436.3,
+            "msPerFrame": 1.069,
+            "wallPercent": 6.37
+          },
+          "other browser JavaScript": {
+            "ms": 111.8,
+            "msPerFrame": 0.274,
+            "wallPercent": 1.63
+          },
+          "wind/water outside simulation": {
+            "ms": 65.5,
+            "msPerFrame": 0.16,
+            "wallPercent": 0.96
+          },
+          "(idle)": {
+            "ms": 5533,
+            "msPerFrame": 13.561,
+            "wallPercent": 80.81
+          },
+          "network/fleet outside solver": {
+            "ms": 3.8,
+            "msPerFrame": 0.009,
+            "wallPercent": 0.06
+          },
+          "GC": {
+            "ms": 15.3,
+            "msPerFrame": 0.038,
+            "wallPercent": 0.22
+          },
+          "input/HUD": {
+            "ms": 7.6,
+            "msPerFrame": 0.019,
+            "wallPercent": 0.11
+          }
+        },
+        "snapshotBytes": {
+          "n": 0
+        },
+        "guestInputAcknowledgementMs": {
+          "n": 0
+        }
+      },
+      {
+        "round": 1,
+        "count": 6,
+        "device": {
+          "device": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+          "buffer": [
+            1280,
+            800
+          ],
+          "quality": "high",
+          "viewport": [
+            1280,
+            800
+          ],
+          "hard": "hard"
+        },
+        "shapes": [
+          "laser",
+          "dinghy",
+          "yacht",
+          "ac75",
+          "ac72",
+          "laser"
+        ],
+        "revision": "5f1e60cd58d9",
+        "elapsedMs": 7137.2,
+        "simulatedSeconds": 7.133,
+        "errors": [],
+        "finite": true,
+        "triangles": 177570,
+        "visibleBoatActors": 6,
+        "timings": {
+          "frames": {
+            "n": 395,
+            "p50": 16.7,
+            "p95": 16.8,
+            "max": 133.3,
+            "sum": 7149.7
+          },
+          "stepBoat": {
+            "n": 429,
+            "p50": 0.7,
+            "p95": 0.8,
+            "max": 1.9,
+            "sum": 304.8
+          },
+          "stepFleetBoat": {
+            "n": 2145,
+            "p50": 0.7,
+            "p95": 5.8,
+            "max": 7.9,
+            "sum": 4631.3
+          },
+          "render": {
+            "n": 601,
+            "p50": 1.5,
+            "p95": 2,
+            "max": 2.9,
+            "sum": 797.2
+          },
+          "pose": {
+            "n": 1114,
+            "p50": 0.3,
+            "p95": 0.9,
+            "max": 1.4,
+            "sum": 441.6
+          },
+          "scene": {
+            "n": 396,
+            "p50": 2.5,
+            "p95": 3.2,
+            "max": 4.6,
+            "sum": 1026.7
+          },
+          "inputToState": {
+            "n": 8,
+            "p50": 12.4,
+            "p95": 22.5,
+            "max": 22.5,
+            "sum": 116.5
+          },
+          "inputToScene": {
+            "n": 8,
+            "p50": 26.6,
+            "p95": 113.6,
+            "max": 113.6,
+            "sum": 306.4
+          },
+          "fleet": {
+            "n": 429,
+            "p50": 11,
+            "p95": 12.1,
+            "max": 15.6,
+            "sum": 4713.4
+          }
+        },
+        "cpu": {
+          "(program)": {
+            "ms": 290,
+            "msPerFrame": 0.734,
+            "wallPercent": 4.06
+          },
+          "wind/water within simulation": {
+            "ms": 3775.3,
+            "msPerFrame": 9.558,
+            "wallPercent": 52.9
+          },
+          "solver excluding field": {
+            "ms": 879.8,
+            "msPerFrame": 2.227,
+            "wallPercent": 12.33
+          },
+          "wind/water outside simulation": {
+            "ms": 109.5,
+            "msPerFrame": 0.277,
+            "wallPercent": 1.53
+          },
+          "pose/animation": {
+            "ms": 438.7,
+            "msPerFrame": 1.111,
+            "wallPercent": 6.15
+          },
+          "scene/render submission": {
+            "ms": 870,
+            "msPerFrame": 2.203,
+            "wallPercent": 12.19
+          },
+          "other browser JavaScript": {
+            "ms": 139.7,
+            "msPerFrame": 0.354,
+            "wallPercent": 1.96
+          },
+          "network/fleet outside solver": {
+            "ms": 103.7,
+            "msPerFrame": 0.263,
+            "wallPercent": 1.45
+          },
+          "GC": {
+            "ms": 187.4,
+            "msPerFrame": 0.475,
+            "wallPercent": 2.63
+          },
+          "(idle)": {
+            "ms": 299.6,
+            "msPerFrame": 0.759,
+            "wallPercent": 4.2
+          },
+          "input/HUD": {
+            "ms": 7.4,
+            "msPerFrame": 0.019,
+            "wallPercent": 0.1
+          }
+        },
+        "snapshotBytes": {
+          "n": 86,
+          "p50": 187854,
+          "p95": 192332,
+          "max": 193731,
+          "sum": 16129028
+        },
+        "guestInputAcknowledgementMs": {
+          "n": 16,
+          "p50": 70.398,
+          "p95": 319.174,
+          "max": 319.174,
+          "sum": 1510.428
+        }
+      },
+      {
+        "round": 2,
+        "count": 1,
+        "device": {
+          "device": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+          "buffer": [
+            1280,
+            800
+          ],
+          "quality": "high",
+          "viewport": [
+            1280,
+            800
+          ],
+          "hard": "hard"
+        },
+        "shapes": [
+          "laser"
+        ],
+        "revision": "5f1e60cd58d9",
+        "elapsedMs": 6844.1,
+        "simulatedSeconds": 6.85,
+        "errors": [],
+        "finite": true,
+        "triangles": 146706,
+        "visibleBoatActors": 1,
+        "timings": {
+          "frames": {
+            "n": 408,
+            "p50": 16.7,
+            "p95": 16.8,
+            "max": 50,
+            "sum": 6833.1
+          },
+          "stepBoat": {
+            "n": 411,
+            "p50": 0.8,
+            "p95": 0.9,
+            "max": 1.1,
+            "sum": 331.5
+          },
+          "render": {
+            "n": 613,
+            "p50": 0.8,
+            "p95": 1,
+            "max": 1.3,
+            "sum": 406
+          },
+          "pose": {
+            "n": 409,
+            "p50": 0.2,
+            "p95": 0.3,
+            "max": 0.5,
+            "sum": 79.2
+          },
+          "scene": {
+            "n": 409,
+            "p50": 1.5,
+            "p95": 1.8,
+            "max": 2.3,
+            "sum": 631.8
+          },
+          "inputToState": {
+            "n": 8,
+            "p50": 7.5,
+            "p95": 17.2,
+            "max": 17.2,
+            "sum": 73.4
+          },
+          "inputToScene": {
+            "n": 8,
+            "p50": 9.3,
+            "p95": 19,
+            "max": 19,
+            "sum": 88.8
+          },
+          "fleet": {
+            "n": 411,
+            "p50": 0,
+            "p95": 0.1,
+            "max": 0.3,
+            "sum": 11.4
+          }
+        },
+        "cpu": {
+          "(program)": {
+            "ms": 208.5,
+            "msPerFrame": 0.511,
+            "wallPercent": 3.05
+          },
+          "wind/water within simulation": {
+            "ms": 216.8,
+            "msPerFrame": 0.531,
+            "wallPercent": 3.17
+          },
+          "solver excluding field": {
+            "ms": 203.4,
+            "msPerFrame": 0.499,
+            "wallPercent": 2.97
+          },
+          "pose/animation": {
+            "ms": 37.8,
+            "msPerFrame": 0.093,
+            "wallPercent": 0.55
+          },
+          "scene/render submission": {
+            "ms": 458.6,
+            "msPerFrame": 1.124,
+            "wallPercent": 6.7
+          },
+          "other browser JavaScript": {
+            "ms": 120.4,
+            "msPerFrame": 0.295,
+            "wallPercent": 1.76
+          },
+          "input/HUD": {
+            "ms": 11.4,
+            "msPerFrame": 0.028,
+            "wallPercent": 0.17
+          },
+          "wind/water outside simulation": {
+            "ms": 49.6,
+            "msPerFrame": 0.121,
+            "wallPercent": 0.72
+          },
+          "(idle)": {
+            "ms": 5513,
+            "msPerFrame": 13.512,
+            "wallPercent": 80.55
+          },
+          "GC": {
+            "ms": 14.2,
+            "msPerFrame": 0.035,
+            "wallPercent": 0.21
+          },
+          "network/fleet outside solver": {
+            "ms": 3.5,
+            "msPerFrame": 0.009,
+            "wallPercent": 0.05
+          }
+        },
+        "snapshotBytes": {
+          "n": 0
+        },
+        "guestInputAcknowledgementMs": {
+          "n": 0
+        }
+      },
+      {
+        "round": 2,
+        "count": 6,
+        "device": {
+          "device": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+          "buffer": [
+            1280,
+            800
+          ],
+          "quality": "high",
+          "viewport": [
+            1280,
+            800
+          ],
+          "hard": "hard"
+        },
+        "shapes": [
+          "laser",
+          "dinghy",
+          "yacht",
+          "ac75",
+          "ac72",
+          "laser"
+        ],
+        "revision": "5f1e60cd58d9",
+        "elapsedMs": 7083.2,
+        "simulatedSeconds": 7.083,
+        "errors": [],
+        "finite": true,
+        "triangles": 178236,
+        "visibleBoatActors": 6,
+        "timings": {
+          "frames": {
+            "n": 398,
+            "p50": 16.7,
+            "p95": 16.8,
+            "max": 100,
+            "sum": 7083
+          },
+          "stepBoat": {
+            "n": 426,
+            "p50": 0.7,
+            "p95": 0.8,
+            "max": 8.3,
+            "sum": 307.3
+          },
+          "stepFleetBoat": {
+            "n": 2130,
+            "p50": 0.6,
+            "p95": 5.6,
+            "max": 19.7,
+            "sum": 4558.2
+          },
+          "render": {
+            "n": 605,
+            "p50": 1.4,
+            "p95": 1.8,
+            "max": 3.5,
+            "sum": 760.2
+          },
+          "pose": {
+            "n": 1114,
+            "p50": 0.3,
+            "p95": 0.9,
+            "max": 1.7,
+            "sum": 437.7
+          },
+          "scene": {
+            "n": 399,
+            "p50": 2.4,
+            "p95": 3.1,
+            "max": 5,
+            "sum": 987.3
+          },
+          "inputToState": {
+            "n": 8,
+            "p50": 13.6,
+            "p95": 20.9,
+            "max": 20.9,
+            "sum": 117.8
+          },
+          "inputToScene": {
+            "n": 8,
+            "p50": 28.9,
+            "p95": 90.5,
+            "max": 90.5,
+            "sum": 306.9
+          },
+          "fleet": {
+            "n": 426,
+            "p50": 10.6,
+            "p95": 12,
+            "max": 39,
+            "sum": 4639.3
+          }
+        },
+        "cpu": {
+          "(program)": {
+            "ms": 267.9,
+            "msPerFrame": 0.673,
+            "wallPercent": 3.78
+          },
+          "wind/water within simulation": {
+            "ms": 3665.2,
+            "msPerFrame": 9.209,
+            "wallPercent": 51.74
+          },
+          "solver excluding field": {
+            "ms": 883.3,
+            "msPerFrame": 2.219,
+            "wallPercent": 12.47
+          },
+          "network/fleet outside solver": {
+            "ms": 96.2,
+            "msPerFrame": 0.242,
+            "wallPercent": 1.36
+          },
+          "pose/animation": {
+            "ms": 427.5,
+            "msPerFrame": 1.074,
+            "wallPercent": 6.03
+          },
+          "scene/render submission": {
+            "ms": 829.2,
+            "msPerFrame": 2.083,
+            "wallPercent": 11.71
+          },
+          "(idle)": {
+            "ms": 395.1,
+            "msPerFrame": 0.993,
+            "wallPercent": 5.58
+          },
+          "other browser JavaScript": {
+            "ms": 138.2,
+            "msPerFrame": 0.347,
+            "wallPercent": 1.95
+          },
+          "wind/water outside simulation": {
+            "ms": 140.4,
+            "msPerFrame": 0.353,
+            "wallPercent": 1.98
+          },
+          "GC": {
+            "ms": 192.5,
+            "msPerFrame": 0.484,
+            "wallPercent": 2.72
+          },
+          "input/HUD": {
+            "ms": 9.1,
+            "msPerFrame": 0.023,
+            "wallPercent": 0.13
+          }
+        },
+        "snapshotBytes": {
+          "n": 85,
+          "p50": 187866,
+          "p95": 192784,
+          "max": 194015,
+          "sum": 15956278
+        },
+        "guestInputAcknowledgementMs": {
+          "n": 16,
+          "p50": 71.929,
+          "p95": 218.075,
+          "max": 218.075,
+          "sum": 1254.342
+        }
+      }
+    ]
+  },
+  "batchExperiment": {
+    "device": {
+      "browser": "157.0.8103.79",
+      "quality": "high",
+      "url": "http://localhost:4173/"
+    },
+    "runs": [
+      {
+        "round": 1,
+        "mode": "main",
+        "revision": "5f1e60cd58d9",
+        "device": {
+          "adapter": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+          "viewport": [
+            1280,
+            800
+          ],
+          "buffer": [
+            1280,
+            800
+          ]
+        },
+        "gameLoadMs": 2537.4,
+        "frames": {
+          "n": 417,
+          "p50": 16.7,
+          "p95": 16.7,
+          "p99": 16.8,
+          "max": 16.8
+        },
+        "frameWork": {
+          "n": 417,
+          "p50": 16,
+          "p95": 16.9,
+          "p99": 17.6,
+          "max": 21.2
+        },
+        "render": {
+          "n": 417,
+          "p50": 5.1,
+          "p95": 5.7,
+          "p99": 6.3,
+          "max": 8
+        },
+        "solver": {
+          "n": 417,
+          "p50": 11,
+          "p95": 11.4,
+          "p99": 11.8,
+          "max": 13.2
+        },
+        "roundTrip": {
+          "n": 0,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "transportAndQueue": {
+          "n": 0,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "inputToScene": {
+          "n": 8,
+          "p50": 28.1,
+          "p95": 36.4,
+          "p99": 36.4,
+          "max": 36.4
+        },
+        "stepBatches": 417,
+        "droppedDebt": 0,
+        "loadMs": 161.79999995231628,
+        "start": 4714.099999904633,
+        "startTime": 1.9666666666666646,
+        "duration": 6947.900000095367,
+        "simulatedSeconds": 6.950000000000024,
+        "snapshotJsonBytes": 182693,
+        "actors": 6,
+        "finite": true
+      },
+      {
+        "round": 1,
+        "mode": "worker",
+        "revision": "5f1e60cd58d9",
+        "device": {
+          "adapter": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+          "viewport": [
+            1280,
+            800
+          ],
+          "buffer": [
+            1280,
+            800
+          ]
+        },
+        "gameLoadMs": 2362.5,
+        "frames": {
+          "n": 407,
+          "p50": 16.7,
+          "p95": 16.7,
+          "p99": 16.8,
+          "max": 16.8
+        },
+        "frameWork": {
+          "n": 407,
+          "p50": 5,
+          "p95": 6.5,
+          "p99": 7,
+          "max": 7.5
+        },
+        "render": {
+          "n": 407,
+          "p50": 5,
+          "p95": 6.5,
+          "p99": 6.9,
+          "max": 7.4
+        },
+        "solver": {
+          "n": 213,
+          "p50": 21.2,
+          "p95": 25.3,
+          "p99": 33.6,
+          "max": 36.3
+        },
+        "roundTrip": {
+          "n": 213,
+          "p50": 22.4,
+          "p95": 29,
+          "p99": 38.6,
+          "max": 39.7
+        },
+        "transportAndQueue": {
+          "n": 213,
+          "p50": 0.8,
+          "p95": 3.6,
+          "p99": 16.1,
+          "max": 17.6
+        },
+        "inputToScene": {
+          "n": 8,
+          "p50": 67,
+          "p95": 88,
+          "p99": 88,
+          "max": 88
+        },
+        "stepBatches": 213,
+        "droppedDebt": 0,
+        "loadMs": 919.7000000476837,
+        "equivalence": 0,
+        "start": 6172,
+        "startTime": 1.9666666666666646,
+        "duration": 6783.299999952316,
+        "simulatedSeconds": 6.766666666666682,
+        "snapshotJsonBytes": 182788,
+        "actors": 6,
+        "finite": true
+      },
+      {
+        "round": 2,
+        "mode": "worker",
+        "revision": "5f1e60cd58d9",
+        "device": {
+          "adapter": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+          "viewport": [
+            1280,
+            800
+          ],
+          "buffer": [
+            1280,
+            800
+          ]
+        },
+        "gameLoadMs": 2416.7,
+        "frames": {
+          "n": 407,
+          "p50": 16.7,
+          "p95": 16.7,
+          "p99": 16.8,
+          "max": 16.8
+        },
+        "frameWork": {
+          "n": 407,
+          "p50": 5.1,
+          "p95": 7.1,
+          "p99": 7.7,
+          "max": 9.4
+        },
+        "render": {
+          "n": 407,
+          "p50": 5.1,
+          "p95": 7.1,
+          "p99": 7.7,
+          "max": 9.4
+        },
+        "solver": {
+          "n": 199,
+          "p50": 21.6,
+          "p95": 31.4,
+          "p99": 35.6,
+          "max": 36.5
+        },
+        "roundTrip": {
+          "n": 199,
+          "p50": 22.6,
+          "p95": 36.8,
+          "p99": 41,
+          "max": 41.2
+        },
+        "transportAndQueue": {
+          "n": 199,
+          "p50": 0.8,
+          "p95": 3.7,
+          "p99": 16.6,
+          "max": 19.5
+        },
+        "inputToScene": {
+          "n": 8,
+          "p50": 56.7,
+          "p95": 72,
+          "p99": 72,
+          "max": 72
+        },
+        "stepBatches": 199,
+        "droppedDebt": 0,
+        "loadMs": 901.4000000953674,
+        "equivalence": 0,
+        "start": 6241.900000095367,
+        "startTime": 1.9333333333333313,
+        "duration": 6781.699999809265,
+        "simulatedSeconds": 6.800000000000015,
+        "snapshotJsonBytes": 182737,
+        "actors": 6,
+        "finite": true
+      },
+      {
+        "round": 2,
+        "mode": "main",
+        "revision": "5f1e60cd58d9",
+        "device": {
+          "adapter": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+          "viewport": [
+            1280,
+            800
+          ],
+          "buffer": [
+            1280,
+            800
+          ]
+        },
+        "gameLoadMs": 2398.5,
+        "frames": {
+          "n": 398,
+          "p50": 16.7,
+          "p95": 16.8,
+          "p99": 33.4,
+          "max": 33.4
+        },
+        "frameWork": {
+          "n": 398,
+          "p50": 16.7,
+          "p95": 19.8,
+          "p99": 30.6,
+          "max": 38
+        },
+        "render": {
+          "n": 398,
+          "p50": 5.4,
+          "p95": 6.8,
+          "p99": 7.3,
+          "max": 7.8
+        },
+        "solver": {
+          "n": 398,
+          "p50": 11.4,
+          "p95": 13.9,
+          "p99": 24,
+          "max": 30.8
+        },
+        "roundTrip": {
+          "n": 0,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "transportAndQueue": {
+          "n": 0,
+          "p50": 0,
+          "p95": 0,
+          "p99": 0,
+          "max": 0
+        },
+        "inputToScene": {
+          "n": 8,
+          "p50": 27,
+          "p95": 37.4,
+          "p99": 37.4,
+          "max": 37.4
+        },
+        "stepBatches": 398,
+        "droppedDebt": 0,
+        "loadMs": 168.70000004768372,
+        "start": 4569.799999952316,
+        "startTime": 1.9666666666666646,
+        "duration": 6947.400000095367,
+        "simulatedSeconds": 6.950000000000024,
+        "snapshotJsonBytes": 182693,
+        "actors": 6,
+        "finite": true
+      }
+    ]
+  }
+}

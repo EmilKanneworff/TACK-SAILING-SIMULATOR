@@ -9,20 +9,38 @@
 
   function textures(T){
     if(resources)return resources;
-    const maps={},pending=[];
+    const maps={},loaded={},pending=[];
     const sources={...global.FRI_VIND_SURFACES,daylight:global.FRI_VIND_SKY_PHOTO};
-    const loader=new T.TextureLoader();
-    for(const [name,source] of Object.entries(sources)){
-      pending.push(new Promise((resolve,reject)=>{
-        const map=maps[name]=share(loader.load(source,resolve,undefined,()=>reject(Error(`Kunne ikke indlæse grafikressourcen ${name}.`))));
-        map.colorSpace=name==='fabricNormal'?T.NoColorSpace:T.SRGBColorSpace;
-        map.wrapS=T.RepeatWrapping;
-        if(name==='daylight'||name==='overcast')map.mapping=T.EquirectangularReflectionMapping;
-        else{map.wrapT=T.RepeatWrapping;map.anisotropy=4;}
-      }));
+    const colors={sand:'#ad976b',grass:'#69794d',earth:'#8c794d',stone:'#77766c',teak:'#a48a63',
+      fabricNormal:'#8080ff',daylight:'#a6cddd',overcast:'#b7c3cb'};
+    const loader=new T.ImageLoader();
+    for(const [name,color] of Object.entries(colors)){
+      const map=maps[name]=share(new T.Texture());
+      map.colorSpace=name==='fabricNormal'?T.NoColorSpace:T.SRGBColorSpace;
+      map.wrapS=T.RepeatWrapping;
+      if(name==='daylight'||name==='overcast')map.mapping=T.EquirectangularReflectionMapping;
+      else{map.wrapT=T.RepeatWrapping;map.anisotropy=4;}
+      // Upload either the decoded image or its fallback, with one size per WebGL texture.
+      const setImage=image=>{
+        map.image=image;map.needsUpdate=true;
+        if(name==='fabricNormal')for(const weave of sailWeaves.values())weave.needsUpdate=true;
+      };
+      const useFallback=()=>{
+        const canvas=document.createElement('canvas');canvas.width=canvas.height=1;
+        const ctx=canvas.getContext('2d');ctx.fillStyle=color;ctx.fillRect(0,0,1,1);
+        setImage(canvas);
+      };
+      if(!sources[name]){useFallback();continue;}
+      pending.push(new Promise(resolve=>loader.load(sources[name],image=>{
+        setImage(image);loaded[name]=true;
+        resolve();
+      },undefined,()=>{
+        useFallback();
+        console.warn(`TACK bruger reservegrafik til ${name}.`);
+        resolve();
+      })));
     }
-    resources={maps,ready:Promise.all(pending)};
-    resources.ready.catch(()=>{});
+    resources={maps,ready:Promise.all(pending).then(()=>loaded)};
     return resources;
   }
 

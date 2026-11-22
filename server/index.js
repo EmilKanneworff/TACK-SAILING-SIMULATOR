@@ -52,11 +52,12 @@ function handle(ws,m) {
       (m.downwindType!==undefined&&!['spinnaker','gennaker','code0'].includes(m.downwindType)))return error(ws,'Ugyldigt input.');
    let rig;
    if(m.rig!==undefined){
-     if(p.boat!=='yacht'||!m.rig||typeof m.rig!=='object'||Array.isArray(m.rig))return error(ws,'Ugyldig rig.');
+     if(!['yacht','ac75'].includes(p.boat)||!m.rig||typeof m.rig!=='object'||Array.isArray(m.rig))return error(ws,'Ugyldig rig.');
      const {reef,headsail,jibSheet,extraSheet}=m.rig;
      const sheet=value=>value===undefined||Number.isFinite(value)&&value>=0&&value<=1;
      if((reef!==undefined&&![0,1,2].includes(reef))||(headsail!==undefined&&![0,1].includes(headsail))||
-        !sheet(jibSheet)||!sheet(extraSheet))return error(ws,'Ugyldig rig.');
+        !sheet(jibSheet)||!sheet(extraSheet)||
+        (p.boat==='ac75'&&[headsail,jibSheet,extraSheet].some(value=>value!==undefined)))return error(ws,'Ugyldig rig.');
      rig={reef,headsail,jibSheet,extraSheet};
    }
    p.lastSeq=m.seq;

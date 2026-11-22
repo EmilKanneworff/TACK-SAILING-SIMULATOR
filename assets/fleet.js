@@ -1,7 +1,7 @@
 /* Shared free-sailing prototype. The host advances one physical state per player. */
 (() => {
 'use strict';
-const P=globalThis.SailPhysics,W=globalThis.SailingWeather,R=globalThis.SailingRecovery;
+const Sim=globalThis.TackSimulation,P=Sim.physics;
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 function blendFields(from,to,fraction,keys){
  if(!to)return to;
@@ -17,7 +17,7 @@ function visualPose(view,now){
   'rudder','boom','boomRate','crewPoseBlend','crewSideBlend','crewPoseVelocity','crewSideVelocity','crewForeAft','crewDuck','crewSwim'
  ]);
  if(Number.isFinite(from.theta)&&Number.isFinite(to.theta))draw.theta=from.theta+P.wrap(to.theta-from.theta)*t;
- draw.rig=blendFields(from.rig,to.rig,t,['sideBlend','camber','twist','fill','reef','sheetEase','flutter','jibFlutter','jibFill','flutterPhase','gybeImpact']);
+ draw.rig=blendFields(from.rig,to.rig,t,['sideBlend','camber','twist','fill','reef','flutter','jibFlutter','jibFill','flutterPhase','gybeImpact']);
  draw.cruiserRig=blendFields(from.cruiserRig,to.cruiserRig,t,['reef','headsail','jibSheet','extraSheet']);
  draw.wing=blendFields(from.wing,to.wing,t,['angle','flap','twist','jibAngle','load']);
  draw.spinnaker=from.spinnaker?.type===to.spinnaker?.type
@@ -42,7 +42,7 @@ class Fleet {
  joined(room,players){const resuming=this.session===room.session&&this.inWorld;if(this.session!==room.session)this.clear();Object.assign(this,{session:room.session,id:room.id,host:room.host});if(resuming&&!room.host){this.synced=false;this.pending=[];}this.roster(players);}
  roster(players){this.players=players||[];if(this.host&&this.inWorld)this.ensure();let ids=new Set(this.players.map(p=>p.id));for(const [id] of this.boats)if(!ids.has(id)){this.boats.delete(id);this.races.delete(id);this.controls.delete(id);this.views.delete(id);delete this.acks[id];}for(const [id,a] of this.actors)if(!ids.has(id)){a.disposeBoat();this.actors.delete(id);}}
  enter(){if(!this.session)return;this.bridge.enter();this.inWorld=true;this.synced=this.host;if(this.host){this.ensure();this.broadcast();}}
- ensure(){let env=this.bridge.env(),base=this.bridge.state();for(const [i,p] of this.players.entries()){if(p.id===this.id)continue;let b=this.boats.get(p.id);if(!b||b.boatId!==p.boat){let s=P.createState({boatId:p.boat,x:b?.x??base.x+(i+1)*25,y:b?.y??base.y-(i+1)*25,time:base.time,vx:0,vy:0}, {...env,boatId:p.boat,difficulty:b?.crewDifficulty??'hard'});const safe=R.safeLocation(s,globalThis.SailingBoats.get(p.boat),s.theta);s.x=safe.x;s.y=safe.y;s.seaState=base.seaState;s.waveProfile=base.waveProfile;W.initialize(s,env);this.boats.set(p.id,s);}}}
+ ensure(){let env=this.bridge.env(),base=this.bridge.state();for(const [i,p] of this.players.entries()){if(p.id===this.id)continue;let b=this.boats.get(p.id);if(!b||b.boatId!==p.boat){const s=Sim.createBoat(p.boat,{x:b?.x??base.x+(i+1)*25,y:b?.y??base.y-(i+1)*25,time:base.time,vx:0,vy:0}, {...env,boatId:p.boat,difficulty:b?.crewDifficulty??'hard'});Sim.placeAtSafeSpawn(s);Sim.alignSpawn(s,base);this.boats.set(p.id,s);}}}
  onMessage(m){if(!this.session||m.session!==this.session)return;
   if(m.type==='input'&&this.host){this.controls.set(m.id,{steer:m.steer,trim:m.trim,crew:m.crew??0,foreAft:m.foreAft??0,rig:m.rig,crewPose:m.crewPose,difficulty:m.difficulty??'hard',spinnaker:!!m.spinnaker,downwindType:m.downwindType||'spinnaker',trimFast:m.trimFast??true,steerDigital:m.steerDigital??true,seq:m.seq,received:performance.now()});}
   if(m.type==='disconnected'&&this.host)this.controls.delete(m.id);
@@ -52,8 +52,8 @@ class Fleet {
   if(m.type==='snapshot'&&!this.host&&m.seq>this.lastSnapshot&&m.state?.boats){this.lastSnapshot=m.seq;this.receive(m.state);}
  }
  step(control,now,dt){if(!this.session||!this.inWorld)return;
-  if(this.host){this.ensure();const env=this.bridge.env(),world=this.bridge.state(),previous=new Map();for(const [id,s] of this.boats){s.time=world.time-dt;s.waveProfile=world.waveProfile;let c=this.controls.get(id);if(!c||now-c.received>700)c={steer:0,trim:0,crewPose:s.crewPose||2,difficulty:s.crewDifficulty??'hard'};const localEnv={...env,boatId:s.boatId,crewPose:c.crewPose};const prev={x:s.x,y:s.y,theta:s.theta,heel:s.heel,pitch:s.pitch,recovering:s.recovering,capsized:s.capsized};previous.set(id,prev);R.update(s,localEnv,now);P.step(s,c,localEnv,dt);W.step(s,localEnv,dt);s.seaState=world.seaState;R.update(s,localEnv,now);if(c.seq!==undefined)this.acks[id]=c.seq;}
-   const contact=globalThis.FriVindCollisions.resolve([{id:this.id,state:world},...[...this.boats].map(([id,state])=>({id,state}))],globalThis.SailingBoats);this.lastContacts=contact.pairs;
+  if(this.host){this.ensure();const env=this.bridge.env(),world=this.bridge.state(),previous=new Map();for(const [id,s] of this.boats){let c=this.controls.get(id);if(!c||now-c.received>700)c={steer:0,trim:0,crewPose:c?.crewPose??s.crewPose??2,crew:c?.crew??0,difficulty:c?.difficulty??s.crewDifficulty??'hard'};const prev={x:s.x,y:s.y,theta:s.theta,heel:s.heel,pitch:s.pitch,recovering:s.recovering,capsized:s.capsized};previous.set(id,prev);Sim.stepFleetBoat(s,c,env,dt,world,now);if(c.seq!==undefined)this.acks[id]=c.seq;}
+   const contact=Sim.resolveContacts([{id:this.id,state:world},...[...this.boats].map(([id,state])=>({id,state}))]);this.lastContacts=contact.pairs;
    for(const [id,s] of this.boats){const prev=previous.get(id),race=this.races.get(id);if(race)race.update(prev,s,dt,{nowMs:now,discontinuity:!!(contact.touched.has(id)||prev.recovering||s.recovering||prev.capsized||s.capsized)});}
    if(this.raceActive&&this.bridge.course().finished&&[...this.races.values()].every(r=>r.finished)){this.raceActive=false;this.send({type:'phase',phase:'free'});}if(now-this.lastSend>=70){this.lastSend=now;this.broadcast();}return contact.touched.has(this.id);}
 
@@ -85,10 +85,9 @@ class Fleet {
   for(const [id,old] of this.boats){
    const env={...this.bridge.env(),boatId:old.boatId,difficulty:old.crewDifficulty??'hard'};
    const spawn=grid.get(id)||course.model.spawn;
-   const state=P.createState({...spawn,boatId:old.boatId,time:world.time,crewPose:old.crewPose},env);
-   const safe=R.safeLocation(state,SailingBoats.get(old.boatId),state.theta);
-   state.x=safe.x;state.y=safe.y;state.seaState=world.seaState;state.waveProfile=world.waveProfile;
-   W.initialize(state,env);
+   const state=Sim.createBoat(old.boatId,{...spawn,time:world.time,crewPose:old.crewPose},env);
+   Sim.placeAtSafeSpawn(state);
+   Sim.alignSpawn(state,world);
    this.boats.set(id,state);
    const race=new SailingCourse(env,'course',course.type,course.model);
    race.storage=false;

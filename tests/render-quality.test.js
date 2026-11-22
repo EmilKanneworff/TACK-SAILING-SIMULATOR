@@ -11,6 +11,21 @@ test.use({
 });
 const game = pathToFileURL(resolve('index.html')).href;
 
+test('a failed sky image leaves free sailing and controls available', async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(window, 'FRI_VIND_SKY_PHOTO', {
+    get: () => 'data:image/jpeg;base64,eA==', set: () => {}
+  }));
+  await page.goto(game);
+  await page.evaluate(()=>SAILING_GAME.scene.skyPhotoReady);
+  await expect(page.locator('#startButton')).toBeEnabled();
+  await page.click('#startButton');
+  await page.keyboard.down('ArrowRight');
+  await page.waitForFunction(()=>SAILING_GAME.state.time>.15&&SAILING_GAME.state.rudder>.05);
+  await page.keyboard.up('ArrowRight');
+  await expect(page.locator('#fatal')).toBeHidden();
+  expect(await page.evaluate(()=>SAILING_GAME.scene.skyPhotoLoaded)).toBe(false);
+});
+
 test('low graphics lowers the drawing resolution and keeps the active frame cadence', async ({ page }) => {
   await page.clock.install();
   await page.goto(game);

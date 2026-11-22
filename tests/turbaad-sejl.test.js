@@ -11,7 +11,7 @@ test('four crew move the actual mass and all three sails produce different downw
 });
 test('switching sails lowers the old sail before showing the new one',async({page})=>{
  await page.clock.install();
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
  await (await introOption(page,'#introBoat')).selectOption('yacht');
  await page.click('#startButton');
  const sail=()=>page.evaluate(()=>{
@@ -36,6 +36,7 @@ test('switching sails lowers the old sail before showing the new one',async({pag
   expect(lowering.state.type).toBe(from);
   expect(lowering.state.phase).toBe('lowering');
   expect(lowering.state.hoist).toBeLessThan(.9);
+  await expect(page.locator('#coachSub')).toHaveText('Tager '+(from==='spinnaker'?'spiler':'Code 0')+' ned først');
   await page.clock.runFor(8300);
   expect(await sail()).toMatchObject({state:{type,phase:'up',hoist:1},shown});
  }
@@ -58,7 +59,7 @@ for(const {type,button,waiting,bearing} of [
   await page.evaluate(()=>{
    const {state,env}=SAILING_GAME,P=SailPhysics,theta=63*P.DEG;
    Object.assign(env,{speed:7,direction:0,gusts:0,waveHeight:0,shelter:false});
-   Object.assign(state,P.createState({boatId:'yacht',x:0,y:-1650,time:state.time,theta,
+   Object.assign(state,P.createState({boatId:'yacht',x:0,y:-5000,time:state.time,theta,
     vx:1.7*Math.cos(theta),vy:1.7*Math.sin(theta),sheet:.52},env));
    SailingWeather.initialize(state,env);
    const sheet=document.querySelector('#sheetControl');
@@ -99,6 +100,45 @@ for(const {type,button,waiting,bearing} of [
   expect(lowered.visible).toEqual([false,false,false]);
  });
 }
+test('hard-mode luff advice names the deployed sail and its actual lowering button',async({page})=>{
+ test.setTimeout(60000);
+ await page.clock.install();
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+ await (await introOption(page,'#introBoat')).selectOption('yacht');
+ await page.selectOption('#introDifficulty','hard');
+ await page.click('#startButton');
+ for(const [type,label,button,heading] of [
+  ['spinnaker','Spiler','#spinnakerButton',156],['code0','Code 0','#code0Button',101],['gennaker','Gennaker','#gennakerButton',128]
+ ]){
+  await page.evaluate(heading=>{
+   const {state,env}=SAILING_GAME,P=SailPhysics,theta=(90-heading)*P.DEG;
+   Object.assign(env,{speed:7,direction:0,gusts:0,waveHeight:0,chop:0,shelter:false});
+   Object.assign(state,P.createState({boatId:'yacht',x:0,y:-5000,time:state.time,theta,
+    vx:2*Math.cos(theta),vy:2*Math.sin(theta),sheet:.5},env));
+   state.windClimate={speed:7,direction:0,gusts:0};
+   SailingWeather.initialize(state,env);
+  },heading);
+  await page.clock.runFor(400);
+  await page.click(button);
+  await page.clock.runFor(7200);
+  expect(await page.evaluate(()=>SAILING_GAME.state.spinnaker)).toMatchObject({type,phase:'up',hoist:1});
+  await page.evaluate(()=>{
+   const {state,env}=SAILING_GAME;
+   env.direction=SailPhysics.wrap360(90-state.theta/SailPhysics.DEG+14);
+   state.windClimate={speed:7,direction:env.direction,gusts:0};
+  });
+  await page.clock.runFor(2050);
+  const action='Tag '+(type==='code0'?label:label.toLowerCase())+' ned';
+  await expect(page.locator(button)).toHaveText(action);
+  await expect(page.locator('#coachText')).toHaveText(label+' blafrer');
+  await expect(page.locator('#coachSub')).toHaveText('Fald af, eller tryk ”'+action+'”. Fokken kommer automatisk tilbage.');
+  await page.click(button);
+  await page.clock.runFor(4800);
+  const after=await page.evaluate(()=>({phase:SAILING_GAME.state.spinnaker.phase,
+   hoist:SAILING_GAME.state.spinnaker.hoist,jib:SAILING_GAME.state.sail.jib?.area}));
+  expect(after).toEqual({phase:'down',hoist:0,jib:32});
+ }
+});
 test('Gennaker and four crew are synchronised between two live browser clients',async({browser})=>{
  test.setTimeout(60000);const services=[spawn(process.execPath,['server/index.js'],{env:{...process.env,PORT:'33121'},stdio:['ignore','pipe','inherit']}),spawn(process.execPath,['server/static.js'],{env:{...process.env,FRONTEND_PORT:'34121'},stdio:['ignore','pipe','inherit']})];await Promise.all(services.map(p=>new Promise((resolve,reject)=>{p.stdout.once('data',resolve);p.once('error',reject)})));const cs=[],errors=[];
  try{for(let i=0;i<2;i++){const c=await browser.newContext();cs.push(c);const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));await p.addInitScript(()=>window.FRI_VIND_REALTIME_URL='ws://127.0.0.1:33121');await p.goto('http://127.0.0.1:34121');await p.waitForFunction(()=>window.SAILING_GAME);if(i)await (await introOption(p, '#introBoat')).selectOption('yacht');await (await introOption(p, '#introLobby')).click();await p.fill('#lobbyName',i?'Gæst':'Vært');if(i){await p.fill('#lobbyCodeInput',await cs[0].pages()[0].locator('#lobbyCode').innerText());await p.click('#lobbyJoin')}else await p.click('#lobbyCreate');await expect(p.locator('#lobbyRoom')).toBeVisible();}const h=cs[0].pages()[0],g=cs[1].pages()[0];await h.click('#lobbySail');await g.click('#lobbySail');await g.waitForFunction(()=>FriVindLobby.fleet.synced);const id=await g.evaluate(()=>FriVindLobby.fleet.id);await g.click('#gennakerButton');await g.keyboard.press('3');await h.waitForFunction(id=>{const f=FriVindLobby.fleet,s=f.boats.get(id),a=f.actors.get(id);return s?.spinnaker?.type==='gennaker'&&s.spinnaker.hoist>.2&&Number.isFinite(s.rig?.camber)&&Number.isFinite(s.rig?.sideBlend)&&Number.isFinite(s.sail?.main?.camber)&&s.crewPose===3&&s.crewPoseBlend>2.8&&s.crewJoints?.members?.length===4&&a?.gennakerMesh?.visible&&a.racingCrew.length===3},id,{timeout:20000});const sync=await h.evaluate(id=>{const f=FriVindLobby.fleet,s=f.boats.get(id),a=f.actors.get(id);return [a.person,...a.racingCrew.map(c=>c.person)].map((p,i)=>Math.hypot(p.head.position.x-s.crewJoints.members[i].head.x,p.head.position.z-s.crewJoints.members[i].head.z))},id);expect(sync.every(v=>v<.08)).toBe(true);

@@ -80,7 +80,7 @@ test('a wind direction and sea change crossfade without jumping and share shader
 test('swell without wind stays bounded over a longer run',async({page})=>{test.setTimeout(30000);await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);const r=await page.evaluate(()=>{const e={...SAILING_GAME.env,boatId:'laser',speed:0,gusts:0,waves:1},s=SailPhysics.createState({vx:0,vy:0},e);let max=0;for(let i=0;i<7200;i++){SailPhysics.step(s,{steer:0,trim:0,crewPose:2},e,1/60);max=Math.max(max,Math.hypot(s.vx,s.vy));}return {max,final:Math.hypot(s.vx,s.vy),finite:Number.isFinite(s.x)&&Number.isFinite(s.heave)}});expect(r.finite).toBe(true);expect(r.max).toBeLessThan(10)});
 test('automatic recovery in waves returns control for all five boats',async({page})=>{test.setTimeout(90000);await page.clock.install();await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);await page.click('#startButton');let elapsed=[];for(const boat of ['laser','dinghy','yacht','ac75','ac72']){await page.click('#boatMenuButton');await page.click(`[data-boat="${boat}"]`);if(await page.evaluate(()=>SAILING_GAME.paused))await page.click('#resumeButton');await page.evaluate(()=>{SAILING_GAME.state.heel=2;SAILING_GAME.state.heelRate=0});await page.clock.runFor(5000);const r=await page.evaluate(()=>({boat:SAILING_GAME.state.boatId,last:SAILING_GAME.state.lastRecovery,recovering:SAILING_GAME.state.recovering}));expect(r.recovering,JSON.stringify(r)).toBe(false);expect(r.last,JSON.stringify(r)).toBeTruthy();expect(r.last.elapsedSeconds).toBeLessThanOrEqual(5);elapsed.push(r.last.elapsedSeconds);await page.keyboard.down('ArrowLeft');await page.clock.runFor(300);expect(await page.evaluate(()=>SAILING_GAME.state.steerIntent),boat).toBe(-1);await page.keyboard.up('ArrowLeft')}console.log('RECOVERY SECONDS',JSON.stringify(elapsed))});
 test('GPU wave shader matches the physics field at sampled coordinates',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const values=await page.evaluate(()=>{
   const P=SailPhysics,T=THREE,g=SAILING_GAME,world=g.scene,renderer=world.renderer,time=7.5;
@@ -91,19 +91,32 @@ test('GPU wave shader matches the physics field at sampled coordinates',async({p
   const uniforms={...world.waterUniforms,coord:{value:new T.Vector2()}};
   const material=new T.ShaderMaterial({uniforms,vertexShader:'void main(){gl_Position=vec4(position,1.);}',
    fragmentShader:`uniform float time;uniform float sea;uniform vec2 coord;${world.waveShader}
-     void main(){gl_FragColor=vec4(.5+.4*wave(coord).x,0.,0.,1.);}`});
+     void main(){gl_FragColor=vec4(.5+.4*wave(coord).x,(seaDepth(coord)+8.)/48.,0.,1.);}`});
   const scene=new T.Scene(),quad=new T.Mesh(new T.PlaneGeometry(2,2),material),camera=new T.OrthographicCamera(-1,1,1,-1,0,1);
   const target=new T.WebGLRenderTarget(1,1),old=renderer.getRenderTarget(),pixel=new Uint8Array(4);
   scene.add(quad);
-  const values=[[3,5],[38,-42],[-98,64]].map(([x,y])=>{
+  const coast={...env,shelter:true,waveHeight:.45,swellDirection:165,chop:.12};
+  const samples=[[3,5],[38,-42],[-98,64],[57.5,6.72],[57.5,2.72],[57.5,-2.28],[275,-1039]];
+  const values=samples.map(([x,y],index)=>{
+   const field=index<3?env:coast;
+   if(index===3){
+    const profile=P.waveProfileFor(field);
+    s.waveProfile={from:profile,to:profile,start:time-P.PROFILE_SECONDS};
+    s.seaState=P.seaTarget(field);
+    world.update(s,field,{marks:[]},1/60,{});
+   }
    uniforms.coord.value.set(x,-y);
    renderer.setRenderTarget(target);renderer.render(scene,camera);renderer.readRenderTargetPixels(target,0,0,1,1,pixel);
-   return {gpu:(pixel[0]/255-.5)/.4,cpu:P.waveAt(x,y,time,{...env,waveCurrent:s.seaState,waveProfile:s.waveProfile}).height};
+   return {gpu:(pixel[0]/255-.5)/.4,cpu:P.waveAt(x,y,time,{...field,waveCurrent:s.seaState,waveProfile:s.waveProfile}).height,
+    gpuDepth:pixel[1]/255*48-8,cpuDepth:SailingWaterDepth.sample(x,y).depth};
   });
   renderer.setRenderTarget(old);target.dispose();material.dispose();quad.geometry.dispose();
   return values;
  });
- for(const p of values)expect(Math.abs(p.gpu-p.cpu),JSON.stringify(p)).toBeLessThan(.015);
+ for(const p of values){
+  expect(Math.abs(p.gpu-p.cpu),JSON.stringify(p)).toBeLessThan(.015);
+  expect(Math.abs(p.gpuDepth-p.cpuDepth),JSON.stringify(p)).toBeLessThan(.11);
+ }
 });
 test('fixed-step sailing in waves agrees at 30, 60 and 120 render rates',async({page})=>{await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);const runs=await page.evaluate(()=>[30,60,120].map(fps=>{const e={...SAILING_GAME.env,waves:.85,boatId:'laser'},s=SailPhysics.createState({},e);let acc=0;for(let f=0;f<fps*12;f++){acc+=1/fps;while(acc+1e-12>=1/60){SailPhysics.step(s,{steer:s.time<3?.2:0,trim:0,crewPose:2},e,1/60);acc-=1/60}}return {x:s.x,y:s.y,heave:s.heave,heel:s.heel,time:s.time}}));for(const r of runs.slice(1))for(const k of ['x','y','heave','heel','time'])expect(r[k]).toBeCloseTo(runs[0][k],7)});
 test('crew shifts alter centre of gravity without changing total mass',async({page})=>{await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);const samples=await page.evaluate(()=>['laser','dinghy','yacht','ac75','ac72'].map(boatId=>{const e={...SAILING_GAME.env,boatId},s=SailPhysics.createState({},e),out=[];for(let pose of [1,2,3]){s.crewPoseBlend=pose;s.crewSideBlend=1;SailPhysics.updateCrew(s,{crewPose:pose},{...e,autoBalance:false},0);if(boatId.startsWith('ac')){const p=FoilingPhysics.massProperties(s);out.push({mass:p.mass,cg:p.cg.z})}else{const p=SailPhysics.hydrostatics(s,e,false);out.push({mass:SailingBoats.get(boatId).mass,cg:p.cg.z})}}return {boatId,out}}));for(const s of samples){expect(s.out[1].mass).toBeCloseTo(s.out[0].mass,6);expect(s.out[2].mass).toBeCloseTo(s.out[0].mass,6);expect(Math.abs(s.out[2].cg-s.out[0].cg),JSON.stringify(s)).toBeGreaterThan(.001)}});

@@ -1,0 +1,668 @@
+{
+  "revision": "ad4daa20fa39",
+  "git": "3f65b7f4bc6e0f5b412cfdbd9d7d05f43f906f6e",
+  "browser": "157.0.8103.79",
+  "dt": 0.016667,
+  "steadyWindowSeconds": 8,
+  "speedUnit": "knots",
+  "angleUnit": "degrees",
+  "conditions": "Open water, Hard, no shelter or auto-recovery, same bounded PD rudder input; trim grid records actual sheet",
+  "profile": {
+    "mass": 143,
+    "crew": 75,
+    "ballast": 0,
+    "sailArea": 7.06
+  },
+  "crewLocations": [
+    {
+      "pose": 1,
+      "side": -1,
+      "x": -0.465014,
+      "y": 0.498007,
+      "z": -0.042729
+    },
+    {
+      "pose": 1,
+      "side": 1,
+      "x": -0.465014,
+      "y": 0.498007,
+      "z": 0.042729
+    },
+    {
+      "pose": 2,
+      "side": -1,
+      "x": -0.465014,
+      "y": 0.476034,
+      "z": -0.247263
+    },
+    {
+      "pose": 2,
+      "side": 1,
+      "x": -0.465014,
+      "y": 0.476034,
+      "z": 0.247263
+    },
+    {
+      "pose": 3,
+      "side": -1,
+      "x": -0.465014,
+      "y": 0.445015,
+      "z": -0.634919
+    },
+    {
+      "pose": 3,
+      "side": 1,
+      "x": -0.465014,
+      "y": 0.445015,
+      "z": 0.634919
+    }
+  ],
+  "heelGrid": [
+    {
+      "reference": "reach",
+      "side": -1,
+      "heel": 0,
+      "area": 7.06,
+      "sectionPressure": 337.334742,
+      "drive": 279.668648,
+      "sideForce": 172.874717,
+      "up": 0,
+      "roll": 462.210269,
+      "pitch": -767.423164,
+      "yaw": 158.525618,
+      "alpha": -25.405879,
+      "localAirSpeed": 8.832327
+    },
+    {
+      "reference": "reach",
+      "side": -1,
+      "heel": 10,
+      "area": 7.06,
+      "sectionPressure": 327.913914,
+      "drive": 274.023965,
+      "sideForce": 165.597619,
+      "up": -29.199328,
+      "roll": 449.962332,
+      "pitch": -713.288559,
+      "yaw": 283.865983,
+      "alpha": -25.175004,
+      "localAirSpeed": 8.708122
+    },
+    {
+      "reference": "reach",
+      "side": -1,
+      "heel": 20,
+      "area": 7.06,
+      "sectionPressure": 300.787719,
+      "drive": 257.539152,
+      "sideForce": 145.748566,
+      "up": -53.04814,
+      "roll": 416.06559,
+      "pitch": -612.830437,
+      "yaw": 379.745293,
+      "alpha": -24.448919,
+      "localAirSpeed": 8.340165
+    },
+    {
+      "reference": "reach",
+      "side": -1,
+      "heel": 30,
+      "area": 7.06,
+      "sectionPressure": 259.227977,
+      "drive": 230.934695,
+      "sideForce": 118.414679,
+      "up": -68.366747,
+      "roll": 368.011914,
+      "pitch": -479.873119,
+      "yaw": 430.611524,
+      "alpha": -23.115379,
+      "localAirSpeed": 7.742577
+    },
+    {
+      "reference": "reach",
+      "side": -1,
+      "heel": 45,
+      "area": 7.06,
+      "sectionPressure": 181.121211,
+      "drive": 167.895631,
+      "sideForce": 74.07269,
+      "up": -74.07269,
+      "roll": 280.992368,
+      "pitch": -251.164692,
+      "yaw": 387.818955,
+      "alpha": -19.405872,
+      "localAirSpeed": 6.471862
+    },
+    {
+      "reference": "reach",
+      "side": 1,
+      "heel": 0,
+      "area": 7.06,
+      "sectionPressure": 337.334742,
+      "drive": 279.668648,
+      "sideForce": -172.874717,
+      "up": 0,
+      "roll": -462.210269,
+      "pitch": -767.423164,
+      "yaw": -158.525618,
+      "alpha": 25.405879,
+      "localAirSpeed": 8.832327
+    },
+    {
+      "reference": "reach",
+      "side": 1,
+      "heel": -10,
+      "area": 7.06,
+      "sectionPressure": 327.913914,
+      "drive": 274.023965,
+      "sideForce": -165.597619,
+      "up": -29.199328,
+      "roll": -449.962332,
+      "pitch": -713.288559,
+      "yaw": -283.865983,
+      "alpha": 25.175004,
+      "localAirSpeed": 8.708122
+    },
+    {
+      "reference": "reach",
+      "side": 1,
+      "heel": -20,
+      "area": 7.06,
+      "sectionPressure": 300.787719,
+      "drive": 257.539152,
+      "sideForce": -145.748566,
+      "up": -53.04814,
+      "roll": -416.06559,
+      "pitch": -612.830437,
+      "yaw": -379.745293,
+      "alpha": 24.448919,
+      "localAirSpeed": 8.340165
+    },
+    {
+      "reference": "reach",
+      "side": 1,
+      "heel": -30,
+      "area": 7.06,
+      "sectionPressure": 259.227977,
+      "drive": 230.934695,
+      "sideForce": -118.414679,
+      "up": -68.366747,
+      "roll": -368.011914,
+      "pitch": -479.873119,
+      "yaw": -430.611524,
+      "alpha": 23.115379,
+      "localAirSpeed": 7.742577
+    },
+    {
+      "reference": "reach",
+      "side": 1,
+      "heel": -45,
+      "area": 7.06,
+      "sectionPressure": 181.121211,
+      "drive": 167.895631,
+      "sideForce": -74.07269,
+      "up": -74.07269,
+      "roll": -280.992368,
+      "pitch": -251.164692,
+      "yaw": -387.818955,
+      "alpha": 19.405872,
+      "localAirSpeed": 6.471862
+    },
+    {
+      "reference": "close",
+      "side": -1,
+      "heel": 0,
+      "area": 7.06,
+      "sectionPressure": 445.955527,
+      "drive": 247.661047,
+      "sideForce": 417.106221,
+      "up": 0,
+      "roll": 1124.742993,
+      "pitch": -671.411574,
+      "yaw": 70.737888,
+      "alpha": -20.440125,
+      "localAirSpeed": 10.155244
+    },
+    {
+      "reference": "close",
+      "side": -1,
+      "heel": 10,
+      "area": 7.06,
+      "sectionPressure": 440.10556,
+      "drive": 243.296724,
+      "sideForce": 407.700717,
+      "up": -71.888637,
+      "roll": 1114.581832,
+      "pitch": -635.763959,
+      "yaw": 183.146474,
+      "alpha": -20.005726,
+      "localAirSpeed": 10.088417
+    },
+    {
+      "reference": "close",
+      "side": -1,
+      "heel": 20,
+      "area": 7.06,
+      "sectionPressure": 423.261253,
+      "drive": 226.912528,
+      "sideForce": 377.018956,
+      "up": -137.223678,
+      "roll": 1075.043918,
+      "pitch": -550.066706,
+      "yaw": 270.920533,
+      "alpha": -18.681491,
+      "localAirSpeed": 9.893475
+    },
+    {
+      "reference": "close",
+      "side": -1,
+      "heel": 30,
+      "area": 7.06,
+      "sectionPressure": 397.454276,
+      "drive": 191.539943,
+      "sideForce": 317.968792,
+      "up": -183.579368,
+      "roll": 978.726877,
+      "pitch": -414.911982,
+      "yaw": 304.949019,
+      "alpha": -16.405727,
+      "localAirSpeed": 9.587121
+    },
+    {
+      "reference": "close",
+      "side": -1,
+      "heel": 45,
+      "area": 7.06,
+      "sectionPressure": 348.953025,
+      "drive": 114.16881,
+      "sideForce": 189.448728,
+      "up": -189.448728,
+      "roll": 704.087641,
+      "pitch": -188.013923,
+      "yaw": 237.822598,
+      "alpha": -10.992193,
+      "localAirSpeed": 8.983138
+    },
+    {
+      "reference": "close",
+      "side": 1,
+      "heel": 0,
+      "area": 7.06,
+      "sectionPressure": 445.955527,
+      "drive": 247.661047,
+      "sideForce": -417.106221,
+      "up": 0,
+      "roll": -1124.742993,
+      "pitch": -671.411574,
+      "yaw": -70.737888,
+      "alpha": 20.440125,
+      "localAirSpeed": 10.155244
+    },
+    {
+      "reference": "close",
+      "side": 1,
+      "heel": -10,
+      "area": 7.06,
+      "sectionPressure": 440.10556,
+      "drive": 243.296724,
+      "sideForce": -407.700717,
+      "up": -71.888637,
+      "roll": -1114.581832,
+      "pitch": -635.763959,
+      "yaw": -183.146474,
+      "alpha": 20.005726,
+      "localAirSpeed": 10.088417
+    },
+    {
+      "reference": "close",
+      "side": 1,
+      "heel": -20,
+      "area": 7.06,
+      "sectionPressure": 423.261253,
+      "drive": 226.912528,
+      "sideForce": -377.018956,
+      "up": -137.223678,
+      "roll": -1075.043918,
+      "pitch": -550.066706,
+      "yaw": -270.920533,
+      "alpha": 18.681491,
+      "localAirSpeed": 9.893475
+    },
+    {
+      "reference": "close",
+      "side": 1,
+      "heel": -30,
+      "area": 7.06,
+      "sectionPressure": 397.454276,
+      "drive": 191.539943,
+      "sideForce": -317.968792,
+      "up": -183.579368,
+      "roll": -978.726877,
+      "pitch": -414.911982,
+      "yaw": -304.949019,
+      "alpha": 16.405727,
+      "localAirSpeed": 9.587121
+    },
+    {
+      "reference": "close",
+      "side": 1,
+      "heel": -45,
+      "area": 7.06,
+      "sectionPressure": 348.953025,
+      "drive": 114.16881,
+      "sideForce": -189.448728,
+      "up": -189.448728,
+      "roll": -704.087641,
+      "pitch": -188.013923,
+      "yaw": -237.822598,
+      "alpha": 10.992193,
+      "localAirSpeed": 8.983138
+    }
+  ],
+  "balanceGrid": [
+    {
+      "heel": -45,
+      "hullDrag": 8.112962,
+      "rollBuoyancy": 506.386146,
+      "rollGravity": -303.911941,
+      "cg": {
+        "x": -0.135986,
+        "y": 0.306378,
+        "z": 0
+      }
+    },
+    {
+      "heel": -30,
+      "hullDrag": 9.287818,
+      "rollBuoyancy": 483.680903,
+      "rollGravity": -214.898195,
+      "cg": {
+        "x": -0.135986,
+        "y": 0.306378,
+        "z": 0
+      }
+    },
+    {
+      "heel": -20,
+      "hullDrag": 10.27571,
+      "rollBuoyancy": 414.244059,
+      "rollGravity": -146.999023,
+      "cg": {
+        "x": -0.135986,
+        "y": 0.306378,
+        "z": 0
+      }
+    },
+    {
+      "heel": -10,
+      "hullDrag": 12.462742,
+      "rollBuoyancy": 292.628457,
+      "rollGravity": -74.63336,
+      "cg": {
+        "x": -0.135986,
+        "y": 0.306378,
+        "z": 0
+      }
+    },
+    {
+      "heel": -3,
+      "hullDrag": 14.21154,
+      "rollBuoyancy": 115.926426,
+      "rollGravity": -22.493805,
+      "cg": {
+        "x": -0.135986,
+        "y": 0.306378,
+        "z": 0
+      }
+    },
+    {
+      "heel": 0,
+      "hullDrag": 14.512393,
+      "rollBuoyancy": 0,
+      "rollGravity": 0,
+      "cg": {
+        "x": -0.135986,
+        "y": 0.306378,
+        "z": 0
+      }
+    },
+    {
+      "heel": 3,
+      "hullDrag": 14.21154,
+      "rollBuoyancy": -115.926426,
+      "rollGravity": 22.493805,
+      "cg": {
+        "x": -0.135986,
+        "y": 0.306378,
+        "z": 0
+      }
+    },
+    {
+      "heel": 10,
+      "hullDrag": 12.462742,
+      "rollBuoyancy": -292.628457,
+      "rollGravity": 74.63336,
+      "cg": {
+        "x": -0.135986,
+        "y": 0.306378,
+        "z": 0
+      }
+    },
+    {
+      "heel": 20,
+      "hullDrag": 10.27571,
+      "rollBuoyancy": -414.244059,
+      "rollGravity": 146.999023,
+      "cg": {
+        "x": -0.135986,
+        "y": 0.306378,
+        "z": 0
+      }
+    },
+    {
+      "heel": 30,
+      "hullDrag": 9.287818,
+      "rollBuoyancy": -483.680903,
+      "rollGravity": 214.898195,
+      "cg": {
+        "x": -0.135986,
+        "y": 0.306378,
+        "z": 0
+      }
+    },
+    {
+      "heel": 45,
+      "hullDrag": 8.112962,
+      "rollBuoyancy": -506.386146,
+      "rollGravity": 303.911941,
+      "cg": {
+        "x": -0.135986,
+        "y": 0.306378,
+        "z": 0
+      }
+    }
+  ],
+  "stability": {
+    "equilibriumHeel": 2.9825,
+    "disturbance": [
+      {
+        "delta": -3,
+        "readings": [
+          {
+            "second": 0,
+            "heel": -0.0175
+          },
+          {
+            "second": 1,
+            "heel": 1.822799,
+            "speed": 7.404642
+          },
+          {
+            "second": 2,
+            "heel": 2.889404,
+            "speed": 7.43334
+          },
+          {
+            "second": 3,
+            "heel": 3.276722,
+            "speed": 7.464446
+          },
+          {
+            "second": 4,
+            "heel": 3.283007,
+            "speed": 7.47819
+          },
+          {
+            "second": 5,
+            "heel": 3.157116,
+            "speed": 7.479322
+          },
+          {
+            "second": 6,
+            "heel": 3.039274,
+            "speed": 7.47531
+          },
+          {
+            "second": 7,
+            "heel": 2.974116,
+            "speed": 7.471122
+          },
+          {
+            "second": 8,
+            "heel": 2.955959,
+            "speed": 7.468569
+          }
+        ],
+        "capsized": false
+      },
+      {
+        "delta": 3,
+        "readings": [
+          {
+            "second": 0,
+            "heel": 5.9825
+          },
+          {
+            "second": 1,
+            "heel": 4.515306,
+            "speed": 7.524215
+          },
+          {
+            "second": 2,
+            "heel": 3.273026,
+            "speed": 7.503585
+          },
+          {
+            "second": 3,
+            "heel": 2.67708,
+            "speed": 7.470733
+          },
+          {
+            "second": 4,
+            "heel": 2.594674,
+            "speed": 7.452027
+          },
+          {
+            "second": 5,
+            "heel": 2.723067,
+            "speed": 7.450046
+          },
+          {
+            "second": 6,
+            "heel": 2.87153,
+            "speed": 7.455941
+          },
+          {
+            "second": 7,
+            "heel": 2.964257,
+            "speed": 7.462452
+          },
+          {
+            "second": 8,
+            "heel": 3.000164,
+            "speed": 7.466677
+          }
+        ],
+        "capsized": false
+      }
+    ]
+  },
+  "runs": [
+    {"wind":2.5,"angle":52,"side":-1,"pose":1,"sheet":0.56,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":0.975569,"vmg":0.581973,"wind":2.5,"mastAir":2.828235,"attack":-0.783515,"heel":-0.748417,"heelRate":0.000724,"drive":0.845052,"sideForce":2.820754,"up":0.040809,"sailRoll":4.837089,"staticRoll":-7.280704,"crewRoll":-37.04747,"netRoll":0.000331,"hullDrag":0.726037,"boardDrag":0.225387,"rudderDrag":0.042184,"rudder":-0.170244,"leeway":1.038565,"sheet":0.56,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498416,"crewZ":-0.043847,"cgZ":-0.022997,"mass":143,"headingError":-0.338446},"spread":{"speed":0.004642,"heel":0.001862,"heading":0.017446},"peak":{"yawRate":0.071062,"heelRate":0.279962,"driveStep":0.045036,"speedStep":0.000749}},
+    {"wind":2.5,"angle":52,"side":-1,"pose":1,"sheet":0.72,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":2.465844,"vmg":1.486367,"wind":2.5,"mastAir":3.41794,"attack":-3.433613,"heel":0.022817,"heelRate":-0.000121,"drive":4.971431,"sideForce":11.104543,"up":0.017181,"sailRoll":23.301939,"staticRoll":-33.057262,"crewRoll":-32.183569,"netRoll":-0.000363,"hullDrag":3.116626,"boardDrag":1.545473,"rudderDrag":0.28923,"rudder":-0.12955,"leeway":0.656265,"sheet":0.72,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498531,"crewZ":-0.043941,"cgZ":-0.023046,"mass":143,"headingError":-0.274327},"spread":{"speed":0.000626,"heel":0.000581,"heading":0.000101},"peak":{"yawRate":0.036701,"heelRate":0.230679,"driveStep":0.01274,"speedStep":0.000673}},
+    {"wind":2.5,"angle":52,"side":-1,"pose":1,"sheet":0.84,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":3.637951,"vmg":2.178708,"wind":2.5,"mastAir":3.918163,"attack":-5.978153,"heel":1.690364,"heelRate":-0.000348,"drive":11.197303,"sideForce":28.039761,"up":-0.78912,"sailRoll":61.756973,"staticRoll":-86.572368,"crewRoll":-21.515411,"netRoll":0.000213,"hullDrag":7.244748,"boardDrag":3.304664,"rudderDrag":0.618529,"rudder":-0.22588,"leeway":0.771119,"sheet":0.84,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498617,"crewZ":-0.04397,"cgZ":-0.023061,"mass":143,"headingError":-0.438914},"spread":{"speed":0.000905,"heel":0.000818,"heading":0.000059},"peak":{"yawRate":0.236178,"heelRate":1.103357,"driveStep":0.035527,"speedStep":0.001641}},
+    {"wind":2.5,"angle":52,"side":1,"pose":1,"sheet":0.72,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":2.465844,"vmg":1.486366,"wind":2.5,"mastAir":3.417946,"attack":3.432528,"heel":-0.022807,"heelRate":0.000289,"drive":4.971355,"sideForce":-11.10448,"up":0.017183,"sailRoll":-23.300098,"staticRoll":33.05702,"crewRoll":32.183617,"netRoll":-0.000558,"hullDrag":3.116623,"boardDrag":1.545453,"rudderDrag":0.289227,"rudder":0.129544,"leeway":-0.65627,"sheet":0.72,"targetPose":1,"pose":1,"side":1,"actualSide":1,"crewY":0.498531,"crewZ":0.043941,"cgZ":0.023046,"mass":143,"headingError":0.274328},"spread":{"speed":0.000623,"heel":0.000614,"heading":0.000095},"peak":{"yawRate":0.036731,"heelRate":0.229793,"driveStep":0.012843,"speedStep":0.000672}},
+    {"wind":2.5,"angle":52,"side":-1,"pose":2,"sheet":0.56,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":0.949431,"vmg":0.565871,"wind":2.5,"mastAir":2.807691,"attack":-0.757958,"heel":-7.350141,"heelRate":0.002102,"drive":0.793497,"sideForce":2.718794,"up":0.353098,"sailRoll":4.70536,"staticRoll":-7.014251,"crewRoll":-224.705058,"netRoll":-0.000077,"hullDrag":0.636295,"boardDrag":0.21222,"rudderDrag":0.038772,"rudder":-0.172469,"leeway":1.077024,"sheet":0.56,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476506,"crewZ":-0.246475,"cgZ":-0.12927,"mass":143,"headingError":-0.338341},"spread":{"speed":0.002908,"heel":0.004941,"heading":0.001363},"peak":{"yawRate":0.342875,"heelRate":4.387587,"driveStep":0.040438,"speedStep":0.000747}},
+    {"wind":2.5,"angle":52,"side":-1,"pose":2,"sheet":0.72,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":2.500477,"vmg":1.494216,"wind":2.5,"mastAir":3.421868,"attack":-3.370128,"heel":-6.003848,"heelRate":-0.00024,"drive":4.865352,"sideForce":10.915997,"up":1.162999,"sailRoll":23.116398,"staticRoll":-32.788711,"crewRoll":-217.085236,"netRoll":-0.000547,"hullDrag":2.970557,"boardDrag":1.584365,"rudderDrag":0.294387,"rudder":-0.357149,"leeway":0.685838,"sheet":0.72,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476618,"crewZ":-0.246555,"cgZ":-0.129312,"mass":143,"headingError":-0.617937},"spread":{"speed":0.000499,"heel":0.00079,"heading":0.000234},"peak":{"yawRate":0.213359,"heelRate":2.159216,"driveStep":0.116781,"speedStep":0.000893}},
+    {"wind":2.5,"angle":52,"side":-1,"pose":2,"sheet":0.84,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":3.665848,"vmg":2.176761,"wind":2.5,"mastAir":3.923836,"attack":-6.003964,"heel":-3.114878,"heelRate":-0.000399,"drive":11.298593,"sideForce":28.203621,"up":1.569735,"sailRoll":62.524868,"staticRoll":-87.534049,"crewRoll":-200.211468,"netRoll":0.000196,"hullDrag":7.305953,"boardDrag":3.333197,"rudderDrag":0.633018,"rudder":-0.447452,"leeway":0.814361,"sheet":0.84,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476705,"crewZ":-0.246581,"cgZ":-0.129326,"mass":143,"headingError":-0.758879},"spread":{"speed":0.000814,"heel":0.000936,"heading":0.000149},"peak":{"yawRate":0.285286,"heelRate":0.543194,"driveStep":0.085269,"speedStep":0.001712}},
+    {"wind":2.5,"angle":52,"side":1,"pose":2,"sheet":0.72,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":2.500477,"vmg":1.494216,"wind":2.5,"mastAir":3.421874,"attack":3.37013,"heel":6.003863,"heelRate":0.000381,"drive":4.865341,"sideForce":-10.916022,"up":1.163006,"sailRoll":-23.115572,"staticRoll":32.788387,"crewRoll":217.085307,"netRoll":-0.000962,"hullDrag":2.970554,"boardDrag":1.58435,"rudderDrag":0.294384,"rudder":0.357137,"leeway":-0.685829,"sheet":0.72,"targetPose":2,"pose":2,"side":1,"actualSide":1,"crewY":0.476618,"crewZ":0.246555,"cgZ":0.129312,"mass":143,"headingError":0.617937},"spread":{"speed":0.000496,"heel":0.00082,"heading":0.000243},"peak":{"yawRate":0.213397,"heelRate":2.159947,"driveStep":0.11666,"speedStep":0.000893}},
+    {"wind":2.5,"angle":52,"side":-1,"pose":3,"sheet":0.56,"kind":"steady","status":"capsized","elapsed":3.366667,"summary":{"time":1.75,"speed":2.382413,"vmg":1.839122,"wind":2.5,"mastAir":4.036093,"attack":-4.427893,"heel":-36.922969,"heelRate":-22.403908,"drive":4.890356,"sideForce":6.229676,"up":3.153301,"sailRoll":29.991552,"staticRoll":-198.531118,"crewRoll":-533.825859,"netRoll":-8.459448,"hullDrag":1.808093,"boardDrag":-4.541304,"rudderDrag":-0.033168,"rudder":-0.100194,"leeway":-12.513484,"sheet":0.56,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446703,"crewZ":-0.628654,"cgZ":-0.329713,"mass":143,"headingError":0.067882},"spread":{"speed":0.127301,"heel":19.863119,"heading":0.403382},"peak":{"yawRate":2.381507,"heelRate":32.728563,"driveStep":0.249843,"speedStep":0.001457}},
+    {"wind":2.5,"angle":52,"side":-1,"pose":3,"sheet":0.72,"kind":"steady","status":"capsized","elapsed":4.583333,"summary":{"time":2.375,"speed":2.687671,"vmg":1.886862,"wind":2.5,"mastAir":3.918702,"attack":-8.232116,"heel":-36.07744,"heelRate":-16.469717,"drive":15.179813,"sideForce":19.547712,"up":10.31676,"sailRoll":64.74003,"staticRoll":-195.901537,"crewRoll":-536.120833,"netRoll":-5.551248,"hullDrag":2.36908,"boardDrag":-1.928593,"rudderDrag":-0.000939,"rudder":-3.421229,"leeway":-8.443766,"sheet":0.72,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446853,"crewZ":-0.62848,"cgZ":-0.329622,"mass":143,"headingError":-2.007481},"spread":{"speed":0.220708,"heel":19.218753,"heading":3.008384},"peak":{"yawRate":6.726086,"heelRate":30.185746,"driveStep":0.239755,"speedStep":0.002552}},
+    {"wind":2.5,"angle":52,"side":-1,"pose":3,"sheet":0.84,"kind":"steady","status":"capsized","elapsed":6.383333,"summary":{"time":3.25,"speed":2.940095,"vmg":1.814991,"wind":2.5,"mastAir":3.815489,"attack":-12.466277,"heel":-36.048848,"heelRate":-11.651064,"drive":20.709841,"sideForce":29.967291,"up":19.438048,"sailRoll":94.593528,"staticRoll":-189.64774,"crewRoll":-540.052369,"netRoll":-2.490065,"hullDrag":2.918152,"boardDrag":-0.252257,"rudderDrag":0.018057,"rudder":-8.05523,"leeway":-6.180012,"sheet":0.84,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.447001,"crewZ":-0.628142,"cgZ":-0.329445,"mass":143,"headingError":-5.82884},"spread":{"speed":0.316137,"heel":17.912955,"heading":7.565522},"peak":{"yawRate":14.338579,"heelRate":24.459978,"driveStep":0.233851,"speedStep":0.002846}},
+    {"wind":2.5,"angle":52,"side":1,"pose":3,"sheet":0.72,"kind":"steady","status":"capsized","elapsed":4.583333,"summary":{"time":2.375,"speed":2.687673,"vmg":1.886868,"wind":2.5,"mastAir":3.918714,"attack":8.230109,"heel":36.077463,"heelRate":16.470281,"drive":15.179816,"sideForce":-19.547716,"up":10.316748,"sailRoll":-64.737245,"staticRoll":195.901476,"crewRoll":536.120908,"netRoll":5.551124,"hullDrag":2.369078,"boardDrag":-1.928445,"rudderDrag":-0.000942,"rudder":3.421129,"leeway":8.443885,"sheet":0.72,"targetPose":3,"pose":3,"side":1,"actualSide":1,"crewY":0.446853,"crewZ":0.62848,"cgZ":0.329622,"mass":143,"headingError":2.00747},"spread":{"speed":0.220709,"heel":19.218749,"heading":3.0084},"peak":{"yawRate":6.723422,"heelRate":30.192429,"driveStep":0.239455,"speedStep":0.002552}},
+    {"wind":2.5,"angle":90,"side":-1,"pose":1,"sheet":0.42,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":2.889556,"vmg":0.023197,"wind":2.5,"mastAir":2.918774,"attack":-3.518259,"heel":-0.434706,"heelRate":-0.000035,"drive":6.909318,"sideForce":6.203021,"up":0.075613,"sailRoll":12.981179,"staticRoll":-17.989877,"crewRoll":-34.969258,"netRoll":-0.000157,"hullDrag":4.285263,"boardDrag":2.210438,"rudderDrag":0.412746,"rudder":0.385477,"leeway":0.201896,"sheet":0.42,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498332,"crewZ":-0.04375,"cgZ":-0.022946,"mass":143,"headingError":0.661873},"spread":{"speed":0.000032,"heel":0.000067,"heading":0.000125},"peak":{"yawRate":0.804158,"heelRate":0.243999,"driveStep":0.047519,"speedStep":0.001694}},
+    {"wind":2.5,"angle":90,"side":-1,"pose":1,"sheet":0.57,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":3.969533,"vmg":0.01573,"wind":2.5,"mastAir":3.234184,"attack":-5.825107,"heel":0.448005,"heelRate":-0.000016,"drive":14.08657,"sideForce":15.566973,"up":-0.07318,"sailRoll":33.929232,"staticRoll":-46.967812,"crewRoll":-29.410769,"netRoll":-0.000067,"hullDrag":9.166159,"boardDrag":4.15002,"rudderDrag":0.769177,"rudder":0.281998,"leeway":0.301447,"sheet":0.57,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498431,"crewZ":-0.043873,"cgZ":-0.02301,"mass":143,"headingError":0.528489},"spread":{"speed":0.000037,"heel":0.000034,"heading":0.000073},"peak":{"yawRate":0.881854,"heelRate":0.715758,"driveStep":0.025903,"speedStep":0.002671}},
+    {"wind":2.5,"angle":90,"side":-1,"pose":1,"sheet":0.72,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":4.827195,"vmg":-0.002706,"wind":2.5,"mastAir":3.5215,"attack":-10.398694,"heel":2.067213,"heelRate":-0.000036,"drive":22.990205,"sideForce":31.134623,"up":-1.075476,"sailRoll":70.514345,"staticRoll":-97.169373,"crewRoll":-19.087421,"netRoll":0.000041,"hullDrag":15.787393,"boardDrag":6.074436,"rudderDrag":1.113719,"rudder":0.195641,"leeway":0.435701,"sheet":0.72,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498536,"crewZ":-0.043955,"cgZ":-0.023053,"mass":143,"headingError":0.403588},"spread":{"speed":0.000446,"heel":0.000086,"heading":0.000349},"peak":{"yawRate":0.210161,"heelRate":0.664023,"driveStep":0.049793,"speedStep":0.001996}},
+    {"wind":2.5,"angle":90,"side":1,"pose":1,"sheet":0.57,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":3.969533,"vmg":0.01573,"wind":2.5,"mastAir":3.234184,"attack":5.825409,"heel":-0.448004,"heelRate":0.000011,"drive":14.086602,"sideForce":-15.567,"up":-0.07318,"sailRoll":-33.929482,"staticRoll":46.967776,"crewRoll":29.410775,"netRoll":-0.000072,"hullDrag":9.166158,"boardDrag":4.15002,"rudderDrag":0.769177,"rudder":-0.281998,"leeway":-0.301445,"sheet":0.57,"targetPose":1,"pose":1,"side":1,"actualSide":1,"crewY":0.498431,"crewZ":0.043873,"cgZ":0.02301,"mass":143,"headingError":-0.528489},"spread":{"speed":0.000037,"heel":0.000033,"heading":0.000073},"peak":{"yawRate":0.881857,"heelRate":0.71573,"driveStep":0.025926,"speedStep":0.002671}},
+    {"wind":2.5,"angle":90,"side":-1,"pose":2,"sheet":0.42,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":2.91332,"vmg":0.000627,"wind":2.5,"mastAir":2.900608,"attack":-3.456929,"heel":-6.775013,"heelRate":-0.00004,"drive":6.644129,"sideForce":5.977861,"up":0.726997,"sailRoll":12.649625,"staticRoll":-17.6994,"crewRoll":-221.35607,"netRoll":-0.000138,"hullDrag":3.994961,"boardDrag":2.242833,"rudderDrag":0.405241,"rudder":0.120075,"leeway":0.24817,"sheet":0.42,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476416,"crewZ":-0.246376,"cgZ":-0.129218,"mass":143,"headingError":0.260494},"spread":{"speed":0.000038,"heel":0.000069,"heading":0.000169},"peak":{"yawRate":1.188661,"heelRate":2.694569,"driveStep":0.204907,"speedStep":0.001792}},
+    {"wind":2.5,"angle":90,"side":-1,"pose":2,"sheet":0.57,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":4.006199,"vmg":-0.022015,"wind":2.5,"mastAir":3.223336,"attack":-5.76735,"heel":-5.319509,"heelRate":-0.000023,"drive":13.813685,"sideForce":15.26299,"up":1.452478,"sailRoll":33.562326,"staticRoll":-46.737782,"crewRoll":-213.080971,"netRoll":-0.000064,"hullDrag":8.828543,"boardDrag":4.215664,"rudderDrag":0.767213,"rudder":0.00846,"leeway":0.346935,"sheet":0.57,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476516,"crewZ":-0.246495,"cgZ":-0.129281,"mass":143,"headingError":0.032077},"spread":{"speed":0.00007,"heel":0.000049,"heading":0.000334},"peak":{"yawRate":1.192434,"heelRate":1.640636,"driveStep":0.135825,"speedStep":0.002813}},
+    {"wind":2.5,"angle":90,"side":-1,"pose":2,"sheet":0.72,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":4.844056,"vmg":-0.055565,"wind":2.5,"mastAir":3.507773,"attack":-10.552459,"heel":-2.710907,"heelRate":-0.00003,"drive":23.097627,"sideForce":31.115748,"up":1.517631,"sailRoll":70.910385,"staticRoll":-97.941163,"crewRoll":-197.800036,"netRoll":0.000044,"hullDrag":15.87285,"boardDrag":6.091098,"rudderDrag":1.118788,"rudder":-0.068725,"leeway":0.482519,"sheet":0.72,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476621,"crewZ":-0.246575,"cgZ":-0.129323,"mass":143,"headingError":-0.17472},"spread":{"speed":0.000453,"heel":0.000073,"heading":0.000404},"peak":{"yawRate":0.20922,"heelRate":1.311723,"driveStep":0.051745,"speedStep":0.001945}},
+    {"wind":2.5,"angle":90,"side":1,"pose":2,"sheet":0.57,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":4.006198,"vmg":-0.022015,"wind":2.5,"mastAir":3.223336,"attack":5.767651,"heel":5.31951,"heelRate":0.000019,"drive":13.813717,"sideForce":-15.263017,"up":1.452481,"sailRoll":-33.562577,"staticRoll":46.737759,"crewRoll":213.080977,"netRoll":-0.000073,"hullDrag":8.828541,"boardDrag":4.215664,"rudderDrag":0.767212,"rudder":-0.008461,"leeway":-0.346933,"sheet":0.57,"targetPose":2,"pose":2,"side":1,"actualSide":1,"crewY":0.476516,"crewZ":0.246495,"cgZ":0.129281,"mass":143,"headingError":-0.032077},"spread":{"speed":0.00007,"heel":0.000048,"heading":0.000334},"peak":{"yawRate":1.19244,"heelRate":1.640664,"driveStep":0.135799,"speedStep":0.002813}},
+    {"wind":2.5,"angle":90,"side":-1,"pose":3,"sheet":0.42,"kind":"steady","status":"capsized","elapsed":3.7,"summary":{"time":1.875,"speed":2.864636,"vmg":0.530654,"wind":2.5,"mastAir":3.597475,"attack":-7.62697,"heel":-35.534412,"heelRate":-19.993502,"drive":20.896447,"sideForce":11.659762,"up":5.397253,"sailRoll":36.604224,"staticRoll":-198.610386,"crewRoll":-537.222178,"netRoll":-7.680944,"hullDrag":2.67958,"boardDrag":-3.001986,"rudderDrag":-0.073354,"rudder":-0.032963,"leeway":-9.753458,"sheet":0.42,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446608,"crewZ":-0.628539,"cgZ":-0.329653,"mass":143,"headingError":0.511109},"spread":{"speed":0.287757,"heel":18.810865,"heading":1.409348},"peak":{"yawRate":3.976276,"heelRate":33.939976,"driveStep":0.398384,"speedStep":0.003787}},
+    {"wind":2.5,"angle":90,"side":-1,"pose":3,"sheet":0.57,"kind":"steady","status":"capsized","elapsed":4.366667,"summary":{"time":2.25,"speed":3.117174,"vmg":0.371102,"wind":2.5,"mastAir":3.46259,"attack":-14.569574,"heel":-36.640781,"heelRate":-17.188429,"drive":30.445476,"sideForce":19.074438,"up":11.619564,"sailRoll":60.798177,"staticRoll":-195.938265,"crewRoll":-536.821695,"netRoll":-5.728957,"hullDrag":3.261538,"boardDrag":-1.287944,"rudderDrag":-0.070335,"rudder":-4.876768,"leeway":-8.794859,"sheet":0.57,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446768,"crewZ":-0.628278,"cgZ":-0.329517,"mass":143,"headingError":-2.147308},"spread":{"speed":0.399752,"heel":18.922315,"heading":4.78613},"peak":{"yawRate":12.066993,"heelRate":30.692426,"driveStep":0.371282,"speedStep":0.004661}},
+    {"wind":2.5,"angle":90,"side":-1,"pose":3,"sheet":0.72,"kind":"steady","status":"capsized","elapsed":4.883333,"summary":{"time":2.5,"speed":2.79954,"vmg":0.233937,"wind":2.5,"mastAir":3.259039,"attack":-28.965139,"heel":-35.88435,"heelRate":-15.319746,"drive":22.405173,"sideForce":22.902847,"up":13.447848,"sailRoll":72.527291,"staticRoll":-194.633666,"crewRoll":-537.650737,"netRoll":-4.988768,"hullDrag":2.608195,"boardDrag":-1.367056,"rudderDrag":-0.001275,"rudder":-6.071855,"leeway":-8.070819,"sheet":0.72,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446888,"crewZ":-0.628268,"cgZ":-0.329511,"mass":143,"headingError":-3.376069},"spread":{"speed":0.309311,"heel":18.704577,"heading":5.195983},"peak":{"yawRate":13.270548,"heelRate":29.587594,"driveStep":0.148448,"speedStep":0.002574}},
+    {"wind":2.5,"angle":90,"side":1,"pose":3,"sheet":0.57,"kind":"steady","status":"capsized","elapsed":4.366667,"summary":{"time":2.25,"speed":3.117175,"vmg":0.371103,"wind":2.5,"mastAir":3.46259,"attack":14.569695,"heel":36.640754,"heelRate":17.188401,"drive":30.44552,"sideForce":-19.074464,"up":11.619587,"sailRoll":-60.798368,"staticRoll":195.938241,"crewRoll":536.821757,"netRoll":5.728822,"hullDrag":3.261542,"boardDrag":-1.287943,"rudderDrag":-0.070335,"rudder":4.876737,"leeway":8.794841,"sheet":0.57,"targetPose":3,"pose":3,"side":1,"actualSide":1,"crewY":0.446768,"crewZ":0.628278,"cgZ":0.329517,"mass":143,"headingError":2.147287},"spread":{"speed":0.399752,"heel":18.922297,"heading":4.786118},"peak":{"yawRate":12.067085,"heelRate":30.692161,"driveStep":0.371325,"speedStep":0.004661}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":1,"sheet":0.55,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":2.30211,"vmg":1.335978,"wind":8.5,"mastAir":9.237743,"attack":-0.453895,"heel":0.783108,"heelRate":0.007535,"drive":3.916328,"sideForce":23.509985,"up":-0.301161,"sailRoll":37.536344,"staticRoll":-58.364935,"crewRoll":-27.228737,"netRoll":-0.102978,"hullDrag":2.73214,"boardDrag":1.016759,"rudderDrag":0.206519,"rudder":-0.569437,"leeway":1.631698,"sheet":0.55,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498402,"crewZ":-0.043823,"cgZ":-0.022984,"mass":143,"headingError":-0.894511},"spread":{"speed":0.003592,"heel":0.042402,"heading":0.00285},"peak":{"yawRate":0.332783,"heelRate":1.206989,"driveStep":1.936554,"speedStep":0.005665}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":1,"sheet":0.68,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":5.004248,"vmg":3.042598,"wind":8.5,"mastAir":10.252536,"attack":-1.651879,"heel":5.181839,"heelRate":-0.010759,"drive":24.206263,"sideForce":57.519183,"up":-5.172726,"sailRoll":111.362321,"staticRoll":-161.71739,"crewRoll":0.935919,"netRoll":-0.029512,"hullDrag":16.714738,"boardDrag":6.230567,"rudderDrag":1.127808,"rudder":0.099569,"leeway":0.788761,"sheet":0.68,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498506,"crewZ":-0.043933,"cgZ":-0.023042,"mass":143,"headingError":0.234008},"spread":{"speed":0.003185,"heel":0.026462,"heading":0.005535},"peak":{"yawRate":0.247497,"heelRate":2.418185,"driveStep":0.701245,"speedStep":0.001619}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":1,"sheet":0.78,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":6.136593,"vmg":3.891735,"wind":8.5,"mastAir":10.388375,"attack":-2.749336,"heel":28.082014,"heelRate":0.00913,"drive":31.734267,"sideForce":76.400146,"up":-41.255378,"sailRoll":178.277794,"staticRoll":-251.915753,"crewRoll":144.083112,"netRoll":-0.006765,"hullDrag":22.140923,"boardDrag":8.625317,"rudderDrag":0.95399,"rudder":1.93694,"leeway":1.261794,"sheet":0.78,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498612,"crewZ":-0.044043,"cgZ":-0.023099,"mass":143,"headingError":2.621358},"spread":{"speed":0.002171,"heel":0.022091,"heading":0.001872},"peak":{"yawRate":1.059952,"heelRate":12.422392,"driveStep":0.511179,"speedStep":0.003069}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":1,"sheet":0.86,"kind":"steady","status":"capsized","elapsed":14.683333,"summary":{"time":10.625,"speed":4.561724,"vmg":2.748827,"wind":8.5,"mastAir":8.479485,"attack":-0.817031,"heel":56.700182,"heelRate":2.789388,"drive":0.366248,"sideForce":18.72664,"up":-26.795608,"sailRoll":53.687001,"staticRoll":-45.315107,"crewRoll":287.263931,"netRoll":2.600902,"hullDrag":7.534688,"boardDrag":2.282499,"rudderDrag":0,"rudder":1.251508,"leeway":3.433329,"sheet":0.86,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498659,"crewZ":-0.044019,"cgZ":-0.023087,"mass":143,"headingError":2.394645},"spread":{"speed":0.258553,"heel":5.42753,"heading":3.503508},"peak":{"yawRate":7.242223,"heelRate":21.55325,"driveStep":2.359726,"speedStep":0.003701}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":1,"sheet":0.93,"kind":"steady","status":"capsized","elapsed":4.233333,"summary":{"time":2.125,"speed":6.067486,"vmg":3.126074,"wind":8.5,"mastAir":9.093091,"attack":-1.650264,"heel":47.784412,"heelRate":17.588777,"drive":17.735831,"sideForce":65.588936,"up":-33.801997,"sailRoll":116.023222,"staticRoll":-83.078311,"crewRoll":236.00051,"netRoll":-6.179675,"hullDrag":18.772738,"boardDrag":2.200727,"rudderDrag":-0.087212,"rudder":1.972127,"leeway":9.036529,"sheet":0.93,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498724,"crewZ":-0.044055,"cgZ":-0.023106,"mass":143,"headingError":2.190535},"spread":{"speed":0.289691,"heel":19.164768,"heading":2.09675},"peak":{"yawRate":7.651041,"heelRate":28.387233,"driveStep":1.183984,"speedStep":0.006392}},
+    {"wind":8.5,"angle":52,"side":1,"pose":1,"sheet":0.78,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":6.136723,"vmg":3.891801,"wind":8.5,"mastAir":10.388528,"attack":2.710717,"heel":-28.080771,"heelRate":0.005507,"drive":31.811437,"sideForce":-76.520394,"up":-41.318518,"sailRoll":-178.028645,"staticRoll":251.87703,"crewRoll":-144.077193,"netRoll":-0.253907,"hullDrag":22.141837,"boardDrag":8.618824,"rudderDrag":0.952161,"rudder":-1.937421,"leeway":-1.261916,"sheet":0.78,"targetPose":1,"pose":1,"side":1,"actualSide":1,"crewY":0.498612,"crewZ":0.044043,"cgZ":0.023099,"mass":143,"headingError":-2.621281},"spread":{"speed":0.002172,"heel":0.022084,"heading":0.001868},"peak":{"yawRate":1.064491,"heelRate":12.477355,"driveStep":0.507526,"speedStep":0.003055}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":2,"sheet":0.55,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":2.200526,"vmg":1.282993,"wind":8.5,"mastAir":9.191072,"attack":-0.437123,"heel":-4.78132,"heelRate":0.011048,"drive":3.498499,"sideForce":22.892491,"up":1.93018,"sailRoll":36.646376,"staticRoll":-56.332172,"crewRoll":-209.919341,"netRoll":-0.006428,"hullDrag":2.394772,"boardDrag":0.888471,"rudderDrag":0.173939,"rudder":-0.356049,"leeway":1.721503,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476497,"crewZ":-0.246455,"cgZ":-0.12926,"mass":143,"headingError":-0.613677},"spread":{"speed":0.003586,"heel":0.034994,"heading":0.004245},"peak":{"yawRate":0.40344,"heelRate":5.530625,"driveStep":2.104294,"speedStep":0.00526}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":2,"sheet":0.68,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":5.167712,"vmg":3.1078,"wind":8.5,"mastAir":10.31971,"attack":-1.86185,"heel":-0.169369,"heelRate":-0.006972,"drive":27.303818,"sideForce":61.975783,"up":0.259339,"sailRoll":122.030273,"staticRoll":-175.652494,"crewRoll":-182.437991,"netRoll":0.184555,"hullDrag":19.543856,"boardDrag":6.596369,"rudderDrag":1.222965,"rudder":-0.081618,"leeway":0.827457,"sheet":0.68,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476592,"crewZ":-0.246556,"cgZ":-0.129313,"mass":143,"headingError":-0.20316},"spread":{"speed":0.003112,"heel":0.019916,"heading":0.008423},"peak":{"yawRate":0.266906,"heelRate":0.911501,"driveStep":0.706154,"speedStep":0.001445}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":2,"sheet":0.78,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.130337,"vmg":4.429011,"wind":8.5,"mastAir":11.021051,"attack":-4.12182,"heel":16.341077,"heelRate":-0.000078,"drive":61.074277,"sideForce":128.329757,"up":-38.34496,"sailRoll":287.648054,"staticRoll":-400.426753,"crewRoll":-75.471273,"netRoll":-0.011219,"hullDrag":46.921392,"boardDrag":12.232005,"rudderDrag":1.791647,"rudder":0.901484,"leeway":1.061921,"sheet":0.78,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476678,"crewZ":-0.246664,"cgZ":-0.129369,"mass":143,"headingError":1.462109},"spread":{"speed":0.000463,"heel":0.003853,"heading":0.00063},"peak":{"yawRate":0.828702,"heelRate":8.408591,"driveStep":0.228796,"speedStep":0.004735}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":2,"sheet":0.86,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":6.480344,"vmg":4.376723,"wind":8.5,"mastAir":10.507987,"attack":-3.691863,"heel":36.41748,"heelRate":0.001683,"drive":34.388538,"sideForce":93.250318,"up":-69.609537,"sailRoll":247.466488,"staticRoll":-347.902606,"crewRoll":61.987283,"netRoll":-0.002575,"hullDrag":25.734258,"boardDrag":7.748814,"rudderDrag":0.923373,"rudder":6.030182,"leeway":2.080287,"sheet":0.86,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476806,"crewZ":-0.247031,"cgZ":-0.129562,"mass":143,"headingError":6.564298},"spread":{"speed":0.000976,"heel":0.010552,"heading":0.001293},"peak":{"yawRate":2.723246,"heelRate":18.268619,"driveStep":0.730061,"speedStep":0.005577}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":2,"sheet":0.93,"kind":"steady","status":"capsized","elapsed":11.533333,"summary":{"time":7.625,"speed":5.170595,"vmg":3.262281,"wind":8.5,"mastAir":8.849271,"attack":-1.351438,"heel":61.044237,"heelRate":2.35095,"drive":0.122344,"sideForce":22.163269,"up":-38.296194,"sailRoll":80.188786,"staticRoll":-83.787394,"crewRoll":218.031656,"netRoll":1.972194,"hullDrag":10.582249,"boardDrag":2.078843,"rudderDrag":0,"rudder":3.907846,"leeway":4.005902,"sheet":0.93,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476831,"crewZ":-0.246883,"cgZ":-0.129484,"mass":143,"headingError":5.006034},"spread":{"speed":0.337439,"heel":4.420873,"heading":3.439814},"peak":{"yawRate":6.453783,"heelRate":25.701771,"driveStep":3.370395,"speedStep":0.005278}},
+    {"wind":8.5,"angle":52,"side":1,"pose":2,"sheet":0.78,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.130343,"vmg":4.429026,"wind":8.5,"mastAir":11.021042,"attack":4.125265,"heel":-16.341015,"heelRate":-0.000207,"drive":61.075781,"sideForce":-128.332371,"up":-38.345548,"sailRoll":-287.674744,"staticRoll":400.425885,"crewRoll":75.471725,"netRoll":-0.006838,"hullDrag":46.92165,"boardDrag":12.232243,"rudderDrag":1.791649,"rudder":-0.901538,"leeway":-1.061817,"sheet":0.78,"targetPose":2,"pose":2,"side":1,"actualSide":1,"crewY":0.476678,"crewZ":0.246664,"cgZ":0.129369,"mass":143,"headingError":-1.462119},"spread":{"speed":0.000463,"heel":0.003854,"heading":0.00063},"peak":{"yawRate":0.822798,"heelRate":8.438326,"driveStep":0.233398,"speedStep":0.004719}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":3,"sheet":0.55,"kind":"steady","status":"capsized","elapsed":4.2,"summary":{"time":2.125,"speed":4.708063,"vmg":3.336982,"wind":8.5,"mastAir":9.916729,"attack":-0.752448,"heel":-37.258417,"heelRate":-17.720947,"drive":-10.361095,"sideForce":9.795537,"up":6.03586,"sailRoll":43.688145,"staticRoll":-199.352009,"crewRoll":-534.674097,"netRoll":-5.538794,"hullDrag":10.11169,"boardDrag":2.466067,"rudderDrag":0.426139,"rudder":0.946185,"leeway":-6.537035,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446686,"crewZ":-0.62873,"cgZ":-0.329754,"mass":143,"headingError":0.895873},"spread":{"speed":0.315611,"heel":19.555277,"heading":0.798165},"peak":{"yawRate":2.262463,"heelRate":24.781919,"driveStep":0.914045,"speedStep":0.00358}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":3,"sheet":0.68,"kind":"steady","status":"capsized","elapsed":7.916667,"summary":{"time":4,"speed":5.189743,"vmg":3.342598,"wind":8.5,"mastAir":9.923183,"attack":-1.443993,"heel":-31.04185,"heelRate":-9.314146,"drive":10.826934,"sideForce":35.870896,"up":13.458831,"sailRoll":91.342973,"staticRoll":-202.155693,"crewRoll":-537.437956,"netRoll":-4.296189,"hullDrag":14.265904,"boardDrag":5.294387,"rudderDrag":0.705623,"rudder":-0.408176,"leeway":-2.857714,"sheet":0.68,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446791,"crewZ":-0.628703,"cgZ":-0.329739,"mass":143,"headingError":-0.602815},"spread":{"speed":0.332868,"heel":18.291438,"heading":0.679781},"peak":{"yawRate":1.89731,"heelRate":26.175282,"driveStep":2.170333,"speedStep":0.002}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":3,"sheet":0.78,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.46855,"vmg":4.470637,"wind":8.5,"mastAir":11.226066,"attack":-5.643136,"heel":2.98313,"heelRate":-0.000013,"drive":93.042263,"sideForce":178.73674,"up":-9.848587,"sailRoll":397.030642,"staticRoll":-543.043118,"crewRoll":-444.87549,"netRoll":0.000051,"hullDrag":77.041563,"boardDrag":12.819808,"rudderDrag":2.249176,"rudder":-0.020518,"leeway":1.159074,"sheet":0.78,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.44686,"crewZ":-0.628773,"cgZ":-0.329776,"mass":143,"headingError":-0.071586},"spread":{"speed":0.000078,"heel":0.000464,"heading":0.000134},"peak":{"yawRate":0.399375,"heelRate":2.335569,"driveStep":0.110984,"speedStep":0.00685}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":3,"sheet":0.86,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.826671,"vmg":5.001008,"wind":8.5,"mastAir":11.228853,"attack":-6.482433,"heel":25.666001,"heelRate":0.000119,"drive":85.337912,"sideForce":192.712464,"up":-94.825731,"sailRoll":479.497336,"staticRoll":-657.506865,"crewRoll":-274.627766,"netRoll":0.001871,"hullDrag":71.67403,"boardDrag":12.385775,"rudderDrag":1.278384,"rudder":2.71563,"leeway":1.886194,"sheet":0.86,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446894,"crewZ":-0.629007,"cgZ":-0.329899,"mass":143,"headingError":3.601255},"spread":{"speed":0.000069,"heel":0.00047,"heading":0.000064},"peak":{"yawRate":1.36684,"heelRate":11.995299,"driveStep":0.39662,"speedStep":0.00875}},
+    {"wind":8.5,"angle":52,"side":-1,"pose":3,"sheet":0.93,"kind":"steady","status":"varying","elapsed":44,"summary":{"time":40.125,"speed":7.084342,"vmg":5.110147,"wind":8.5,"mastAir":11.136456,"attack":-6.003458,"heel":31.512972,"heelRate":-0.406812,"drive":55.151823,"sideForce":166.60939,"up":-91.647888,"sailRoll":429.699213,"staticRoll":-604.375428,"crewRoll":-220.424021,"netRoll":-0.084429,"hullDrag":42.955479,"boardDrag":6.496372,"rudderDrag":4.625989,"rudder":11.861815,"leeway":2.456291,"sheet":0.93,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446886,"crewZ":-0.629743,"cgZ":-0.330285,"mass":143,"headingError":11.71041},"spread":{"speed":0.493055,"heel":8.653244,"heading":5.930359},"peak":{"yawRate":12.702141,"heelRate":20.147453,"driveStep":2.135604,"speedStep":0.008732}},
+    {"wind":8.5,"angle":52,"side":1,"pose":3,"sheet":0.78,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.46855,"vmg":4.470637,"wind":8.5,"mastAir":11.226066,"attack":5.643226,"heel":-2.98313,"heelRate":-0.000013,"drive":93.042164,"sideForce":-178.736604,"up":-9.848582,"sailRoll":-397.031492,"staticRoll":543.043272,"crewRoll":444.875488,"netRoll":0.000031,"hullDrag":77.04155,"boardDrag":12.81982,"rudderDrag":2.249179,"rudder":0.020519,"leeway":-1.159074,"sheet":0.78,"targetPose":3,"pose":3,"side":1,"actualSide":1,"crewY":0.44686,"crewZ":0.628773,"cgZ":0.329776,"mass":143,"headingError":0.071585},"spread":{"speed":0.000078,"heel":0.000464,"heading":0.000134},"peak":{"yawRate":0.392175,"heelRate":2.352643,"driveStep":0.107615,"speedStep":0.006839}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":1,"sheet":0.33,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":6.156145,"vmg":0.132374,"wind":8.5,"mastAir":9.129436,"attack":-1.944746,"heel":2.009356,"heelRate":0.00195,"drive":44.813305,"sideForce":34.201881,"up":-1.170791,"sailRoll":68.993869,"staticRoll":-94.848938,"crewRoll":-19.26123,"netRoll":-0.05071,"hullDrag":32.97777,"boardDrag":10.040273,"rudderDrag":1.896149,"rudder":0.893226,"leeway":0.181096,"sheet":0.33,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498284,"crewZ":-0.043677,"cgZ":-0.022907,"mass":143,"headingError":1.413206},"spread":{"speed":0.003379,"heel":0.007309,"heading":0.005913},"peak":{"yawRate":0.717219,"heelRate":1.839064,"driveStep":0.701656,"speedStep":0.00256}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":1,"sheet":0.45,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.814999,"vmg":0.368969,"wind":8.5,"mastAir":9.423387,"attack":-4.882126,"heel":11.909198,"heelRate":-0.000054,"drive":104.62773,"sideForce":78.163497,"up":-17.951064,"sailRoll":171.872058,"staticRoll":-230.73931,"crewRoll":44.098536,"netRoll":0.000376,"hullDrag":84.863721,"boardDrag":16.105961,"rudderDrag":2.99151,"rudder":2.211293,"leeway":0.348852,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498384,"crewZ":-0.043848,"cgZ":-0.022997,"mass":143,"headingError":3.054956},"spread":{"speed":0.000025,"heel":0.000372,"heading":0.000066},"peak":{"yawRate":1.366368,"heelRate":9.471532,"driveStep":0.521317,"speedStep":0.007416}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":1,"sheet":0.55,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.631714,"vmg":1.042345,"wind":8.5,"mastAir":8.846798,"attack":-4.77278,"heel":32.242999,"heelRate":-0.000036,"drive":77.754313,"sideForce":68.033521,"up":-45.290011,"sailRoll":173.04947,"staticRoll":-230.988933,"crewRoll":168.158991,"netRoll":0.001307,"hullDrag":60.505752,"boardDrag":14.000615,"rudderDrag":3.24549,"rudder":8.579696,"leeway":1.141406,"sheet":0.55,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498567,"crewZ":-0.044138,"cgZ":-0.023149,"mass":143,"headingError":8.991438},"spread":{"speed":0.000126,"heel":0.000866,"heading":0.000436},"peak":{"yawRate":2.700062,"heelRate":18.264452,"driveStep":1.254598,"speedStep":0.008869}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":1,"sheet":0.64,"kind":"steady","status":"capsized","elapsed":7.316667,"summary":{"time":3.75,"speed":6.515557,"vmg":0.58113,"wind":8.5,"mastAir":6.556593,"attack":-2.941099,"heel":50.62342,"heelRate":10.216268,"drive":33.129382,"sideForce":32.325852,"up":-16.085329,"sailRoll":68.812254,"staticRoll":-54.058427,"crewRoll":250.069364,"netRoll":0.538076,"hullDrag":28.168479,"boardDrag":3.99068,"rudderDrag":-0.32644,"rudder":10.905333,"leeway":4.360962,"sheet":0.64,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498669,"crewZ":-0.044218,"cgZ":-0.023191,"mass":143,"headingError":9.874765},"spread":{"speed":0.673141,"heel":18.706172,"heading":5.257705},"peak":{"yawRate":9.141637,"heelRate":24.317313,"driveStep":2.247932,"speedStep":0.011925}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":1,"sheet":0.73,"kind":"steady","status":"capsized","elapsed":3.583333,"summary":{"time":1.875,"speed":6.615392,"vmg":-0.104763,"wind":8.5,"mastAir":6.97979,"attack":-9.035455,"heel":42.381507,"heelRate":20.940305,"drive":51.08697,"sideForce":64.357241,"up":-23.995554,"sailRoll":126.428404,"staticRoll":-105.077407,"crewRoll":206.681273,"netRoll":-0.866841,"hullDrag":27.369768,"boardDrag":3.315369,"rudderDrag":-0.402171,"rudder":12.606944,"leeway":10.724726,"sheet":0.73,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498762,"crewZ":-0.044259,"cgZ":-0.023213,"mass":143,"headingError":9.915401},"spread":{"speed":0.40701,"heel":21.625123,"heading":8.657951},"peak":{"yawRate":16.180993,"heelRate":25.333943,"driveStep":3.786102,"speedStep":0.009467}},
+    {"wind":8.5,"angle":90,"side":1,"pose":1,"sheet":0.55,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.631714,"vmg":1.042343,"wind":8.5,"mastAir":8.846802,"attack":4.771897,"heel":-32.243003,"heelRate":0.000137,"drive":77.754329,"sideForce":-68.033522,"up":-45.290028,"sailRoll":-173.045647,"staticRoll":230.988861,"crewRoll":-168.159018,"netRoll":-0.000079,"hullDrag":60.505749,"boardDrag":14.000582,"rudderDrag":3.245467,"rudder":-8.579694,"leeway":-1.141419,"sheet":0.55,"targetPose":1,"pose":1,"side":1,"actualSide":1,"crewY":0.498567,"crewZ":0.044138,"cgZ":0.023149,"mass":143,"headingError":-8.991439},"spread":{"speed":0.000121,"heel":0.000852,"heading":0.000433},"peak":{"yawRate":2.694975,"heelRate":18.272462,"driveStep":1.251836,"speedStep":0.008864}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":2,"sheet":0.33,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":6.221705,"vmg":0.096108,"wind":8.5,"mastAir":9.119733,"attack":-2.007614,"heel":-2.748947,"heelRate":0.002015,"drive":45.945178,"sideForce":34.589417,"up":1.674913,"sailRoll":70.387745,"staticRoll":-97.240498,"crewRoll":-197.831272,"netRoll":-0.045041,"hullDrag":33.916544,"boardDrag":10.240354,"rudderDrag":1.891991,"rudder":0.652912,"leeway":0.217352,"sheet":0.33,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476365,"crewZ":-0.246321,"cgZ":-0.129189,"mass":143,"headingError":1.102444},"spread":{"speed":0.00331,"heel":0.007636,"heading":0.007551},"peak":{"yawRate":0.592309,"heelRate":1.991275,"driveStep":0.69027,"speedStep":0.002211}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":2,"sheet":0.45,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.934654,"vmg":0.273728,"wind":8.5,"mastAir":9.545355,"attack":-5.606265,"heel":3.270036,"heelRate":-0.000055,"drive":126.471456,"sideForce":92.093379,"up":-6.537584,"sailRoll":201.39857,"staticRoll":-267.620463,"crewRoll":-161.066418,"netRoll":0.000038,"hullDrag":105.345798,"boardDrag":16.556135,"rudderDrag":3.103508,"rudder":1.552551,"leeway":0.33269,"sheet":0.45,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476454,"crewZ":-0.246505,"cgZ":-0.129286,"mass":143,"headingError":2.309658},"spread":{"speed":0.000035,"heel":0.000385,"heading":0.000151},"peak":{"yawRate":1.182379,"heelRate":3.444922,"driveStep":0.278759,"speedStep":0.008908}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":2,"sheet":0.55,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":8.792557,"vmg":0.664018,"wind":8.5,"mastAir":9.544673,"attack":-7.5134,"heel":20.057159,"heelRate":-0.000018,"drive":146.816913,"sideForce":124.299051,"up":-50.012297,"sailRoll":295.009887,"staticRoll":-391.389565,"crewRoll":-50.274951,"netRoll":-0.001039,"hullDrag":123.276023,"boardDrag":20.016398,"rudderDrag":3.463577,"rudder":4.170152,"leeway":0.877068,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476556,"crewZ":-0.24677,"cgZ":-0.129425,"mass":143,"headingError":5.208194},"spread":{"speed":0.000027,"heel":0.000109,"heading":0.000037},"peak":{"yawRate":2.073182,"heelRate":12.339199,"driveStep":0.71612,"speedStep":0.011065}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":2,"sheet":0.64,"kind":"steady","status":"varying","elapsed":44,"summary":{"time":40.125,"speed":7.786074,"vmg":1.890734,"wind":8.5,"mastAir":9.527098,"attack":-5.715135,"heel":29.6208,"heelRate":-0.818344,"drive":91.560849,"sideForce":99.14343,"up":-50.078007,"sailRoll":245.009727,"staticRoll":-354.339208,"crewRoll":15.094342,"netRoll":-0.446565,"hullDrag":72.525191,"boardDrag":12.03055,"rudderDrag":8.266584,"rudder":14.97815,"leeway":1.376267,"sheet":0.64,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476786,"crewZ":-0.247518,"cgZ":-0.129817,"mass":143,"headingError":16.431857},"spread":{"speed":0.805876,"heel":8.975992,"heading":6.908408},"peak":{"yawRate":12.987788,"heelRate":18.203325,"driveStep":8.972542,"speedStep":0.014984}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":2,"sheet":0.73,"kind":"steady","status":"varying","elapsed":44,"summary":{"time":40.125,"speed":6.534739,"vmg":2.86959,"wind":8.5,"mastAir":9.521263,"attack":-2.213325,"heel":40.585136,"heelRate":-3.160431,"drive":25.814272,"sideForce":50.808793,"up":-28.513998,"sailRoll":125.797169,"staticRoll":-275.111444,"crewRoll":88.358777,"netRoll":-2.71754,"hullDrag":30.656605,"boardDrag":3.352285,"rudderDrag":6.103394,"rudder":20.873803,"leeway":2.315759,"sheet":0.73,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476947,"crewZ":-0.24792,"cgZ":-0.130028,"mass":143,"headingError":30.254966},"spread":{"speed":0.81817,"heel":13.221838,"heading":7.837357},"peak":{"yawRate":20.889365,"heelRate":20.676013,"driveStep":7.584908,"speedStep":0.017941}},
+    {"wind":8.5,"angle":90,"side":1,"pose":2,"sheet":0.55,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":8.792558,"vmg":0.66402,"wind":8.5,"mastAir":9.544671,"attack":7.513869,"heel":-20.05715,"heelRate":0.000008,"drive":146.817624,"sideForce":-124.299636,"up":-50.01249,"sailRoll":-295.011511,"staticRoll":391.389162,"crewRoll":50.275011,"netRoll":-0.001122,"hullDrag":123.276048,"boardDrag":20.016414,"rudderDrag":3.463575,"rudder":-4.170158,"leeway":-0.877057,"sheet":0.55,"targetPose":2,"pose":2,"side":1,"actualSide":1,"crewY":0.476556,"crewZ":0.24677,"cgZ":0.129425,"mass":143,"headingError":-5.208194},"spread":{"speed":0.000027,"heel":0.000109,"heading":0.000037},"peak":{"yawRate":2.073043,"heelRate":12.345689,"driveStep":0.7085,"speedStep":0.011058}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":3,"sheet":0.33,"kind":"steady","status":"capsized","elapsed":5.116667,"summary":{"time":2.625,"speed":6.161497,"vmg":0.482367,"wind":8.5,"mastAir":8.277528,"attack":-2.15097,"heel":-33.714242,"heelRate":-14.736397,"drive":37.581497,"sideForce":24.899047,"up":10.462711,"sailRoll":63.943184,"staticRoll":-206.881698,"crewRoll":-533.763197,"netRoll":-8.23926,"hullDrag":22.799562,"boardDrag":6.965283,"rudderDrag":0.731566,"rudder":-1.734541,"leeway":-5.108708,"sheet":0.33,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.44657,"crewZ":-0.62831,"cgZ":-0.329533,"mass":143,"headingError":-0.627927},"spread":{"speed":0.149539,"heel":19.788475,"heading":3.015498},"peak":{"yawRate":6.769244,"heelRate":32.614647,"driveStep":1.015394,"speedStep":0.001936}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":3,"sheet":0.45,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":8.186332,"vmg":0.057783,"wind":8.5,"mastAir":9.42398,"attack":-5.925068,"heel":-8.390644,"heelRate":-0.000055,"drive":131.271676,"sideForce":92.982689,"up":11.887841,"sailRoll":207.426492,"staticRoll":-274.435827,"crewRoll":-505.443328,"netRoll":-0.000861,"hullDrag":109.535202,"boardDrag":17.586054,"rudderDrag":2.853002,"rudder":0.373816,"leeway":0.33995,"sheet":0.45,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446624,"crewZ":-0.6286,"cgZ":-0.329685,"mass":143,"headingError":0.744373},"spread":{"speed":0.000105,"heel":0.000349,"heading":0.000138},"peak":{"yawRate":0.866911,"heelRate":4.684989,"driveStep":0.646983,"speedStep":0.008627}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":3,"sheet":0.55,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":9.160894,"vmg":0.272847,"wind":8.5,"mastAir":9.839289,"attack":-10.315111,"heel":1.976241,"heelRate":0.000031,"drive":207.296421,"sideForce":167.821234,"up":-10.095529,"sailRoll":383.48606,"staticRoll":-501.642127,"crewRoll":-450.912958,"netRoll":0.000014,"hullDrag":179.878704,"boardDrag":21.597854,"rudderDrag":3.671913,"rudder":1.460732,"leeway":0.564909,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446682,"crewZ":-0.628772,"cgZ":-0.329775,"mass":143,"headingError":2.271653},"spread":{"speed":0.000049,"heel":0.000271,"heading":0.000075},"peak":{"yawRate":0.975132,"heelRate":2.543746,"driveStep":0.233969,"speedStep":0.012796}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":3,"sheet":0.64,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":9.771539,"vmg":0.690765,"wind":8.5,"mastAir":9.934701,"attack":-12.689773,"heel":16.915183,"heelRate":0.000073,"drive":216.462749,"sideForce":202.20984,"up":-70.466833,"sailRoll":487.83244,"staticRoll":-649.720383,"crewRoll":-346.868136,"netRoll":-0.000184,"hullDrag":189.016973,"boardDrag":23.730444,"rudderDrag":3.715499,"rudder":4.043012,"leeway":1.152255,"sheet":0.64,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446722,"crewZ":-0.629039,"cgZ":-0.329916,"mass":143,"headingError":5.205963},"spread":{"speed":0.000033,"heel":0.000187,"heading":0.000018},"peak":{"yawRate":2.499308,"heelRate":7.45228,"driveStep":0.391457,"speedStep":0.018186}},
+    {"wind":8.5,"angle":90,"side":-1,"pose":3,"sheet":0.73,"kind":"steady","status":"varying","elapsed":44,"summary":{"time":40.125,"speed":8.471745,"vmg":2.2035,"wind":8.5,"mastAir":10.228249,"attack":-12.227557,"heel":18.366031,"heelRate":-1.45617,"drive":161.720119,"sideForce":183.972485,"up":-50.781957,"sailRoll":448.782295,"staticRoll":-587.131407,"crewRoll":-327.7398,"netRoll":2.265912,"hullDrag":119.714043,"boardDrag":13.929513,"rudderDrag":9.016578,"rudder":11.276802,"leeway":0.831031,"sheet":0.73,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446742,"crewZ":-0.629665,"cgZ":-0.330244,"mass":143,"headingError":18.519911},"spread":{"speed":1.144237,"heel":12.719361,"heading":13.495232},"peak":{"yawRate":23.98469,"heelRate":18.747023,"driveStep":7.64544,"speedStep":0.015878}},
+    {"wind":8.5,"angle":90,"side":1,"pose":3,"sheet":0.55,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":9.160894,"vmg":0.272847,"wind":8.5,"mastAir":9.839289,"attack":10.314539,"heel":-1.976242,"heelRate":0.000011,"drive":207.296571,"sideForce":-167.821258,"up":-10.095539,"sailRoll":-383.483672,"staticRoll":501.641868,"crewRoll":450.912949,"netRoll":0.000407,"hullDrag":179.878677,"boardDrag":21.597847,"rudderDrag":3.671909,"rudder":-1.460734,"leeway":-0.564909,"sheet":0.55,"targetPose":3,"pose":3,"side":1,"actualSide":1,"crewY":0.446682,"crewZ":0.628772,"cgZ":0.329775,"mass":143,"headingError":-2.271652},"spread":{"speed":0.000049,"heel":0.000271,"heading":0.000075},"peak":{"yawRate":0.974289,"heelRate":2.550412,"driveStep":0.238648,"speedStep":0.012788}},
+    {"wind":8.5,"angle":165,"side":-1,"pose":1,"sheet":0.04,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.89705,"vmg":-7.459118,"wind":8.5,"mastAir":4.849508,"attack":-57.695868,"heel":-1.951711,"heelRate":-0.000033,"drive":125.674306,"sideForce":-0.507795,"up":-1.305337,"sailRoll":-3.948527,"staticRoll":24.940667,"crewRoll":-44.388216,"netRoll":-0.000093,"hullDrag":103.809486,"boardDrag":16.270573,"rudderDrag":4.179958,"rudder":2.839575,"leeway":-0.430653,"sheet":0.04,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498163,"crewZ":-0.043393,"cgZ":-0.022758,"mass":143,"headingError":3.739981},"spread":{"speed":0.000004,"heel":0.000106,"heading":0.000011},"peak":{"yawRate":1.699267,"heelRate":1.441492,"driveStep":0.2662,"speedStep":0.007063}},
+    {"wind":8.5,"angle":165,"side":-1,"pose":1,"sheet":0.18,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.909055,"vmg":-7.493646,"wind":8.5,"mastAir":4.823377,"attack":-67.654953,"heel":0.490316,"heelRate":-0.000031,"drive":126.873237,"sideForce":20.723902,"up":-1.409287,"sailRoll":45.291713,"staticRoll":-45.497042,"crewRoll":-28.912023,"netRoll":-0.000409,"hullDrag":104.969567,"boardDrag":16.526812,"rudderDrag":3.890595,"rudder":2.528999,"leeway":-0.242197,"sheet":0.18,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498226,"crewZ":-0.043563,"cgZ":-0.022848,"mass":143,"headingError":3.410125},"spread":{"speed":0.000003,"heel":0.000118,"heading":0.000006},"peak":{"yawRate":1.748486,"heelRate":1.981694,"driveStep":0.142412,"speedStep":0.007356}},
+    {"wind":8.5,"angle":165,"side":-1,"pose":1,"sheet":0.32,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.859945,"vmg":-7.474025,"wind":8.5,"mastAir":4.814659,"attack":-79.874891,"heel":4.133719,"heelRate":-0.000029,"drive":120.518366,"sideForce":48.017746,"up":-4.779377,"sailRoll":109.256269,"staticRoll":-137.37361,"crewRoll":-5.651691,"netRoll":-0.00046,"hullDrag":99.372705,"boardDrag":16.422589,"rudderDrag":3.460172,"rudder":2.193545,"leeway":0.010181,"sheet":0.32,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498301,"crewZ":-0.043715,"cgZ":-0.022928,"mass":143,"headingError":3.039106},"spread":{"speed":0.000009,"heel":0.00012,"heading":0.000008},"peak":{"yawRate":1.554679,"heelRate":4.713525,"driveStep":0.062002,"speedStep":0.006992}},
+    {"wind":8.5,"angle":165,"side":1,"pose":1,"sheet":0.18,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.909055,"vmg":-7.493646,"wind":8.5,"mastAir":4.823375,"attack":67.658149,"heel":-0.490311,"heelRate":-0.000031,"drive":126.873243,"sideForce":-20.723949,"up":-1.409286,"sailRoll":-45.294597,"staticRoll":45.496888,"crewRoll":28.912057,"netRoll":-0.000408,"hullDrag":104.969579,"boardDrag":16.526803,"rudderDrag":3.890597,"rudder":-2.528998,"leeway":0.242201,"sheet":0.18,"targetPose":1,"pose":1,"side":1,"actualSide":1,"crewY":0.498226,"crewZ":0.043563,"cgZ":0.022848,"mass":143,"headingError":-3.410125},"spread":{"speed":0.000003,"heel":0.000118,"heading":0.000006},"peak":{"yawRate":1.748569,"heelRate":1.979621,"driveStep":0.142659,"speedStep":0.007357}},
+    {"wind":8.5,"angle":165,"side":-1,"pose":2,"sheet":0.04,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":8.049267,"vmg":-7.652204,"wind":8.5,"mastAir":4.71976,"attack":-59.426933,"heel":-11.294468,"heelRate":0.000024,"drive":120.382049,"sideForce":-0.935692,"up":-2.21241,"sailRoll":-4.932638,"staticRoll":20.394926,"crewRoll":-246.109888,"netRoll":-0.000392,"hullDrag":99.328329,"boardDrag":16.988664,"rudderDrag":3.292809,"rudder":1.819842,"leeway":-0.440594,"sheet":0.04,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476225,"crewZ":-0.246045,"cgZ":-0.129045,"mass":143,"headingError":2.630771},"spread":{"speed":0.000003,"heel":0.000095,"heading":0.000012},"peak":{"yawRate":1.354494,"heelRate":5.914717,"driveStep":0.382535,"speedStep":0.007392}},
+    {"wind":8.5,"angle":165,"side":-1,"pose":2,"sheet":0.18,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.965015,"vmg":-7.582507,"wind":8.5,"mastAir":4.762733,"attack":-68.91467,"heel":-5.670043,"heelRate":0.00001,"drive":124.14851,"sideForce":20.167209,"up":0.50585,"sailRoll":44.487885,"staticRoll":-45.112386,"crewRoll":-214.881547,"netRoll":-0.000605,"hullDrag":102.681527,"boardDrag":16.802254,"rudderDrag":3.38205,"rudder":1.814344,"leeway":-0.210187,"sheet":0.18,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476293,"crewZ":-0.246226,"cgZ":-0.12914,"mass":143,"headingError":2.618467},"spread":{"speed":0.000003,"heel":0.000109,"heading":0.000003},"peak":{"yawRate":1.30489,"heelRate":2.673526,"driveStep":0.293865,"speedStep":0.00717}},
+    {"wind":8.5,"angle":165,"side":-1,"pose":2,"sheet":0.32,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.822339,"vmg":-7.470341,"wind":8.5,"mastAir":4.807401,"attack":-81.186241,"heel":-1.344133,"heelRate":-0.000022,"drive":120.124681,"sideForce":48.394089,"up":0.028182,"sailRoll":110.421721,"staticRoll":-137.789636,"crewRoll":-189.432231,"netRoll":-0.0006,"hullDrag":99.345892,"boardDrag":16.261047,"rudderDrag":3.154765,"rudder":1.549064,"leeway":0.044783,"sheet":0.32,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476371,"crewZ":-0.246373,"cgZ":-0.129216,"mass":143,"headingError":2.298468},"spread":{"speed":0.000008,"heel":0.000123,"heading":0.000003},"peak":{"yawRate":1.242012,"heelRate":1.713171,"driveStep":0.166429,"speedStep":0.006982}},
+    {"wind":8.5,"angle":165,"side":1,"pose":2,"sheet":0.18,"kind":"steady","status":"steady","elapsed":44,"summary":{"time":40.125,"speed":7.965015,"vmg":-7.582506,"wind":8.5,"mastAir":4.762734,"attack":68.916831,"heel":5.670052,"heelRate":0.00001,"drive":124.148537,"sideForce":-20.167419,"up":0.505871,"sailRoll":-44.48936,"staticRoll":45.112274,"crewRoll":214.881592,"netRoll":-0.000604,"hullDrag":102.68151,"boardDrag":16.80225,"rudderDrag":3.382051,"rudder":-1.814345,"leeway":0.210196,"sheet":0.18,"targetPose":2,"pose":2,"side":1,"actualSide":1,"crewY":0.476293,"crewZ":0.246226,"cgZ":0.12914,"mass":143,"headingError":-2.618467},"spread":{"speed":0.000003,"heel":0.000109,"heading":0.000003},"peak":{"yawRate":1.304934,"heelRate":2.67624,"driveStep":0.294104,"speedStep":0.007171}},
+    {"wind":8.5,"angle":165,"side":-1,"pose":3,"sheet":0.04,"kind":"steady","status":"capsized","elapsed":3.05,"summary":{"time":1.625,"speed":7.767739,"vmg":-7.164643,"wind":8.5,"mastAir":5.283217,"attack":-49.430968,"heel":-35.229496,"heelRate":-25.491965,"drive":137.425273,"sideForce":1.162173,"up":-4.626747,"sailRoll":1.665946,"staticRoll":-222.707399,"crewRoll":-530.104551,"netRoll":-22.727278,"hullDrag":64.434791,"boardDrag":9.819972,"rudderDrag":1.128244,"rudder":-4.085273,"leeway":-8.895931,"sheet":0.04,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446448,"crewZ":-0.627765,"cgZ":-0.329247,"mass":143,"headingError":-1.363403},"spread":{"speed":0.541321,"heel":20.796659,"heading":6.866735},"peak":{"yawRate":28.783995,"heelRate":46.520738,"driveStep":0.648915,"speedStep":0.008755}},
+    {"wind":8.5,"angle":165,"side":-1,"pose":3,"sheet":0.18,"kind":"steady","status":"capsized","elapsed":3.683333,"summary":{"time":1.875,"speed":7.804395,"vmg":-7.330341,"wind":8.5,"mastAir":5.03748,"attack":-62.481667,"heel":-31.977544,"heelRate":-20.185194,"drive":135.766992,"sideForce":18.884951,"up":5.582001,"sailRoll":50.986439,"staticRoll":-218.303568,"crewRoll":-535.188243,"netRoll":-15.475612,"hullDrag":69.332677,"boardDrag":11.183356,"rudderDrag":1.028012,"rudder":-4.509184,"leeway":-7.230709,"sheet":0.18,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446521,"crewZ":-0.627912,"cgZ":-0.329324,"mass":143,"headingError":-2.310108},"spread":{"speed":0.543088,"heel":18.943137,"heading":7.635059},"peak":{"yawRate":30.333277,"heelRate":44.808322,"driveStep":0.669541,"speedStep":0.008781}},
+    {"wind":8.5,"angle":165,"side":-1,"pose":3,"sheet":0.32,"kind":"steady","status":"capsized","elapsed":6.033333,"summary":{"time":3.125,"speed":7.776035,"vmg":-7.493455,"wind":8.5,"mastAir":4.62798,"attack":-60.345663,"heel":-32.351227,"heelRate":-12.805438,"drive":109.540253,"sideForce":42.721214,"up":25.147166,"sailRoll":120.111337,"staticRoll":-208.376942,"crewRoll":-533.906623,"netRoll":-13.619682,"hullDrag":69.064832,"boardDrag":11.505407,"rudderDrag":0.919414,"rudder":-6.313611,"leeway":-6.230145,"sheet":0.32,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446621,"crewZ":-0.627932,"cgZ":-0.329335,"mass":143,"headingError":-7.394387},"spread":{"speed":0.470033,"heel":19.494265,"heading":13.871778},"peak":{"yawRate":30.9444,"heelRate":43.916915,"driveStep":46.538828,"speedStep":0.035051}},
+    {"wind":8.5,"angle":165,"side":1,"pose":3,"sheet":0.18,"kind":"steady","status":"capsized","elapsed":3.683333,"summary":{"time":1.875,"speed":7.804395,"vmg":-7.330343,"wind":8.5,"mastAir":5.037474,"attack":62.474236,"heel":31.977993,"heelRate":20.185569,"drive":135.766198,"sideForce":-18.885086,"up":5.582749,"sailRoll":-50.980662,"staticRoll":218.302021,"crewRoll":535.188369,"netRoll":15.478653,"hullDrag":69.332306,"boardDrag":11.1831,"rudderDrag":1.027982,"rudder":4.509317,"leeway":7.230844,"sheet":0.18,"targetPose":3,"pose":3,"side":1,"actualSide":1,"crewY":0.446521,"crewZ":0.627912,"cgZ":0.329324,"mass":143,"headingError":2.310294},"spread":{"speed":0.543083,"heel":18.943187,"heading":7.635259},"peak":{"yawRate":30.333233,"heelRate":44.808836,"driveStep":0.669884,"speedStep":0.008782}},
+    {"wind":7.5,"angle":90,"side":-1,"pose":2,"sheet":0.55,"kind":"puff-fixed","status":"varying","elapsed":28,"summary":{"time":24.125,"speed":8.379645,"vmg":0.363654,"wind":7.5,"mastAir":8.724215,"attack":-8.553565,"heel":10.25852,"heelRate":-0.023059,"drive":139.990182,"sideForce":118.698881,"up":-23.986613,"sailRoll":270.945334,"staticRoll":-361.78674,"crewRoll":-116.096431,"netRoll":-0.005184,"hullDrag":117.283323,"boardDrag":18.259291,"rudderDrag":3.249212,"rudder":2.133448,"leeway":0.526088,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.24663,"cgZ":-0.129351,"mass":143,"headingError":3.013349},"spread":{"speed":0.002808,"heel":0.066505,"heading":0.009692},"peak":{"yawRate":5.918978,"heelRate":23.345053,"driveStep":19.365194,"speedStep":0.01944},"trace":[{"time":1,"speed":7.130033,"vmg":0.000074,"wind":7.5,"mastAir":7.927907,"attack":-10.46939,"heel":9.085515,"heelRate":7.694467,"drive":150.978051,"sideForce":118.300428,"up":-21.344521,"sailRoll":263.939389,"staticRoll":-350.275059,"crewRoll":-124.64275,"netRoll":-12.817321,"hullDrag":52.415115,"boardDrag":11.921574,"rudderDrag":0.955624,"rudder":2.176474,"leeway":2.161308,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246633,"cgZ":-0.129353,"mass":143,"headingError":2.161899},{"time":2,"speed":7.894142,"vmg":0.309785,"wind":7.5,"mastAir":8.455197,"attack":-8.92888,"heel":13.245072,"heelRate":1.556952,"drive":139.790056,"sideForce":115.451837,"up":-30.07961,"sailRoll":265.305153,"staticRoll":-373.932423,"crewRoll":-96.482661,"netRoll":-5.942827,"hullDrag":87.381652,"boardDrag":15.75968,"rudderDrag":2.487987,"rudder":2.74324,"leeway":1.011881,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476537,"crewZ":-0.246672,"cgZ":-0.129373,"mass":143,"headingError":3.260883},{"time":3,"speed":8.191168,"vmg":0.446438,"wind":7.5,"mastAir":8.693956,"attack":-8.511236,"heel":13.360276,"heelRate":-0.831692,"drive":138.04558,"sideForce":116.254884,"up":-30.561349,"sailRoll":269.131252,"staticRoll":-375.082195,"crewRoll":-95.448442,"netRoll":-1.876266,"hullDrag":103.434645,"boardDrag":17.304706,"rudderDrag":3.149341,"rudder":2.80422,"leeway":0.528504,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476538,"crewZ":-0.246676,"cgZ":-0.129376,"mass":143,"headingError":3.652804},{"time":4,"speed":8.313594,"vmg":0.472446,"wind":7.5,"mastAir":8.777508,"attack":-8.487837,"heel":12.195932,"heelRate":-1.290528,"drive":139.25949,"sideForce":118.052099,"up":-28.350348,"sailRoll":272.564783,"staticRoll":-371.992547,"crewRoll":-103.155055,"netRoll":0.00141,"hullDrag":111.546687,"boardDrag":17.962957,"rudderDrag":3.392817,"rudder":2.64579,"leeway":0.381241,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476536,"crewZ":-0.246665,"cgZ":-0.12937,"mass":143,"headingError":3.639005},{"time":5,"speed":8.359815,"vmg":0.449284,"wind":7.5,"mastAir":8.785312,"attack":-8.540172,"heel":11.021111,"heelRate":-0.976883,"drive":140.212093,"sideForce":119.071575,"up":-25.852889,"sailRoll":273.555764,"staticRoll":-366.909811,"crewRoll":-110.972724,"netRoll":0.781376,"hullDrag":115.7362,"boardDrag":18.216368,"rudderDrag":3.436688,"rudder":2.442264,"leeway":0.381267,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476533,"crewZ":-0.246651,"cgZ":-0.129362,"mass":143,"headingError":3.462014},{"time":6,"speed":8.375337,"vmg":0.413003,"wind":7.5,"mastAir":8.763087,"attack":-8.576432,"heel":10.294889,"heelRate":-0.485516,"drive":140.374258,"sideForce":119.222986,"up":-24.185311,"sailRoll":272.780075,"staticRoll":-362.321421,"crewRoll":-115.812565,"netRoll":0.729851,"hullDrag":117.017899,"boardDrag":18.29052,"rudderDrag":3.393066,"rudder":2.269393,"leeway":0.435722,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476531,"crewZ":-0.246639,"cgZ":-0.129356,"mass":143,"headingError":3.262228},{"time":7,"speed":8.379302,"vmg":0.383278,"wind":7.5,"mastAir":8.740098,"attack":-8.594664,"heel":10.002839,"heelRate":-0.13106,"drive":140.297422,"sideForce":119.085999,"up":-23.474271,"sailRoll":271.842512,"staticRoll":-360.169684,"crewRoll":-117.769017,"netRoll":0.459195,"hullDrag":117.46222,"boardDrag":18.29336,"rudderDrag":3.330243,"rudder":2.162687,"leeway":0.487964,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246632,"cgZ":-0.129352,"mass":143,"headingError":3.109649},{"time":8,"speed":8.379569,"vmg":0.365847,"wind":7.5,"mastAir":8.725765,"attack":-8.593728,"heel":9.971949,"heelRate":0.041713,"drive":140.19295,"sideForce":118.920593,"up":-23.367352,"sailRoll":271.21421,"staticRoll":-359.849555,"crewRoll":-117.98884,"netRoll":0.215217,"hullDrag":117.514838,"boardDrag":18.277365,"rudderDrag":3.280992,"rudder":2.114283,"leeway":0.520393,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246628,"cgZ":-0.12935,"mass":143,"headingError":3.02269},{"time":9,"speed":9.563493,"vmg":0.167366,"wind":11.5,"mastAir":10.755466,"attack":-6.794926,"heel":24.572681,"heelRate":22.412714,"drive":191.607602,"sideForce":157.977888,"up":-81.234525,"sailRoll":362.138071,"staticRoll":-374.286909,"crewRoll":-21.953699,"netRoll":-17.276884,"hullDrag":159.730333,"boardDrag":19.518458,"rudderDrag":-0.772236,"rudder":6.506282,"leeway":4.951621,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476589,"crewZ":-0.246928,"cgZ":-0.129508,"mass":143,"headingError":5.95438},{"time":10,"speed":8.919552,"vmg":0.672179,"wind":11.5,"mastAir":10.485806,"attack":-1.836039,"heel":39.564613,"heelRate":8.813247,"drive":48.585869,"sideForce":51.013134,"up":-43.725301,"sailRoll":125.513257,"staticRoll":-301.248238,"crewRoll":82.094901,"netRoll":-19.971382,"hullDrag":114.450515,"boardDrag":11.118436,"rudderDrag":-0.069882,"rudder":11.879366,"leeway":5.193539,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476669,"crewZ":-0.247279,"cgZ":-0.129692,"mass":143,"headingError":9.515456},{"time":11,"speed":7.829008,"vmg":1.477109,"wind":11.5,"mastAir":10.789168,"attack":1.810415,"heel":43.274842,"heelRate":-1.175125,"drive":7.571273,"sideForce":24.797112,"up":-23.517788,"sailRoll":37.441507,"staticRoll":-273.130394,"crewRoll":107.895822,"netRoll":-21.69014,"hullDrag":64.448263,"boardDrag":5.278281,"rudderDrag":0.649871,"rudder":18.329189,"leeway":3.349001,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476775,"crewZ":-0.247671,"cgZ":-0.129897,"mass":143,"headingError":14.22425},{"time":12,"speed":7.140421,"vmg":2.153212,"wind":7.633333,"mastAir":8.704421,"attack":0.118548,"heel":39.124903,"heelRate":-9.548629,"drive":1.141812,"sideForce":14.712365,"up":-11.992366,"sailRoll":25.494445,"staticRoll":-299.562663,"crewRoll":80.993169,"netRoll":-16.829296,"hullDrag":39.379546,"boardDrag":4.935871,"rudderDrag":5.89229,"rudder":20.455044,"leeway":0.461811,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476811,"crewZ":-0.247792,"cgZ":-0.129961,"mass":143,"headingError":18.012684},{"time":13,"speed":7.057335,"vmg":2.265147,"wind":7.5,"mastAir":9.753809,"attack":-7.461073,"heel":23.128852,"heelRate":-20.882817,"drive":125.991991,"sideForce":106.553448,"up":-49.430941,"sailRoll":275.028596,"staticRoll":-403.875458,"crewRoll":-27.167979,"netRoll":2.716247,"hullDrag":39.324738,"boardDrag":10.986195,"rudderDrag":11.154189,"rudder":12.438697,"leeway":-4.232012,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476678,"crewZ":-0.247314,"cgZ":-0.12971,"mass":143,"headingError":14.489192},{"time":14,"speed":7.85498,"vmg":1.504522,"wind":7.5,"mastAir":9.481695,"attack":-8.460716,"heel":7.437968,"heelRate":-9.365588,"drive":155.973447,"sideForce":134.992007,"up":-20.204998,"sailRoll":315.976661,"staticRoll":-343.877508,"crewRoll":-133.693874,"netRoll":20.591171,"hullDrag":91.395495,"boardDrag":15.74126,"rudderDrag":6.439266,"rudder":5.841282,"leeway":-1.695035,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476579,"crewZ":-0.246884,"cgZ":-0.129484,"mass":143,"headingError":9.347485},{"time":15,"speed":8.061841,"vmg":0.72028,"wind":7.5,"mastAir":8.799868,"attack":-8.165345,"heel":3.838014,"heelRate":0.604523,"drive":139.296618,"sideForce":120.546788,"up":-9.782924,"sailRoll":269.262054,"staticRoll":-279.346116,"crewRoll":-157.668018,"netRoll":8.45183,"hullDrag":112.388221,"boardDrag":17.283794,"rudderDrag":4.077604,"rudder":2.798838,"leeway":0.130009,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476538,"crewZ":-0.246676,"cgZ":-0.129375,"mass":143,"headingError":5.255896},{"time":16,"speed":8.128267,"vmg":0.370162,"wind":7.5,"mastAir":8.568298,"attack":-8.615359,"heel":5.988901,"heelRate":2.727845,"drive":139.738034,"sideForce":118.404992,"up":-14.276096,"sailRoll":264.248251,"staticRoll":-312.406268,"crewRoll":-144.156314,"netRoll":-0.37213,"hullDrag":111.371717,"boardDrag":17.293402,"rudderDrag":3.420947,"rudder":1.947602,"leeway":0.738268,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476526,"crewZ":-0.246617,"cgZ":-0.129344,"mass":143,"headingError":3.348427},{"time":17,"speed":8.230204,"vmg":0.296155,"wind":7.5,"mastAir":8.594208,"attack":-8.743779,"heel":8.312783,"heelRate":1.819803,"drive":140.994937,"sideForce":118.72355,"up":-19.514785,"sailRoll":267.779961,"staticRoll":-344.253195,"crewRoll":-129.031966,"netRoll":-1.69762,"hullDrag":112.204905,"boardDrag":17.580873,"rudderDrag":3.136205,"rudder":1.888818,"leeway":0.751739,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476526,"crewZ":-0.246613,"cgZ":-0.129342,"mass":143,"headingError":2.813911},{"time":18,"speed":8.30585,"vmg":0.310264,"wind":7.5,"mastAir":8.648711,"attack":-8.67846,"heel":9.643538,"heelRate":0.905283,"drive":140.553056,"sideForce":118.548658,"up":-22.531721,"sailRoll":269.341554,"staticRoll":-357.096485,"crewRoll":-120.235666,"netRoll":-1.258507,"hullDrag":114.367862,"boardDrag":17.884831,"rudderDrag":3.103557,"rudder":1.994209,"leeway":0.666918,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476527,"crewZ":-0.24662,"cgZ":-0.129346,"mass":143,"headingError":2.807695},{"time":19,"speed":8.347126,"vmg":0.337293,"wind":7.5,"mastAir":8.689776,"attack":-8.61853,"heel":10.224068,"heelRate":0.330806,"drive":140.112132,"sideForce":118.472525,"up":-23.857552,"sailRoll":270.205716,"staticRoll":-361.530584,"crewRoll":-116.360153,"netRoll":-0.675141,"hullDrag":115.770887,"boardDrag":18.078897,"rudderDrag":3.155106,"rudder":2.086722,"leeway":0.592385,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476528,"crewZ":-0.246626,"cgZ":-0.129349,"mass":143,"headingError":2.908238},{"time":20,"speed":8.36684,"vmg":0.355776,"wind":7.5,"mastAir":8.712735,"attack":-8.59684,"heel":10.391635,"heelRate":0.051959,"drive":139.944841,"sideForce":118.525843,"up":-24.258283,"sailRoll":270.758153,"staticRoll":-362.666594,"crewRoll":-115.227724,"netRoll":-0.294218,"hullDrag":116.573017,"boardDrag":18.183748,"rudderDrag":3.207031,"rudder":2.134442,"leeway":0.548172,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.24663,"cgZ":-0.129351,"mass":143,"headingError":2.985246},{"time":21,"speed":8.375686,"vmg":0.364495,"wind":7.5,"mastAir":8.723335,"attack":-8.596456,"heel":10.377387,"heelRate":-0.05082,"drive":139.939945,"sideForce":118.622858,"up":-24.246105,"sailRoll":271.081703,"staticRoll":-362.597243,"crewRoll":-115.31101,"netRoll":-0.063794,"hullDrag":117.002552,"boardDrag":18.235962,"rudderDrag":3.239602,"rudder":2.149016,"leeway":0.527103,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246631,"cgZ":-0.129352,"mass":143,"headingError":3.021298},{"time":22,"speed":8.379412,"vmg":0.366756,"wind":7.5,"mastAir":8.726628,"attack":-8.599722,"heel":10.311992,"heelRate":-0.064005,"drive":139.97548,"sideForce":118.695947,"up":-24.109617,"sailRoll":271.19533,"staticRoll":-362.172215,"crewRoll":-115.740375,"netRoll":0.052042,"hullDrag":117.228424,"boardDrag":18.259565,"rudderDrag":3.254178,"rudder":2.146333,"leeway":0.5205,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.24663,"cgZ":-0.129352,"mass":143,"headingError":3.029067},{"time":23,"speed":8.380788,"vmg":0.365976,"wind":7.5,"mastAir":8.726505,"attack":-8.59698,"heel":10.25426,"heelRate":-0.044647,"drive":140.006451,"sideForce":118.733663,"up":-23.983241,"sailRoll":271.171598,"staticRoll":-361.781349,"crewRoll":-116.122434,"netRoll":0.093738,"hullDrag":117.338282,"boardDrag":18.268208,"rudderDrag":3.257515,"rudder":2.138268,"leeway":0.520883,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.24663,"cgZ":-0.129351,"mass":143,"headingError":3.023699},{"time":24,"speed":8.38117,"vmg":0.364396,"wind":7.5,"mastAir":8.72535,"attack":-8.585122,"heel":10.220294,"heelRate":-0.022299,"drive":140.023699,"sideForce":118.745788,"up":-23.906762,"sailRoll":271.080237,"staticRoll":-361.541741,"crewRoll":-116.348244,"netRoll":0.093741,"hullDrag":117.383287,"boardDrag":18.269873,"rudderDrag":3.255758,"rudder":2.130976,"leeway":0.523453,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246629,"cgZ":-0.129351,"mass":143,"headingError":3.015342},{"time":25,"speed":8.381204,"vmg":0.36307,"wind":7.5,"mastAir":8.724287,"attack":-8.56569,"heel":10.20678,"heelRate":-0.007528,"drive":140.028882,"sideForce":118.743851,"up":-23.875061,"sailRoll":270.968527,"staticRoll":-361.438495,"crewRoll":-116.43864,"netRoll":0.072531,"hullDrag":117.39595,"boardDrag":18.268964,"rudderDrag":3.252761,"rudder":2.12638,"leeway":0.525892,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246629,"cgZ":-0.129351,"mass":143,"headingError":3.008699},{"time":26,"speed":8.381159,"vmg":0.362276,"wind":7.5,"mastAir":8.723646,"attack":-8.543074,"heel":10.205224,"heelRate":-0.000891,"drive":140.025288,"sideForce":118.735409,"up":-23.870003,"sailRoll":270.864921,"staticRoll":-361.417821,"crewRoll":-116.449509,"netRoll":0.041396,"hullDrag":117.395645,"boardDrag":18.267575,"rudderDrag":3.250291,"rudder":2.124227,"leeway":0.527488,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246629,"cgZ":-0.129351,"mass":143,"headingError":3.004875},{"time":27,"speed":8.38112,"vmg":0.361927,"wind":7.5,"mastAir":8.723379,"attack":-8.522736,"heel":10.208449,"heelRate":0.000623,"drive":140.015779,"sideForce":118.724415,"up":-23.875666,"sailRoll":270.786905,"staticRoll":-361.432637,"crewRoll":-116.428399,"netRoll":0.007067,"hullDrag":117.392171,"boardDrag":18.266485,"rudderDrag":3.248811,"rudder":2.123592,"leeway":0.528303,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246629,"cgZ":-0.129351,"mass":143,"headingError":3.003309},{"time":28,"speed":8.381098,"vmg":0.361841,"wind":7.5,"mastAir":8.723331,"attack":-8.509615,"heel":10.212281,"heelRate":0.00013,"drive":140.002909,"sideForce":118.712952,"up":-23.882667,"sailRoll":270.745315,"staticRoll":-361.455231,"crewRoll":-116.403108,"netRoll":-0.024968,"hullDrag":117.389331,"boardDrag":18.265855,"rudderDrag":3.248181,"rudder":2.123637,"leeway":0.528618,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246629,"cgZ":-0.129351,"mass":143,"headingError":3.003046}]},
+    {"wind":7.5,"angle":90,"side":-1,"pose":2,"sheet":0.55,"kind":"puff-managed","status":"varying","elapsed":28,"summary":{"time":24.125,"speed":8.38113,"vmg":0.364638,"wind":7.5,"mastAir":8.725589,"attack":-8.552457,"heel":10.184432,"heelRate":-0.015057,"drive":140.02976,"sideForce":118.756914,"up":-23.82706,"sailRoll":271.003085,"staticRoll":-361.295406,"crewRoll":-116.585011,"netRoll":0.051409,"hullDrag":117.41255,"boardDrag":18.271283,"rudderDrag":3.259511,"rudder":2.128353,"leeway":0.523102,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246629,"cgZ":-0.129351,"mass":143,"headingError":3.016656},"spread":{"speed":0.000436,"heel":0.043946,"heading":0.032613},"peak":{"yawRate":6.837046,"heelRate":47.979895,"driveStep":170.902162,"speedStep":0.046834},"trace":[{"time":1,"speed":7.130033,"vmg":0.000074,"wind":7.5,"mastAir":7.927907,"attack":-10.46939,"heel":9.085515,"heelRate":7.694467,"drive":150.978051,"sideForce":118.300428,"up":-21.344521,"sailRoll":263.939389,"staticRoll":-350.275059,"crewRoll":-124.64275,"netRoll":-12.817321,"hullDrag":52.415115,"boardDrag":11.921574,"rudderDrag":0.955624,"rudder":2.176474,"leeway":2.161308,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246633,"cgZ":-0.129353,"mass":143,"headingError":2.161899},{"time":2,"speed":7.894142,"vmg":0.309785,"wind":7.5,"mastAir":8.455197,"attack":-8.92888,"heel":13.245072,"heelRate":1.556952,"drive":139.790056,"sideForce":115.451837,"up":-30.07961,"sailRoll":265.305153,"staticRoll":-373.932423,"crewRoll":-96.482661,"netRoll":-5.942827,"hullDrag":87.381652,"boardDrag":15.75968,"rudderDrag":2.487987,"rudder":2.74324,"leeway":1.011881,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476537,"crewZ":-0.246672,"cgZ":-0.129373,"mass":143,"headingError":3.260883},{"time":3,"speed":8.191168,"vmg":0.446438,"wind":7.5,"mastAir":8.693956,"attack":-8.511236,"heel":13.360276,"heelRate":-0.831692,"drive":138.04558,"sideForce":116.254884,"up":-30.561349,"sailRoll":269.131252,"staticRoll":-375.082195,"crewRoll":-95.448442,"netRoll":-1.876266,"hullDrag":103.434645,"boardDrag":17.304706,"rudderDrag":3.149341,"rudder":2.80422,"leeway":0.528504,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476538,"crewZ":-0.246676,"cgZ":-0.129376,"mass":143,"headingError":3.652804},{"time":4,"speed":8.313594,"vmg":0.472446,"wind":7.5,"mastAir":8.777508,"attack":-8.487837,"heel":12.195932,"heelRate":-1.290528,"drive":139.25949,"sideForce":118.052099,"up":-28.350348,"sailRoll":272.564783,"staticRoll":-371.992547,"crewRoll":-103.155055,"netRoll":0.00141,"hullDrag":111.546687,"boardDrag":17.962957,"rudderDrag":3.392817,"rudder":2.64579,"leeway":0.381241,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476536,"crewZ":-0.246665,"cgZ":-0.12937,"mass":143,"headingError":3.639005},{"time":5,"speed":8.359815,"vmg":0.449284,"wind":7.5,"mastAir":8.785312,"attack":-8.540172,"heel":11.021111,"heelRate":-0.976883,"drive":140.212093,"sideForce":119.071575,"up":-25.852889,"sailRoll":273.555764,"staticRoll":-366.909811,"crewRoll":-110.972724,"netRoll":0.781376,"hullDrag":115.7362,"boardDrag":18.216368,"rudderDrag":3.436688,"rudder":2.442264,"leeway":0.381267,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476533,"crewZ":-0.246651,"cgZ":-0.129362,"mass":143,"headingError":3.462014},{"time":6,"speed":8.375337,"vmg":0.413003,"wind":7.5,"mastAir":8.763087,"attack":-8.576432,"heel":10.294889,"heelRate":-0.485516,"drive":140.374258,"sideForce":119.222986,"up":-24.185311,"sailRoll":272.780075,"staticRoll":-362.321421,"crewRoll":-115.812565,"netRoll":0.729851,"hullDrag":117.017899,"boardDrag":18.29052,"rudderDrag":3.393066,"rudder":2.269393,"leeway":0.435722,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476531,"crewZ":-0.246639,"cgZ":-0.129356,"mass":143,"headingError":3.262228},{"time":7,"speed":8.379302,"vmg":0.383278,"wind":7.5,"mastAir":8.740098,"attack":-8.594664,"heel":10.002839,"heelRate":-0.13106,"drive":140.297422,"sideForce":119.085999,"up":-23.474271,"sailRoll":271.842512,"staticRoll":-360.169684,"crewRoll":-117.769017,"netRoll":0.459195,"hullDrag":117.46222,"boardDrag":18.29336,"rudderDrag":3.330243,"rudder":2.162687,"leeway":0.487964,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246632,"cgZ":-0.129352,"mass":143,"headingError":3.109649},{"time":8,"speed":8.379569,"vmg":0.365847,"wind":7.5,"mastAir":8.725765,"attack":-8.593728,"heel":9.971949,"heelRate":0.041713,"drive":140.19295,"sideForce":118.920593,"up":-23.367352,"sailRoll":271.21421,"staticRoll":-359.849555,"crewRoll":-117.98884,"netRoll":0.215217,"hullDrag":117.514838,"boardDrag":18.277365,"rudderDrag":3.280992,"rudder":2.114283,"leeway":0.520393,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246628,"cgZ":-0.12935,"mass":143,"headingError":3.02269},{"time":9,"speed":9.529256,"vmg":0.493033,"wind":11.5,"mastAir":11.834521,"attack":-7.771468,"heel":25.057904,"heelRate":7.575517,"drive":241.443031,"sideForce":192.671872,"up":-101.883318,"sailRoll":462.693441,"staticRoll":-572.496736,"crewRoll":-280.443386,"netRoll":-50.523472,"hullDrag":148.105158,"boardDrag":19.651701,"rudderDrag":1.213671,"rudder":7.867694,"leeway":2.430354,"sheet":0.55,"targetPose":3,"pose":2.936317,"side":-1,"actualSide":-1,"crewY":0.446837,"crewZ":-0.628508,"cgZ":-0.329637,"mass":143,"headingError":5.396101},{"time":10,"speed":9.316225,"vmg":1.217972,"wind":11.5,"mastAir":13.704411,"attack":-5.512934,"heel":14.410731,"heelRate":-17.592519,"drive":214.393423,"sideForce":149.419445,"up":-46.811336,"sailRoll":357.164658,"staticRoll":-634.399999,"crewRoll":-363.949353,"netRoll":-0.848181,"hullDrag":159.16837,"boardDrag":20.138236,"rudderDrag":6.049156,"rudder":5.483155,"leeway":-1.42538,"sheet":0.430006,"targetPose":3,"pose":2.999945,"side":-1,"actualSide":-1,"crewY":0.446566,"crewZ":-0.628992,"cgZ":-0.329891,"mass":143,"headingError":6.086784},{"time":11,"speed":9.505433,"vmg":1.035257,"wind":11.5,"mastAir":13.413502,"attack":-5.529615,"heel":-0.293571,"heelRate":-8.931433,"drive":233.309394,"sideForce":162.90875,"up":-4.620958,"sailRoll":368.785512,"staticRoll":-448.855885,"crewRoll":-463.343784,"netRoll":28.880795,"hullDrag":204.505981,"boardDrag":23.531195,"rudderDrag":5.854806,"rudder":3.164347,"leeway":-1.003775,"sheet":0.43,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446586,"crewZ":-0.628805,"cgZ":-0.329793,"mass":143,"headingError":5.248832},{"time":12,"speed":8.65913,"vmg":0.289362,"wind":7.633333,"mastAir":8.931455,"attack":0.216059,"heel":-0.017552,"heelRate":1.526827,"drive":15.679767,"sideForce":25.839048,"up":0.074659,"sailRoll":23.940821,"staticRoll":-156.766697,"crewRoll":-181.562843,"netRoll":-63.065384,"hullDrag":134.368543,"boardDrag":18.984533,"rudderDrag":3.667048,"rudder":0.57932,"leeway":0.800589,"sheet":0.43,"targetPose":2,"pose":2.003782,"side":-1,"actualSide":-1,"crewY":0.476428,"crewZ":-0.246418,"cgZ":-0.12924,"mass":143,"headingError":2.7156},{"time":13,"speed":7.526726,"vmg":0.197128,"wind":7.5,"mastAir":8.529613,"attack":-2.396361,"heel":-2.741359,"heelRate":-0.555211,"drive":59.3874,"sideForce":48.385477,"up":2.170645,"sailRoll":97.822491,"staticRoll":-96.055478,"crewRoll":-197.809444,"netRoll":12.141999,"hullDrag":80.625794,"boardDrag":15.13472,"rudderDrag":2.7694,"rudder":0.688937,"leeway":-0.070262,"sheet":0.43,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476429,"crewZ":-0.246426,"cgZ":-0.129244,"mass":143,"headingError":1.43051},{"time":14,"speed":7.670926,"vmg":-0.072771,"wind":7.5,"mastAir":7.973158,"attack":-9.266292,"heel":2.92395,"heelRate":9.226088,"drive":136.645132,"sideForce":110.084576,"up":-6.863328,"sailRoll":239.819288,"staticRoll":-257.175926,"crewRoll":-164.222933,"netRoll":-7.285177,"hullDrag":88.959389,"boardDrag":14.683133,"rudderDrag":2.187727,"rudder":0.776027,"leeway":1.811449,"sheet":0.545625,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476508,"crewZ":-0.246531,"cgZ":-0.1293,"mass":143,"headingError":1.2679},{"time":15,"speed":8.045012,"vmg":0.086483,"wind":7.5,"mastAir":8.352673,"attack":-9.168738,"heel":9.442087,"heelRate":3.934307,"drive":141.788065,"sideForce":116.831941,"up":-21.713638,"sailRoll":262.947932,"staticRoll":-354.829423,"crewRoll":-121.868739,"netRoll":-6.939359,"hullDrag":100.814776,"boardDrag":16.314064,"rudderDrag":2.218928,"rudder":1.570694,"leeway":1.264476,"sheet":0.54993,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476522,"crewZ":-0.24659,"cgZ":-0.129331,"mass":143,"headingError":1.88041},{"time":16,"speed":8.241931,"vmg":0.267967,"wind":7.5,"mastAir":8.585594,"attack":-8.708869,"heel":11.657997,"heelRate":0.955754,"drive":139.344472,"sideForce":116.729774,"up":-26.777341,"sailRoll":267.005907,"staticRoll":-369.240989,"crewRoll":-106.952914,"netRoll":-3.022123,"hullDrag":109.070179,"boardDrag":17.409264,"rudderDrag":2.717714,"rudder":2.121605,"leeway":0.803384,"sheet":0.549999,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246629,"cgZ":-0.129351,"mass":143,"headingError":2.666547},{"time":17,"speed":8.328722,"vmg":0.365974,"wind":7.5,"mastAir":8.699804,"attack":-8.533347,"heel":11.883861,"heelRate":-0.28334,"drive":138.814577,"sideForce":117.279958,"up":-27.430439,"sailRoll":269.50111,"staticRoll":-370.468363,"crewRoll":-105.325906,"netRoll":-1.152952,"hullDrag":112.857117,"boardDrag":17.930782,"rudderDrag":3.076877,"rudder":2.32382,"leeway":0.569845,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476531,"crewZ":-0.246643,"cgZ":-0.129358,"mass":143,"headingError":3.088301},{"time":18,"speed":8.365066,"vmg":0.40111,"wind":7.5,"mastAir":8.74657,"attack":-8.521589,"heel":11.372103,"heelRate":-0.620718,"drive":139.40262,"sideForce":118.178475,"up":-26.462547,"sailRoll":271.429268,"staticRoll":-368.469387,"crewRoll":-108.68391,"netRoll":-0.11351,"hullDrag":115.571656,"boardDrag":18.170386,"rudderDrag":3.256843,"rudder":2.340916,"leeway":0.47451,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476532,"crewZ":-0.246644,"cgZ":-0.129359,"mass":143,"headingError":3.22293},{"time":19,"speed":8.377242,"vmg":0.401485,"wind":7.5,"mastAir":8.753722,"attack":-8.552738,"heel":10.782275,"heelRate":-0.513956,"drive":139.885388,"sideForce":118.712848,"up":-25.209797,"sailRoll":272.058877,"staticRoll":-365.264122,"crewRoll":-112.594705,"netRoll":0.300245,"hullDrag":116.765077,"boardDrag":18.261276,"rudderDrag":3.31759,"rudder":2.280223,"leeway":0.460279,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476531,"crewZ":-0.24664,"cgZ":-0.129357,"mass":143,"headingError":3.207271},{"time":20,"speed":8.381497,"vmg":0.388737,"wind":7.5,"mastAir":8.745517,"attack":-8.579793,"heel":10.374199,"heelRate":-0.295377,"drive":140.074808,"sideForce":118.888172,"up":-24.296838,"sailRoll":271.900681,"staticRoll":-362.689763,"crewRoll":-115.3079,"netRoll":0.365757,"hullDrag":117.269403,"boardDrag":18.289735,"rudderDrag":3.316292,"rudder":2.207623,"leeway":0.478705,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.47653,"crewZ":-0.246635,"cgZ":-0.129354,"mass":143,"headingError":3.13706},{"time":21,"speed":8.382016,"vmg":0.375304,"wind":7.5,"mastAir":8.734653,"attack":-8.593125,"heel":10.174957,"heelRate":-0.113106,"drive":140.109894,"sideForce":118.884102,"up":-23.831585,"sailRoll":271.519442,"staticRoll":-361.298675,"crewRoll":-116.637923,"netRoll":0.275415,"hullDrag":117.454701,"boardDrag":18.288409,"rudderDrag":3.29316,"rudder":2.154712,"leeway":0.502409,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246631,"cgZ":-0.129352,"mass":143,"headingError":3.068683},{"time":22,"speed":8.381436,"vmg":0.366178,"wind":7.5,"mastAir":8.726886,"attack":-8.590592,"heel":10.119152,"heelRate":-0.0101,"drive":140.093669,"sideForce":118.829571,"up":-23.68973,"sailRoll":271.192013,"staticRoll":-360.872588,"crewRoll":-117.015258,"netRoll":0.16687,"hullDrag":117.476954,"boardDrag":18.278592,"rudderDrag":3.270202,"rudder":2.126547,"leeway":0.519461,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246629,"cgZ":-0.129351,"mass":143,"headingError":3.02346},{"time":23,"speed":8.380941,"vmg":0.361662,"wind":7.5,"mastAir":8.722993,"attack":-8.57488,"heel":10.132926,"heelRate":0.028442,"drive":140.065223,"sideForce":118.776947,"up":-23.710457,"sailRoll":270.969934,"staticRoll":-360.937919,"crewRoll":-116.928348,"netRoll":0.084839,"hullDrag":117.444045,"boardDrag":18.270263,"rudderDrag":3.254982,"rudder":2.116431,"leeway":0.528255,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246628,"cgZ":-0.129351,"mass":143,"headingError":3.001499},{"time":24,"speed":8.380768,"vmg":0.360273,"wind":7.5,"mastAir":8.721822,"attack":-8.552141,"heel":10.166163,"heelRate":0.030861,"drive":140.039017,"sideForce":118.740746,"up":-23.780223,"sailRoll":270.834253,"staticRoll":-361.148681,"crewRoll":-116.709789,"netRoll":0.031418,"hullDrag":117.40945,"boardDrag":18.265744,"rudderDrag":3.247571,"rudder":2.115883,"leeway":0.531194,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246628,"cgZ":-0.129351,"mass":143,"headingError":2.994985},{"time":25,"speed":8.380807,"vmg":0.360419,"wind":7.5,"mastAir":8.722002,"attack":-8.52947,"heel":10.194747,"heelRate":0.019933,"drive":140.0183,"sideForce":118.719351,"up":-23.842552,"sailRoll":270.758141,"staticRoll":-361.335378,"crewRoll":-116.520518,"netRoll":-0.004335,"hullDrag":117.388768,"boardDrag":18.264175,"rudderDrag":3.245348,"rudder":2.118716,"leeway":0.531171,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246629,"cgZ":-0.129351,"mass":143,"headingError":2.995954},{"time":26,"speed":8.380914,"vmg":0.361029,"wind":7.5,"mastAir":8.722582,"attack":-8.512983,"heel":10.211963,"heelRate":0.008417,"drive":140.001962,"sideForce":118.706949,"up":-23.880467,"sailRoll":270.725535,"staticRoll":-361.449839,"crewRoll":-116.406023,"netRoll":-0.030988,"hullDrag":117.38091,"boardDrag":18.264156,"rudderDrag":3.24566,"rudder":2.121657,"leeway":0.530197,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246629,"cgZ":-0.129351,"mass":143,"headingError":2.999118},{"time":27,"speed":8.381007,"vmg":0.361579,"wind":7.5,"mastAir":8.723096,"attack":-8.506674,"heel":10.219397,"heelRate":0.001118,"drive":139.988432,"sideForce":118.698907,"up":-23.896519,"sailRoll":270.729974,"staticRoll":-361.501562,"crewRoll":-116.356352,"netRoll":-0.05088,"hullDrag":117.380501,"boardDrag":18.264698,"rudderDrag":3.246766,"rudder":2.123564,"leeway":0.529264,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246629,"cgZ":-0.129351,"mass":143,"headingError":3.001928},{"time":28,"speed":8.381059,"vmg":0.36192,"wind":7.5,"mastAir":8.723404,"attack":-8.511869,"heel":10.220936,"heelRate":-0.001658,"drive":139.977311,"sideForce":118.69317,"up":-23.899179,"sailRoll":270.76774,"staticRoll":-361.516028,"crewRoll":-116.345945,"netRoll":-0.062067,"hullDrag":117.382905,"boardDrag":18.265322,"rudderDrag":3.247833,"rudder":2.124426,"leeway":0.528668,"sheet":0.55,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476529,"crewZ":-0.246629,"cgZ":-0.129351,"mass":143,"headingError":3.003644}]},
+    {"wind":8.5,"angle":90,"side":-1,"pose":1,"sheet":0.45,"kind":"switch","status":"varying","elapsed":28,"summary":{"time":24.125,"speed":7.814133,"vmg":0.347967,"wind":8.5,"mastAir":9.38358,"attack":-4.811726,"heel":13.473915,"heelRate":-0.18559,"drive":101.706205,"sideForce":75.938857,"up":-19.683365,"sailRoll":168.064636,"staticRoll":-235.517381,"crewRoll":54.053682,"netRoll":-1.013022,"hullDrag":82.43022,"boardDrag":16.008258,"rudderDrag":2.794651,"rudder":2.247146,"leeway":0.401511,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498385,"crewZ":-0.04385,"cgZ":-0.022998,"mass":143,"headingError":2.954669},"spread":{"speed":0.006823,"heel":1.687017,"heading":0.521791},"peak":{"yawRate":4.487532,"heelRate":49.198261,"driveStep":101.391768,"speedStep":0.076151},"trace":[{"time":1,"speed":6.94774,"vmg":-0.060343,"wind":8.5,"mastAir":8.547945,"attack":-5.445514,"heel":12.614352,"heelRate":9.819414,"drive":116.559486,"sideForce":80.939557,"up":-19.812491,"sailRoll":169.882685,"staticRoll":-229.840287,"crewRoll":47.554799,"netRoll":-16.634443,"hullDrag":43.176527,"boardDrag":11.237805,"rudderDrag":0.846569,"rudder":2.004656,"leeway":2.540937,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.49838,"crewZ":-0.043841,"cgZ":-0.022993,"mass":143,"headingError":2.043302},{"time":2,"speed":7.459268,"vmg":0.277855,"wind":8.5,"mastAir":9.065613,"attack":-4.60383,"heel":17.783007,"heelRate":1.431941,"drive":96.074131,"sideForce":70.425367,"up":-24.359151,"sailRoll":156.84975,"staticRoll":-248.201742,"crewRoll":81.096126,"netRoll":-8.654326,"hullDrag":59.381181,"boardDrag":14.170083,"rudderDrag":2.04153,"rudder":2.734899,"leeway":1.021041,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498394,"crewZ":-0.043868,"cgZ":-0.023007,"mass":143,"headingError":3.155779},{"time":3,"speed":7.639427,"vmg":0.463163,"wind":8.5,"mastAir":9.382655,"attack":-4.621647,"heel":17.099125,"heelRate":-2.071478,"drive":96.015377,"sideForce":71.594421,"up":-23.785184,"sailRoll":162.06744,"staticRoll":-248.192765,"crewRoll":77.167617,"netRoll":-2.523619,"hullDrag":68.703791,"boardDrag":15.224892,"rudderDrag":2.766643,"rudder":2.950505,"leeway":0.205617,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498398,"crewZ":-0.043875,"cgZ":-0.023012,"mass":143,"headingError":3.681477},{"time":4,"speed":7.73549,"vmg":0.50428,"wind":8.5,"mastAir":9.506549,"attack":-4.730901,"heel":14.717831,"heelRate":-2.34314,"drive":100.483267,"sideForce":75.296623,"up":-21.438671,"sailRoll":169.101959,"staticRoll":-240.134544,"crewRoll":62.182319,"netRoll":0.79453,"hullDrag":76.152946,"boardDrag":15.770259,"rudderDrag":3.127613,"rudder":2.807182,"leeway":0.006485,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498395,"crewZ":-0.04387,"cgZ":-0.023009,"mass":143,"headingError":3.74427},{"time":5,"speed":7.780946,"vmg":0.469064,"wind":8.5,"mastAir":9.507576,"attack":-4.786823,"heel":12.804391,"heelRate":-1.450028,"drive":103.224137,"sideForce":77.41932,"up":-19.124685,"sailRoll":171.800441,"staticRoll":-232.668334,"crewRoll":49.947419,"netRoll":1.356472,"hullDrag":81.380153,"boardDrag":16.006136,"rudderDrag":3.190436,"rudder":2.550878,"leeway":0.090489,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.49839,"crewZ":-0.043861,"cgZ":-0.023004,"mass":143,"headingError":3.546586},{"time":6,"speed":7.798757,"vmg":0.423151,"wind":8.5,"mastAir":9.477687,"attack":-4.830551,"heel":11.78112,"heelRate":-0.655589,"drive":104.911134,"sideForce":78.538017,"up":-17.847219,"sailRoll":172.988957,"staticRoll":-230.669672,"crewRoll":43.347702,"netRoll":0.913496,"hullDrag":84.146648,"boardDrag":16.075099,"rudderDrag":3.137904,"rudder":2.361071,"leeway":0.210676,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498387,"crewZ":-0.043854,"cgZ":-0.023,"mass":143,"headingError":3.321002},{"time":7,"speed":7.806799,"vmg":0.389571,"wind":8.5,"mastAir":9.447189,"attack":-4.849455,"heel":11.420019,"heelRate":-0.128762,"drive":105.500605,"sideForce":78.856488,"up":-17.370192,"sailRoll":173.063728,"staticRoll":-229.490435,"crewRoll":40.99014,"netRoll":0.469215,"hullDrag":85.240996,"boardDrag":16.095573,"rudderDrag":3.074221,"rudder":2.247807,"leeway":0.299948,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498385,"crewZ":-0.04385,"cgZ":-0.022998,"mass":143,"headingError":3.160278},{"time":8,"speed":7.81064,"vmg":0.370641,"wind":8.5,"mastAir":9.427911,"attack":-4.852694,"heel":11.437076,"heelRate":0.112309,"drive":105.463584,"sideForce":78.764232,"up":-17.375262,"sailRoll":172.676491,"staticRoll":-229.492374,"crewRoll":41.074645,"netRoll":0.079062,"hullDrag":85.433887,"boardDrag":16.097319,"rudderDrag":3.024307,"rudder":2.195724,"leeway":0.349542,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498384,"crewZ":-0.043848,"cgZ":-0.022997,"mass":143,"headingError":3.069439},{"time":9,"speed":8.041581,"vmg":0.583748,"wind":8.5,"mastAir":9.997278,"attack":-5.943328,"heel":7.685244,"heelRate":-6.97532,"drive":139.076523,"sideForce":100.118966,"up":-15.586416,"sailRoll":230.654043,"staticRoll":-341.637055,"crewRoll":-132.149931,"netRoll":7.17718,"hullDrag":102.544342,"boardDrag":16.910985,"rudderDrag":3.796096,"rudder":2.819317,"leeway":-0.700651,"sheet":0.45,"targetPose":2,"pose":1.998133,"side":-1,"actualSide":-1,"crewY":0.47647,"crewZ":-0.246593,"cgZ":-0.129332,"mass":143,"headingError":3.46218},{"time":10,"speed":7.999301,"vmg":0.462498,"wind":8.5,"mastAir":9.769874,"attack":-5.359309,"heel":2.771523,"heelRate":-2.563023,"drive":123.948069,"sideForce":91.799823,"up":-5.676622,"sailRoll":202.586273,"staticRoll":-257.12351,"crewRoll":-163.948858,"netRoll":7.778787,"hullDrag":109.580083,"boardDrag":16.945103,"rudderDrag":3.550913,"rudder":1.968389,"leeway":-0.189869,"sheet":0.45,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476459,"crewZ":-0.246534,"cgZ":-0.129301,"mass":143,"headingError":3.124666},{"time":11,"speed":7.908658,"vmg":0.302729,"wind":8.5,"mastAir":9.519384,"attack":-5.386421,"heel":2.177845,"heelRate":0.615852,"drive":121.768035,"sideForce":89.480948,"up":-4.486428,"sailRoll":194.240496,"staticRoll":-240.233311,"crewRoll":-167.97016,"netRoll":1.641011,"hullDrag":104.243251,"boardDrag":16.522342,"rudderDrag":3.199186,"rudder":1.537598,"leeway":0.334989,"sheet":0.45,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476453,"crewZ":-0.246504,"cgZ":-0.129285,"mass":143,"headingError":2.528702},{"time":12,"speed":7.899807,"vmg":0.256463,"wind":8.5,"mastAir":9.497086,"attack":-5.556562,"heel":2.941316,"heelRate":0.648592,"drive":125.461163,"sideForce":91.321929,"up":-5.901829,"sailRoll":198.836019,"staticRoll":-260.004039,"crewRoll":-163.196504,"netRoll":-0.897084,"hullDrag":103.346797,"boardDrag":16.401958,"rudderDrag":3.062713,"rudder":1.494142,"leeway":0.422491,"sheet":0.45,"targetPose":2,"pose":2,"side":-1,"actualSide":-1,"crewY":0.476453,"crewZ":-0.246501,"cgZ":-0.129284,"mass":143,"headingError":2.282893},{"time":13,"speed":8.331188,"vmg":0.611864,"wind":8.5,"mastAir":10.295512,"attack":-6.38822,"heel":-4.19904,"heelRate":-10.483639,"drive":157.096981,"sideForce":111.544214,"up":6.092865,"sailRoll":263.066657,"staticRoll":-350.492288,"crewRoll":-484.471435,"netRoll":26.267626,"hullDrag":128.01223,"boardDrag":17.862599,"rudderDrag":3.940215,"rudder":2.145311,"leeway":-1.320318,"sheet":0.45,"targetPose":3,"pose":2.998133,"side":-1,"actualSide":-1,"crewY":0.446608,"crewZ":-0.628742,"cgZ":-0.32976,"mass":143,"headingError":2.891427},{"time":14,"speed":8.194016,"vmg":0.33567,"wind":8.5,"mastAir":9.675004,"attack":-5.317202,"heel":-10.359525,"heelRate":-3.251814,"drive":120.587057,"sideForce":87.929419,"up":14.297617,"sailRoll":198.19748,"staticRoll":-250.840975,"crewRoll":-513.78837,"netRoll":7.494354,"hullDrag":108.1903,"boardDrag":17.732383,"rudderDrag":2.937408,"rudder":0.847407,"leeway":-0.344645,"sheet":0.45,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446619,"crewZ":-0.628638,"cgZ":-0.329705,"mass":143,"headingError":2.003145},{"time":15,"speed":8.127617,"vmg":0.136298,"wind":8.5,"mastAir":9.367501,"attack":-5.556509,"heel":-11.912664,"heelRate":-0.250015,"drive":121.639214,"sideForce":86.590733,"up":16.254558,"sailRoll":194.319939,"staticRoll":-241.999289,"crewRoll":-520.273651,"netRoll":3.676308,"hullDrag":102.380088,"boardDrag":17.500981,"rudderDrag":2.739329,"rudder":0.355358,"leeway":0.127002,"sheet":0.45,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446624,"crewZ":-0.628599,"cgZ":-0.329685,"mass":143,"headingError":1.087881},{"time":16,"speed":8.131019,"vmg":0.02365,"wind":8.5,"mastAir":9.257686,"attack":-5.772566,"heel":-11.344722,"heelRate":1.166355,"drive":125.263112,"sideForce":88.208895,"up":15.654233,"sailRoll":197.04373,"staticRoll":-246.302363,"crewRoll":-518.093598,"netRoll":1.432162,"hullDrag":103.477663,"boardDrag":17.456499,"rudderDrag":2.720378,"rudder":0.16618,"leeway":0.40419,"sheet":0.45,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446626,"crewZ":-0.628583,"cgZ":-0.329677,"mass":143,"headingError":0.570843},{"time":17,"speed":8.153114,"vmg":-0.019092,"wind":8.5,"mastAir":9.265892,"attack":-5.924426,"heel":-9.942501,"heelRate":1.4638,"drive":128.893901,"sideForce":90.569634,"up":13.932746,"sailRoll":201.667998,"staticRoll":-257.753429,"crewRoll":-512.315694,"netRoll":-0.433816,"hullDrag":105.899606,"boardDrag":17.465963,"rudderDrag":2.746612,"rudder":0.149618,"leeway":0.519924,"sheet":0.45,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446626,"crewZ":-0.628582,"cgZ":-0.329676,"mass":143,"headingError":0.385758},{"time":18,"speed":8.177307,"vmg":-0.008046,"wind":8.5,"mastAir":9.334282,"attack":-5.996199,"heel":-8.69823,"heelRate":0.959899,"drive":131.530957,"sideForce":92.603056,"up":12.304197,"sailRoll":206.17051,"staticRoll":-270.914549,"crewRoll":-506.879636,"netRoll":-1.352016,"hullDrag":108.540064,"boardDrag":17.518702,"rudderDrag":2.783321,"rudder":0.225818,"leeway":0.493494,"sheet":0.45,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446625,"crewZ":-0.628588,"cgZ":-0.329679,"mass":143,"headingError":0.437117},{"time":19,"speed":7.874807,"vmg":-0.426091,"wind":8.5,"mastAir":8.292139,"attack":-2.868771,"heel":2.23147,"heelRate":18.22976,"drive":65.075822,"sideForce":52.90133,"up":-2.297148,"sailRoll":88.838285,"staticRoll":-89.700482,"crewRoll":-19.833021,"netRoll":-47.235713,"hullDrag":100.651005,"boardDrag":13.324235,"rudderDrag":2.520218,"rudder":-0.463649,"leeway":3.189927,"sheet":0.45,"targetPose":1,"pose":1.005374,"side":-1,"actualSide":-1,"crewY":0.498336,"crewZ":-0.043744,"cgZ":-0.022943,"mass":143,"headingError":0.088248},{"time":20,"speed":7.815308,"vmg":-0.108192,"wind":8.5,"mastAir":8.908838,"attack":-5.193917,"heel":12.521336,"heelRate":5.993723,"drive":106.799539,"sideForce":77.033012,"up":-18.662067,"sailRoll":165.995646,"staticRoll":-229.972498,"crewRoll":47.392052,"netRoll":-7.679797,"hullDrag":83.949201,"boardDrag":15.380131,"rudderDrag":1.495024,"rudder":1.038744,"leeway":1.580018,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498363,"crewZ":-0.043804,"cgZ":-0.022974,"mass":143,"headingError":0.786809},{"time":21,"speed":7.828241,"vmg":0.179051,"wind":8.5,"mastAir":9.173016,"attack":-4.69218,"heel":16.028176,"heelRate":1.336814,"drive":96.433441,"sideForce":71.568443,"up":-22.218142,"sailRoll":158.725995,"staticRoll":-243.617336,"crewRoll":70.093667,"netRoll":-5.703415,"hullDrag":79.622126,"boardDrag":15.771665,"rudderDrag":2.087675,"rudder":1.948363,"leeway":0.881025,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498379,"crewZ":-0.043838,"cgZ":-0.022992,"mass":143,"headingError":2.191637},{"time":22,"speed":7.810674,"vmg":0.357761,"wind":8.5,"mastAir":9.366798,"attack":-4.727947,"heel":15.923721,"heelRate":-1.080691,"drive":96.825441,"sideForce":72.414223,"up":-22.339338,"sailRoll":162.719769,"staticRoll":-244.197148,"crewRoll":69.678343,"netRoll":-2.004021,"hullDrag":78.778648,"boardDrag":15.930595,"rudderDrag":2.618257,"rudder":2.408762,"leeway":0.364163,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498388,"crewZ":-0.043856,"cgZ":-0.023001,"mass":143,"headingError":2.989466},{"time":23,"speed":7.808198,"vmg":0.426968,"wind":8.5,"mastAir":9.458727,"attack":-4.81088,"heel":14.485245,"heelRate":-1.542003,"drive":99.904706,"sideForce":74.894896,"up":-20.970198,"sailRoll":167.783119,"staticRoll":-238.806469,"crewRoll":60.631667,"netRoll":0.184445,"hullDrag":80.379192,"boardDrag":16.045139,"rudderDrag":2.950491,"rudder":2.507948,"leeway":0.170821,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.49839,"crewZ":-0.043859,"cgZ":-0.023003,"mass":143,"headingError":3.305435},{"time":24,"speed":7.809946,"vmg":0.429161,"wind":8.5,"mastAir":9.474412,"attack":-4.867576,"heel":13.117252,"heelRate":-1.123041,"drive":102.295328,"sideForce":76.699647,"up":-19.411923,"sailRoll":170.570941,"staticRoll":-233.470402,"crewRoll":51.905809,"netRoll":0.839229,"hullDrag":82.468482,"boardDrag":16.100844,"rudderDrag":3.069666,"rudder":2.43298,"leeway":0.176123,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498388,"crewZ":-0.043856,"cgZ":-0.023002,"mass":143,"headingError":3.326146},{"time":25,"speed":7.810738,"vmg":0.409233,"wind":8.5,"mastAir":9.462611,"attack":-4.909298,"heel":12.253158,"heelRate":-0.624073,"drive":103.884173,"sideForce":77.78937,"up":-18.378879,"sailRoll":172.033683,"staticRoll":-231.598074,"crewRoll":46.354545,"netRoll":0.654549,"hullDrag":83.968366,"boardDrag":16.109802,"rudderDrag":3.077302,"rudder":2.335205,"leeway":0.237129,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498386,"crewZ":-0.043853,"cgZ":-0.023,"mass":143,"headingError":3.24044},{"time":26,"speed":7.811903,"vmg":0.389811,"wind":8.5,"mastAir":9.446161,"attack":-4.935361,"heel":11.823589,"heelRate":-0.252972,"drive":104.733031,"sideForce":78.322903,"up":-17.859226,"sailRoll":172.669953,"staticRoll":-230.648759,"crewRoll":43.578158,"netRoll":0.451093,"hullDrag":84.824867,"boardDrag":16.11026,"rudderDrag":3.052366,"rudder":2.263603,"leeway":0.292503,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498385,"crewZ":-0.04385,"cgZ":-0.022998,"mass":143,"headingError":3.152725},{"time":27,"speed":7.813052,"vmg":0.376242,"wind":8.5,"mastAir":9.432876,"attack":-4.9463,"heel":11.687844,"heelRate":-0.034276,"drive":105.004551,"sideForce":78.464799,"up":-17.686949,"sailRoll":172.730554,"staticRoll":-230.294945,"crewRoll":42.689986,"netRoll":0.23902,"hullDrag":85.127564,"boardDrag":16.107974,"rudderDrag":3.025009,"rudder":2.22076,"leeway":0.330281,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498384,"crewZ":-0.043849,"cgZ":-0.022998,"mass":143,"headingError":3.090457},{"time":28,"speed":7.814005,"vmg":0.368962,"wind":8.5,"mastAir":9.424984,"attack":-4.949323,"heel":11.703707,"heelRate":0.060083,"drive":104.989367,"sideForce":78.425321,"up":-17.701609,"sailRoll":172.57786,"staticRoll":-230.303364,"crewRoll":42.781625,"netRoll":0.096744,"hullDrag":85.156462,"boardDrag":16.106241,"rudderDrag":3.004877,"rudder":2.201849,"leeway":0.349944,"sheet":0.45,"targetPose":1,"pose":1,"side":-1,"actualSide":-1,"crewY":0.498384,"crewZ":-0.043848,"cgZ":-0.022997,"mass":143,"headingError":3.056343}]},
+    {"wind":8.5,"angle":90,"side":-1,"pose":3,"sheet":0.55,"kind":"waves","status":"steady","elapsed":28,"summary":{"time":24.125,"speed":9.176116,"vmg":0.289637,"wind":8.5,"mastAir":9.866764,"attack":-10.234513,"heel":2.306594,"heelRate":-0.344957,"drive":206.444679,"sideForce":167.301495,"up":-10.909446,"sailRoll":382.039976,"staticRoll":-510.004949,"crewRoll":-448.688628,"netRoll":-0.786715,"hullDrag":177.520499,"boardDrag":21.424415,"rudderDrag":3.643243,"rudder":1.502049,"leeway":0.501327,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446681,"crewZ":-0.628775,"cgZ":-0.329777,"mass":143,"headingError":2.310438},"spread":{"speed":0.091383,"heel":1.63865,"heading":0.284177},"peak":{"yawRate":2.165021,"heelRate":6.001875,"driveStep":3.423429,"speedStep":0.017427},"trace":[{"time":1,"speed":7.724722,"vmg":0.324141,"wind":8.5,"mastAir":9.469946,"attack":-10.645023,"heel":4.155338,"heelRate":1.770197,"drive":212.085837,"sideForce":167.014882,"up":-17.979371,"sailRoll":375.503659,"staticRoll":-595.801912,"crewRoll":-437.735873,"netRoll":-19.366023,"hullDrag":82.209285,"boardDrag":13.147707,"rudderDrag":2.220792,"rudder":3.300592,"leeway":0.730119,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446665,"crewZ":-0.628919,"cgZ":-0.329853,"mass":143,"headingError":3.135046},{"time":2,"speed":8.951335,"vmg":0.484156,"wind":8.5,"mastAir":10.1027,"attack":-12.134637,"heel":1.926677,"heelRate":-2.89481,"drive":245.214495,"sideForce":189.631255,"up":-13.604561,"sailRoll":441.449776,"staticRoll":-529.617468,"crewRoll":-450.891784,"netRoll":24.666472,"hullDrag":164.015581,"boardDrag":21.396718,"rudderDrag":4.629861,"rudder":2.988514,"leeway":1.021223,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446668,"crewZ":-0.628894,"cgZ":-0.32984,"mass":143,"headingError":4.121723},{"time":3,"speed":9.010836,"vmg":0.384588,"wind":8.5,"mastAir":9.675273,"attack":-8.776014,"heel":3.518791,"heelRate":2.5703,"drive":182.237173,"sideForce":153.126994,"up":-11.399904,"sailRoll":344.152934,"staticRoll":-434.744991,"crewRoll":-441.813701,"netRoll":-14.982695,"hullDrag":168.173038,"boardDrag":20.586409,"rudderDrag":3.782856,"rudder":1.367697,"leeway":0.319354,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446682,"crewZ":-0.628764,"cgZ":-0.329771,"mass":143,"headingError":2.765516},{"time":4,"speed":9.038393,"vmg":0.402216,"wind":8.5,"mastAir":10.086871,"attack":-9.736968,"heel":2.644188,"heelRate":-3.361224,"drive":207.203487,"sideForce":170.294443,"up":-13.439312,"sailRoll":387.577051,"staticRoll":-579.289181,"crewRoll":-446.504415,"netRoll":-6.991126,"hullDrag":166.467396,"boardDrag":20.323829,"rudderDrag":3.791047,"rudder":2.001858,"leeway":0.073557,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446677,"crewZ":-0.628815,"cgZ":-0.329798,"mass":143,"headingError":2.624108},{"time":5,"speed":9.24424,"vmg":0.254854,"wind":8.5,"mastAir":9.768549,"attack":-11.461261,"heel":0.011556,"heelRate":0.122724,"drive":220.215722,"sideForce":173.022788,"up":-4.028474,"sailRoll":399.707597,"staticRoll":-452.789192,"crewRoll":-462.473756,"netRoll":21.413133,"hullDrag":182.185068,"boardDrag":22.784854,"rudderDrag":3.875674,"rudder":1.40941,"leeway":0.910878,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446682,"crewZ":-0.628767,"cgZ":-0.329773,"mass":143,"headingError":2.490663},{"time":6,"speed":9.098363,"vmg":0.26301,"wind":8.5,"mastAir":9.675277,"attack":-8.876852,"heel":2.858085,"heelRate":3.125649,"drive":183.267021,"sideForce":153.625007,"up":-11.080422,"sailRoll":344.558887,"staticRoll":-461.693542,"crewRoll":-445.903394,"netRoll":-12.847874,"hullDrag":171.670857,"boardDrag":20.539039,"rudderDrag":3.730932,"rudder":1.444494,"leeway":0.608971,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446682,"crewZ":-0.62877,"cgZ":-0.329775,"mass":143,"headingError":2.265472},{"time":7,"speed":9.15069,"vmg":0.296261,"wind":8.5,"mastAir":10.149502,"attack":-10.204504,"heel":2.798818,"heelRate":-2.777686,"drive":217.569895,"sideForce":176.306752,"up":-14.200048,"sailRoll":402.428017,"staticRoll":-556.052775,"crewRoll":-445.60413,"netRoll":-5.792915,"hullDrag":177.903235,"boardDrag":21.197188,"rudderDrag":3.519211,"rudder":1.597051,"leeway":0.54933,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.44668,"crewZ":-0.628782,"cgZ":-0.329781,"mass":143,"headingError":2.40465},{"time":8,"speed":9.192362,"vmg":0.249736,"wind":8.5,"mastAir":9.557975,"attack":-11.238267,"heel":1.832414,"heelRate":0.753379,"drive":208.098983,"sideForce":164.529834,"up":-8.082379,"sailRoll":378.659538,"staticRoll":-472.557576,"crewRoll":-451.884932,"netRoll":3.271011,"hullDrag":177.498498,"boardDrag":22.416569,"rudderDrag":3.650844,"rudder":1.218622,"leeway":0.508745,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446684,"crewZ":-0.628752,"cgZ":-0.329765,"mass":143,"headingError":2.065536},{"time":9,"speed":9.172534,"vmg":0.331336,"wind":8.5,"mastAir":10.027912,"attack":-9.766786,"heel":1.499568,"heelRate":-0.918609,"drive":207.433522,"sideForce":170.062961,"up":-8.634839,"sailRoll":388.903939,"staticRoll":-524.287272,"crewRoll":-453.704024,"netRoll":0.540653,"hullDrag":175.36724,"boardDrag":21.42853,"rudderDrag":3.898487,"rudder":1.818838,"leeway":0.489411,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446678,"crewZ":-0.6288,"cgZ":-0.32979,"mass":143,"headingError":2.559534},{"time":10,"speed":9.119731,"vmg":0.220526,"wind":8.5,"mastAir":9.80519,"attack":-9.696684,"heel":2.524442,"heelRate":1.989531,"drive":199.270349,"sideForce":163.606051,"up":-12.969832,"sailRoll":367.309265,"staticRoll":-461.334006,"crewRoll":-447.70186,"netRoll":-5.59488,"hullDrag":183.168785,"boardDrag":20.871491,"rudderDrag":3.629783,"rudder":1.28056,"leeway":0.912187,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446683,"crewZ":-0.628757,"cgZ":-0.329768,"mass":143,"headingError":2.297801},{"time":11,"speed":9.185521,"vmg":0.306433,"wind":8.5,"mastAir":9.78817,"attack":-11.970048,"heel":2.480287,"heelRate":-2.425722,"drive":225.108957,"sideForce":174.521113,"up":-10.523623,"sailRoll":404.76834,"staticRoll":-574.550561,"crewRoll":-447.667641,"netRoll":-5.532194,"hullDrag":180.002715,"boardDrag":22.452729,"rudderDrag":3.224538,"rudder":1.41549,"leeway":0.136002,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446682,"crewZ":-0.628768,"cgZ":-0.329773,"mass":143,"headingError":2.047771},{"time":12,"speed":9.16332,"vmg":0.259646,"wind":8.5,"mastAir":9.798425,"attack":-9.04881,"heel":0.900948,"heelRate":1.507102,"drive":189.717715,"sideForce":158.365049,"up":-5.501917,"sailRoll":358.174001,"staticRoll":-421.228654,"crewRoll":-457.482866,"netRoll":7.649846,"hullDrag":175.449333,"boardDrag":21.506934,"rudderDrag":3.807875,"rudder":1.338934,"leeway":0.696587,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446683,"crewZ":-0.628762,"cgZ":-0.32977,"mass":143,"headingError":2.3203},{"time":13,"speed":9.045759,"vmg":0.255913,"wind":8.5,"mastAir":9.843778,"attack":-9.271155,"heel":2.907846,"heelRate":0.691348,"drive":193.015055,"sideForce":160.455871,"up":-14.860864,"sailRoll":359.622054,"staticRoll":-515.334952,"crewRoll":-445.185719,"netRoll":-8.501461,"hullDrag":170.549993,"boardDrag":19.621759,"rudderDrag":3.713278,"rudder":1.792822,"leeway":0.677128,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446679,"crewZ":-0.628798,"cgZ":-0.329789,"mass":143,"headingError":2.298297},{"time":14,"speed":9.326269,"vmg":0.349938,"wind":8.5,"mastAir":10.039126,"attack":-12.2715,"heel":2.204834,"heelRate":-2.076707,"drive":240.76588,"sideForce":185.431772,"up":-11.794678,"sailRoll":429.844882,"staticRoll":-573.890374,"crewRoll":-449.336995,"netRoll":-1.963061,"hullDrag":185.179799,"boardDrag":23.282482,"rudderDrag":3.405819,"rudder":1.69435,"leeway":0.48192,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446679,"crewZ":-0.62879,"cgZ":-0.329785,"mass":143,"headingError":2.632265},{"time":15,"speed":9.209967,"vmg":0.12073,"wind":8.5,"mastAir":9.659865,"attack":-8.318795,"heel":1.701207,"heelRate":3.805002,"drive":175.557788,"sideForce":149.104097,"up":-7.081473,"sailRoll":331.798969,"staticRoll":-341.949258,"crewRoll":-452.958136,"netRoll":7.693427,"hullDrag":179.563256,"boardDrag":21.534574,"rudderDrag":3.620858,"rudder":0.860293,"leeway":1.111105,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446687,"crewZ":-0.628723,"cgZ":-0.32975,"mass":143,"headingError":1.862197},{"time":16,"speed":8.976517,"vmg":0.23204,"wind":8.5,"mastAir":9.61743,"attack":-8.807392,"heel":4.722058,"heelRate":0.15866,"drive":175.302956,"sideForce":148.112843,"up":-18.647507,"sailRoll":332.168125,"staticRoll":-523.972768,"crewRoll":-433.773835,"netRoll":-10.08783,"hullDrag":158.756436,"boardDrag":18.222938,"rudderDrag":3.827237,"rudder":2.12621,"leeway":0.736926,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446676,"crewZ":-0.628825,"cgZ":-0.329803,"mass":143,"headingError":2.218169},{"time":17,"speed":9.273424,"vmg":0.429364,"wind":8.5,"mastAir":10.079705,"attack":-11.959844,"heel":2.632721,"heelRate":-3.555782,"drive":236.2841,"sideForce":184.102537,"up":-15.03287,"sailRoll":427.888675,"staticRoll":-590.38356,"crewRoll":-446.521405,"netRoll":4.872041,"hullDrag":179.425613,"boardDrag":22.843827,"rudderDrag":3.666904,"rudder":2.173279,"leeway":0.36346,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446675,"crewZ":-0.628829,"cgZ":-0.329805,"mass":143,"headingError":3.017232},{"time":18,"speed":9.265517,"vmg":0.337272,"wind":8.5,"mastAir":10.061113,"attack":-9.410997,"heel":0.845885,"heelRate":0.553989,"drive":205.1973,"sideForce":169.438308,"up":-4.304515,"sailRoll":384.531569,"staticRoll":-478.3261,"crewRoll":-457.742416,"netRoll":-0.530451,"hullDrag":185.959077,"boardDrag":22.177506,"rudderDrag":3.860893,"rudder":1.222296,"leeway":0.309452,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446684,"crewZ":-0.628752,"cgZ":-0.329765,"mass":143,"headingError":2.395524},{"time":19,"speed":9.199228,"vmg":0.07776,"wind":8.5,"mastAir":9.738899,"attack":-9.842759,"heel":1.944435,"heelRate":2.43386,"drive":198.322851,"sideForce":162.449564,"up":-12.548133,"sailRoll":365.923694,"staticRoll":-422.582063,"crewRoll":-451.160817,"netRoll":10.140361,"hullDrag":182.44359,"boardDrag":21.044893,"rudderDrag":3.780889,"rudder":1.435638,"leeway":1.697212,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446682,"crewZ":-0.62877,"cgZ":-0.329774,"mass":143,"headingError":2.181531},{"time":20,"speed":9.091952,"vmg":0.229087,"wind":8.5,"mastAir":9.328961,"attack":-10.877812,"heel":5.112195,"heelRate":1.055976,"drive":192.204708,"sideForce":153.719988,"up":-17.029712,"sailRoll":353.955999,"staticRoll":-479.792842,"crewRoll":-431.516931,"netRoll":-13.748847,"hullDrag":170.289356,"boardDrag":21.039182,"rudderDrag":3.305481,"rudder":1.178565,"leeway":0.578182,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446684,"crewZ":-0.628749,"cgZ":-0.329763,"mass":143,"headingError":2.021999},{"time":21,"speed":9.168951,"vmg":0.511359,"wind":8.5,"mastAir":10.102957,"attack":-10.704161,"heel":2.737632,"heelRate":-4.85164,"drive":220.201626,"sideForce":176.644397,"up":-10.962015,"sailRoll":409.776528,"staticRoll":-653.346573,"crewRoll":-445.896836,"netRoll":-5.894885,"hullDrag":168.038002,"boardDrag":21.438123,"rudderDrag":3.469641,"rudder":1.906351,"leeway":-0.634422,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446678,"crewZ":-0.628807,"cgZ":-0.329794,"mass":143,"headingError":2.562665},{"time":22,"speed":9.306131,"vmg":0.212258,"wind":8.5,"mastAir":10.155247,"attack":-9.679402,"heel":-0.759608,"heelRate":0.53237,"drive":212.809869,"sideForce":174.668706,"up":-4.202314,"sailRoll":393.998544,"staticRoll":-430.475299,"crewRoll":-466.769059,"netRoll":18.635387,"hullDrag":192.233024,"boardDrag":22.080317,"rudderDrag":3.973158,"rudder":1.36298,"leeway":1.335953,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446682,"crewZ":-0.628764,"cgZ":-0.329771,"mass":143,"headingError":2.642893},{"time":23,"speed":9.176149,"vmg":0.120868,"wind":8.5,"mastAir":9.337465,"attack":-10.643983,"heel":3.85585,"heelRate":4.812901,"drive":193.549357,"sideForce":155.203746,"up":-13.989518,"sailRoll":353.141782,"staticRoll":-424.962339,"crewRoll":-439.863411,"netRoll":-9.915075,"hullDrag":175.410858,"boardDrag":21.648273,"rudderDrag":3.482469,"rudder":1.010305,"leeway":1.116583,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446686,"crewZ":-0.628735,"cgZ":-0.329756,"mass":143,"headingError":1.871305},{"time":24,"speed":9.143074,"vmg":0.403641,"wind":8.5,"mastAir":9.9535,"attack":-10.060392,"heel":4.457018,"heelRate":-2.937063,"drive":206.094916,"sideForce":167.730212,"up":-15.394012,"sailRoll":386.720629,"staticRoll":-584.913818,"crewRoll":-435.344136,"netRoll":-10.644932,"hullDrag":170.775339,"boardDrag":21.020096,"rudderDrag":3.315787,"rudder":1.458741,"leeway":-0.252079,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446682,"crewZ":-0.628771,"cgZ":-0.329775,"mass":143,"headingError":2.278189},{"time":25,"speed":9.164971,"vmg":0.282711,"wind":8.5,"mastAir":9.992846,"attack":-9.772548,"heel":0.855989,"heelRate":-1.917239,"drive":204.443247,"sideForce":168.060527,"up":-8.186939,"sailRoll":382.219867,"staticRoll":-487.290452,"crewRoll":-457.313532,"netRoll":12.02897,"hullDrag":181.692855,"boardDrag":21.504993,"rudderDrag":3.954939,"rudder":1.643365,"leeway":0.58164,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.44668,"crewZ":-0.628786,"cgZ":-0.329783,"mass":143,"headingError":2.349318},{"time":26,"speed":9.179826,"vmg":0.284201,"wind":8.5,"mastAir":9.709445,"attack":-11.360921,"heel":1.587715,"heelRate":0.951731,"drive":215.50136,"sideForce":170.179911,"up":-10.11033,"sailRoll":390.652702,"staticRoll":-520.223085,"crewRoll":-453.292261,"netRoll":-1.05453,"hullDrag":178.403826,"boardDrag":21.970863,"rudderDrag":3.826688,"rudder":1.806113,"leeway":0.758995,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446678,"crewZ":-0.628799,"cgZ":-0.32979,"mass":143,"headingError":2.533116},{"time":27,"speed":9.205353,"vmg":0.282033,"wind":8.5,"mastAir":9.934303,"attack":-9.398464,"heel":2.017152,"heelRate":1.550752,"drive":200.192144,"sideForce":165.417881,"up":-8.194375,"sailRoll":374.958852,"staticRoll":-455.287565,"crewRoll":-450.874081,"netRoll":0.496176,"hullDrag":183.766588,"boardDrag":21.840458,"rudderDrag":3.697951,"rudder":1.155935,"leeway":0.553258,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446684,"crewZ":-0.628747,"cgZ":-0.329762,"mass":143,"headingError":2.308959},{"time":28,"speed":9.100601,"vmg":0.250006,"wind":8.5,"mastAir":9.913127,"attack":-10.289542,"heel":2.631438,"heelRate":-1.572033,"drive":209.137824,"sideForce":169.167556,"up":-13.191757,"sailRoll":385.117714,"staticRoll":-554.839534,"crewRoll":-446.740385,"netRoll":-6.420193,"hullDrag":174.931255,"boardDrag":20.798877,"rudderDrag":3.459588,"rudder":1.488249,"leeway":0.364495,"sheet":0.55,"targetPose":3,"pose":3,"side":-1,"actualSide":-1,"crewY":0.446681,"crewZ":-0.628774,"cgZ":-0.329776,"mass":143,"headingError":1.938686}]}
+  ]
+}

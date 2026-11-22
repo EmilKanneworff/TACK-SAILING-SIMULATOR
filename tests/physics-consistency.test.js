@@ -129,3 +129,68 @@ test('a larger hydrodynamic blade creates more side force and resistance under t
   }
  }
 });
+
+test('Laser hull still resists sideways movement when only the low side is immersed',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ const rows=await page.evaluate(()=>{
+  const P=SailPhysics,env={...P.DEFAULT_ENV,boatId:'laser',difficulty:'hard',speed:0,waves:0,gusts:0,shelter:false,autoBalance:false};
+  function measure(side,heave){
+   const state=P.createState({boatId:'laser',x:0,y:-5000,theta:0,vx:.60,vy:-side*2.7,heel:side*35*P.DEG,
+    crewPose:1,crewPoseBlend:1,crewSide:0,crewSideBlend:0,...(heave===undefined?{}:{heave})},env);
+   const start=state.y;
+   const controls={steer:0,trim:0,crewPose:1};
+   const startSpeed=Math.hypot(state.vx,state.vy);
+   P.step(state,controls,env,1/60);
+   const hullDrag=state.forces.hullR*side;
+   const wetVolume=state.hydro.submergedVolume;
+   for(let i=1;i<60;i++)P.step(state,controls,env,1/60);
+   const axis=P.axes(state.theta);
+   return {hullDrag,wetVolume,travel:Math.abs(state.y-start),sideSpeed:Math.abs(state.vx*axis.rx+state.vy*axis.ry),
+    energyRatio:(Math.hypot(state.vx,state.vy)/startSpeed)**2,
+    assist:state.forces.yawAssist,capsized:state.capsized};
+  }
+  return {port:measure(-1),starboard:measure(1),dry:measure(1,3)};
+ });
+ for(const wet of [rows.port,rows.starboard]){
+  expect(wet.wetVolume).toBeGreaterThan(.05);
+  expect(wet.hullDrag).toBeLessThan(-150);
+  expect(wet.sideSpeed).toBeLessThan(1.15);
+  expect(wet.energyRatio).toBeLessThan(.3);
+  expect(wet.travel).toBeGreaterThan(.8);
+  expect(wet.assist).toBe(0);
+  expect(wet.capsized).toBe(false);
+ }
+ expect(rows.dry.wetVolume).toBe(0);
+ expect(rows.dry.hullDrag).toBe(0);
+ expect(rows.port.sideSpeed).toBeCloseTo(rows.starboard.sideSpeed,4);
+});
+
+test('Laser water inertia resists the initial wind-driven turn while the hull and blades are wet',async({page})=>{
+ await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ const results=await page.evaluate(()=>{
+  const P=SailPhysics,D=P.DEG,env={...P.DEFAULT_ENV,boatId:'laser',speed:8.5,direction:0,
+   waves:0,gusts:0,shelter:false,autoBalance:false,difficulty:'hard',forceDiagnostics:true};
+  return [1,-1].map(side=>[false,true].map(dry=>{
+   const state=P.createState({boatId:'laser',x:0,y:-5000,theta:(90-side*153)*D,
+    vx:0,vy:0,crewPose:2,crewSide:-side,...(dry?{heave:3}:{})},env);
+   P.step(state,{crewPose:2,steer:0},env,1/60);
+   const f=state.forces;
+   const axis=P.axes((90-side*153)*D),r=P.bodyOffset({heel:0,pitch:0},state.hydro.cg);
+   const forward=f.world.x*axis.fx+f.world.y*axis.fy;
+   const across=f.world.x*axis.rx+f.world.y*axis.ry;
+   const dryYaw=(f.yaw-r.r*forward+r.f*across)/state.massMotion.inertia.yaw;
+   return {actual:state.omega*60,predictedWithoutWater:dryYaw,sway:f.waterInertia.sway,
+    buoyancy:state.hydro.buoyancy,weight:state.hydro.weight,rudder:f.rudder.wet};
+  }));
+ });
+ for(const [wet,dry] of results){
+  expect(wet.buoyancy).toBeCloseTo(wet.weight,2);
+  expect(wet.rudder).toBeGreaterThan(.4);
+  expect(wet.sway).toBeGreaterThan(50);
+  expect(Math.sign(wet.actual)).toBe(Math.sign(wet.predictedWithoutWater));
+  expect(Math.abs(wet.actual)).toBeLessThan(.85*Math.abs(wet.predictedWithoutWater));
+  expect(dry.sway).toBe(0);
+  expect(dry.actual).toBeCloseTo(dry.predictedWithoutWater,7);
+ }
+ expect(results[0][0].actual).toBeCloseTo(-results[1][0].actual,4);
+});

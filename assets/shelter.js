@@ -1,6 +1,9 @@
 /* Directional wave exposure from the same land polygons as the sailing world.
  * x east, y north. Bearings give the direction the waves or wind come from. */
-(function(g){
+(function(install){
+ if(typeof module!=='undefined'&&module.exports)module.exports=install;
+ else install(globalThis);
+})(function(g){
  'use strict';
  const worldBounds=g.ArchipelagoData?.fieldBounds;
  const N=worldBounds?461:136,B=Object.freeze(worldBounds??{minX:-2100,maxX:2100,minY:-2680,maxY:620});
@@ -118,4 +121,4 @@
  `;
  g.SailingShelter={field,combinedField,sample,sampleGradient,waveDirection,shader,bounds:B,size:N,fetchLimit:LIMIT,
    contains:(x,y)=>x>=B.minX&&x<=B.maxX&&y>=B.minY&&y<=B.maxY};
-})(globalThis);
+});

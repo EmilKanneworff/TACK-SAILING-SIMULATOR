@@ -1,0 +1,12 @@
+{
+  "reference": {"git": "3f65b7f", "build": "012471a606a4", "notes": "Local changes present before module extraction"},
+  "dt": 0.016666666666666666,
+  "cases": [
+    {"name": "Laser · Hard, unassisted broad reach from rest", "boat": "laser", "initial": {"theta": -1.0995574287564276, "sheet": 0.35, "crewPose": 2, "crewSide": -1}, "field": {"speed": 8.5}, "segments": [{"ticks": 120, "control": {"crewPose": 2}}, {"ticks": 80, "control": {"steer": 0.5, "trim": -0.15, "crewPose": 1, "crew": -1}}, {"ticks": 94, "control": {"steer": -0.35, "crewPose": 2, "crew": 1}}]},
+    {"name": "Laser · Easy, gusts, chop and crossing", "boat": "laser", "initial": {"theta": 0.70, "vx": 2.2945, "vy": 1.93265, "sheet": 0.66}, "field": {"difficulty": "easy", "speed": 7.5, "gusts": 0.25, "waveHeight": 0.32, "chop": 0.22}, "segments": [{"ticks": 60}, {"ticks": 140, "control": {"steer": -0.9, "trim": 0.08}}, {"ticks": 125, "control": {"steer": 0.2, "trim": -0.18}}]},
+    {"name": "Racer 32 · Hard, trapeze and twin rudders", "boat": "dinghy", "initial": {"theta": 0.08, "vx": 4.5, "sheet": 0.48, "crewSide": -1}, "field": {"speed": 10, "waveHeight": 0.35, "chop": 0.25}, "segments": [{"ticks": 120, "control": {"crewPose": 3, "crew": -1}}, {"ticks": 120, "control": {"crewPose": 2, "steer": 0.65}}, {"ticks": 120, "control": {"crewPose": 2, "steer": -0.35, "trim": 0.12}}]},
+    {"name": "Cruiser · reef, reduced jib, gennaker", "boat": "yacht", "initial": {"theta": -0.61, "vx": 2.4, "vy": -1.65, "sheet": 0.48}, "field": {"speed": 8, "waveHeight": 0.55, "chop": 0.3, "gusts": 0.24}, "segments": [{"ticks": 170, "control": {"rig": {"reef": 1, "headsail": 1}, "steer": 0.12}}, {"ticks": 320, "control": {"rig": {"extraSheet": 0.48}, "spinnaker": true, "downwindType": "gennaker"}}, {"ticks": 70, "control": {"spinnaker": false, "steer": -0.2}}]},
+    {"name": "Foil monohull · launch, trim, countersteer", "boat": "ac75", "initial": {"theta": -0.41, "sheet": 0.14}, "field": {"speed": 16, "waveHeight": 0.22, "chop": 0.12}, "segments": [{"ticks": 450}, {"ticks": 50, "control": {"steer": 0.33}}, {"ticks": 80, "control": {"steer": -0.27, "foreAft": 0.2}}, {"ticks": 120}]},
+    {"name": "Foil catamaran · launch and heavy breeze", "boat": "ac72", "initial": {"theta": -0.41, "sheet": 0.12}, "field": {"speed": 17, "waveHeight": 0.35, "chop": 0.22}, "segments": [{"ticks": 430}, {"ticks": 40, "control": {"steer": -0.28}}, {"ticks": 60, "control": {"steer": 0.24, "trim": 0.12}}, {"ticks": 110}]}
+  ]
+}
