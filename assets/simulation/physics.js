@@ -23,19 +23,19 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
   // A narrow directional spectrum keeps crests continuous across the sound.
   // Different phases and bearings turn the straight fronts into uneven groups.
   const dominant=Math.atan2(.105,.075);
-  const band=(windSea,entries,managedOnly=false)=>entries.map(([length,amplitude,offset,phase,managedLength=length])=>{
+  const band=(windSea,entries,managedOnly=false)=>entries.map(([length,amplitude,offset,phase,managedLength=length,swellGain=1])=>{
     const k=2*PI/length,angle=dominant+offset*DEG;
     return Object.freeze({windSea,managedOnly,amplitude,spreadAngle:offset*DEG,k,kx:k*Math.cos(angle),ky:k*Math.sin(angle),
-      omega:Math.sqrt(9.82*k),phase,managedPeriod:Math.sqrt(managedLength/length)});
+      omega:Math.sqrt(9.82*k),phase,managedPeriod:Math.sqrt(managedLength/length),swellGain});
   });
   const WAVE_COMPONENTS=Object.freeze([
-    ...band(false,[[27,.161,0,.2],[34,.098,3.2,2.1],[22.5,.070,-4.2,4.7],[9.4,.075,.8,3.4,18.8]]),
+    ...band(false,[[27,.161,0,.2,27,1.32],[34,.098,3.2,2.1,37,.68],[22.5,.070,-4.2,4.7,25,.62],[9.4,.075,.8,3.4,20,.55]]),
     ...band(true,[[7.9,.052,3.5,1.1],[5.6,.025,-5,3.9],[4.0,.010,2,5.1]]),
     // Crossing crests with distinct periods and phases in the live short sea.
     ...band(true,[[5.1,.022,8.8,2.8],[3.3,.016,-10.4,.6],[4.25,.014,-2.2,5.9]],true)
   ]);
-  const CREST_BEND=.22,PROFILE_SECONDS=1.8,WIND_WAVE_SECONDS=6,MAX_WAVE_HEIGHT=root.SailingSettings.MAX_WAVE_HEIGHT;
-  const CHOP_PERIOD=.77,CHOP_SPREAD=5.1,CHOP_HEIGHT=.40;
+  const CREST_BEND=.22,SWELL_BEND=.48,PROFILE_SECONDS=1.8,WIND_WAVE_SECONDS=6,MAX_WAVE_HEIGHT=root.SailingSettings.MAX_WAVE_HEIGHT;
+  const CHOP_PERIOD=.77,CHOP_SPREAD=5.1,CHOP_HEIGHT=.40,SWELL_SPREAD=.28;
   const FIRST_CHOP=WAVE_COMPONENTS.findIndex(w=>w.windSea);
   const LEGACY_WAVE_COUNT=WAVE_COMPONENTS.findIndex(w=>w.managedOnly);
   const waveBlendAt=(time,profile)=>profile?smooth(0,1,(time-profile.start)/PROFILE_SECONDS):1;
@@ -51,7 +51,8 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
   const BASE_WAVE_DIRECTION=wrap360(Math.atan2(-WAVE_COMPONENTS[0].kx,-WAVE_COMPONENTS[0].ky)/DEG);
   const BASE_WAVE_PERIOD=2*PI/WAVE_COMPONENTS[0].omega;
   const waveHeightUnit=(short=1)=>4*Math.sqrt(WAVE_COMPONENTS.reduce((sum,w)=>sum+(w.managedOnly?0:w.amplitude*(w.windSea?short:1))**2,0)/2);
-  const WAVE_HEIGHT_UNIT=waveHeightUnit(),LONG_HEIGHT_UNIT=waveHeightUnit(0);
+  const WAVE_HEIGHT_UNIT=waveHeightUnit();
+  const LONG_HEIGHT_UNIT=4*Math.sqrt(WAVE_COMPONENTS.reduce((sum,w)=>sum+(w.windSea?0:(w.amplitude*w.swellGain)**2),0)/2);
   const SHORT_HEIGHT_UNIT=4*Math.sqrt(WAVE_COMPONENTS.reduce((sum,w)=>sum+(w.windSea?w.amplitude**2:0),0)/2);
   const CHOP_SCALE=CHOP_HEIGHT/SHORT_HEIGHT_UNIT;
   function windWaveTarget(env){
@@ -134,11 +135,12 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
     const terms=WAVE_COMPONENTS.map((w,i)=>{
       const stretch=w.windSea?(managed?CHOP_PERIOD:1):period*(managed?w.managedPeriod:1);
       const k=w.k/(stretch*stretch),omega=w.omega/stretch;
-      const rotation=(w.windSea?windAngle:angle)+w.spreadAngle*((w.windSea&&managed?CHOP_SPREAD:spread)-1);
+      const width=managed?(w.windSea?CHOP_SPREAD:SWELL_SPREAD*spread):spread;
+      const rotation=(w.windSea?windAngle:angle)+w.spreadAngle*(width-1);
       const c=Math.cos(rotation),s=Math.sin(rotation);
       const forwardX=(w.kx*c-w.ky*s)/w.k,forwardY=(w.kx*s+w.ky*c)/w.k;
-      return {k,omega,forwardX,forwardY,amplitude:w.amplitude*(w.windSea?short:1),
-        bend:CREST_BEND*k,phase:w.phase+seed*(i+1),windSea:w.windSea};
+      return {k,omega,forwardX,forwardY,amplitude:w.amplitude*(w.windSea?short:managed?w.swellGain:1),
+        bend:(managed&&!w.windSea?SWELL_BEND:CREST_BEND)*k,phase:w.phase+seed*(i+1),windSea:w.windSea};
     });
     const prepared={angle,windAngle,period,short,spread,seed,managed,terms,exposure:null,path:null};
     waveBands.set(profile,prepared);
@@ -767,7 +769,11 @@ function equilibriumHeave(s,env){
  if(configFor(s).kind==='foiler'&&root.FoilingPhysics)return root.FoilingPhysics.equilibrium(s,env);
  let lo=-Math.max(1.2,configFor(s).hullDepth*1.3),hi=Math.max(1.4,configFor(s).hullDepth);const before=s.heave;for(let i=0;i<38;i++){s.heave=(lo+hi)/2;const h=hydrostatics(s,env,false);if(h.buoyancy>h.weight)lo=s.heave;else hi=s.heave;}const result=(lo+hi)/2;s.heave=before;return result;
 }
-function sailCoefficients(alpha,model,camber){const c=model?configFor(model):CONFIG,shape=clamp((camber??c.camber)/c.camber,.7,1.2),folded=.5*Math.atan2(Math.sin(2*alpha),Math.cos(2*alpha)),aa=Math.abs(folded),stall=smooth(c.stallStart,c.stallEnd,aa),luff=1-smooth(1.5*DEG,7*DEG,aa),attached=c.sailCLMax*Math.tanh(c.sailLiftSlope*folded/c.sailCLMax),cl=((1-stall)*attached+stall*.90*Math.sin(2*alpha))*shape,cd=c.sailProfileCD+c.sailInducedCD*cl*cl+c.sailPlateCD*Math.sin(alpha)**2*stall;return{cl,cd,luff,stall,folded};}
+// With the air from aft, pressure on a soft sail is concentrated in the
+// forward part of each section. The twisted, unsupported leech carries less.
+function aftSailLoading(forward,speed){return smooth(.42,.88,forward/Math.max(1e-6,speed))*smooth(.9,2,speed);}
+function loadedChordArm(c,aft){return c.sailCPChord*(1-(1-(c.runningPressureArm??.46))*aft);}
+function sailCoefficients(alpha,model,camber,aft=0){const c=model?configFor(model):CONFIG,shape=clamp((camber??c.camber)/c.camber,.7,1.2),folded=.5*Math.atan2(Math.sin(2*alpha),Math.cos(2*alpha)),aa=Math.abs(folded),stall=smooth(c.stallStart,c.stallEnd,aa),luff=1-smooth(1.5*DEG,7*DEG,aa),attached=c.sailCLMax*Math.tanh(c.sailLiftSlope*folded/c.sailCLMax),separated=.90+(.5*c.sailPlateCD-.90)*aft,cl=((1-stall)*attached+stall*separated*Math.sin(2*alpha))*shape,cd=c.sailProfileCD+c.sailInducedCD*cl*cl+c.sailPlateCD*Math.sin(alpha)**2*stall;return{cl,cd,luff,stall,folded};}
 function cruiserSailWind(s,c,env,side,overrideWind){
  const point={x:c.mastX+1.8,y:c.mastTop*.56,z:side*1.1};
  const air=sailAirAt(s,env,point,overrideWind),axis=axes(s.theta);
@@ -791,6 +797,7 @@ function updateCruiserRig(s,control,env,dt){
 function aero(s,inputEnv,overrideWind){
  if(configFor(s).kind==='foiler'&&root.FoilingPhysics)return root.FoilingPhysics.aero(s,inputEnv,overrideWind);
  const c=configFor(s),env={...environment(inputEnv),waveCurrent:s.seaState??seaTarget(inputEnv),waveCurrentRate:s.seaStateRate||0,waveProfile:s.waveProfile},wind=windForState(s,env,overrideWind),a=axes(s.theta),wf=wind.avx*a.fx+wind.avy*a.fy,wr=wind.avx*a.rx+wind.avy*a.ry;
+ const aft=aftSailLoading(wf,wind.aws),chordArm=loadedChordArm(c,aft);
  const sailPressure=clamp(s.recoveryAeroScale??1,0,1);
  let forceF=0,forceR=0,forceUp=0,cl=0,cd=0,alpha=0,luff=0,stall=0,lift=0,drag=0,rollMoment=0,pitchMoment=0,yawMoment=0,exposure=0;
  const cruiser=s.cruiserRig,mainScale=1-.22*(cruiser?.reef??0),jibScale=Math.sqrt(1-.42*(cruiser?.headsail??0));
@@ -801,7 +808,7 @@ function aero(s,inputEnv,overrideWind){
  let mainPressure=0,boomTorque=0;
  const sections=[],actualCamber=(s.rig?.camber??c.camber)*(.55+.45*(s.rig?.fill??1)),mainFraction=mainArea/totalArea,strips=[[5/9,7/45],[3/9,13/27],[1/9,7/9]];
  for(const [weight,height]of strips){
-  const beta=s.boom+(s.rig?.sideBlend??side)*twist*height*height+sailFlutter(s.rig,height)*.56,cp={x:c.mastX-c.sailCPChord*(1-height)*1.5*Math.cos(beta),y:c.boomY+c.sailLuff*height*mainScale,z:c.sailCPChord*(1-height)*1.5*Math.sin(beta)},wp=bodyPoint(s,cp),water=waveHeightAt(wp.x,wp.y,s.time,env),exposed=smooth(-.05,.22,wp.z-water);exposure+=exposed*weight;
+  const beta=s.boom+(s.rig?.sideBlend??side)*twist*height*height+sailFlutter(s.rig,height)*.56,cp={x:c.mastX-chordArm*(1-height)*1.5*Math.cos(beta),y:c.boomY+c.sailLuff*height*mainScale,z:chordArm*(1-height)*1.5*Math.sin(beta)},wp=bodyPoint(s,cp),water=waveHeightAt(wp.x,wp.y,s.time,env),exposed=smooth(-.05,.22,wp.z-water);exposure+=exposed*weight;
   const air=sailAirAt(s,env,cp,overrideWind,s.boomRate||0),airF=air.x*a.fx+air.y*a.fy,airR=air.x*a.rx+air.y*a.ry;
   // Project onto the plane normal to the actual mast. The fixed cloth area
   // goes with these sectional polars, so there is no second heel correction.
@@ -810,7 +817,7 @@ function aero(s,inputEnv,overrideWind){
   const localSpeed=Math.hypot(localF,localR);
   if(localSpeed<=1e-6)continue;
   const unitF=localF/localSpeed,unitR=localR/localSpeed,cf=-Math.cos(beta),cr=Math.sin(beta);
-  const angle=Math.atan2(localF*-cr+localR*cf,localF*cf+localR*cr),coeff=sailCoefficients(angle,c,actualCamber*Math.abs(s.rig?.sideBlend??1));
+  const angle=Math.atan2(localF*-cr+localR*cf,localF*cf+localR*cr),coeff=sailCoefficients(angle,c,actualCamber*Math.abs(s.rig?.sideBlend??1),aftSailLoading(localF,localSpeed));
   const q=.5*c.airDensity*localSpeed**2*mainArea*heelFactor*sailPressure*weight*exposed,L=q*coeff.cl,D=q*coeff.cd;
   const sectionF=-unitR*L+unitF*D,sectionR=unitF*L+unitR*D;
   const ff=sectionFlow?along.f*sectionF+across.f*sectionR:sectionF;
@@ -823,7 +830,7 @@ function aero(s,inputEnv,overrideWind){
   forceF+=ff;forceR+=rr;forceUp+=up;rollMoment+=m.roll;pitchMoment+=m.pitch;yawMoment+=m.yaw;cl+=mainFraction*weight*coeff.cl;cd+=mainFraction*weight*coeff.cd;alpha+=mainFraction*weight*coeff.folded;luff+=mainFraction*weight*coeff.luff;stall+=mainFraction*weight*coeff.stall;lift+=L;drag+=D;
  }
  const mainLuff=luff/mainFraction;
- const main={area:mainArea,trim:s.sheet,centre:{x:c.mastX-c.sailCPChord*Math.cos(s.boom),y:c.boomY+(c.sailCPHeight-c.boomY)*mainScale,z:c.sailCPChord*Math.sin(s.boom)},angle:s.boom,drive:forceF,sideForce:forceR,vertical:forceUp,rollMoment,alpha:alpha/(mainFraction||1),luff:mainLuff,stall:stall/(mainFraction||1),load:clamp(Math.hypot(forceF,forceR,forceUp)/(190*(c.sailArea/7.06)),0,1),side,twist,camber:actualCamber,fill:s.rig?.fill??0,sections,...(sectionFlow?{boomTorque}:{})};let jib=null;
+ const main={area:mainArea,trim:s.sheet,centre:{x:c.mastX-chordArm*Math.cos(s.boom),y:c.boomY+(c.sailCPHeight-c.boomY)*mainScale,z:chordArm*Math.sin(s.boom)},angle:s.boom,drive:forceF,sideForce:forceR,vertical:forceUp,rollMoment,alpha:alpha/(mainFraction||1),luff:mainLuff,stall:stall/(mainFraction||1),load:clamp(Math.hypot(forceF,forceR,forceUp)/(190*(c.sailArea/7.06)),0,1),side,twist,camber:actualCamber,fill:s.rig?.fill??0,sections,...(sectionFlow?{boomTorque}:{})};let jib=null;
  // The keel yacht has a second, continuously sheeted sail. Its own resultant
  // acts at the configured CP; it does not duplicate the mainsail's area.
  if(c.jibArea){
@@ -837,7 +844,7 @@ function aero(s,inputEnv,overrideWind){
   const wp=bodyPoint(s,p),exposed=smooth(-.05,.22,wp.z-waveHeightAt(wp.x,wp.y,s.time,env)),air=sailAirAt(s,env,p,overrideWind);
   const jf=air.x*a.fx+air.y*a.fy,jr=air.x*a.rx+air.y*a.ry,js=Math.hypot(jf,jr);
   const angle=js>1e-6?Math.atan2(jf*-Math.sin(beta)+jr*-Math.cos(beta),jf*-Math.cos(beta)+jr*Math.sin(beta)):0;
-  const camber=c.camber*(.63+.37*(s.rig?.jibFill??1)),co=sailCoefficients(angle,c,camber);
+  const camber=c.camber*(.63+.37*(s.rig?.jibFill??1)),co=sailCoefficients(angle,c,camber,aftSailLoading(jf,js));
   const q=.5*c.airDensity*js**2*jibArea*heelFactor*exposed*sailPressure,L=q*co.cl,Fd=q*co.cd;
   const ff=js>1e-6?(-jr*L+jf*Fd)/js:0,rr=js>1e-6?(jf*L+jr*Fd)/js:0,m=forceMoment(s,p,ff,rr),fraction=jibArea/totalArea;
   forceF+=ff;forceR+=rr;rollMoment+=m.roll;pitchMoment+=m.pitch;yawMoment+=m.yaw;cl+=fraction*co.cl;cd+=fraction*co.cd;alpha+=fraction*co.folded;luff+=fraction*co.luff;stall+=fraction*co.stall;exposure=exposure*mainFraction+exposed*fraction;
@@ -864,7 +871,7 @@ function aero(s,inputEnv,overrideWind){
  }
  const fx=forceF*a.fx+forceR*a.rx,fy=forceF*a.fy+forceR*a.ry,pressure=Math.hypot(forceF,forceR),running=wind.awa!=null&&Math.abs(wind.awa)>125*DEG&&drag>Math.abs(lift)*.55&&forceF>0,flow=wind.aws<.15||luff>.48?'luff':running?'running':stall>.55?'stalled':'attached';
  const qArea=sectionFlow?mainPressure:.5*c.airDensity*wind.aws**2*totalArea*heelFactor*sailPressure*exposure;
- return{wind,main,jib,spinnaker,alpha,cl,cd,lift,drag,qArea,fx,fy,fz:forceUp,drive:forceF,sideForce:forceR,side,load:clamp(pressure/190,0,1),luff,stall,flow,twist,camber:actualCamber,fill:s.rig?.fill??0,cpX:c.mastX-c.sailCPChord*Math.cos(s.boom),cpR:c.sailCPChord*Math.sin(s.boom),rollMoment,pitchMoment,yawMoment,exposure};
+ return{wind,main,jib,spinnaker,alpha,cl,cd,lift,drag,qArea,fx,fy,fz:forceUp,drive:forceF,sideForce:forceR,side,load:clamp(pressure/190,0,1),luff,stall,flow,twist,camber:actualCamber,fill:s.rig?.fill??0,cpX:c.mastX-chordArm*Math.cos(s.boom),cpR:chordArm*Math.sin(s.boom),rollMoment,pitchMoment,yawMoment,exposure};
 }
 function foil(u,v,angle,area,model,ventilation=0){const c=model?configFor(model):CONFIG;
  const speed=Math.hypot(u,v);if(speed<1e-8)return{forward:0,side:0,power:0,speed:0,alpha:0,stall:0};
@@ -1002,7 +1009,9 @@ function updateHelm(s,controls,inputEnv,dt){
  const easy=(controls.difficulty??env.difficulty)==='easy',speed=Math.hypot(s.vx-flow.x,s.vy-flow.y);
  const waterborneMax=c.waterborneRudderMax??c.rudderMax;
  // Give the player extra blade travel to finish a slow turn after touching down.
- const slowTravel=easy?(1-flight)*(1-smooth(3.8,8.5,speed))*((c.easySlowRudderMax??waterborneMax)-waterborneMax):0;
+ const slowMax=(easy?c.easySlowRudderMax:c.waterborneSlowRudderMax)??waterborneMax;
+ const runTravel=easy?1:smooth(135*DEG,156*DEG,Math.abs(s.wind?.twa??0));
+ const slowTravel=(1-flight)*(1-smooth(3.8,8.5,speed))*(slowMax-waterborneMax)*runTravel;
  const travel=waterborneMax+flight*(c.rudderMax-waterborneMax)+slowTravel;
  const available=travel*(c.helmMinimumFraction+(1-c.helmMinimumFraction)/(1+(u/c.helmSpeedReference)**2));
  s.helmTarget=clamp(demand*sensitivity,-1,1)*available*s.helmFlowSign;
@@ -1085,7 +1094,7 @@ function createState(overrides,inputEnv){
  if(o.crew!=null){s.crewSide=Math.sign(o.crew);s.crewSideBlend=s.crewSide;}
  if(o.crew==null&&o.crewSide==null)s.crewSide=windwardCrewSide(wind)||s.crewSide;
  if(o.crewSideBlend==null)s.crewSideBlend=s.crewSide;
- if((c.id==='laser'||c.racingYacht)&&o.boom==null){
+ if(o.boom==null){
   const from=wind.awa??0,side=Math.abs(from)>7*DEG&&Math.abs(from)<175*DEG?Math.sign(from):Math.sign(s.crewSide)||-1;
   s.boom=-side*Math.min(boomLimit(s.sheet,c),Math.abs(from));
  }
@@ -1235,6 +1244,6 @@ function recover(s,env,nowMs){const R=root.SailingRecovery;if(!R)throw Error('Op
 function instruments(s,target,env){const a=axes(s.theta),w=s.wind,speed=Math.hypot(s.vx,s.vy);
  const logSpeed=Math.hypot(s.vx-(s.waterX||0),s.vy-(s.waterY||0));
  const flow=waterVelocity(s,env?waveAt(s.x,s.y,s.time,{...env,waveCurrent:s.seaState,waveProfile:s.waveProfile},Math.max(0,-s.heave)):undefined),waterX=s.vx-flow.x,waterY=s.vy-flow.y,waterSpeed=Math.hypot(waterX,waterY);let distance=null,vmg=null,bearing=null;if(target){const dx=target.x-s.x,dy=target.y-s.y;distance=Math.hypot(dx,dy);vmg=distance>1e-8?(s.vx*dx+s.vy*dy)/distance:0;bearing=wrap360(Math.atan2(dx,dy)/DEG);}return{speed,knots:speed*1.9438444924,waterSpeed,waterKnots:waterSpeed*1.9438444924,logKnots:logSpeed*1.9438444924,heading:wrap360(90-s.theta/DEG),course:speed>.03?wrap360(Math.atan2(s.vx,s.vy)/DEG):null,leeway:waterSpeed>.03?Math.atan2(waterX*a.rx+waterY*a.ry,waterX*a.fx+waterY*a.fy):null,tws:w.tws,twd:w.twd,twa:w.twa,aws:w.aws,awa:w.awa,heel:s.heel,sheet:s.sheet,boom:s.boom,distance,vmg,bearing,boatId:s.boatId,crewPose:s.crewPose,heave:s.heave,pitch:s.pitch,vmgWind:w.tws>.01?-(waterX*w.vx+waterY*w.vy)/w.tws:null};}
-root.SailPhysics={CONFIG,DEFAULT_ENV,environment,WAVE_COMPONENTS,BASE_WAVE_DIRECTION,BASE_WAVE_PERIOD,WAVE_HEIGHT_UNIT,LONG_HEIGHT_UNIT,SHORT_HEIGHT_UNIT,CREST_BEND,PROFILE_SECONDS,MAX_WAVE_HEIGHT,CHOP_PERIOD,CHOP_SPREAD,CHOP_HEIGHT,waveHeightUnit,windWaveAt,windWaveTarget,waveProfileFor,waveBlendAt,advanceWaveProfile,advanceSea,waveExposureField,waveExposureAt,wavePathField,DEG,clamp,wrap,wrap360,configFor,createState,step,windAt,waveAt,waveHeightAt,seaTarget,aero,sailCoefficients,foil,windForState,instruments,sheetFromTrim,trimFromSheet,haulSheetTravel,easeSheetTravel,boomLimit,sheetRateFor,updateSheet,sheetTorque,integrateMass,recover,refresh,axes,windwardCrewSide,tackCrewSide,bodyPoint,bodyOffset,pointMotion,waterVelocity,waterContact,bowWaterContact,hydrostatics,equilibriumHeave,hullSamples,updateCrew,updateRig,updateBoom,sailFlutter,sailAirAt,updateHelm,backingBoomTorque};
+root.SailPhysics={CONFIG,DEFAULT_ENV,environment,WAVE_COMPONENTS,BASE_WAVE_DIRECTION,BASE_WAVE_PERIOD,WAVE_HEIGHT_UNIT,LONG_HEIGHT_UNIT,SHORT_HEIGHT_UNIT,CREST_BEND,SWELL_BEND,PROFILE_SECONDS,MAX_WAVE_HEIGHT,CHOP_PERIOD,CHOP_SPREAD,CHOP_HEIGHT,SWELL_SPREAD,waveHeightUnit,windWaveAt,windWaveTarget,waveProfileFor,waveBlendAt,advanceWaveProfile,advanceSea,waveExposureField,waveExposureAt,wavePathField,DEG,clamp,wrap,wrap360,configFor,createState,step,windAt,waveAt,waveHeightAt,seaTarget,aero,sailCoefficients,aftSailLoading,loadedChordArm,foil,windForState,instruments,sheetFromTrim,trimFromSheet,haulSheetTravel,easeSheetTravel,boomLimit,sheetRateFor,updateSheet,sheetTorque,integrateMass,recover,refresh,axes,windwardCrewSide,tackCrewSide,bodyPoint,bodyOffset,pointMotion,waterVelocity,waterContact,bowWaterContact,hydrostatics,equilibriumHeave,hullSamples,updateCrew,updateRig,updateBoom,sailFlutter,sailAirAt,updateHelm,backingBoomTorque};
 
 });

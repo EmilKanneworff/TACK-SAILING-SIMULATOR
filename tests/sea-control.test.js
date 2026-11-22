@@ -43,3 +43,44 @@ test('oblique seas change the motion while keyboard helm remains responsive',asy
  expect(Math.max(...sea.pitches)-Math.min(...sea.pitches)).toBeGreaterThan(.015);
  expect(Math.max(...sea.pitches.map((x,i)=>Math.abs(x-flat.pitches[i])))).toBeGreaterThan(.01);
 });
+
+test('slackening the sheet and steering from the cockpit builds way in following swell',async({page})=>{
+ test.setTimeout(60000);
+ await page.clock.install();
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+ await (await introOption(page,'#introWeatherEdit')).click();
+ await page.locator('#windSpeed').fill('8');
+ await page.locator('#windDirection').fill('270');
+ await page.locator('#windGusts').fill('0');
+ await page.locator('#waveHeight').fill('0.8');
+ await page.locator('#chop').fill('0');
+ await page.click('[data-close="settings"]');
+ await page.click('#startButton');
+ await page.evaluate(()=>{
+  const {env,state}=SAILING_GAME;
+  Object.assign(state,TackSimulation.createBoat('laser',{
+   x:-1500,y:-1930,theta:0,time:1,vx:1.8,vy:0,sheet:.35,crewPose:1
+  },env));
+ });
+ await page.locator('#sea').focus();
+ await page.keyboard.press('Digit1');
+ await page.keyboard.down('ArrowDown');
+ await page.clock.runFor(1250);
+ await page.keyboard.up('ArrowDown');
+ await page.keyboard.down('ArrowRight');
+ await page.clock.runFor(125);
+ expect(await page.evaluate(()=>SAILING_GAME.state.steerIntent)).toBe(1);
+ await page.keyboard.up('ArrowRight');
+ await page.clock.runFor(2300);
+ const result=await page.evaluate(()=>{
+  const s=SAILING_GAME.state,P=SailPhysics;
+  return {sheet:s.sheet,boom:Math.abs(s.boom)/P.DEG,vmg:s.vx,x:s.x,awa:Math.abs(s.wind.awa)/P.DEG,cap:s.capsized};
+ });
+ expect(result.sheet).toBeLessThan(.08);
+ expect(result.boom).toBeGreaterThan(65);
+ expect(result.vmg).toBeGreaterThan(2.1);
+ expect(result.x).toBeGreaterThan(-1494);
+ expect(result.awa).toBeGreaterThan(125);
+ expect(result.cap).toBe(false);
+ console.log('Læns med tastatur',JSON.stringify(result));
+});

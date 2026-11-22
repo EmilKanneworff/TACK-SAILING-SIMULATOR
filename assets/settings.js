@@ -10,7 +10,7 @@ const seaShapes=[
   {height:.85,period:5.15,spread:1.04,short:1.22,ripples:1}
 ];
 const defaults=Object.freeze({speed:5,direction:0,gusts:.20,waveHeight:.35,chop:.35,clouds:.18,rain:0,fog:.04,daylight:0});
-const personalDefaults=Object.freeze({camera:0,mapDimensions:null,quality:'auto',volume:1,windArrows:true,difficulty:'hard'});
+const personalDefaults=Object.freeze({camera:0,mapDimensions:null,startLocation:null,quality:'auto',volume:1,windArrows:true,difficulty:'hard'});
 const key='fri-vind.settings.v3';
 const previousKeys=['fri-vind.settings.v2','fri-vind.settings.v1','fri-vind-settings'];
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -50,7 +50,10 @@ function personal(values={}){
   const mapDimensions=Number.isFinite(size?.width)&&size.width>0&&Number.isFinite(size?.height)&&size.height>0
     ?{width:Math.max(1,Math.round(size.width)),height:Math.max(1,Math.round(size.height))}
     :values.mapSize===1?{width:470,height:330}:values.mapSize===2?{width:920,height:600}:null;
-  return {camera:integer(numeric(values.camera,0),0,FIRST_PERSON_CAMERA),mapDimensions,
+  const point=values.startLocation;
+  const startLocation=Number.isFinite(point?.x)&&Number.isFinite(point?.y)&&typeof point.mapVersion==='string'
+    ?{x:point.x,y:point.y,mapVersion:point.mapVersion}:null;
+  return {camera:integer(numeric(values.camera,0),0,FIRST_PERSON_CAMERA),mapDimensions,startLocation,
     quality:['auto','low','balanced','high'].includes(values.quality)?values.quality:'auto',
     volume:clamp(numeric(values.volume,values.soundEnabled===false?0:1),0,1),windArrows:values.windArrows!==false,
     difficulty:values.difficulty==='easy'?'easy':'hard'};

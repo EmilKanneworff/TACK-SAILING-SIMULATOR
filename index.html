@@ -528,6 +528,7 @@ body.easy-crew .pose-buttons{display:none}
       <button id="startButton" class="primary" type="button" disabled>Fri sejlads</button>
       <button id="introCourse" class="primary" type="button" disabled>Kapsejlads</button>
     </div>
+    <button id="introStartLocation" class="intro-start-location" type="button" aria-haspopup="dialog" aria-controls="startLocationPicker" disabled>Startsted · Faaborg</button>
     <details id="introSetup" class="intro-setup">
       <summary>Opsætning</summary>
       <div class="intro-boat">
@@ -599,6 +600,7 @@ body.easy-crew .pose-buttons{display:none}
 </div><div id="personalControls" hidden>
 <div class="sailing-menu" aria-label="Sejlads og hjælp">
   <button type="button" id="raceSetup">Banevalg</button>
+  <button type="button" id="startLocationButton" aria-haspopup="dialog" aria-controls="startLocationPicker" hidden>Startsted</button>
   <button type="button" id="personalEditor" hidden>Baneeditor</button>
   <button id="lobbyButton" class="icon icon-text" title="Lobby"><span>Lobby</span></button><button class="icon" id="pauseButton" title="Pause (mellemrum)" aria-label="Pause"><svg id="pauseIcon" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"></path></svg><span id="pauseLabel">Pause</span></button>
   <button type="button" id="restartButton">Start forfra</button>
@@ -629,6 +631,25 @@ body.easy-crew .pose-buttons{display:none}
   <details><summary>Koefficientkurver &amp; kontrolscenarier</summary><canvas id="coefficients" width="900" height="350"></canvas><p id="coefficientCaption">Kurverne viser modellens valgte CL og CD.</p><p>Debug åbnes med tasten <b>´ / `</b> eller knappen herunder.</p><button class="text-button" id="debugButton">Åbn debugvisning</button><button class="text-button" id="detailsTests">Kør matematiske selvtests</button><div id="detailsTestResults" class="test-results" hidden=""></div><p class="about-test" id="verifiedTests">Teststatus vises efter indbygget selvtest.</p></details>
   <details><summary>Kilder &amp; teknik</summary><p><a href="https://www.cal-sailing.org/images/official_files/Dinghy17.pdf" target="_blank" rel="noopener">Cal Sailing Club · aflastning ved opretning</a> · <a href="https://www.fossen.biz/html/marineCraftModel.html" target="_blank" rel="noopener">Fossen · marine bevægelsesmodeller</a> · <a href="https://gafferongames.com/post/fix_your_timestep/" target="_blank" rel="noopener">Fix Your Timestep · fast fysikstep</a> · <a href="https://www.cupinfo.com/downloads/ac72-class-rule-1p1-a14-052413.pdf" target="_blank" rel="noopener">AC72 Class Rule v1.1 · mål og vingesejl</a> · <a href="https://catalogs.marinersmuseum.org/object/CL30467" target="_blank" rel="noopener">Mariners’ Museum · Oracle Team USA 17, 2013</a> · <a href="https://www.americascup.com/files/m5498_AC75-Class-Rule-v20.pdf" target="_blank" rel="noopener">AC75 Class Rule v2.0 · proportioner og masse</a> · <a href="https://www.americascup.com/news/4409_INSIDE-THE-AC75-THE-LATEST-TRENDS-IN-FOIL-DESIGN" target="_blank" rel="noopener">America’s Cup · foils, flapper og ventilation</a> · <a href="https://www.laserinternational.org/wp-content/uploads/2023/05/ILCA_HANDBOOK_2023.pdf" target="_blank" rel="noopener">ILCA-håndbog 2023, side 13</a> · <a href="https://www.rya.org.uk/training/do-you-know-your-points-of-sail/" target="_blank" rel="noopener">RYA: sejlretninger</a> · <a href="https://www.northsails.com/en-us/blogs/north-sails-blog/upwind-sail-power-by-bill-gladstone" target="_blank" rel="noopener">North Sails: sejlkræfter</a> · <a href="https://www.northsails.com/en-us/blogs/north-sails-blog/puff-response-upwind-northu-bill-gladstone" target="_blank" rel="noopener">North Sails: vindpust</a> · <a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-equation/" target="_blank" rel="noopener">NASA: lift</a> · <a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/" target="_blank" rel="noopener">NASA: drag</a>.</p><p>Alle former, materialer, lyd og teksturer er skabt i kode. Three.js 0.160.1 (MIT) er indlejret i filen. Ingen netværkskald, konto, server eller installation. Kræver en browser med WebGL. Rekorder gemmes lokalt, når browseren tillader det. Licens og komplet modeldokumentation findes i filens kildekode.</p></details>
 <p>Let styrer besætningens vægt. Ror og skøde følger spillerens input på begge niveauer.</p></div></section>
+<section class="modal-layer" id="startLocationPicker" role="dialog" aria-labelledby="startLocationTitle" aria-modal="true" hidden>
+  <div class="modal start-location-picker">
+    <button type="button" class="close" data-close="startLocationPicker" aria-label="Luk startsted">×</button>
+    <h2 id="startLocationTitle">Vælg startsted</h2>
+    <label for="startLocationPreset">Område</label>
+    <select id="startLocationPreset">
+      <option value="default">Faaborg</option><option value="bjorno">Bjørnø</option><option value="lyo">Lyø</option>
+      <option value="avernako">Avernakø</option><option value="svelmo">Svelmø</option><option value="open">Åbent vand</option>
+      <option value="custom" hidden>Valgt på kortet</option>
+    </select>
+    <p id="startLocationHint">Vælg et område, eller klik på vandet på kortet.</p>
+    <div class="start-location-chart">
+      <canvas id="startLocationMap" width="640" height="420" aria-describedby="startLocationHint"></canvas>
+      <a class="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a>
+    </div>
+    <p id="startLocationStatus" role="status"></p>
+    <button type="button" class="primary" id="startAtLocation" disabled>Start her</button>
+  </div>
+</section>
 <section class="modal-layer" id="racePreview" role="dialog" aria-labelledby="raceSetupTitle" aria-modal="true" hidden>
   <div class="modal race-preview">
     <button class="close" data-close="racePreview" aria-label="Luk banevalg">×</button>
@@ -1024,6 +1045,7 @@ class SailingMap {
   const d=clamp(this.options.pixelRatio||g.devicePixelRatio||1,1,2);
   if(w===this.width&&h===this.height&&d===this.dpr&&this.canvas.width===Math.round(w*d)&&this.canvas.height===Math.round(h*d))return;
   this.width=w;this.height=h;this.dpr=d;this.canvas.width=Math.round(w*d);this.canvas.height=Math.round(h*d);
+  if(this.options.staticView&&this.mode==='area')return this.fitArea();
   if(!this.options.keepView&&this.model&&this.mode==='course')this.fitCourse(this.course,true);
   this.draw();
  }
@@ -1426,6 +1448,7 @@ class SailingMap {
   for(const other of this.remoteBoats||[]){if(!finitePoint(other))continue;const point=this.worldToScreen(other);if(point.x<p.left||point.x>p.right||point.y<p.top||point.y>p.bottom)continue;c.beginPath();c.arc(point.x,point.y,4,0,TAU);c.fillStyle=other.player?.color||'#efb86e';c.fill();this._queueLabel(other.player?.name||'Sejler',{x:point.x,y:point.y-11},c.fillStyle,9,2);}
   this._drawLabels(p);c.restore();
   this._drawWind();this._drawFurniture();
+  this.options.drawOverlay?.(this);
  }
  destroy(){
   this._dead=true;this.observer?.disconnect();for(const [type,fn,options] of this._handlers)this.canvas.removeEventListener?.(type,fn,options);
@@ -1454,11 +1477,11 @@ const TAU=Math.PI*2, clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const {FIRST_PERSON_CAMERA}=global.SailingSettings;
 const VIEW_DISTANCE=8000, WATER_RADIUS=11000, REMOTE_BOAT_RANGE=1850;
 const GRAPHICS_PROFILES={
-  high:{waterSegments:144,waterFade:[210,380],waterOptics:[185,410],waterDetail:1,pixelRatio:1.5,pixelBudget:1_700_000,scale:1,
+  high:{waterSegments:144,waterFade:[245,460],waterOptics:[185,410],waterDetail:1,pixelRatio:1.5,pixelBudget:1_700_000,scale:1,
     detailRanges:[80,250,700],fixtureRange:120,shadows:true,reflectionSize:448,reflectionInterval:.050,shoreFoam:true,birds:true,ambientFoam:true,rainDrops:520},
-  balanced:{waterSegments:120,waterFade:[185,300],waterOptics:[135,300],waterDetail:.85,pixelRatio:1.4,pixelBudget:1_100_000,scale:.84,
+  balanced:{waterSegments:120,waterFade:[205,355],waterOptics:[135,300],waterDetail:.85,pixelRatio:1.4,pixelBudget:1_100_000,scale:.84,
     detailRanges:[70,195,480],fixtureRange:90,shadows:false,reflectionSize:288,reflectionInterval:.092,shoreFoam:true,birds:false,ambientFoam:true,rainDrops:260},
-  low:{waterSegments:96,waterFade:[150,235],waterOptics:[112,220],waterDetail:.64,pixelRatio:1,pixelBudget:440_000,scale:.74,
+  low:{waterSegments:96,waterFade:[165,275],waterOptics:[112,220],waterDetail:.64,pixelRatio:1,pixelBudget:440_000,scale:.74,
     detailRanges:[52,135,310],fixtureRange:64,shadows:false,reflectionSize:0,reflectionInterval:0,shoreFoam:false,birds:false,ambientFoam:false,rainDrops:95},
   minimum:{waterSegments:96,waterFade:[135,205],waterOptics:[105,185],waterDetail:.50,pixelRatio:1,pixelBudget:260_000,scale:.58,
     detailRanges:[38,95,210],fixtureRange:46,shadows:false,reflectionSize:0,reflectionInterval:0,shoreFoam:false,birds:false,ambientFoam:false,rainDrops:0}
@@ -1485,6 +1508,16 @@ class SailingScene {
     this.skyProjection=`
       vec2 skyCoordinates(vec3 direction){
         return vec2(atan(direction.z,direction.x)/6.2831853+.5,asin(clamp(direction.y,-1.,1.))/3.14159265+.5);
+      }
+      vec3 skySample(sampler2D image,vec2 uv,float bias){
+        #if __VERSION__ >= 300
+          vec2 dx=dFdx(uv),dy=dFdy(uv);
+          // Longitude wraps at the panorama join. Keep the true mip footprint.
+          dx.x-=floor(dx.x+.5);dy.x-=floor(dy.x+.5);
+          return textureGrad(image,uv,dx*exp2(bias),dy*exp2(bias)).rgb;
+        #else
+          return texture2D(image,uv,bias).rgb;
+        #endif
       }
     `;
     this.surfaceAssets=global.SailingGraphics.textures(THREE);
@@ -1540,7 +1573,7 @@ class SailingScene {
         ${this.skyProjection}
         void main(){vec3 dir=normalize(vP);float h=max(0.,dir.y);vec3 c=mix(bottom,top,pow(clamp(h*3.2,0.,1.),.64));
           vec2 panoramaUV=skyCoordinates(dir);
-          vec3 photo=mix(texture2D(skyPhoto,panoramaUV).rgb,texture2D(skyOvercast,panoramaUV).rgb,overcastMix);
+          vec3 photo=mix(skySample(skyPhoto,panoramaUV,0.),skySample(skyOvercast,panoramaUV,0.),overcastMix);
           c=mix(c,photo*1.10,photoMix*smoothstep(-.015,.06,dir.y));
           float solar=max(0.,dot(dir,sunDir));
           c+=pow(solar,46.)*vec3(.21,.17,.11)*(1.-overcastMix)+pow(solar,15.)*vec3(.48,.18,.045)*warmth;
@@ -1684,9 +1717,10 @@ class SailingScene {
         :w.managedPeriod===1?'profile.y':`profile.y*mix(1.,${n(w.managedPeriod)},managed)`;
       const scale=w.windSea
         ?`mix(sea,1.,managed)*profile.z*windWaveScale${w.managedOnly?'*managed':''}`
-        :'sea';
+        :`sea*mix(1.,${n(w.swellGain)},managed)`;
       const exposure=w.windSea?'shortSea':'swell',bearing=w.windSea?'windAngle':'profile.x';
-      const width=w.windSea?`mix(spread,${n(this.P.CHOP_SPREAD)},managed)`:'spread';
+      const width=w.windSea?`mix(spread,${n(this.P.CHOP_SPREAD)},managed)`:`spread*mix(1.,${n(this.P.SWELL_SPREAD)},managed)`;
+      const bend=w.windSea?n(this.P.CREST_BEND):`mix(${n(this.P.CREST_BEND)},${n(this.P.SWELL_BEND)},managed)`;
       return `{
         float amplitude=${n(w.amplitude)}*(${scale});
         if(amplitude>0.){
@@ -1704,7 +1738,7 @@ class SailingScene {
           float q=k*(dot(p,vec2(forward.x,-forward.y))+phasePath.${path})-omega*time+${n(w.phase)}+seed*${n(i+1)},sn=sin(q),cs=cos(q);
           vec3 exposure=${exposure};
           float a=amplitude*exposure.x;
-          float bend=${n(this.P.CREST_BEND)}*k,crest=bend*a*a,cs2=1.-2.*sn*sn;
+          float bend=${bend}*k,crest=bend*a*a,cs2=1.-2.*sn*sn;
           float phaseSlope=(a*cs+4.*crest*sn*cs)*k,ampSlope=amplitude*(sn-2.*bend*a*cs2);
           h+=lod*(a*sn-crest*cs2);
           curvature+=lod*(a*sn-4.*crest*cs2)*k*k*dot(phaseGradient,phaseGradient);
@@ -1766,7 +1800,7 @@ class SailingScene {
         float mipBias=mix(.10,1.25,smoothstep(15.,145.,distanceToEye));
         vec2 fine=texture2D(rippleNormals,windUV,mipBias).rg*2.-1.;
         float windDetail=smoothstep(.05,7.,air.z)*(1.-smoothstep(23.,112.,distanceToEye));
-        return fine*(windDetail*(.043+.13*seaRipples));
+        return fine*(windDetail*(.036+.100*seaRipples));
       }
       float sunGlint(vec3 normal,vec3 eye,float roughness){
         vec3 halfVector=normalize(sunDir+eye);
@@ -1786,10 +1820,18 @@ class SailingScene {
         vec3 eye=view/max(.001,distanceToEye);
         float fog=1.-exp(-fogDensity*fogDensity*distanceToEye*distanceToEye);
         float simplified=waterView==0?smoothstep(waterOptics.x,waterOptics.y,distanceToEye):0.;
-        // Cheap horizon shading shares the same atmosphere and flat-water Fresnel.
-        vec3 farSky=mix(horizonColor*.73,skyBlue,smoothstep(0.,.68,max(0.,eye.y)));
-        float farFresnel=.0204+.9796*pow(1.-clamp(eye.y,0.,1.),5.);
-        vec3 farColor=mix(deepColor*vec3(.52,.56,.65)*.94,farSky,farFresnel*.84);
+        // Retain the shading of the resolved wave faces
+        // after distant cloud, local wind and ripple texture samples fade out.
+        vec3 farNormal=normalize(vec3(-vSlope.x,1.,-vSlope.y));
+        vec3 farRay=reflect(-eye,farNormal);
+        float farFresnel=.0204+.9796*pow(1.-clamp(dot(farNormal,eye),0.,1.),5.);
+        float farSkyVisible=smoothstep(-.22,.15,farRay.y);
+        vec3 farSky=mix(horizonColor*.61,skyBlue,smoothstep(0.,.58,farRay.y));
+        vec3 farBody=deepColor*vec3(.48,.55,.72)*clamp(1.+2.6*dot(farNormal-vec3(0.,1.,0.),sunDir),.57,1.36);
+        float faceTilt=clamp(dot(vSlope,eye.xz)*7.4,-1.,1.);
+        float crestLight=smoothstep(.004,.034,vCurvature);
+        float waveLight=1.+(.36*faceTilt+.15*crestLight)*(1.-smoothstep(.30,.80,eye.y));
+        vec3 farColor=mix(farBody,farSky,farFresnel*mix(.16,.74,farSkyVisible))*waveLight;
         if(simplified>=1.){
           gl_FragColor=vec4(mix(farColor,horizonColor,fog),1.);
           #include <tonemapping_fragment>
@@ -1806,7 +1848,8 @@ class SailingScene {
           small=chopSlope(vWorld.xz,air,distanceToEye)
             *(waterDetail>=1.?1.:1.-smoothstep(125.*waterDetail,185.*waterDetail,distanceToEye));
         }
-        vec2 slope=vSlope*(1.-.74*smoothstep(55.,420.,distanceToEye));
+        vec2 slope=vSlope*(1.-.24*smoothstep(95.,400.,distanceToEye));
+        vec3 surfaceNormal=normalize(vec3(-slope.x,1.,-slope.y));
         vec3 optical=normalize(vec3(-slope.x-small.x,1.,-slope.y-small.y));
 
         if(rain>.004&&(waterDetail>=1.||distanceToEye<110.*waterDetail)){
@@ -1827,14 +1870,14 @@ class SailingScene {
         vec3 sky=mix(horizonColor*.73,skyBlue,smoothstep(0.,.68,elevation));
         vec3 photo=sky;
         if(waterDetail>=1.||distanceToEye<220.*waterDetail){
-          photo=mix(texture2D(skyPhoto,uv,bias).rgb,texture2D(skyOvercast,uv,bias).rgb,overcastMix);
+          photo=mix(skySample(skyPhoto,uv,bias),skySample(skyOvercast,uv,bias),overcastMix);
           if(waterDetail<1.)photo=mix(photo,sky,smoothstep(150.*waterDetail,220.*waterDetail,distanceToEye));
         }
-        vec3 body=mix(nearColor*.73,deepColor*vec3(.52,.56,.65),smoothstep(5.,19.,depth));
+        vec3 body=mix(nearColor*.73,deepColor*vec3(.48,.55,.72),smoothstep(5.,19.,depth));
         body=mix(body,vec3(.039,.105,.095),(1.-smoothstep(.7,7.,depth))*.58);
         body=mix(body,vec3(dot(body,vec3(.2126,.7152,.0722))),.14*smoothstep(7.,27.,depth));
-        float skyVisible=mix(smoothstep(-.30,.19,reflected.y),.87,smoothstep(80.,360.,distanceToEye));
-        vec3 incoming=mix(sky,photo*.96,photoMix*.88);
+        float skyVisible=smoothstep(-.22,.17,reflected.y);
+        vec3 incoming=mix(sky,photo*.94,photoMix*.64);
         vec3 reflection=mix(body*.88,incoming,skyVisible);
         if(boatReflectionEnabled>.5&&distanceToEye<112.){
           vec4 projected=boatReflectionMatrix*vec4(vWorld.x,boatReflectionHeight,vWorld.z,1.);
@@ -1847,15 +1890,15 @@ class SailingScene {
           }
         }
         float fresnel=.0204+.9796*pow(1.-clamp(dot(eye,optical),0.,1.),5.);
-        float reflectance=mix(fresnel,.0204+.9796*pow(1.-clamp(eye.y,0.,1.),5.),smoothstep(75.,320.,distanceToEye));
-        float light=clamp(1.+2.45*(dot(optical,sunDir)-sunDir.y),.54,1.43);
-        float relief=clamp(vWorld.y/.27,-1.,1.)*.15*(1.-smoothstep(95.,235.,distanceToEye));
-        float crestTone=.09*smoothstep(.008,.072,vCurvature)*(1.-smoothstep(45.,180.,distanceToEye));
+        float reflectance=mix(fresnel,farFresnel,smoothstep(55.,300.,distanceToEye));
+        float light=clamp(1.+2.6*(dot(surfaceNormal,sunDir)-sunDir.y),.57,1.36);
+        float relief=clamp(vWorld.y/.66,-1.,1.)*.12*(1.-smoothstep(130.,300.,distanceToEye));
+        float crestTone=.065*smoothstep(.006,.052,vCurvature)*(1.-smoothstep(95.,245.,distanceToEye));
         float wakeCrest=smoothstep(.014,.12,vWake),wakeTrough=smoothstep(.012,.13,-vWake);
         body*=light*(.94+relief+crestTone+.29*wakeCrest-.19*wakeTrough);
         float roughness=.106+.068*smoothstep(2.,15.,air.z)+.048*smoothstep(35.,140.,distanceToEye);
         vec3 glint=sunTint*sunGlint(optical,eye,roughness)*sunStrength*(1.-smoothstep(170.,650.,distanceToEye));
-        vec3 color=mix(body,reflection,reflectance*.84)+glint;
+        vec3 color=mix(body,reflection,reflectance*.80)*waveLight+glint;
         color=mix(mix(color,farColor,simplified),horizonColor,fog);
         if(waterView==1){
           vec3 geometryNormal=normalize(cross(dFdx(vWorld),dFdy(vWorld)));geometryNormal*=sign(geometryNormal.y);
@@ -1914,7 +1957,7 @@ class SailingScene {
     const T=this.T,radii=[];
     for(let r=.33;r<waterFade[1];){
       radii.push(r);
-      r+=.33+.033*Math.max(0,r-14)+.038*Math.max(0,r-75)+.13*Math.max(0,r-380);
+      r+=.33+.033*Math.max(0,r-14)+.029*Math.max(0,r-75)+.13*Math.max(0,r-380);
     }
     // The outer annulus is already flat. Keep one continuous, world-space mesh
     // beyond the far clipping plane instead of shading kilometres of wave rings.
@@ -4286,6 +4329,14 @@ const waveTrial=trial==='boelger',windTrial=trial==='lae';
 const dinghyTrial=waveTrial&&query.get('baad')==='laser';
 const trialHeading=dinghyTrial?-1.16:.36,trialSpeed=dinghyTrial?3.7:2.4;
 const geography=globalThis.ArchipelagoData;
+const startLocations={
+  default:null,
+  bjorno:{x:185,y:-590},
+  lyo:{x:-1220,y:-1090},
+  avernako:{x:230,y:-1450},
+  svelmo:{x:1600,y:-1480},
+  open:{x:-1500,y:-1800}
+};
 const trialSpawn={...geography.fromMetric(dinghyTrial?-2700:-2450,dinghyTrial?-8650:-8200),theta:trialHeading,
   vx:trialSpeed*Math.cos(trialHeading),vy:trialSpeed*Math.sin(trialHeading)};
 if(dinghyTrial)trialSpawn.sheet=.55;
@@ -4300,7 +4351,7 @@ const env={...localWeather,courseType:'gates',courseVariant:'short',boatId:'lase
 if(waveTrial)Object.assign(env,{boatId:'yacht',speed:8.5,direction:270,waveHeight:.85});
 if(dinghyTrial)Object.assign(env,{boatId:'laser',speed:6.2,direction:215,waveHeight:.82});
 if(windTrial)Object.assign(env,{speed:8.5,direction:0,waveHeight:.35,gusts:0});
-let state,previous,world,course,raceMap,previewMap,editor,started=false,paused=false,modalPaused=false,mode='free',
+let state,previous,world,course,raceMap,previewMap,startLocationMap,startLocationChoice,editor,started=false,paused=false,modalPaused=false,mode='free',
   cameraMode=dinghyTrial?3:waveTrial?2:personal.camera,quality=personal.quality,effectiveQuality=quality==='auto'?'balanced':quality,debug=false;
 let acc=0,lastFrame=0,lastUi=0,frames=0,fps=60,fpsWindow=0,toastTime=0,coursePauseAt=null;
 let speedReadout=null;
@@ -4458,7 +4509,7 @@ function resumeFromFocus(){
   if(resume&&started&&!course.finished)setPause(false);
 }
 function syncPause(){const p=paused||modalPaused;$('pauseBadge').hidden=!started||!paused||modalPaused||course.finished;$('pauseButton').classList.toggle('active',p);$('pauseButton').setAttribute('aria-label',p?'Fortsæt sejlads':'Pause');$('pauseLabel').textContent=p?'Fortsæt':'Pause';$('pauseIcon').innerHTML=p?'<path d="m8 5 11 7-11 7V5Z"/>':'<path d="M8 5v14M16 5v14"/>';$('coach').hidden=!started||p||!env.helpers;}
-const gamePanels=['settings','help','details','boatPicker','lobbyPanel','racePreview','courseEditor'];
+const gamePanels=['settings','help','details','boatPicker','lobbyPanel','racePreview','courseEditor','startLocationPicker'];
 const panelOpeners=new Map();
 function syncPanelTriggers(){
   const settingsOpen=!$('settings').hidden;
@@ -4514,6 +4565,10 @@ function openPanel(id,opener=document.activeElement,toggle=true){
   if(id==='boatPicker')document.querySelectorAll('[data-boat]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.boat===env.boatId)));
   if(id==='racePreview')showRacePreview();
   if(id==='courseEditor')editor.open();
+  if(id==='startLocationPicker'){
+    startLocationMap.resize();startLocationMap.fitArea();
+    selectStartLocation(savedStartLocation());
+  }
   $(id).querySelector('.close')?.focus({preventScroll:true});
 }
 function selectedCourse(settings=env){
@@ -4529,35 +4584,86 @@ function trimAtLaunch(spawn,model,wind){
   const opening=clamp(Math.abs(awa??0)-attack,model.boomMin,model.boomMax);
   return {...spawn,sheet:(model.boomMax-opening)/(model.boomMax-model.boomMin),boom:-(Math.sign(awa)||1)*opening};
 }
-function freeSailingSpawn(adjustForWind){
+function freeSailingSpawn(adjustForWind,point=null){
   const model=B.get(env.boatId),harbour=geography.spawn;
   const offshore=-1.1;
   const departure=(at,theta,speed)=>({x:at.x,y:at.y,theta,vx:speed*Math.cos(theta),vy:speed*Math.sin(theta)});
   if(!adjustForWind)return departure(R.safeLocation(harbour,model,offshore),offshore,1.5);
 
-  // Solo free sailing begins underway outside the harbour approach.
-  const origin={x:harbour.x,y:harbour.y-95};
+  const origin=point||{x:harbour.x,y:harbour.y-95};
   const steadyWind={...env,gusts:0};
   const wind=P.windAt(origin.x,origin.y,0,steadyWind);
-  if(wind.speed<.65)return departure(R.safeLocation(origin,model,offshore),offshore,0);
+  if(wind.speed<.65&&!point)return departure(R.safeLocation(origin,model,offshore),offshore,0);
 
   // Prefer an open reach near the offshore route. Compare both tacks, so
   // neither a headwind nor a shore across one option traps the boat at launch.
-  const from=Math.atan2(-wind.vy,-wind.vx);
+  const from=wind.speed<.65?offshore-Math.PI/2:Math.atan2(-wind.vy,-wind.vx);
   const maxReach=108-clamp((wind.speed-8)*2,0,8);
   const offWind=clamp(Math.abs(P.wrap(offshore-from))/DEG,74,maxReach);
   const reachAngles=[...new Set([offWind,90,maxReach])];
-  const candidates=[-1,1].flatMap(side=>reachAngles.map(angle=>{
-    const theta=P.wrap(from+side*angle*DEG),start=R.safeLocation(origin,model,theta),a=P.axes(theta);
+  const candidates=[];
+  for(const side of [-1,1])for(const angle of reachAngles){
+    const theta=P.wrap(from+side*angle*DEG),a=P.axes(theta);
+    let start;
+    if(point){
+      const {clear,requiredDepth}=R.spawnClearance(model,theta);
+      if(!clear(point.x,point.y)||!clear(point.x+a.fx*model.length,point.y+a.fy*model.length))continue;
+      start={...point,requiredDepth};
+    }else start=R.safeLocation(origin,model,theta);
     const distances=[model.length,35,80,145];
     const depths=distances.flatMap(run=>[-model.beam*.55,0,model.beam*.55].map(across=>
       -SailingWorld.heightAt(start.x+a.fx*run+a.rx*across,start.y+a.fy*run+a.ry*across)));
-    return {start,theta,clearance:Math.min(...depths)-start.requiredDepth,bearingChange:Math.abs(P.wrap(theta-offshore))};
-  })).sort((a,b)=>Math.min(0,b.clearance)-Math.min(0,a.clearance)||a.bearingChange-b.bearingChange);
+    candidates.push({start,theta,clearance:Math.min(...depths)-start.requiredDepth,bearingChange:Math.abs(P.wrap(theta-offshore))});
+  }
+  candidates.sort((a,b)=>Math.min(0,b.clearance)-Math.min(0,a.clearance)||a.bearingChange-b.bearingChange);
+  if(!candidates.length)return null;
   const {start,theta}=candidates[0];
   const local=P.windAt(start.x,start.y,0,steadyWind);
   const spawn=departure(start,theta,clamp((local.speed-.65)*.29,0,1.2));
   return trimAtLaunch(spawn,model,local);
+}
+function inStartArea(point){
+  const b=SailingWorld.bounds;
+  return point&&point.x>=b.minX&&point.x<=b.maxX&&point.y>=b.minY&&point.y<=b.maxY;
+}
+function savedStartLocation(){
+  const point=personal.startLocation;
+  return point?.mapVersion===geography.version&&inStartArea(point)?point:null;
+}
+function startLocationPreset(point){
+  if(!point)return 'default';
+  return Object.keys(startLocations).find(id=>startLocations[id]?.x===point.x&&startLocations[id]?.y===point.y)||'custom';
+}
+function selectStartLocation(point){
+  startLocationChoice=point;
+  const inside=inStartArea(point),depth=inside?-SailingWorld.heightAt(point.x,point.y):0;
+  const launch=(!point||depth>0)?freeSailingSpawn(true,point):null;
+  const status=$('startLocationStatus');
+  status.toggleAttribute('data-invalid',!launch);
+  if(launch){
+    const actualDepth=-SailingWorld.heightAt(launch.x,launch.y);
+    status.textContent=(point?'Dybde':'Ved Faaborg · Dybde')+' '+fmt(actualDepth,1).replace('.',',')+' m';
+  }else if(!inside)status.textContent='Vælg et sted inden for øhavet.';
+  else if(depth<=0)status.textContent='Det er land. Vælg et sted på vandet.';
+  else status.textContent='For lavt eller for tæt på land til '+B.get(env.boatId).name+'.';
+  $('startLocationPreset').value=startLocationPreset(point);
+  $('startAtLocation').disabled=!launch;
+  startLocationMap.marker={...(point||launch),valid:!!launch};
+  startLocationMap.draw();
+  return launch;
+}
+function drawStartLocationMarker(map){
+  if(!map.marker)return;
+  const {x,y}=map.worldToScreen(map.marker),ctx=map.ctx;
+  if(x<0||x>map.width||y<0||y>map.height)return;
+  ctx.save();
+  ctx.beginPath();ctx.arc(x,y,8,0,2*Math.PI);
+  ctx.fillStyle=map.marker.valid?'#8debd7':'#ffd194';
+  ctx.strokeStyle='#08252e';ctx.lineWidth=2;ctx.fill();ctx.stroke();
+  ctx.beginPath();
+  if(map.marker.valid){ctx.arc(x,y,2.4,0,2*Math.PI);ctx.fillStyle='#08252e';ctx.fill();}
+  else{ctx.moveTo(x-3,y-3);ctx.lineTo(x+3,y+3);ctx.moveTo(x-3,y+3);ctx.lineTo(x+3,y-3);ctx.stroke();}
+  ctx.restore();
 }
 function reset(which=mode,preparedCourse){
   cancelRecoveryWatchdog();networkView.x=networkView.y=networkView.theta=0;spinCommand=false;crewSideCommand=0;resetRigControls();recoveryNotice=null;focusPaused=false;resumeRecoveryOnFocus=false;toggleTelemetry(false);
@@ -4565,7 +4671,10 @@ function reset(which=mode,preparedCourse){
   const fleet=globalThis.FriVindLobby?.fleet,oldWorld=state;if(fleet?.inWorld&&fleet.host&&which==='course')env.courseScaleBoatId=fleet.largestBoat();else if(!fleet?.inWorld)delete env.courseScaleBoatId;
   if(!fleet?.inWorld)env.crewPose=2;
   mode=which;coursePauseAt=null;course=mode==='course'?preparedCourse||selectedCourse():new SailingCourse(env);
-  const freeSpawn=mode==='free'?freeSailingSpawn(!fleet?.inWorld&&!waveTrial&&!windTrial):null;
+  const ordinaryFree=mode==='free'&&!fleet?.inWorld&&!waveTrial&&!windTrial;
+  const requestedStart=ordinaryFree?savedStartLocation():null;
+  const chosenSpawn=requestedStart?freeSailingSpawn(true,requestedStart):null;
+  const freeSpawn=mode==='free'?chosenSpawn||freeSailingSpawn(ordinaryFree):null;
   if(freeSpawn&&!fleet?.inWorld&&waveTrial)Object.assign(freeSpawn,trialSpawn);
   if(freeSpawn&&!fleet?.inWorld&&windTrial){
     const theta=-105*DEG,speed=B.get(env.boatId).kind==='foiler'?4.5:2.6;
@@ -4604,7 +4713,11 @@ function reset(which=mode,preparedCourse){
   syncPause();syncSettings();updateUI();
   if(started){
     if(mode==='course')beginRace();
-    else{$('sea').focus({preventScroll:true});toast('Fri sejlads',2);}
+    else{
+      $('sea').focus({preventScroll:true});
+      if(requestedStart&&!chosenSpawn)toast('Startstedet har ikke plads til denne båd. Startet ved Faaborg.',4);
+      else toast('Fri sejlads',2);
+    }
   }
 }
 function start(which=mode,preparedCourse){
@@ -4827,6 +4940,9 @@ function syncSettings(){
   syncWeatherFields();
   updateWeatherWind();
   $('introBoat').value=env.boatId;$('brandBoat').textContent=B.get(env.boatId).name.toUpperCase();
+  const place=startLocationPreset(savedStartLocation());
+  const name=$('startLocationPreset').querySelector(`[value="${place}"]`).textContent;
+  $('introStartLocation').textContent='Startsted · '+name;
   $('foilBoatLabel').textContent=cat?'AC72 · KATAMARAN':'AC75 · MONOHULL';$('trimTitle').textContent=cat?'Vingetrim':'Skøde';$('boomLabel').textContent=cat?'Faktisk vinge':'Faktisk bom';
   $('flightHeightLabel').textContent=cat?'LAVESTE SKROG OVER VAND':'SKROGBUND OVER VAND';$('flightHeight').parentElement.title=cat?'Laveste af de to skrogbunde midtskibs over hver lokal bølgeflade. Negative værdier er neddykket.':'Skrogbunden midtskibs over den lokale bølgeflade. Negative værdier er neddykket.';
   $('rudderTrimLabel').textContent=cat?'Pitch BB/SB':'Pitchtrim';
@@ -4930,6 +5046,26 @@ function bind(){
     if(view==='follow')raceMap.followBoat();
   };
   $('startButton').onclick=()=>start('free');$('introCourse').onclick=()=>start('course');
+  for(const id of ['introStartLocation','startLocationButton'])$(id).onclick=e=>openPanel('startLocationPicker',e.currentTarget);
+  $('startLocationPreset').onchange=event=>{
+    const id=event.target.value;
+    if(!Object.hasOwn(startLocations,id))return;
+    startLocationMap.fitArea();
+    selectStartLocation(startLocations[id]);
+  };
+  $('startLocationMap').onkeydown=event=>{
+    const move={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,1],ArrowDown:[0,-1]}[event.key];
+    if(!move)return;
+    event.preventDefault();
+    const {x,y}=startLocationMap.marker,step=12/startLocationMap.view.scale,b=SailingWorld.bounds;
+    selectStartLocation({x:clamp(x+move[0]*step,b.minX,b.maxX),y:clamp(y+move[1]*step,b.minY,b.maxY)});
+  };
+  $('startAtLocation').onclick=()=>{
+    if(!selectStartLocation(startLocationChoice)||globalThis.FriVindLobby?.fleet?.inWorld)return;
+    personal.startLocation=startLocationChoice?{x:startLocationChoice.x,y:startLocationChoice.y,mapVersion:geography.version}:null;
+    savePreferences();
+    start('free');
+  };
   $('finishFree').onclick=()=>start('free');
   $('raceAgain').onclick=()=>start('course');
   $('cameraButton').onclick=switchCamera;$('pauseButton').onclick=()=>{if(started){closePanel('settings');audio.start();setPause(!paused);}};$('resumeButton').onclick=()=>{audio.start();setPause(false);};
@@ -5338,7 +5474,7 @@ function cruiserSailHint(reason,type){
   return type==='code0'?'Fald af mod halvvind':type==='gennaker'?'Fald af mod slør':'Fald af mod dybt slør eller læns';
 }
 function coachText(instruments){
-  const a=Math.abs(state.wind.awa||0),s=state.sail;
+  const a=Math.abs(state.wind.awa||0),downwind=Math.abs(state.wind.twa||0)>145*DEG,s=state.sail;
   if(state.recovering)return ['Automatisk opretning','Sejlet aflastes · kontrollen vender tilbage inden fem sekunder',false];
   if(state.capsized)return ['Båden er kæntret',physicalCapsize?'Fysisk prøve · R starter forfra':'Automatisk opretning starter',true];
   if(state.ground?.contact)return ['Kontakt med havbunden','Slæk, og styr mod dybere vand · båden bremser mod bunden',true];
@@ -5368,6 +5504,7 @@ function coachText(instruments){
     if(Math.abs(state.heel)>8*DEG&&(state.forces.rollSail||0)*state.heel>0)return ['Sejltrykket krænger båden','Slæk i små trin med ↓',true];
     if(Math.abs(state.pitchRate)>.11||Math.abs(state.pitch)>9*DEG)return ['For stor pitchændring','Undgå store korrektioner i kurs og sejltrim',true];
     if((flight.clearance||0)>.12&&(flight.liftFraction||0)<.7&&state.heaveVelocity<-.08)return ['Foilerne giver for lidt løft','Hold rolig kurs; restfarten bærer videre, mens båden synker',true];
+    if(downwind&&(flight.liftFraction||0)<.45&&instruments.waterSpeed<5)return ['Byg fart på dyb slør','Skær lidt op fra læns, og trim efter den relative vind',false];
     if(s.flow==='stalled')return ['For stramt sejl til den relative vind','Slæk lidt med ↓ og følg ændringen i fart',true];
     if(s.flow==='luff')return ['Sejlet aflaster','Hal lidt ind med ↑, eller find en mere åben kurs',true];
     if((flight.hullWetFraction||0)<.03&&(flight.clearance||0)>.12)return ['Foiler','Korte tryk på pilene · trim efter den relative vind',false];
@@ -5395,7 +5532,8 @@ function coachText(instruments){
     return ['I vindøjet',env.difficulty==='easy'&&env.ironsHelp?'Hold ← eller → · besætningen kan bakke sejlet':'Lad båden bakke lidt, så roret får vandstrøm',true];
   if(state.boatId==='laser'&&Math.abs(instruments.leeway)>27*DEG&&instruments.waterSpeed*Math.abs(Math.sin(instruments.leeway))>.32)
     return ['Jollen skrider sidelæns','Hold roret roligt, og byg fart fremad',true];
-  if(s.flow==='running')return ['Læns · vinden skubber sejlet','Dragdomineret strømning er normal',false];
+  if(downwind&&a>135*DEG&&state.sheet>.45)return ['Slæk på læns','Giv bommen plads til at åbne med ↓',false];
+  if(s.flow==='running')return ['Læns · sejlet trækker','Hold en rolig kurs og ret med små rorudslag',false];
   if(s.flow==='luff')return ['Sejlet blafrer','Hal forsigtigt ind, eller fald lidt af',true];
   if(s.flow==='stalled')return ['For stor angrebsvinkel','Prøv at slække storskødet',true];
   if(s.drive<0)return ['Sejlet bremser','Find en mere åben kurs',true];
@@ -5450,6 +5588,7 @@ function updateUI(now=performance.now()){if(!state||!course)return;
   modeButton.title=guestInWorld?'Værten vælger sejltilstand':mode==='free'?'Start kapsejlads':'Start fri sejlads';
   modeButton.setAttribute('aria-disabled',String(guestInWorld));
   for(const id of ['restartButton','raceSetup'])$(id).hidden=guestInWorld;
+  $('startLocationButton').hidden=mode!=='free'||!!guest?.inWorld||waveTrial||windTrial;
   $('personalEditor').hidden=!guestInWorld;
   $('restartButton').textContent=mode==='course'?'Nyt løb':'Start forfra';
   const m=course.target(),i=P.instruments(state,m,liveEnv());
@@ -5657,6 +5796,9 @@ try{
     $('mapInspect').textContent=typeof info==='string'?info:info?.text||'';$('mapInspect').hidden=!info;
   },onViewChange:view=>{$('mapView').value=view.mode==='manual'?'':view.mode;}});
   previewMap=new SailingMap($('racePreviewMap'));
+  startLocationMap=new SailingMap($('startLocationMap'),{staticView:true,fullBleed:true,
+    onWorldClick:selectStartLocation,drawOverlay:drawStartLocationMarker});
+  $('startLocationMap').setAttribute('aria-label','Søkort. Brug piletasterne til at flytte startstedet.');
   const entrants=()=>{
     const fleet=globalThis.FriVindLobby?.fleet;
     return fleet?.inWorld&&fleet.players.length?fleet.players.map(player=>B.get(player.boat)):[B.get(env.boatId)];
@@ -5674,11 +5816,12 @@ try{
   $('buildRevision').textContent=document.querySelector('meta[name="fri-vind-revision"]')?.content||'Lokal fil';
   $('trialIntro').hidden=!waveTrial&&!windTrial;
   if(windTrial)$('trialIntro').textContent='Sejl ud af læ ved Faaborg med 8,5 m/s fra nord';
-  for(const id of ['startButton','introCourse','beginRace'])$(id).disabled=false;
+  for(const id of ['startButton','introCourse','beginRace','introStartLocation'])$(id).disabled=false;
+  $('introStartLocation').hidden=waveTrial||windTrial;
   $('loadingText').hidden=true;
   $('coach').hidden=true;
   // Read-only state inspection plus reusable pure numerical checks for development.
-  window.SAILING_GAME={get state(){return state;},get env(){return env;},get course(){return course;},get scene(){return world;},get map(){return raceMap;},get previewMap(){return previewMap;},get track(){return track;},get networkView(){return {...networkView};},get simulationDebt(){return acc;},get sheetDiagnostics(){return sheetDiagnostics();},get seaDiagnostics(){return seaDiagnostics();},get paused(){return paused||modalPaused;},selfTests};
+  window.SAILING_GAME={get state(){return state;},get env(){return env;},get course(){return course;},get scene(){return world;},get map(){return raceMap;},get previewMap(){return previewMap;},get startLocationMap(){return startLocationMap;},get track(){return track;},get networkView(){return {...networkView};},get simulationDebt(){return acc;},get sheetDiagnostics(){return sheetDiagnostics();},get seaDiagnostics(){return seaDiagnostics();},get paused(){return paused||modalPaused;},selfTests};
   requestAnimationFrame(frame);
 }catch(e){fatal(e);}
 })();

@@ -28,11 +28,16 @@ function windPlan(s,env){
  return{side:side||-1,heading:wrap(from+(side||-1)*CONFIG.targetWindAngle),from};
 }
 function statePoint(s){return{x:finite(s.x),y:finite(s.y),theta:finite(s.theta),heel:finite(s.heel),pitch:finite(s.pitch),heave:finite(s.heave),vx:finite(s.vx),vy:finite(s.vy),omega:finite(s.omega),heelRate:finite(s.heelRate),pitchRate:finite(s.pitchRate),heaveVelocity:finite(s.heaveVelocity),boom:finite(s.boom),boomRate:finite(s.boomRate),sheet:clamp(finite(s.sheet,.02),0,1),crewPoseBlend:clamp(finite(s.crewPoseBlend,1),1,3),crewSideBlend:clamp(finite(s.crewSideBlend,-1),-1,1),crewSwim:clamp(finite(s.crewSwim),0,1),cockpitWet:clamp(finite(s.cockpitWet),0,1),foils:s.foils?Object.fromEntries(Object.entries(s.foils).map(([k,f])=>[k,{arm:finite(f.arm),flap:finite(f.flap),flapInner:finite(f.flapInner),flapOuter:finite(f.flapOuter)}])):null};}
-function safeLocation(s,c,heading){
- const world=root.SailingWorld;if(!world)return{x:finite(s.x),y:finite(s.y),relocated:false,requiredDepth:0};
+function spawnClearance(c,heading){
+ const world=root.SailingWorld;
  const requiredDepth=Math.max(2,c.daggerDepth||0,c.foilDrop||0,c.rudderDepth||0)+1.2;
  const halfLength=c.length*.57,halfWidth=Math.max(c.beam*.58,(c.foilHingeZ||0)+(c.foilOutreach||0)+(c.foilSpan||0)*.5),P=physics(),axis=P.axes(heading);
  const clear=(x,y)=>{if(!Number.isFinite(x)||!Number.isFinite(y))return false;for(const f of [-halfLength,0,halfLength])for(const r of [-halfWidth,0,halfWidth])if(world.heightAt(x+axis.fx*f+axis.rx*r,y+axis.fy*f+axis.ry*r)>-requiredDepth)return false;return true;};
+ return {clear,requiredDepth};
+}
+function safeLocation(s,c,heading){
+ const world=root.SailingWorld;if(!world)return{x:finite(s.x),y:finite(s.y),relocated:false,requiredDepth:0};
+ const {clear,requiredDepth}=spawnClearance(c,heading);
  const x=finite(s.x),y=finite(s.y);if(clear(x,y))return{x,y,relocated:false,requiredDepth};
  const step=Math.max(20,c.length*1.15);for(let ring=1;ring<=96;ring++){const radius=step*ring;let best=null;for(let j=0;j<24;j++){const a=2*PI*j/24,xx=x+radius*Math.cos(a),yy=y+radius*Math.sin(a);if(clear(xx,yy)){const depth=-world.heightAt(xx,yy);if(!best||depth>best.depth)best={x:xx,y:yy,depth};}}if(best)return{...best,relocated:true,requiredDepth};}
  // The common spawn is checked, not assumed safe. A distant open-sea fallback
@@ -159,6 +164,6 @@ function update(s,env,nowMs){
  return{started,completed:false,record:r};
 }
 function postStep(s,env){if(active(s)&&s.recoveryState.fallback)projectFallback(s,env);}
-root.SailingRecovery={CONFIG,active,start,update,forces,boomTorque,postStep,isStable,safeLocation,solvedState,finish};
+root.SailingRecovery={CONFIG,active,start,update,forces,boomTorque,postStep,isStable,spawnClearance,safeLocation,solvedState,finish};
 
 });

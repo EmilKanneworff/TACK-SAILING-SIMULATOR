@@ -11,7 +11,7 @@ test('open-water height is significant height and light tracks an independent bl
   const P=SailPhysics,env=SAILING_GAME.env;
   const levels=[0,.45,1.5].map(waveHeight=>{
    const e={...env,waveHeight,chop:0,speed:20,shelter:false};
-   return {waveHeight,model:P.seaTarget(e)*P.waveHeightUnit(0)};
+   return {waveHeight,model:P.seaTarget(e)*P.LONG_HEIGHT_UNIT};
   });
   const sample={...env,waveHeight:.45,chop:0,speed:20,shelter:false};
   const shape=P.waveProfileFor(sample);
@@ -207,13 +207,34 @@ test('managed swell gives its shortest band a full swell wavelength',async({page
   const P=SailPhysics,component=P.WAVE_COMPONENTS.findLastIndex(w=>!w.windSea),w=P.WAVE_COMPONENTS[component];
   const env={speed:8,direction:270,swellDirection:270,waveHeight:1.3,chop:0,
    wavePeriod:P.BASE_WAVE_PERIOD,waveComponent:component,shelter:false};
-  const profile=P.waveProfileFor(env),bearing=Math.atan2(w.ky,w.kx)+profile.angle+w.spreadAngle*(profile.spread-1);
+  const profile=P.waveProfileFor(env),bearing=Math.atan2(w.ky,w.kx)+profile.angle+w.spreadAngle*(P.SWELL_SPREAD*profile.spread-1);
+  const wavelength=2*Math.PI/w.k*(w.managedPeriod*profile.period)**2;
   const height=distance=>P.waveAt(distance*Math.cos(bearing),-10000+distance*Math.sin(bearing),.7,env).height;
-  const error=Math.abs(height(0)-height(18.8));
-  return {error,half:Math.abs(height(0)-height(9.4))};
+  const error=Math.abs(height(0)-height(wavelength));
+  return {error,half:Math.abs(height(0)-height(wavelength*.5)),wavelength};
  });
  expect(result.error).toBeLessThan(1e-8);
- expect(result.half).toBeGreaterThan(.1);
+ expect(result.wavelength).toBeGreaterThan(18);
+ expect(result.half).toBeGreaterThan(.05);
+});
+
+test('distant points on the same swell front move together',async({page})=>{
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const result=await page.evaluate(()=>{
+  const P=SailPhysics,e={waveHeight:2,chop:0,speed:8,direction:270,shelter:false},rows=[];
+  for(let i=0;i<600;i++){
+   const x=-1600+i*.61,t=7+i*.045;
+   rows.push([P.waveHeightAt(x,-1800,t,e),P.waveHeightAt(x,-1660,t,e),P.waveHeightAt(x+20,-1800,t,e)]);
+  }
+  const variance=col=>rows.reduce((sum,row)=>sum+row[col]**2,0);
+  const coherence=rows.reduce((sum,row)=>sum+row[0]*row[1],0)/Math.sqrt(variance(0)*variance(1));
+  const contrast=Math.sqrt(rows.reduce((sum,row)=>sum+(row[0]-row[2])**2,0)/rows.length);
+  return {coherence,contrast};
+ });
+ expect(result.coherence).toBeGreaterThan(.94);
+ expect(result.contrast).toBeGreaterThan(.6);
+ console.log('Bølgefront',JSON.stringify(result));
 });
 
 test('depth-limited sea reduces shoal height smoothly and tracks the changing wave velocity',async({page})=>{
