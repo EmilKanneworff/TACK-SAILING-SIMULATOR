@@ -117,7 +117,8 @@
    hydroNx:14,hydroNz:8,hydroNy:5,mastFloatVolume:.027,rigDragLinear:17,rigDragQuadratic:11,rigRollDamping:1700,rigPitchDamping:3300,rigYawDamping:1400,capsizeAngle:100*D,
    ironsSpeed:.8,ironsYawAcceleration:.045,ironsMaxYawRate:7*D,flotationVolume:15,color:'#163e66'}),
   yacht:make('yacht','Turbåd 43','Nem og stabil turbåd på 13,1 meter.',{
-   helmInitialFraction:.36,helmGrowthSeconds:.39,
+   // The immersed spade needs less travel once there is flow over the blade.
+   helmInitialFraction:.36,helmGrowthSeconds:.39,helmSpeedReference:2.7,helmMinimumFraction:.37,
    crewPoseRate:1.95,crewPoseAcceleration:6.2,crewPoseResponse:.16,
    crewPoseReturnRate:1.95,crewPoseReturnAcceleration:6.2,crewPoseReturnResponse:.16,
    kind:'keelboat',length:13.1,beam:4.05,hullDepth:1.75,deckY:1.08,rocker:.32,chinePower:2.4,
@@ -127,7 +128,7 @@
    sailArea:80,mainArea:48,jibArea:32,code0Area:90,gennakerArea:105,spinnakerArea:115,mastX:1.5,mastTop:18.2,boomY:2.0,boomLength:5.7,sailLuff:16.0,
    sailCPChord:2.3,runningPressureArm:.28,sailCPHeight:7.8,mainCPX:-.8,mainCPHeight:7.8,jibCPX:1.7,jibCPHeight:6.9,
    jibTackX:5.7,jibTackY:1.13,jibHeadX:1.5,jibHeadY:16.9,jibLuff:16.3,
-   daggerArea:2.90,daggerDepth:3.15,daggerCPY:-1.325,daggerChord:1.65,daggerX:.25,rudderArea:.82,rudderDepth:2.35,rudderChord:.62,rudderX:-5.25,
+   daggerArea:2.90,daggerDepth:3.15,daggerCPY:-1.325,daggerChord:1.65,daggerX:.25,rudderArea:.82,rudderChord:.62,rudderX:-5.25,
    yawInertia:76000,rollInertia:4200,pitchInertia:76000,boomInertia:110,boomDamping:280,
    hullLinearDrag:110,hullQuadraticDrag:55,hullWaveDrag:4.8,hullWaveHeelDrag:2.5,hullLateralLinear:260,hullCrossflowCD:.85,
    yawLinearDamping:2800,yawQuadraticDamping:3600,heaveDamping:21000,rollDamping:6500,pitchDamping:14000,
@@ -239,9 +240,14 @@
  function hullBottom(model,x,z){const p=get(model),w=halfBeamAt(p,x);if(w<=0)return p.deckY;const r=clamp(Math.abs(z)/w,0,1),u=x/(p.length*.52),depth=(p.hullDepth-p.rocker*u*u)*(.58+.42*Math.min(1,w/((p.hullBeam||p.beam)*.25)));return p.deckY-depth*(1-Math.pow(r,p.chinePower));}
  // Use the same span limits as the drawn blades and split twin-rudder area.
  for(const p of [CONFIGS.laser,CONFIGS.dinghy,CONFIGS.yacht]){
+  const taper=.82;
+  const rudderRoot=p.id==='yacht'?hullBottom(p,p.rudderX,0):p.deckY-.10;
+  // The cruiser has a spade rudder. Its planform starts at the underside
+  // of the hull, where the stock ends, and is sized by its area and chord.
+  if(p.id==='yacht')p.rudderDepth=p.deckY-rudderRoot+p.rudderArea/(p.rudderChord*(1+taper)*.5);
   p.waterBlades={
    board:{x:p.daggerX,root:p.keelTopY??hullBottom(p,p.daggerX,0),tip:p.keelBottomY??-p.daggerDepth,chord:p.daggerChord,area:p.daggerArea,taper:.78},
-   rudder:{x:p.rudderX,root:p.deckY-.10,tip:p.deckY-p.rudderDepth,chord:p.rudderChord,area:p.rudderArea,taper:.82,steering:true,
+   rudder:{x:p.rudderX,root:rudderRoot,tip:p.deckY-p.rudderDepth,chord:p.rudderChord,area:p.rudderArea,taper,steering:true,
     offset:p.rudderOffset??0,rake:p.rudderRake??0}
   };
  }

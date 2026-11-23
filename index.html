@@ -3070,7 +3070,14 @@ class SailingScene {
     const keelTop=m.keelTopY??this.bottomAt(keelX,0)+.10,keelBottom=m.keelBottomY??Math.min(keelTop-.8,ballastY+.12),kshape=new T.Shape();kshape.moveTo(keelChord*.62,keelTop);kshape.lineTo(keelChord*.30,keelBottom);kshape.lineTo(-keelChord*.26,keelBottom-.04);kshape.lineTo(-keelChord*.55,keelTop);kshape.closePath();
     const kg=new T.ExtrudeGeometry(kshape,{depth:.17,bevelEnabled:true,bevelSegments:2,bevelSize:.04,bevelThickness:.035,steps:1});this.keel=this.mesh(kg,this.mat('#365762',{metalness:.2,roughness:.35}),this.hull);this.keel.position.set(keelX,0,-.085);this.keel.userData.physicalDepth=keelDepth;
     this.ballastBulb=this.mesh(new T.SphereGeometry(1,28,14),this.mat('#294c5a',{metalness:.25,roughness:.31}),this.hull);const bulbX=1.12,bulbY=.22,bulbZ=(m.ballastVolume??.265)/(4/3*Math.PI*bulbX*bulbY);this.ballastBulb.scale.set(bulbX,bulbY,bulbZ);this.ballastBulb.position.set(ballastX,ballastY,0);this.ballastBulb.castShadow=true;
-    const rd=m.rudderDepth,rc=m.rudderChord,rs=new T.Shape();rs.moveTo(rc*.43,-.15);rs.lineTo(rc*.32,-rd);rs.quadraticCurveTo(0,-rd-.18,-rc*.45,-rd+.08);rs.lineTo(-rc*.47,-.15);rs.closePath();
+    const rd=m.rudderDepth,rc=m.rudderChord,rs=new T.Shape();
+    if(m.id==='yacht'){
+      const blade=m.waterBlades.rudder,root=blade.root-deck,tip=blade.tip-deck;
+      rs.moveTo(rc*.32,root);rs.lineTo(rc*.32*blade.taper,tip);rs.lineTo(-rc*.68*blade.taper,tip);rs.lineTo(-rc*.68,root);
+    }else{
+      rs.moveTo(rc*.43,-.15);rs.lineTo(rc*.32,-rd);rs.quadraticCurveTo(0,-rd-.18,-rc*.45,-rd+.08);rs.lineTo(-rc*.47,-.15);
+    }
+    rs.closePath();
     const bladeGeometry=new T.ExtrudeGeometry(rs,{depth:.075,bevelEnabled:true,bevelSize:.025,bevelThickness:.018,bevelSegments:2});
     const bladeMaterial=this.mat('#234654');
     this.yachtRudders=(m.rudderOffsets??[0]).map((offset,index)=>{

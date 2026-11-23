@@ -23,6 +23,36 @@ test('an absolute sheet demand holds its endpoint despite a stale rate command',
   }
 });
 
+test('the reefed cruiser can bear away on both tacks in a strong breeze', () => {
+  const { createBoat, stepBoat, physics: P, profiles: B } = createSimulation();
+  const cruiser = B.get('yacht');
+  const blade = cruiser.waterBlades.rudder;
+  assert.equal(blade.root, B.hullBottom(cruiser, blade.x, 0));
+  assert.ok(Math.abs((blade.root - blade.tip) * blade.chord * (1 + blade.taper) / 2 - blade.area) < 1e-9);
+  const field = { boatId: 'yacht', speed: 17, direction: 0, windSeed: 2647, gusts: 0, chop: 0, waveHeight: 0,
+    shelter: false, difficulty: 'hard', autoBalance: false, autoRecovery: false };
+
+  for (const tack of [-1, 1]) {
+    const theta = (90 - tack * 72) * P.DEG;
+    const a = P.axes(theta);
+    const start = createBoat('yacht', { x: 0, y: -12000, theta, heel: tack * 36 * P.DEG,
+      vx: 3.7 * a.fx - tack * .35 * a.rx, vy: 3.7 * a.fy - tack * .35 * a.ry,
+      sheet: P.sheetFromTrim(.60, cruiser), crewPose: 3, crewSide: tack,
+      cruiserRig: { reef: 2, reefTarget: 2 } }, field);
+    const neutral = structuredClone(start);
+    const bearingAway = s => -tack * P.wrap(s.theta - theta) / P.DEG;
+    for (let tick = 0; tick < 240; tick++) {
+      stepBoat(neutral, { steer: 0, crewPose: 3, rig: { reef: 2 } }, field, 1 / 60);
+      stepBoat(start, { steer: tack, crewPose: 3, rig: { reef: 2 } }, field, 1 / 60);
+    }
+    assert.ok(bearingAway(neutral) < 0, 'neutral helm still allows weather helm');
+    assert.ok(bearingAway(start) > 15, 'countersteering turns the hull away from the wind');
+    assert.ok(start.forces.yawRudder * tack < 0);
+    assert.equal(start.forces.yawAssist, 0);
+    assert.equal(start.capsized, false);
+  }
+});
+
 test('reefing follows geometric area and changes only the selected sails', () => {
   const { createBoat, profiles, physics: P } = createSimulation();
   const field = { ...P.DEFAULT_ENV, speed: 7, gusts: 0, waves: 0, shelter: false };
