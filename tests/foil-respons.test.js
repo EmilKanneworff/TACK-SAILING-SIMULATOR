@@ -188,9 +188,7 @@ test('20 m/s from Faaborg leaves trim to the player and accepts keyboard helm an
  expect(after).toMatchObject({flight:'foiling',ground:false,cap:false});
  expect(after.course-before.course).toBeGreaterThan(.08);
  expect(after.sheet).toBe(before.sheet);
- await page.locator('#telemetryToggle').click();
- await page.locator('#rigControls summary').click();
- await expect(page.locator('#reefLabel')).toHaveText('Storsejl og fok');
+ await expect(page.locator('#sailingDock #reefLabel')).toHaveText('Reb begge sejl');
  await page.selectOption('#reefSetting','2');
  await page.clock.runFor(3900);
  const reduced=await read();

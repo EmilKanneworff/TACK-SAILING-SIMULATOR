@@ -6,6 +6,8 @@ export interface ControlInput {
   steer?: number;
   steerDigital?: boolean;
   trim?: number;
+  /** Absolute mainsheet actuator target, in line travel on [0, 1]. */
+  sheetTarget?: number;
   trimFast?: boolean;
   crewPose?: CrewPose;
   /** On Hard, signed values request a side within the wind limits. Zero holds the current side. */

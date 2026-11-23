@@ -1,0 +1,5104 @@
+{
+  "before": {
+    "name": "laser-tacks",
+    "url": "http://localhost:5175/",
+    "difficulty": "hard",
+    "browser": "157.0.8103.79",
+    "persisted": {
+      "wind": 5,
+      "direction": 0,
+      "waves": 0.35,
+      "difficulty": "hard",
+      "quality": "0"
+    },
+    "boat": "laser",
+    "revision": "83a1549f5b06",
+    "errors": [],
+    "snapshots": [
+      {
+        "label": "Menu start",
+        "t": 0,
+        "x": 0,
+        "y": -95,
+        "boat": "laser",
+        "speed": 1.2,
+        "surge": 1.2,
+        "sway": 0,
+        "heading": 106,
+        "yaw": 0,
+        "heel": 0,
+        "wind": 8.5,
+        "from": 180,
+        "twa": 74,
+        "awa": 66.55790543130009,
+        "depth": 26.035925070382724,
+        "cap": false,
+        "recovering": false,
+        "target": 0,
+        "rudder": 0,
+        "sheet": 0.43914043757847987,
+        "crew": 2,
+        "side": 1,
+        "foreAft": 0,
+        "boom": -51.30790543130009,
+        "tacks": 0,
+        "gybes": 0,
+        "yawSail": -166.32157390158798,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 1763,
+        "frame": 28,
+        "quality": "balanced"
+      },
+      {
+        "label": "Launch on a reach",
+        "t": 8.166666666666652,
+        "x": 3.215936760704484,
+        "y": -103.29056873547147,
+        "boat": "laser",
+        "speed": 0.7819473767801829,
+        "surge": 0.7792166031883465,
+        "sway": -0.0652930729022933,
+        "heading": 232.29113730988024,
+        "yaw": 10.68126568493583,
+        "heel": 4.96227804104625,
+        "wind": 8.5,
+        "from": 180,
+        "twa": -52.291137309880256,
+        "awa": -48.63732021147795,
+        "depth": 26.721602250886697,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 1,
+        "target": 27.67441251080372,
+        "rudder": 27.67441251080372,
+        "sheet": 0.4974737709118134,
+        "crew": 2,
+        "side": 1,
+        "foreAft": 0,
+        "boom": 47.11630333068715,
+        "tacks": 1,
+        "gybes": 0,
+        "wet": 0.6155981732324372,
+        "axial": 0.7789623216489661,
+        "stall": 0,
+        "ventilation": 0,
+        "yawRudder": 7.181426863016856,
+        "yawSail": -9.61558200305,
+        "hullSide": 3.4749937610063,
+        "damping": 5.8041381827496155,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 9927,
+        "frame": 624,
+        "quality": "balanced"
+      },
+      {
+        "label": "Enter close-hauled",
+        "t": 15.050000000000328,
+        "x": -6.026334016359452,
+        "y": -110.77475733946825,
+        "boat": "laser",
+        "speed": 1.8743918387462093,
+        "surge": 1.8740033325915304,
+        "sway": 0.0381611660491864,
+        "heading": 228.952414457161,
+        "yaw": 0.3841721218280973,
+        "heel": -2.75650180991432,
+        "wind": 8.5,
+        "from": 180,
+        "twa": -48.95241445716096,
+        "awa": -40.51934723810047,
+        "depth": 27.379622971474056,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 0,
+        "target": 0,
+        "rudder": 0,
+        "sheet": 0.6669796386903365,
+        "crew": 2,
+        "side": -1,
+        "foreAft": 0,
+        "boom": 38.044794936064484,
+        "tacks": 1,
+        "gybes": 0,
+        "wet": 0.6030432908520603,
+        "axial": 1.8748615359665681,
+        "stall": 0,
+        "ventilation": 6.974932220107004e-9,
+        "yawRudder": -12.16487804481345,
+        "yawSail": 13.533649002299546,
+        "hullSide": -0.6522123411665225,
+        "damping": 0.18813844913884772,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 16806,
+        "frame": 1151,
+        "quality": "high"
+      },
+      {
+        "label": "Tack east through the wind",
+        "t": 18.4666666666669,
+        "x": -8.838979744199374,
+        "y": -115.27143812678334,
+        "boat": "laser",
+        "speed": 1.3383037949211987,
+        "surge": 1.3326895769921328,
+        "sway": 0.1224562733264879,
+        "heading": 175.6211252626672,
+        "yaw": -16.478548397681266,
+        "heel": 0.5032448490588809,
+        "wind": 8.5,
+        "from": 180,
+        "twa": 4.3788747373328185,
+        "awa": 4.497366940151231,
+        "depth": 27.686994299459137,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": -1,
+        "target": -27.11172968807002,
+        "rudder": -27.11172968807002,
+        "sheet": 0.6669796386903365,
+        "crew": 1,
+        "side": -1,
+        "foreAft": 0,
+        "boom": -3.596160385422066,
+        "tacks": 1,
+        "gybes": 0,
+        "wet": 0.6063045989148406,
+        "axial": 1.3191640586035311,
+        "stall": 0,
+        "ventilation": 0.00007815894182312205,
+        "yawRudder": -10.89475411166305,
+        "yawSail": 9.325479355238969,
+        "hullSide": -5.9826012241979605,
+        "damping": -9.599139603977608,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 20228,
+        "frame": 1419,
+        "quality": "high"
+      },
+      {
+        "label": "Cross the cockpit to starboard",
+        "t": 20.06666666666681,
+        "x": -8.499977568473215,
+        "y": -117.1866106432687,
+        "boat": "laser",
+        "speed": 1.0550989353435125,
+        "surge": 1.0424345139119804,
+        "sway": 0.16298480778313956,
+        "heading": 152.08398849589776,
+        "yaw": -11.942660515752417,
+        "heel": 5.275972387863226,
+        "wind": 8.5,
+        "from": 180,
+        "twa": 27.916011504102283,
+        "awa": 25.841500109306164,
+        "depth": 27.78784338987189,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": -1,
+        "target": -27.442503470647083,
+        "rudder": -27.442503470647083,
+        "sheet": 0.6669796386903365,
+        "crew": 1,
+        "side": 0.9998692875939904,
+        "foreAft": 0,
+        "boom": -24.431735068672634,
+        "tacks": 2,
+        "gybes": 0,
+        "wet": 0.5983707053663935,
+        "axial": 1.0310027058232456,
+        "stall": 0,
+        "ventilation": 0.0000010350193733138817,
+        "yawRudder": -12.501537453719845,
+        "yawSail": -1.219476006170562,
+        "hullSide": -8.894017365968539,
+        "damping": -6.609229167824974,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 21837,
+        "frame": 1544,
+        "quality": "high"
+      },
+      {
+        "label": "Settle on the east tack",
+        "t": 29.666666666666263,
+        "x": 3.7808925031863096,
+        "y": -127.83200776292382,
+        "boat": "laser",
+        "speed": 2.366339539033141,
+        "surge": 2.365964763306815,
+        "sway": -0.042113570047016546,
+        "heading": 129.93744299672687,
+        "yaw": -0.42895478023938444,
+        "heel": 0.38405356375863187,
+        "wind": 8.5,
+        "from": 180,
+        "twa": 50.062557003273106,
+        "awa": 39.61674670386177,
+        "depth": 28.20724052418118,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 0,
+        "target": 0,
+        "rudder": 0,
+        "sheet": 0.6924920049333882,
+        "crew": 2,
+        "side": 1,
+        "foreAft": 0,
+        "boom": -36.29313161026233,
+        "tacks": 2,
+        "gybes": 0,
+        "wet": 0.60309239557724,
+        "axial": 2.3639203684235666,
+        "stall": 0,
+        "ventilation": 4.351479210851558e-12,
+        "yawRudder": 16.071845530543964,
+        "yawSail": -12.48252102120227,
+        "hullSide": 0.6056153196687566,
+        "damping": -0.19993630065876034,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 31433,
+        "frame": 2294,
+        "quality": "high"
+      },
+      {
+        "label": "Tack west through the wind",
+        "t": 32.48333333333277,
+        "x": 6.796395175979322,
+        "y": -132.5773666231196,
+        "boat": "laser",
+        "speed": 1.7913067433280516,
+        "surge": 1.7857777770034071,
+        "sway": -0.14063278370749627,
+        "heading": 184.24868768535794,
+        "yaw": 20.746058140210046,
+        "heel": -3.1774401342913356,
+        "wind": 8.5,
+        "from": 180,
+        "twa": -4.2486876853579245,
+        "awa": -4.292925182514566,
+        "depth": 28.394505335170358,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 1,
+        "target": 26.484185876242194,
+        "rudder": 26.484185876242194,
+        "sheet": 0.6924920049333882,
+        "crew": 1,
+        "side": 1,
+        "foreAft": 0,
+        "boom": 2.472103471611168,
+        "tacks": 2,
+        "gybes": 0,
+        "wet": 0.6024373435611523,
+        "axial": 1.7705308069571513,
+        "stall": 0,
+        "ventilation": 0.0002428790650214675,
+        "yawRudder": 4.422505216819368,
+        "yawSail": 1.6266915802595046,
+        "hullSide": 10.496576853422235,
+        "damping": 12.672231548047085,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 34252,
+        "frame": 2514,
+        "quality": "high"
+      },
+      {
+        "label": "Cross the cockpit to port",
+        "t": 34.09999999999935,
+        "x": 6.172021402325457,
+        "y": -135.1048658470229,
+        "boat": "laser",
+        "speed": 1.4390194689047968,
+        "surge": 1.4291699530647606,
+        "sway": -0.1680781875911126,
+        "heading": 214.44105894110487,
+        "yaw": 12.42814245711213,
+        "heel": -7.496495280519445,
+        "wind": 8.5,
+        "from": 180,
+        "twa": -34.4410589411049,
+        "awa": -30.52146070481217,
+        "depth": 28.494160305517116,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 0,
+        "target": 0,
+        "rudder": 6.367154328734517,
+        "sheet": 0.6924920049333882,
+        "crew": 1,
+        "side": -0.9998850798867964,
+        "foreAft": 0,
+        "boom": 29.47966304720353,
+        "tacks": 3,
+        "gybes": 0,
+        "wet": 0.5938072199746487,
+        "axial": 1.423470391242604,
+        "stall": 0.09491502341003352,
+        "ventilation": 0.012426039673830443,
+        "yawRudder": 125.61915642175597,
+        "yawSail": 7.161365876194836,
+        "hullSide": 9.982281229507848,
+        "damping": 7.172667356657365,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 35860,
+        "frame": 2640,
+        "quality": "high"
+      },
+      {
+        "label": "Settle on the west tack",
+        "t": 42.33333333333221,
+        "x": -4.531765417586448,
+        "y": -144.60212271908148,
+        "boat": "laser",
+        "speed": 2.180466124533447,
+        "surge": 2.180050013310023,
+        "sway": 0.04259647526356947,
+        "heading": 229.16183579974097,
+        "yaw": 0.41471689456834854,
+        "heel": -0.540783037884953,
+        "wind": 8.5,
+        "from": 180,
+        "twa": -49.16183579974099,
+        "awa": -39.54012758107838,
+        "depth": 28.845827306424013,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 0,
+        "target": 0,
+        "rudder": 0,
+        "sheet": 0.6924920049333882,
+        "crew": 2,
+        "side": -1,
+        "foreAft": 0,
+        "boom": 36.29313161026233,
+        "tacks": 3,
+        "gybes": 0,
+        "wet": 0.6034903468225972,
+        "axial": 2.1777532323696938,
+        "stall": 0,
+        "ventilation": 9.028790473383001e-11,
+        "yawRudder": -15.777482522450017,
+        "yawSail": 11.632572851465927,
+        "hullSide": -0.6249457952114883,
+        "damping": 0.19287176148780757,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 44100,
+        "frame": 3284,
+        "quality": "high"
+      }
+    ],
+    "inputPlan": [
+      [
+        "Launch on a reach",
+        122,
+        "ArrowUp"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Enter close-hauled",
+        0,
+        "2"
+      ],
+      [
+        "Enter close-hauled",
+        0,
+        "q"
+      ],
+      [
+        "Enter close-hauled",
+        345,
+        "ArrowUp"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        100,
+        "neutral"
+      ],
+      [
+        "Tack east through the wind",
+        0,
+        "1"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        0,
+        "1"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        0,
+        "e"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        0,
+        "2"
+      ],
+      [
+        "Settle on the east tack",
+        66,
+        "ArrowUp"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        100,
+        "neutral"
+      ],
+      [
+        "Tack west through the wind",
+        0,
+        "1"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        0,
+        "1"
+      ],
+      [
+        "Cross the cockpit to port",
+        0,
+        "q"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        0,
+        "2"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ]
+    ],
+    "trace": {
+      "events": [
+        [
+          1713,
+          "focus",
+          "",
+          "introWeatherEdit"
+        ],
+        [
+          1714,
+          "keyup",
+          "Escape",
+          "introWeatherEdit"
+        ],
+        [
+          1748,
+          "pointerdown",
+          "",
+          "startButton"
+        ],
+        [
+          1748,
+          "blur",
+          "",
+          "introWeatherEdit"
+        ],
+        [
+          1748,
+          "focus",
+          "",
+          "startButton"
+        ],
+        [
+          1748,
+          "pointerup",
+          "",
+          "startButton"
+        ],
+        [
+          1754,
+          "blur",
+          "",
+          "startButton"
+        ],
+        [
+          1757,
+          "focus",
+          "",
+          "sea"
+        ],
+        [
+          1773,
+          "keydown",
+          "ArrowUp",
+          "sea"
+        ],
+        [
+          1896,
+          "keyup",
+          "ArrowUp",
+          "sea"
+        ],
+        [
+          1896,
+          "keydown",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          9927,
+          "keyup",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          9928,
+          "keydown",
+          "Digit2",
+          "sea"
+        ],
+        [
+          9929,
+          "keyup",
+          "Digit2",
+          "sea"
+        ],
+        [
+          9929,
+          "keydown",
+          "KeyQ",
+          "sea"
+        ],
+        [
+          9929,
+          "keyup",
+          "KeyQ",
+          "sea"
+        ],
+        [
+          9930,
+          "keydown",
+          "ArrowUp",
+          "sea"
+        ],
+        [
+          10277,
+          "keyup",
+          "ArrowUp",
+          "sea"
+        ],
+        [
+          10277,
+          "keydown",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          10680,
+          "keyup",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          16808,
+          "keydown",
+          "Digit1",
+          "sea"
+        ],
+        [
+          16808,
+          "keyup",
+          "Digit1",
+          "sea"
+        ],
+        [
+          16809,
+          "keydown",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          20228,
+          "keyup",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          20229,
+          "keydown",
+          "Digit1",
+          "sea"
+        ],
+        [
+          20230,
+          "keyup",
+          "Digit1",
+          "sea"
+        ],
+        [
+          20230,
+          "keydown",
+          "KeyE",
+          "sea"
+        ],
+        [
+          20230,
+          "keyup",
+          "KeyE",
+          "sea"
+        ],
+        [
+          20231,
+          "keydown",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          21836,
+          "keyup",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          21838,
+          "keydown",
+          "Digit2",
+          "sea"
+        ],
+        [
+          21839,
+          "keyup",
+          "Digit2",
+          "sea"
+        ],
+        [
+          21840,
+          "keydown",
+          "ArrowUp",
+          "sea"
+        ],
+        [
+          21907,
+          "keyup",
+          "ArrowUp",
+          "sea"
+        ],
+        [
+          21908,
+          "keydown",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          23511,
+          "keyup",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          31434,
+          "keydown",
+          "Digit1",
+          "sea"
+        ],
+        [
+          31435,
+          "keyup",
+          "Digit1",
+          "sea"
+        ],
+        [
+          31436,
+          "keydown",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          34251,
+          "keyup",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          34253,
+          "keydown",
+          "Digit1",
+          "sea"
+        ],
+        [
+          34254,
+          "keyup",
+          "Digit1",
+          "sea"
+        ],
+        [
+          34254,
+          "keydown",
+          "KeyQ",
+          "sea"
+        ],
+        [
+          34254,
+          "keyup",
+          "KeyQ",
+          "sea"
+        ],
+        [
+          34255,
+          "keydown",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          35659,
+          "keyup",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          35862,
+          "keydown",
+          "Digit2",
+          "sea"
+        ],
+        [
+          35863,
+          "keyup",
+          "Digit2",
+          "sea"
+        ],
+        [
+          35863,
+          "keydown",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          36467,
+          "keyup",
+          "ArrowRight",
+          "sea"
+        ]
+      ],
+      "frames": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        17,
+        15,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ]
+    }
+  },
+  "after": {
+    "name": "laser-tacks",
+    "url": "http://localhost:5173/",
+    "difficulty": "hard",
+    "browser": "157.0.8103.79",
+    "persisted": {
+      "wind": 5,
+      "direction": 0,
+      "waves": 0.35,
+      "difficulty": "hard",
+      "quality": "0"
+    },
+    "boat": "laser",
+    "revision": "d3ad41af49c9",
+    "errors": [],
+    "snapshots": [
+      {
+        "label": "Menu start",
+        "t": 0.016666666666666666,
+        "x": 0.01940298631902592,
+        "y": -95.00551077768557,
+        "boat": "laser",
+        "speed": 1.2102226886992726,
+        "surge": 1.2102186439643838,
+        "sway": -0.003128904521423115,
+        "heading": 106.00358288270024,
+        "yaw": 0.2149427217324446,
+        "heel": -0.008355249958870199,
+        "wind": 8.5,
+        "from": 180,
+        "twa": 73.99641711729979,
+        "awa": 66.48620072613905,
+        "depth": 26.035925070382724,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 0,
+        "target": 0,
+        "rudder": 0,
+        "sheet": 0.43914043757847987,
+        "crew": 2,
+        "side": 1,
+        "foreAft": 0,
+        "boom": -52.309284152407635,
+        "tacks": 0,
+        "gybes": 0,
+        "trim": {
+          "time": 0.016666666666666666,
+          "selected": "main",
+          "requested": 26.41873028864501,
+          "applied": 26.41873028864501,
+          "physicalSheet": 0.43914043757847987,
+          "limitDegrees": 51.30790543130009,
+          "stopDegrees": 56.30790543130009,
+          "boomDegrees": -52.309284152407635,
+          "boomRateDegrees": -60.08272326645282,
+          "sailDegrees": -52.309284152407635,
+          "line": "slapt",
+          "momentNm": 0,
+          "mechanicalStop": false,
+          "apparentAngleDegrees": 60.76417792418745,
+          "apparentSpeed": 8.754988745584962,
+          "driveNewtons": 112.40678752303637,
+          "heelMomentNm": -252.59026474843472,
+          "luff": 0.17521175415718127,
+          "speedThroughWater": 1.2102226886992726,
+          "heelDegrees": -0.008355249958870199,
+          "debtSeconds": 0.005333333333333332
+        },
+        "pitch": -0.009464944198252336,
+        "cg": {
+          "x": -0.19182817948039355,
+          "y": 0.3542796625452993,
+          "z": 0.12922328809524533
+        },
+        "waveHeight": 0,
+        "referenceWave": 0,
+        "sailArea": 7.06,
+        "sailLuffScale": 1,
+        "sailChordScale": 1,
+        "sailVertical": -0.03169131481402931,
+        "displacement": 0.13951219511356136,
+        "support": 1402.8299999156366,
+        "hullDrag": -2.8299454388166865,
+        "renderedRudder": 0,
+        "rudders": [
+          {
+            "forward": -0.36870476921044715,
+            "side": 0,
+            "vertical": 0,
+            "power": -0.4424457230525366,
+            "speed": 1.1999999999999997,
+            "wet": 0.5947618550949271,
+            "alpha": 0,
+            "stall": 0,
+            "axialSpeed": 1.1999999999999997,
+            "axialFlow": 1.1999999999999997,
+            "crossFlow": 0,
+            "steeringPressure": 0.8564570713366949,
+            "ventilation": 0,
+            "profileDrag": 0.36870476921044715,
+            "inducedDrag": 0,
+            "stallDrag": 0,
+            "x": -1.95,
+            "z": 0,
+            "area": 0.105,
+            "wetArea": 0.06244999478496734,
+            "moment": {
+              "roll": 0,
+              "pitch": -0.08530212538329449,
+              "yaw": 0
+            }
+          }
+        ],
+        "wet": 0.5947618550949271,
+        "axial": 1.1999999999999997,
+        "stall": 0,
+        "ventilation": 0,
+        "yawRudder": 0,
+        "yawSail": -53.3934827630031,
+        "hullSide": 0,
+        "damping": 0,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 2048,
+        "frame": 30,
+        "quality": "balanced"
+      },
+      {
+        "label": "Launch on a reach",
+        "t": 8.199999999999987,
+        "x": 3.212296632357331,
+        "y": -103.32679173433272,
+        "boat": "laser",
+        "speed": 0.781673143436757,
+        "surge": 0.7787980745766324,
+        "sway": -0.06698105856158904,
+        "heading": 232.74465245423085,
+        "yaw": 10.681597518657433,
+        "heel": 4.997146874530106,
+        "wind": 8.5,
+        "from": 180,
+        "twa": -52.74465245423082,
+        "awa": -49.071670079186255,
+        "depth": 26.724570282859712,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 1,
+        "target": 27.67518241692726,
+        "rudder": 27.67518241692726,
+        "sheet": 0.4974737709118134,
+        "crew": 2,
+        "side": 1,
+        "foreAft": 0,
+        "boom": 47.43523208492148,
+        "tacks": 1,
+        "gybes": 0,
+        "trim": {
+          "time": 8.199999999999987,
+          "selected": "main",
+          "requested": 30.625661887024425,
+          "applied": 30.625661887024425,
+          "physicalSheet": 0.4974737709118134,
+          "limitDegrees": 46.699572097966744,
+          "stopDegrees": 51.699572097966744,
+          "boomDegrees": 47.43523208492148,
+          "boomRateDegrees": 6.978899279427465,
+          "sailDegrees": 47.43523208492148,
+          "line": "belastet",
+          "momentNm": 13.401086302345165,
+          "mechanicalStop": false,
+          "apparentAngleDegrees": -48.39506589787358,
+          "apparentSpeed": 8.773760348584108,
+          "driveNewtons": -6.286995706063841,
+          "heelMomentNm": 14.35635685302578,
+          "luff": 0.9431841647664416,
+          "speedThroughWater": 0.781673143436757,
+          "heelDegrees": 4.997146874530106,
+          "debtSeconds": 0.008000000000000288
+        },
+        "pitch": 0.400101266749625,
+        "cg": {
+          "x": -0.1923318541888538,
+          "y": 0.3541767335219032,
+          "z": 0.12815182332721964
+        },
+        "waveHeight": 0,
+        "referenceWave": 0,
+        "sailArea": 7.06,
+        "sailLuffScale": 1,
+        "sailChordScale": 1,
+        "sailVertical": -1.0770989018835129,
+        "displacement": 0.13974205673158566,
+        "support": 1405.141315950276,
+        "hullDrag": -1.264282916219857,
+        "renderedRudder": 0.4830066681268596,
+        "rudders": [
+          {
+            "forward": 1.9781294396354145,
+            "side": 3.954094941417476,
+            "vertical": -0.3302010716407979,
+            "power": -0.24846373509545888,
+            "speed": 0.8974030772803578,
+            "wet": 0.6160426039732187,
+            "alpha": -0.0407155008337634,
+            "stall": 0,
+            "axialSpeed": 0.7770939158607901,
+            "axialFlow": 0.7770939158607901,
+            "crossFlow": -0.44881816171397404,
+            "steeringPressure": 0.3706132530430319,
+            "ventilation": 0,
+            "profileDrag": 0.21358185571823324,
+            "inducedDrag": 0.06322979419749764,
+            "stallDrag": 0,
+            "x": -1.95,
+            "z": 0,
+            "area": 0.105,
+            "wetArea": 0.06468447341718797,
+            "moment": {
+              "roll": -0.9469781543512301,
+              "pitch": 1.1828912911895089,
+              "yaw": 8.097787575597579
+            }
+          }
+        ],
+        "wet": 0.6160426039732187,
+        "axial": 0.7770939158607901,
+        "stall": 0,
+        "ventilation": 0,
+        "yawRudder": 8.097787575597579,
+        "yawSail": -5.006137590691944,
+        "hullSide": 3.5877226288264477,
+        "damping": 5.811583021590551,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 10237,
+        "frame": 627,
+        "quality": "balanced"
+      },
+      {
+        "label": "Enter close-hauled",
+        "t": 15.10000000000033,
+        "x": -5.94367888878576,
+        "y": -110.68092039937002,
+        "boat": "laser",
+        "speed": 1.8366204407367521,
+        "surge": 1.8362528233662312,
+        "sway": 0.036745231141003365,
+        "heading": 229.16656709189647,
+        "yaw": 0.33919212926940945,
+        "heel": -2.9038021807561094,
+        "wind": 8.5,
+        "from": 180,
+        "twa": -49.16656709189644,
+        "awa": -40.853555888540036,
+        "depth": 27.372513388362073,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 0,
+        "target": 0,
+        "rudder": 0,
+        "sheet": 0.6607756736225592,
+        "crew": 2,
+        "side": -1,
+        "foreAft": 0,
+        "boom": 38.502203880452065,
+        "tacks": 1,
+        "gybes": 0,
+        "trim": {
+          "time": 15.10000000000033,
+          "selected": "main",
+          "requested": 43.911225893352004,
+          "applied": 43.911225893352004,
+          "physicalSheet": 0.6607756736225592,
+          "limitDegrees": 33.798721783817825,
+          "stopDegrees": 38.798721783817825,
+          "boomDegrees": 38.502203880452065,
+          "boomRateDegrees": 2.421560205929153,
+          "sailDegrees": 38.502203880452065,
+          "line": "belastet",
+          "momentNm": 50.0311426099341,
+          "mechanicalStop": false,
+          "apparentAngleDegrees": -40.86330068723906,
+          "apparentSpeed": 9.755696947697338,
+          "driveNewtons": 8.876137344101647,
+          "heelMomentNm": 59.84818017664254,
+          "luff": 0.8993412247350698,
+          "speedThroughWater": 1.8366204407367521,
+          "heelDegrees": -2.9038021807561094,
+          "debtSeconds": 0.0040000000000005274
+        },
+        "pitch": 0.21571968957050827,
+        "cg": {
+          "x": -0.19223642813837608,
+          "y": 0.35435991913130815,
+          "z": -0.12931045737481706
+        },
+        "waveHeight": 0,
+        "referenceWave": 0,
+        "sailArea": 7.06,
+        "sailLuffScale": 1,
+        "sailChordScale": 1,
+        "sailVertical": 1.866182081852529,
+        "displacement": 0.1394255731635209,
+        "support": 1401.9589945524938,
+        "hullDrag": -6.853741747235906,
+        "renderedRudder": 0,
+        "rudders": [
+          {
+            "forward": -0.8250037262988172,
+            "side": -6.052721529789244,
+            "vertical": -0.3093038621545299,
+            "power": -1.6683806268776908,
+            "speed": 1.838457597636985,
+            "wet": 0.6042222234801946,
+            "alpha": 0.013435507174121281,
+            "stall": 0,
+            "axialSpeed": 1.8382916038320898,
+            "axialFlow": 1.8382916038320898,
+            "crossFlow": 0.02470012064270135,
+            "steeringPressure": 2.039248236187066,
+            "ventilation": 1.0418443931912615e-8,
+            "profileDrag": 0.8791788110582517,
+            "inducedDrag": 0.028309394724792276,
+            "stallDrag": 0,
+            "x": -1.95,
+            "z": 0,
+            "area": 0.105,
+            "wetArea": 0.06344333346542043,
+            "moment": {
+              "roll": 1.3991924321978881,
+              "pitch": 0.4385025320709185,
+              "yaw": -12.39509151941323
+            }
+          }
+        ],
+        "wet": 0.6042222234801946,
+        "axial": 1.8382916038320898,
+        "stall": 0,
+        "ventilation": 1.0418443931912615e-8,
+        "yawRudder": -12.39509151941323,
+        "yawSail": 13.512632927710676,
+        "hullSide": -0.6427592889249975,
+        "damping": 0.16821828272244024,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 17128,
+        "frame": 1156,
+        "quality": "high"
+      },
+      {
+        "label": "Tack east through the wind",
+        "t": 18.516666666666897,
+        "x": -8.761431382630398,
+        "y": -115.0540022373802,
+        "boat": "laser",
+        "speed": 1.3098046936363847,
+        "surge": 1.3039537219160613,
+        "sway": 0.12366497714856386,
+        "heading": 177.0313676507244,
+        "yaw": -16.12664424172521,
+        "heel": 0.3952426515493625,
+        "wind": 8.5,
+        "from": 180,
+        "twa": 2.9686323492756155,
+        "awa": 3.2955605334290836,
+        "depth": 27.67377574012794,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": -1,
+        "target": -27.13100981390778,
+        "rudder": -27.13100981390778,
+        "sheet": 0.6607756736225592,
+        "crew": 1,
+        "side": -1,
+        "foreAft": 0,
+        "boom": -2.382740136647632,
+        "tacks": 1,
+        "gybes": 0,
+        "trim": {
+          "time": 18.516666666666897,
+          "selected": "main",
+          "requested": 43.911225893352004,
+          "applied": 43.911225893352004,
+          "physicalSheet": 0.6607756736225592,
+          "limitDegrees": 33.798721783817825,
+          "stopDegrees": 38.798721783817825,
+          "boomDegrees": -2.382740136647632,
+          "boomRateDegrees": -11.22606091673043,
+          "sailDegrees": -2.382740136647632,
+          "line": "slapt",
+          "momentNm": 0,
+          "mechanicalStop": false,
+          "apparentAngleDegrees": 1.672311873641518,
+          "apparentSpeed": 9.843202643754328,
+          "driveNewtons": -16.381740575740494,
+          "heelMomentNm": -74.42790234404258,
+          "luff": 0.9527778494505441,
+          "speedThroughWater": 1.3098046936363847,
+          "heelDegrees": 0.3952426515493625,
+          "debtSeconds": 0.01133333333333398
+        },
+        "pitch": 0.22060080227701026,
+        "cg": {
+          "x": -0.1388099522881007,
+          "y": 0.3065687595529614,
+          "z": -0.016129239142855023
+        },
+        "waveHeight": 0,
+        "referenceWave": 0,
+        "sailArea": 7.06,
+        "sailLuffScale": 1,
+        "sailChordScale": 1,
+        "sailVertical": 0.024827280690329676,
+        "displacement": 0.14003824975666918,
+        "support": 1408.1196108657462,
+        "hullDrag": -3.3011411148120944,
+        "renderedRudder": -0.473507360600102,
+        "rudders": [
+          {
+            "forward": 2.631895882445207,
+            "side": -6.142772030950471,
+            "vertical": 0.05485616219613614,
+            "power": -0.9098225587707367,
+            "speed": 1.4684139127427422,
+            "wet": 0.6073811032943917,
+            "alpha": 0.02309941120302136,
+            "stall": 0,
+            "axialSpeed": 1.2910087275974895,
+            "axialFlow": 1.2910087275974895,
+            "crossFlow": 0.6996314898587837,
+            "steeringPressure": 1.0122599554897982,
+            "ventilation": 0.00007892253387655148,
+            "profileDrag": 0.5638082826747548,
+            "inducedDrag": 0.055793526571382604,
+            "stallDrag": 0,
+            "x": -1.95,
+            "z": 0,
+            "area": 0.105,
+            "wetArea": 0.06377501584591112,
+            "moment": {
+              "roll": 1.5301552544502193,
+              "pitch": 0.5803936596256497,
+              "yaw": -12.647461320353997
+            }
+          }
+        ],
+        "wet": 0.6073811032943917,
+        "axial": 1.2910087275974895,
+        "stall": 0,
+        "ventilation": 0.00007892253387655148,
+        "yawRudder": -12.647461320353997,
+        "yawSail": 12.235783065967123,
+        "hullSide": -6.043177357630688,
+        "damping": -9.349388055671305,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 20560,
+        "frame": 1423,
+        "quality": "high"
+      },
+      {
+        "label": "Cross the cockpit to starboard",
+        "t": 20.13333333333347,
+        "x": -8.472930263872902,
+        "y": -116.95513689438341,
+        "boat": "laser",
+        "speed": 1.032521919949106,
+        "surge": 1.02005228594939,
+        "sway": 0.1599839026427728,
+        "heading": 153.5929640034525,
+        "yaw": -11.711131019721028,
+        "heel": 5.047617183021406,
+        "wind": 8.5,
+        "from": 180,
+        "twa": 26.407035996547485,
+        "awa": 24.532799902193634,
+        "depth": 27.77507283440407,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": -1,
+        "target": -27.453942271810128,
+        "rudder": -27.453942271810128,
+        "sheet": 0.6607756736225592,
+        "crew": 1,
+        "side": 0.9998850798867964,
+        "foreAft": 0,
+        "boom": -23.037129123752226,
+        "tacks": 2,
+        "gybes": 0,
+        "trim": {
+          "time": 20.13333333333347,
+          "selected": "main",
+          "requested": 43.911225893352004,
+          "applied": 43.911225893352004,
+          "physicalSheet": 0.6607756736225592,
+          "limitDegrees": 33.798721783817825,
+          "stopDegrees": 38.798721783817825,
+          "boomDegrees": -23.037129123752226,
+          "boomRateDegrees": -7.1753158097497405,
+          "sailDegrees": -23.037129123752226,
+          "line": "slapt",
+          "momentNm": 0,
+          "mechanicalStop": false,
+          "apparentAngleDegrees": 23.81609387388865,
+          "apparentSpeed": 9.465136832845435,
+          "driveNewtons": -14.912698974151965,
+          "heelMomentNm": 8.647179496270091,
+          "luff": 0.9754283119344475,
+          "speedThroughWater": 1.032521919949106,
+          "heelDegrees": 5.047617183021406,
+          "debtSeconds": 0.010666666666667369
+        },
+        "pitch": 0.3109050583658391,
+        "cg": {
+          "x": -0.19082335317802082,
+          "y": 0.366095658732787,
+          "z": 0.023271948186585414
+        },
+        "waveHeight": 0,
+        "referenceWave": 0,
+        "sailArea": 7.06,
+        "sailLuffScale": 1,
+        "sailChordScale": 1,
+        "sailVertical": 0.1895926400935718,
+        "displacement": 0.13686110283750136,
+        "support": 1376.1726043067856,
+        "hullDrag": -2.026489776060319,
+        "renderedRudder": -0.47915168063590124,
+        "rudders": [
+          {
+            "forward": 3.053830089916943,
+            "side": -6.225038828946209,
+            "vertical": 0.5651141463967125,
+            "power": -0.5140101529230506,
+            "speed": 1.1614658085180538,
+            "wet": 0.5989742999691144,
+            "alpha": 0.03923545669730411,
+            "stall": 0,
+            "axialSpeed": 1.008864696552575,
+            "axialFlow": 1.008864696552575,
+            "crossFlow": 0.575485597875334,
+            "steeringPressure": 0.6072927920299294,
+            "ventilation": 0.0000010000200080391184,
+            "profileDrag": 0.3478527830308385,
+            "inducedDrag": 0.09472075630776683,
+            "stallDrag": 0,
+            "x": -1.95,
+            "z": 0,
+            "area": 0.105,
+            "wetArea": 0.06289230149675701,
+            "moment": {
+              "roll": 1.4818131691906316,
+              "pitch": -0.40351697563327976,
+              "yaw": -12.875636608131419
+            }
+          }
+        ],
+        "wet": 0.5989742999691144,
+        "axial": 1.008864696552575,
+        "stall": 0,
+        "ventilation": 0.0000010000200080391184,
+        "yawRudder": -12.875636608131419,
+        "yawSail": -3.212154621341385,
+        "hullSide": -8.619650460504229,
+        "damping": -6.466552350525965,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 22176,
+        "frame": 1550,
+        "quality": "high"
+      },
+      {
+        "label": "Settle on the east tack",
+        "t": 29.783333333332923,
+        "x": 3.9423070255347414,
+        "y": -127.64586301235293,
+        "boat": "laser",
+        "speed": 2.436998267988496,
+        "surge": 2.4366240278202205,
+        "sway": -0.042707203468456134,
+        "heading": 129.6122863972223,
+        "yaw": -0.37172017015337494,
+        "heel": 0.3388609598456469,
+        "wind": 8.5,
+        "from": 180,
+        "twa": 50.3877136027777,
+        "awa": 39.62742118753146,
+        "depth": 28.198179561657508,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 0,
+        "target": 0,
+        "rudder": 0,
+        "sheet": 0.6924920049333882,
+        "crew": 2,
+        "side": 1,
+        "foreAft": 0,
+        "boom": -36.29313161026233,
+        "tacks": 2,
+        "gybes": 0,
+        "trim": {
+          "time": 29.783333333332923,
+          "selected": "main",
+          "requested": 46.83912090331364,
+          "applied": 46.83912090331364,
+          "physicalSheet": 0.6924920049333882,
+          "limitDegrees": 31.29313161026233,
+          "stopDegrees": 36.29313161026233,
+          "boomDegrees": -36.29313161026233,
+          "boomRateDegrees": 0,
+          "sailDegrees": -36.29313161026233,
+          "line": "belastet",
+          "momentNm": 85.08522442986727,
+          "mechanicalStop": false,
+          "apparentAngleDegrees": 39.70355376030811,
+          "apparentSpeed": 10.190918703068876,
+          "driveNewtons": 27.77334436199657,
+          "heelMomentNm": -130.99448786391758,
+          "luff": 0.7384335790966967,
+          "speedThroughWater": 2.436998267988496,
+          "heelDegrees": 0.3388609598456469,
+          "debtSeconds": 0.008666666666667704
+        },
+        "pitch": 0.14667956329597545,
+        "cg": {
+          "x": -0.19229211101057517,
+          "y": 0.3543718783041647,
+          "z": 0.1293188570287818
+        },
+        "waveHeight": 0,
+        "referenceWave": 0,
+        "sailArea": 7.06,
+        "sailLuffScale": 1,
+        "sailChordScale": 1,
+        "sailVertical": 0.4474329658558894,
+        "displacement": 0.13932342217708055,
+        "support": 1400.931840846088,
+        "hullDrag": -15.097919710728771,
+        "renderedRudder": 0,
+        "rudders": [
+          {
+            "forward": -1.4669694734166747,
+            "side": 9.380943823984257,
+            "vertical": -0.05882628458309247,
+            "power": -3.8452408085759693,
+            "speed": 2.4361757087162044,
+            "wet": 0.6026129377027661,
+            "alpha": -0.011873452369263548,
+            "stall": 0,
+            "axialSpeed": 2.4360039858513445,
+            "axialFlow": 2.4360039858513445,
+            "crossFlow": -0.02892513303687554,
+            "steeringPressure": 3.575912946411723,
+            "ventilation": 8.004465575512233e-13,
+            "profileDrag": 1.5396741854372809,
+            "inducedDrag": 0.03871802382458244,
+            "stallDrag": 0,
+            "x": -1.95,
+            "z": 0,
+            "area": 0.105,
+            "wetArea": 0.06327435845879044,
+            "moment": {
+              "roll": -2.148991225479531,
+              "pitch": -0.22339158601442138,
+              "yaw": 19.1974539879387
+            }
+          }
+        ],
+        "wet": 0.6026129377027661,
+        "axial": 2.4360039858513445,
+        "stall": 0,
+        "ventilation": 8.004465575512233e-13,
+        "yawRudder": 19.1974539879387,
+        "yawSail": -20.855894985452974,
+        "hullSide": 0.639905681186815,
+        "damping": -0.18510704558636637,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 31823,
+        "frame": 2303,
+        "quality": "high"
+      },
+      {
+        "label": "Tack west through the wind",
+        "t": 32.6166666666661,
+        "x": 7.030968906242618,
+        "y": -132.54375259785414,
+        "boat": "laser",
+        "speed": 1.8288174776379729,
+        "surge": 1.822543664402866,
+        "sway": -0.1513537507268659,
+        "heading": 185.23311632264574,
+        "yaw": 21.066880490055787,
+        "heel": -3.670083551014478,
+        "wind": 8.5,
+        "from": 180,
+        "twa": -5.2331163226457225,
+        "awa": -5.14709023713876,
+        "depth": 28.392411897550296,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 1,
+        "target": 26.405692214476673,
+        "rudder": 26.405692214476673,
+        "sheet": 0.6924920049333882,
+        "crew": 1,
+        "side": 1,
+        "foreAft": 0,
+        "boom": 3.5938832980723734,
+        "tacks": 2,
+        "gybes": 0,
+        "trim": {
+          "time": 32.6166666666661,
+          "selected": "main",
+          "requested": 46.83912090331364,
+          "applied": 46.83912090331364,
+          "physicalSheet": 0.6924920049333882,
+          "limitDegrees": 31.29313161026233,
+          "stopDegrees": 36.29313161026233,
+          "boomDegrees": 3.5938832980723734,
+          "boomRateDegrees": 18.259725464121484,
+          "sailDegrees": 3.5938832980723734,
+          "line": "slapt",
+          "momentNm": 0,
+          "mechanicalStop": false,
+          "apparentAngleDegrees": -2.7069257832779647,
+          "apparentSpeed": 10.401969050304892,
+          "driveNewtons": -17.533246116729842,
+          "heelMomentNm": 26.108875181887598,
+          "luff": 1,
+          "speedThroughWater": 1.8288174776379729,
+          "heelDegrees": -3.670083551014478,
+          "debtSeconds": 0.007333333333334469
+        },
+        "pitch": 0.23252436823475883,
+        "cg": {
+          "x": -0.13889374114266603,
+          "y": 0.3065908590493467,
+          "z": 0.016137313625105728
+        },
+        "waveHeight": 0,
+        "referenceWave": 0,
+        "sailArea": 7.06,
+        "sailLuffScale": 1,
+        "sailChordScale": 1,
+        "sailVertical": 0.2906030506799721,
+        "displacement": 0.14199541983631386,
+        "support": 1427.7994453090944,
+        "hullDrag": -6.821362906821593,
+        "renderedRudder": 0.4608031437839741,
+        "rudders": [
+          {
+            "forward": 0.006704713068769075,
+            "side": 2.3512028019331,
+            "vertical": 0.15205367457504315,
+            "power": -2.150471003584356,
+            "speed": 2.018355348053859,
+            "wet": 0.602726675699074,
+            "alpha": -0.0039029621761112205,
+            "stall": 0,
+            "axialSpeed": 1.8042349690014694,
+            "axialFlow": 1.8042349690014694,
+            "crossFlow": -0.9046404553983,
+            "steeringPressure": 1.957720621799493,
+            "ventilation": 0.00021387536921001104,
+            "profileDrag": 1.0570341440935693,
+            "inducedDrag": 0.008426137372046776,
+            "stallDrag": 0,
+            "x": -1.95,
+            "z": 0,
+            "area": 0.105,
+            "wetArea": 0.06328630094840276,
+            "moment": {
+              "roll": -0.8169844447370884,
+              "pitch": -0.17270355841503318,
+              "yaw": 4.8499242550542645
+            }
+          }
+        ],
+        "wet": 0.602726675699074,
+        "axial": 1.8042349690014694,
+        "stall": 0,
+        "ventilation": 0.00021387536921001104,
+        "yawRudder": 4.8499242550542645,
+        "yawSail": -1.1901782282575177,
+        "hullSide": 11.613713892727723,
+        "damping": 12.918204534040687,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 34652,
+        "frame": 2525,
+        "quality": "high"
+      },
+      {
+        "label": "Cross the cockpit to port",
+        "t": 34.23333333333267,
+        "x": 6.340427604774919,
+        "y": -135.11283186364548,
+        "boat": "laser",
+        "speed": 1.4691974856983274,
+        "surge": 1.458590567773049,
+        "sway": -0.17622374296836874,
+        "heading": 215.85351359755634,
+        "yaw": 12.710854285396923,
+        "heel": -7.838991355945639,
+        "wind": 8.5,
+        "from": 180,
+        "twa": -35.853513597556365,
+        "awa": -31.69492941822641,
+        "depth": 28.49393561596154,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 0,
+        "target": 0,
+        "rudder": 6.2936498708637325,
+        "sheet": 0.6924920049333882,
+        "crew": 1,
+        "side": -0.9998850798867964,
+        "foreAft": 0,
+        "boom": 30.33345587078983,
+        "tacks": 3,
+        "gybes": 0,
+        "trim": {
+          "time": 34.23333333333267,
+          "selected": "main",
+          "requested": 46.83912090331364,
+          "applied": 46.83912090331364,
+          "physicalSheet": 0.6924920049333882,
+          "limitDegrees": 31.29313161026233,
+          "stopDegrees": 36.29313161026233,
+          "boomDegrees": 30.33345587078983,
+          "boomRateDegrees": 8.57061577432461,
+          "sailDegrees": 30.33345587078983,
+          "line": "slapt",
+          "momentNm": 0,
+          "mechanicalStop": false,
+          "apparentAngleDegrees": -31.105549361116374,
+          "apparentSpeed": 9.841079283439925,
+          "driveNewtons": -16.214940304269057,
+          "heelMomentNm": 4.565659342118565,
+          "luff": 0.9464401627380834,
+          "speedThroughWater": 1.4691974856983274,
+          "heelDegrees": -7.838991355945639,
+          "debtSeconds": 0.006666666666667858
+        },
+        "pitch": 0.3152868626488027,
+        "cg": {
+          "x": -0.19143804043591575,
+          "y": 0.3659230047937648,
+          "z": -0.02315848765437422
+        },
+        "waveHeight": 0,
+        "referenceWave": 0,
+        "sailArea": 7.06,
+        "sailLuffScale": 1,
+        "sailChordScale": 1,
+        "sailVertical": 0.5816711813053117,
+        "displacement": 0.1347811702914282,
+        "support": 1355.2583625728844,
+        "hullDrag": -3.7758812318925976,
+        "renderedRudder": 0.12784491221428593,
+        "rudders": [
+          {
+            "forward": 20.352264017969105,
+            "side": 63.27040672342724,
+            "vertical": 8.779339096891556,
+            "power": -10.846964614610496,
+            "speed": 1.5815234770658262,
+            "wet": 0.592019682522575,
+            "alpha": -0.3018426363230842,
+            "stall": 0.12351974743221085,
+            "axialSpeed": 1.4493827429078456,
+            "axialFlow": 1.4493827429078456,
+            "crossFlow": -0.6328550772323507,
+            "steeringPressure": 1.1441806597883764,
+            "ventilation": 0.017725268759486087,
+            "profileDrag": 0.6374745685697789,
+            "inducedDrag": 4.744085568612375,
+            "stallDrag": 1.4770152587937901,
+            "x": -1.95,
+            "z": 0,
+            "area": 0.105,
+            "wetArea": 0.06216206666487037,
+            "moment": {
+              "roll": -14.802053769835773,
+              "pitch": -13.083487739741022,
+              "yaw": 130.2691046889188
+            }
+          }
+        ],
+        "wet": 0.592019682522575,
+        "axial": 1.4493827429078456,
+        "stall": 0.12351974743221085,
+        "ventilation": 0.017725268759486087,
+        "yawRudder": 130.2691046889188,
+        "yawSail": 0.7370478430713749,
+        "hullSide": 11.06937031919911,
+        "damping": 7.340530666728299,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 36269,
+        "frame": 2651,
+        "quality": "high"
+      },
+      {
+        "label": "Settle on the west tack",
+        "t": 42.483333333332205,
+        "x": -5.742334600731327,
+        "y": -145.35674250477294,
+        "boat": "laser",
+        "speed": 2.3911242609783065,
+        "surge": 2.3907573142285905,
+        "sway": 0.04188909048366907,
+        "heading": 230.2269757804596,
+        "yaw": 0.24960552515843978,
+        "heel": -0.21749741034733117,
+        "wind": 8.5,
+        "from": 180,
+        "twa": -50.22697578045963,
+        "awa": -39.66376453218404,
+        "depth": 28.87231822379404,
+        "ground": false,
+        "cap": false,
+        "recovering": false,
+        "input": 0,
+        "target": 0,
+        "rudder": 0,
+        "sheet": 0.6924920049333882,
+        "crew": 2,
+        "side": -1,
+        "foreAft": 0,
+        "boom": 36.29313161026233,
+        "tacks": 3,
+        "gybes": 0,
+        "trim": {
+          "time": 42.483333333332205,
+          "selected": "main",
+          "requested": 46.83912090331364,
+          "applied": 46.83912090331364,
+          "physicalSheet": 0.6924920049333882,
+          "limitDegrees": 31.29313161026233,
+          "stopDegrees": 36.29313161026233,
+          "boomDegrees": 36.29313161026233,
+          "boomRateDegrees": 0,
+          "sailDegrees": 36.29313161026233,
+          "line": "belastet",
+          "momentNm": 90.91677496775964,
+          "mechanicalStop": false,
+          "apparentAngleDegrees": -39.84114510926389,
+          "apparentSpeed": 10.162944234393082,
+          "driveNewtons": 30.452503006176702,
+          "heelMomentNm": 136.9948137716911,
+          "luff": 0.7155628178393836,
+          "speedThroughWater": 2.3911242609783065,
+          "heelDegrees": -0.21749741034733117,
+          "debtSeconds": 0.012666666666668144
+        },
+        "pitch": 0.17074212187746862,
+        "cg": {
+          "x": -0.19229211101057517,
+          "y": 0.3543718783041647,
+          "z": -0.1293188570287818
+        },
+        "waveHeight": 0,
+        "referenceWave": 0,
+        "sailArea": 7.06,
+        "sailLuffScale": 1,
+        "sailChordScale": 1,
+        "sailVertical": 0.3440180327706038,
+        "displacement": 0.13955293137770164,
+        "support": 1403.2396132356344,
+        "hullDrag": -14.291985771008742,
+        "renderedRudder": 0,
+        "rudders": [
+          {
+            "forward": -1.3862220679426378,
+            "side": -10.846227356429118,
+            "vertical": -0.04402274699873651,
+            "power": -3.683716021837551,
+            "speed": 2.391289205861969,
+            "wet": 0.6039943529450432,
+            "alpha": 0.014219552551389967,
+            "stall": 0,
+            "axialSpeed": 2.3910473847870497,
+            "axialFlow": 2.3910473847870497,
+            "crossFlow": 0.03400208379413473,
+            "steeringPressure": 3.453077458347408,
+            "ventilation": 6.04682568858037e-11,
+            "profileDrag": 1.486860685653089,
+            "inducedDrag": 0.05361133941381705,
+            "stallDrag": 0,
+            "x": -1.95,
+            "z": 0,
+            "area": 0.105,
+            "wetArea": 0.06341940705922954,
+            "moment": {
+              "roll": 2.5016770231550907,
+              "pitch": -0.23496514465728235,
+              "yaw": -22.19699635995256
+            }
+          }
+        ],
+        "wet": 0.6039943529450432,
+        "axial": 2.3910473847870497,
+        "stall": 0,
+        "ventilation": 6.04682568858037e-11,
+        "yawRudder": -22.19699635995256,
+        "yawSail": 23.07775672509666,
+        "hullSide": -0.6413473613375842,
+        "damping": 0.12822707837121278,
+        "assistance": 0,
+        "focus": "sea",
+        "paused": false,
+        "hidden": false,
+        "wall": 44518,
+        "frame": 3296,
+        "quality": "high"
+      }
+    ],
+    "inputPlan": [
+      [
+        "Launch on a reach",
+        122,
+        "ArrowUp"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Launch on a reach",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Enter close-hauled",
+        0,
+        "2"
+      ],
+      [
+        "Enter close-hauled",
+        0,
+        "q"
+      ],
+      [
+        "Enter close-hauled",
+        345,
+        "ArrowUp"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        200,
+        "neutral"
+      ],
+      [
+        "Enter close-hauled",
+        100,
+        "neutral"
+      ],
+      [
+        "Tack east through the wind",
+        0,
+        "1"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Tack east through the wind",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        0,
+        "1"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        0,
+        "e"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Cross the cockpit to starboard",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        0,
+        "2"
+      ],
+      [
+        "Settle on the east tack",
+        78,
+        "ArrowUp"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "ArrowLeft"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the east tack",
+        100,
+        "neutral"
+      ],
+      [
+        "Tack west through the wind",
+        0,
+        "1"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Tack west through the wind",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        0,
+        "1"
+      ],
+      [
+        "Cross the cockpit to port",
+        0,
+        "q"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Cross the cockpit to port",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        0,
+        "2"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "ArrowRight"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ],
+      [
+        "Settle on the west tack",
+        200,
+        "neutral"
+      ]
+    ],
+    "trace": {
+      "events": [
+        [
+          1988,
+          "focus",
+          "",
+          "introWeatherEdit"
+        ],
+        [
+          1988,
+          "keyup",
+          "Escape",
+          "introWeatherEdit"
+        ],
+        [
+          2019,
+          "pointerdown",
+          "",
+          "startButton"
+        ],
+        [
+          2019,
+          "blur",
+          "",
+          "introWeatherEdit"
+        ],
+        [
+          2019,
+          "focus",
+          "",
+          "startButton"
+        ],
+        [
+          2019,
+          "pointerup",
+          "",
+          "startButton"
+        ],
+        [
+          2026,
+          "blur",
+          "",
+          "startButton"
+        ],
+        [
+          2032,
+          "focus",
+          "",
+          "sea"
+        ],
+        [
+          2055,
+          "keydown",
+          "ArrowUp",
+          "sea"
+        ],
+        [
+          2178,
+          "keyup",
+          "ArrowUp",
+          "sea"
+        ],
+        [
+          2181,
+          "keydown",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          10236,
+          "keyup",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          10239,
+          "keydown",
+          "Digit2",
+          "sea"
+        ],
+        [
+          10240,
+          "keyup",
+          "Digit2",
+          "sea"
+        ],
+        [
+          10241,
+          "keydown",
+          "KeyQ",
+          "sea"
+        ],
+        [
+          10243,
+          "keyup",
+          "KeyQ",
+          "sea"
+        ],
+        [
+          10244,
+          "keydown",
+          "ArrowUp",
+          "sea"
+        ],
+        [
+          10590,
+          "keyup",
+          "ArrowUp",
+          "sea"
+        ],
+        [
+          10592,
+          "keydown",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          10996,
+          "keyup",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          17131,
+          "keydown",
+          "Digit1",
+          "sea"
+        ],
+        [
+          17132,
+          "keyup",
+          "Digit1",
+          "sea"
+        ],
+        [
+          17133,
+          "keydown",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          20559,
+          "keyup",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          20562,
+          "keydown",
+          "Digit1",
+          "sea"
+        ],
+        [
+          20563,
+          "keyup",
+          "Digit1",
+          "sea"
+        ],
+        [
+          20563,
+          "keydown",
+          "KeyE",
+          "sea"
+        ],
+        [
+          20563,
+          "keyup",
+          "KeyE",
+          "sea"
+        ],
+        [
+          20565,
+          "keydown",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          22175,
+          "keyup",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          22178,
+          "keydown",
+          "Digit2",
+          "sea"
+        ],
+        [
+          22180,
+          "keyup",
+          "Digit2",
+          "sea"
+        ],
+        [
+          22181,
+          "keydown",
+          "ArrowUp",
+          "sea"
+        ],
+        [
+          22260,
+          "keyup",
+          "ArrowUp",
+          "sea"
+        ],
+        [
+          22262,
+          "keydown",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          24271,
+          "keyup",
+          "ArrowLeft",
+          "sea"
+        ],
+        [
+          31827,
+          "keydown",
+          "Digit1",
+          "sea"
+        ],
+        [
+          31827,
+          "keyup",
+          "Digit1",
+          "sea"
+        ],
+        [
+          31829,
+          "keydown",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          34652,
+          "keyup",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          34654,
+          "keydown",
+          "Digit1",
+          "sea"
+        ],
+        [
+          34655,
+          "keyup",
+          "Digit1",
+          "sea"
+        ],
+        [
+          34655,
+          "keydown",
+          "KeyQ",
+          "sea"
+        ],
+        [
+          34655,
+          "keyup",
+          "KeyQ",
+          "sea"
+        ],
+        [
+          34657,
+          "keydown",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          36068,
+          "keyup",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          36272,
+          "keydown",
+          "Digit2",
+          "sea"
+        ],
+        [
+          36273,
+          "keyup",
+          "Digit2",
+          "sea"
+        ],
+        [
+          36274,
+          "keydown",
+          "ArrowRight",
+          "sea"
+        ],
+        [
+          36878,
+          "keyup",
+          "ArrowRight",
+          "sea"
+        ]
+      ],
+      "frames": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        17,
+        15,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        17,
+        15,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        17,
+        15,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ]
+    }
+  }
+}

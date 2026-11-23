@@ -26,7 +26,8 @@ function syncPlayers(roster) {
     }else {
       const changed = existing.boat!==member.boat;
       Object.assign(existing,member,{ws:member.connected});
-      if(!existing.ws||changed)existing.control=neutral(existing.control);
+      if(changed)existing.control.foreAft=0;
+      if(changed||!existing.ws)existing.control=neutral(existing.control);
       if(changed&&sim.boats.has(existing.id))sim.spawn(existing);
     }
   }

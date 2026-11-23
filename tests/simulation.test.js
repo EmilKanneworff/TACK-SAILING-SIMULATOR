@@ -12,6 +12,110 @@ test('recorded inputs replay headlessly across all five boats', () => {
   assert.equal(globalThis.SailingWorld, undefined);
 });
 
+test('an absolute sheet demand holds its endpoint despite a stale rate command', () => {
+  const { physics: P, profiles } = createSimulation();
+  for (const boat of profiles.LIST) {
+    const state = { sheet: .2 };
+    for (let n = 0; n < 360; n++) P.updateSheet(state, boat, { sheetTarget: .47, trim: -1, trimFast: true }, {}, 1 / 60);
+    assert.equal(state.sheet, .47, boat.id);
+    for (let n = 0; n < 360; n++) P.updateSheet(state, boat, { sheetTarget: 0, trim: 1, trimFast: true }, {}, 1 / 60);
+    assert.equal(state.sheet, 0, boat.id);
+  }
+});
+
+test('reefing follows geometric area and changes only the selected sails', () => {
+  const { createBoat, profiles, physics: P } = createSimulation();
+  const field = { ...P.DEFAULT_ENV, speed: 7, gusts: 0, waves: 0, shelter: false };
+  const uniform = { vx: -4, vy: -6, speed: Math.hypot(4, 6) };
+  for (const boat of profiles.LIST) {
+    const s = createBoat(boat.id, { x: 0, y: -12000, theta: 0, pitch: 0, heel: 0, heave: 2, boom: .42, vx: 0, vy: 0 }, field);
+    s.rig ??= {};
+    for (const reef of [1, 2]) {
+      s.cruiserRig = { reef: 0, headsail: 0 };
+      s.rig.reef = 0;
+      const full = P.aero(s, field, uniform);
+      s.cruiserRig.reef = reef;
+      s.rig.reef = reef / 2;
+      const reduced = P.aero(s, field, uniform);
+      const areaRatio = reduced.main.area / full.main.area;
+      assert.ok(Math.abs(areaRatio - reduced.main.luffScale * reduced.main.chordScale) < 1e-10, boat.id);
+      if (boat.rigidWing) {
+        assert.equal(areaRatio, 1);
+        assert.ok(Math.abs(reduced.main.cl) < Math.abs(full.main.cl));
+      } else {
+        assert.ok(areaRatio < 1, boat.id);
+        assert.ok(Math.abs(reduced.main.drive / full.main.drive - areaRatio) < 1e-9, boat.id);
+      }
+      if (boat.kind !== 'foiler' && full.jib) assert.equal(reduced.jib.area, full.jib.area, boat.id);
+      if (boat.kind === 'foiler') assert.ok(reduced.jib.area < full.jib.area, boat.id);
+    }
+  }
+});
+
+test('gravity through the centre of mass accelerates vertically without rotating a tilted hull', () => {
+  const { physics: P } = createSimulation();
+  const mass = 150, dt = 1 / 60, weight = mass * 9.81;
+  const cg = { x: .35, y: .4, z: -.6 };
+  const inertia = { roll: 140, pitch: 200, yaw: 220, xy: -35, xz: 50, yz: 33 };
+  for (const side of [-1, 1]) {
+    const s = { x: 0, y: 0, heave: 1, theta: 1.2, heel: side * .62, pitch: -.37,
+      vx: 0, vy: 0, heaveVelocity: 0, heelRate: 0, pitchRate: 0, omega: 0 };
+    const before = P.bodyPoint(s, cg);
+    // A vertical force gives the world-space torque r × (0, 0, -weight).
+    const torque = { x: -weight * before.y, y: weight * before.x };
+    const along = torque.x * Math.cos(s.theta) + torque.y * Math.sin(s.theta);
+    const starboard = torque.x * Math.sin(s.theta) - torque.y * Math.cos(s.theta);
+    P.integrateMass(s, dt, mass, cg, inertia, { x: 0, y: 0, z: -weight },
+      { roll: along * Math.cos(s.pitch), pitch: starboard, yaw: 0 });
+    const after = P.bodyPoint(s, cg);
+    assert.ok(Math.hypot(s.heelRate, s.pitchRate, s.omega) < 1e-12);
+    assert.ok(Math.hypot(after.x - before.x, after.y - before.y) < 1e-12);
+    assert.ok(Math.abs(after.z - before.z + 9.81 * dt * dt) < 1e-12);
+  }
+});
+
+test('an off-axis mass couples roll and pitch with the analytically expected sign and strength', () => {
+  const { physics: P } = createSimulation();
+  const dt = 1 / 60, pitchMoment = 20;
+  for (const side of [-1, 1]) {
+    const s = { x: 0, y: 0, heave: 0, theta: 0, heel: 0, pitch: 0,
+      vx: 0, vy: 0, heaveVelocity: 0, heelRate: 0, pitchRate: 0, omega: 0 };
+    const inertia = { roll: 100, pitch: 60, yaw: 110, xz: side * 20 };
+    P.integrateMass(s, dt, 150, { x: 0, y: 0, z: 0 }, inertia, { x: 0, y: 0, z: 0 },
+      { roll: 0, pitch: pitchMoment, yaw: 0 });
+    const determinant = inertia.roll * inertia.pitch - inertia.xz ** 2;
+    assert.ok(Math.abs(s.heelRate / dt + inertia.xz * pitchMoment / determinant) < 1e-6);
+    assert.ok(Math.abs(s.pitchRate / dt - inertia.roll * pitchMoment / determinant) < 1e-6);
+  }
+});
+
+test('rotation about a moving centre of mass preserves spatial angular momentum without external torque', () => {
+  const { physics: P } = createSimulation();
+  const dt = 1 / 60, mass = 150, stationary = { x: 0, y: 0, z: 0 };
+  const s = { x: 0, y: 0, heave: 0, theta: .5, heel: -.6, pitch: .35,
+    vx: 0, vy: 0, heaveVelocity: 0, heelRate: .5, pitchRate: -.3, omega: .42 };
+  const tensor = { roll: 100, pitch: 130, yaw: 110, xy: 14, xz: -8, yz: 12 };
+  const momentum = inertia => {
+    const fx = Math.cos(s.theta), fy = Math.sin(s.theta);
+    const spin = { x: fx * Math.cos(s.pitch) * s.heelRate + fy * s.pitchRate,
+      y: fy * Math.cos(s.pitch) * s.heelRate - fx * s.pitchRate, z: s.omega + Math.sin(s.pitch) * s.heelRate };
+    const local = [{ x: 1, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }, { x: 0, y: 0, z: 1 }].map(p => {
+      const q = P.bodyOffset(s, p);
+      return q.f * (fx * spin.x + fy * spin.y) + q.r * (fy * spin.x - fx * spin.y) + q.up * spin.z;
+    });
+    const [x, y, z] = local, { roll, pitch, yaw, xy, xz, yz } = inertia;
+    return P.bodyPoint({ ...s, x: 0, y: 0, heave: 0 },
+      { x: roll * x + xy * y + xz * z, y: xy * x + yaw * y + yz * z, z: xz * x + yz * y + pitch * z });
+  };
+  const before = momentum(tensor);
+  for (let i = 0; i < 120; i++) {
+    const cg = { x: .4 * Math.sin(i * dt), y: .3 * Math.sin(2 * i * dt), z: .15 * Math.sin(i * dt) };
+    P.integrateMass(s, dt, mass, cg, tensor, stationary, { roll: 0, pitch: 0, yaw: 0 });
+  }
+  const after = momentum(s.massMotion.inertia);
+  assert.ok(Math.hypot(after.x - before.x, after.y - before.y, after.z - before.z) < 1e-8);
+});
+
 test('the eased half of the mainsheet opens more travel and lets soft sails feather on either tack', () => {
   const { physics: P, fixedDt } = createSimulation();
   for (const boatId of ['laser', 'dinghy', 'yacht', 'ac75']) {
@@ -52,6 +156,100 @@ test('the eased half of the mainsheet opens more travel and lets soft sails feat
   const wing = P.configFor('ac72');
   assert.equal(P.boomLimit(.5, wing), wing.boomMax + (wing.boomMin - wing.boomMax) * .5);
   assert.equal(P.sheetFromTrim(.5, wing), .5);
+});
+
+test('an opposing wave at the blade does not reverse helm input until the hull backs', () => {
+  const { physics: P, createBoat, fixedDt } = createSimulation();
+  const field = { boatId: 'laser', speed: 0, direction: 0, gusts: 0, shelter: false, difficulty: 'hard' };
+  const state = createBoat('laser', { theta: 0, vx: .6, vy: 0, waterX: .1 }, field);
+  const right = { steer: 1 };
+  // The hull travels forward while a passing wave runs backwards over the blade.
+  state.forces.rudder = { wet: .7, axialFlow: -.45 };
+  for (let i = 0; i < 30; i++) P.updateHelm(state, right, field, fixedDt);
+  assert.equal(state.steering.localForward, -.45);
+  assert.ok(state.steering.meanForward > .4);
+  assert.ok(state.rudder > .2);
+  assert.equal(state.helmFlowSign, 1);
+
+  state.vx = -.35;
+  for (let i = 0; i < 6; i++) P.updateHelm(state, right, field, fixedDt);
+  assert.equal(state.helmFlowSign, 1);
+  for (let i = 0; i < 45; i++) P.updateHelm(state, right, field, fixedDt);
+  assert.equal(state.helmFlowSign, -1);
+  assert.ok(state.rudder < -.2);
+});
+
+test('a reefed Laser can bear away in strong wind with independent rudder and sheet input', () => {
+  const { physics: P, createBoat, stepBoat, fixedDt } = createSimulation();
+  const field = { boatId: 'laser', speed: 16.8, direction: 90, gusts: 0, waveHeight: 0,
+    chop: 0, shelter: false, difficulty: 'hard', autoRecovery: false };
+  for (const side of [-1, 1]) {
+    const theta = -side * 50 * P.DEG;
+    const course = P.axes(theta - side * .09);
+    const boat = createBoat('laser', { x: 0, y: -3500, theta, vx: 3.91 * course.fx, vy: 3.91 * course.fy,
+      heel: side * 28 * P.DEG, sheet: P.sheetFromTrim(.519, 'laser'), crewPose: 3, crewSide: -side,
+      cruiserRig: { reef: 2, reefTarget: 2 } }, field);
+    const step = trim => stepBoat(boat, { steer: side, trim, trimFast: true, crewPose: 3, rig: { reef: 2 } }, field, fixedDt);
+    const turn = () => side * P.wrap(theta - boat.theta) / P.DEG;
+    const sheet = boat.sheet;
+    for (let i = 0; i < 69; i++) step(0);
+    assert.ok(turn() > 6);
+    assert.ok(boat.rudder * side > 15 * P.DEG && boat.forces.rudder.wet > 0);
+    assert.ok(Number.isFinite(boat.sail.luff) && Number.isFinite(boat.rig.flutter));
+    assert.equal(boat.sheet, sheet);
+    for (let i = 0; i < 100; i++) step(-1);
+    assert.equal(boat.sheet, 0);
+    assert.ok(turn() > 27);
+    assert.equal(boat.forces.yawAssist, 0);
+    assert.equal(boat.crewPose, 3);
+    for (let i = 0; i < 90 && !boat.capsized; i++) step(0);
+    assert.equal(boat.capsized, true);
+  }
+});
+
+test('slack wing trim unloads the catamaran without moving the helm, and hauling in restores drive', () => {
+  const { physics: P, createBoat, stepBoat, fixedDt } = createSimulation();
+  const field = { boatId: 'ac72', speed: 16.8, direction: 90, gusts: 0,
+    waveHeight: 0, chop: 0, shelter: false, difficulty: 'hard' };
+  for (const side of [-1, 1]) {
+    const theta = side * 79 * P.DEG;
+    const boat = createBoat('ac72', { x: 0, y: -3500, theta, vx: 14.1 * Math.cos(theta),
+      vy: 14.1 * Math.sin(theta), heave: .70, pitch: .8 * P.DEG, sheet: .55 }, field);
+    const run = (trim, steps) => {
+      for (let i = 0; i < steps; i++) stepBoat(boat, { trim, trimFast: true, steer: 0 }, field, fixedDt);
+    };
+    run(0, 150);
+    const powered = boat.sail.drive;
+    const speed = boat.speed;
+    assert.ok(powered > 5000);
+    run(-1, 150);
+    assert.equal(boat.sheet, 0);
+    assert.equal(Math.abs(boat.wing.flap), 0);
+    assert.equal(boat.wing.twist, 0);
+    assert.ok(Math.abs(boat.sail.jib.alpha) < 2 * P.DEG);
+    assert.ok(Math.abs(boat.sail.drive) < .15 * powered);
+    assert.ok(boat.speed < speed - 1 && boat.speed > 5);
+    assert.equal(boat.rudder, 0);
+    assert.equal(boat.forces.yawAssist, 0);
+    run(1, 66);
+    run(0, 60);
+    assert.ok(boat.sail.drive > .45 * powered);
+    assert.equal(boat.rudder, 0);
+  }
+});
+
+test('wind bearing alone does not alter slow foilboat helm travel', () => {
+  const { physics: P, createBoat, fixedDt } = createSimulation();
+  for (const id of ['ac75', 'ac72']) {
+    const slowRudder = [60, 170].map(direction => {
+      const field = { boatId: id, speed: 16.8, direction, gusts: 0, shelter: false, difficulty: 'hard' };
+      const boat = createBoat(id, { x: 0, y: -3500, theta: Math.PI / 2, vx: 0, vy: 3 }, field);
+      for (let i = 0; i < 50; i++) P.updateHelm(boat, { steer: 1 }, field, fixedDt);
+      assert.ok(boat.rudder > P.configFor(id).waterborneRudderMax);
+      return boat.rudder;
+    });
+    assert.equal(slowRudder[0], slowRudder[1], id);
+  }
 });
 
 test('manual rudder can hold a run and deep broad reaches while each rig builds way', () => {
@@ -374,6 +572,26 @@ test('Laser wetted hull keeps forward resistance on its immersed side', () => {
   assert.ok(resistance(45) > .5 * resistance(0));
   assert.ok(Math.abs(resistance(45) - resistance(-45)) < 1e-9);
   assert.equal(Math.abs(resistance(45, 2)), 0);
+});
+
+test('heeled keelboats resist forward and lateral motion with only the leeward side immersed', () => {
+  const { physics: P, createBoat, stepBoat, fixedDt } = createSimulation();
+  const field = { speed: 0, gusts: 0, waveHeight: 0, chop: 0, shelter: false, difficulty: 'hard' };
+  for (const boatId of ['dinghy', 'yacht']) {
+    const sample = (side, heave) => {
+      const boat = createBoat(boatId, { x: 0, y: -10000, theta: 0, vx: 3, vy: -2 * side,
+        heel: side * 65 * P.DEG, heave, crewPose: 1, crewSide: 0 }, field);
+      stepBoat(boat, { crewPose: 1 }, field, fixedDt);
+      return boat.forces;
+    };
+    const port = sample(-1), starboard = sample(1);
+    assert.ok(starboard.hullF < -100 && starboard.hullR < -1000, boatId);
+    assert.ok(Math.abs(port.hullF - starboard.hullF) < 1e-6, boatId);
+    assert.ok(Math.abs(port.hullR + starboard.hullR) < 1e-6, boatId);
+    const clear = sample(1, 4);
+    assert.equal(clear.hullF, 0, boatId);
+    assert.equal(clear.hullR, 0, boatId);
+  }
 });
 
 test('VMG upwind uses the velocity through the water including leeway', () => {

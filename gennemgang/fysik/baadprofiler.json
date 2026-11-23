@@ -1,5 +1,5 @@
 {
-  "revision": "20f09b7f2afe",
+  "revision": "d3ad41af49c9",
   "units": "SI, vinkler i radianer",
   "profiles": [
     {
@@ -22,9 +22,12 @@
           "z": 0
         },
         "inertiaAtCG": {
-          "roll": 83.35350871158559,
+          "roll": 83.35350871158556,
           "pitch": 265.7202085730081,
-          "yaw": 201.36669986142252
+          "yaw": 201.36669986142252,
+          "xy": -11.327196743362673,
+          "xz": 0,
+          "yz": 0
         },
         "appendages": [
           {
@@ -44,8 +47,11 @@
             "root": 0.145,
             "tip": -0.41500000000000004,
             "chord": 0.205,
-            "area": 0.075,
+            "area": 0.105,
             "taper": 0.82,
+            "steering": true,
+            "offset": 0.03,
+            "rake": 0.1,
             "z": 0,
             "tipDepth": 0.34529827491300247
           }
@@ -222,9 +228,9 @@
         "crewPoseRate": 4.2,
         "crewPoseAcceleration": 30,
         "crewPoseResponse": 0.1,
-        "crewPoseReturnRate": 13,
-        "crewPoseReturnAcceleration": 175,
-        "crewPoseReturnResponse": 0.058,
+        "crewPoseReturnRate": 4.8,
+        "crewPoseReturnAcceleration": 38.4,
+        "crewPoseReturnResponse": 0.095,
         "crewSideRate": 3.55,
         "crewSideAcceleration": 17,
         "crewSideResponse": 0.09,
@@ -259,7 +265,6 @@
         "rigRollDamping": 230,
         "rigPitchDamping": 200,
         "rigYawDamping": 150,
-        "hullHeelDrag": 2.5,
         "hullWetRigDrag": 8,
         "hullWetRigLateralDrag": 2,
         "floodFillSeconds": 0.7,
@@ -287,6 +292,7 @@
         "planingAreaFraction": 0.12,
         "planingLiftSlope": 1.2,
         "planingMaxWeightFraction": 0.7,
+        "crewForeAftRange": 0.43,
         "hullMass": 56,
         "rigMass": 10,
         "equipmentMass": 2,
@@ -305,17 +311,20 @@
         "daggerDepth": 1.02,
         "daggerChord": 0.3,
         "daggerX": 0.05,
-        "rudderArea": 0.075,
+        "rudderArea": 0.105,
         "rudderDepth": 0.66,
         "rudderChord": 0.205,
         "rudderX": -1.95,
+        "rudderOffset": 0.03,
+        "rudderRake": 0.1,
         "yawInertia": 190.2474,
         "rollInertia": 84.36965,
         "pitchInertia": 255.61705,
         "boomInertia": 4.8,
         "boomDamping": 10,
+        "sheetCurve": 0.9,
         "sheetReleaseRate": 0.85,
-        "sheetReleaseKeyRate": 1.15,
+        "sheetReleaseKeyRate": 1.55,
         "hullLinearDrag": 2.8,
         "hullQuadraticDrag": 2.7,
         "hullWaveDrag": 0.6,
@@ -381,9 +390,9 @@
         },
         "mastHeight": 6.18,
         "sailFoot": 2.67,
+        "sailRoach": 0.056350411917545015,
         "crewX": -0.46530000000000005,
         "crewMax": 1.115,
-        "crewForeAftRange": 0.27495,
         "massPoints": [
           {
             "mass": 56,
@@ -409,6 +418,14 @@
           "pitch": 220,
           "yaw": 182
         },
+        "originInertia": {
+          "roll": 84.36965,
+          "pitch": 255.61705,
+          "yaw": 190.2474,
+          "xy": -14.791699999999999,
+          "xz": 0,
+          "yz": 0
+        },
         "waterBlades": {
           "board": {
             "x": 0.05,
@@ -423,8 +440,11 @@
             "root": 0.145,
             "tip": -0.41500000000000004,
             "chord": 0.205,
-            "area": 0.075,
-            "taper": 0.82
+            "area": 0.105,
+            "taper": 0.82,
+            "steering": true,
+            "offset": 0.03,
+            "rake": 0.1
           }
         },
         "displacementVolume": 1.4452991921393674
@@ -450,9 +470,12 @@
           "z": 0
         },
         "inertiaAtCG": {
-          "roll": 7047.401418207427,
-          "pitch": 24126.24114123111,
-          "yaw": 18828.83972302368
+          "roll": 7047.401418207426,
+          "pitch": 24126.241141231112,
+          "yaw": 18828.839723023673,
+          "xy": -104.86260256047271,
+          "xz": 0,
+          "yz": 0
         },
         "appendages": [
           {
@@ -474,6 +497,9 @@
             "chord": 0.44,
             "area": 0.31,
             "taper": 0.82,
+            "steering": true,
+            "offset": 0,
+            "rake": 0,
             "z": -0.9,
             "tipDepth": 1.1961558550757672
           },
@@ -485,6 +511,9 @@
             "chord": 0.44,
             "area": 0.31,
             "taper": 0.82,
+            "steering": true,
+            "offset": 0,
+            "rake": 0,
             "z": 0.9,
             "tipDepth": 1.1961558550757672
           }
@@ -945,7 +974,6 @@
         "rigRollDamping": 1700,
         "rigPitchDamping": 3300,
         "rigYawDamping": 1400,
-        "hullHeelDrag": 2.5,
         "hullWetRigDrag": 8,
         "hullWetRigLateralDrag": 2,
         "floodFillSeconds": 0.7,
@@ -975,6 +1003,20 @@
         "planingAreaFraction": 0.13,
         "planingLiftSlope": 1.1,
         "planingMaxWeightFraction": 0.52,
+        "planingStrips": [
+          [
+            -0.65,
+            0.28
+          ],
+          [
+            0,
+            0.44
+          ],
+          [
+            0.65,
+            0.28
+          ]
+        ],
         "hullMass": 880,
         "rigMass": 150,
         "equipmentMass": 170,
@@ -1008,7 +1050,6 @@
         "jibHeadX": 1.2,
         "jibHeadY": 12.5,
         "jibLuff": 12.2,
-        "jibFoot": 3.278688524590164,
         "daggerArea": 1.95,
         "daggerDepth": 2.4,
         "daggerCPY": -1,
@@ -1030,12 +1071,14 @@
         "hullLinearDrag": 21,
         "hullQuadraticDrag": 24,
         "hullWaveDrag": 1.65,
+        "hullWaveHeelDrag": 2.5,
         "hullLateralLinear": 160,
-        "hullLateralQuadratic": 305,
+        "hullCrossflowCD": 0.85,
         "yawLinearDamping": 1170,
         "yawQuadraticDamping": 1540,
+        "sheetCurve": 0.82,
         "sheetReleaseRate": 0.43,
-        "sheetReleaseKeyRate": 0.74,
+        "sheetReleaseKeyRate": 1.05,
         "pressureTwist": 0.5934119456780721,
         "foilProfileCD": 0.008,
         "cockpitMinX": -4.24,
@@ -1093,6 +1136,7 @@
         },
         "mastHeight": 13.6,
         "sailFoot": 4.66,
+        "jibFoot": 3.4100596760443307,
         "crewMax": 1.98,
         "crewForeAftRange": 0.63375,
         "massPoints": [
@@ -1127,6 +1171,14 @@
           "pitch": 17500,
           "yaw": 17400
         },
+        "originInertia": {
+          "roll": 6899.373,
+          "pitch": 22748.190000000002,
+          "yaw": 17598.817,
+          "xy": -553.5850000000002,
+          "xz": 0,
+          "yz": 0
+        },
         "waterBlades": {
           "board": {
             "x": 0.1,
@@ -1142,7 +1194,10 @@
             "tip": -1.3199999999999998,
             "chord": 0.44,
             "area": 0.62,
-            "taper": 0.82
+            "taper": 0.82,
+            "steering": true,
+            "offset": 0,
+            "rake": 0
           }
         },
         "displacementVolume": 18.21833446218179
@@ -1154,7 +1209,7 @@
       "loadCondition": {
         "crewPose": 1,
         "crewSide": 0,
-        "heave": 0.0780568156867296,
+        "heave": 0.07805681490841032,
         "weight": 94176,
         "buoyancy": 94176.00000074565,
         "submergedHullVolume": 9.100853658610742,
@@ -1163,14 +1218,17 @@
         "hullDraft": 0.5919396638242079,
         "wettedHullArea": 29.50844934487977,
         "cg": {
-          "x": -0.030885996148121375,
-          "y": -0.04519265582778002,
+          "x": -0.030885996148121368,
+          "y": -0.04612465981086275,
           "z": 0
         },
         "inertiaAtCG": {
-          "roll": 32564.629555283536,
-          "pitch": 108356.82683804932,
-          "yaw": 79992.19728276577
+          "roll": 32540.792518258517,
+          "pitch": 108332.88071047602,
+          "yaw": 79992.08819221756,
+          "xy": -868.1309371133996,
+          "xz": 0,
+          "yz": 0
         },
         "appendages": [
           {
@@ -1192,6 +1250,9 @@
             "chord": 0.62,
             "area": 0.82,
             "taper": 0.82,
+            "steering": true,
+            "offset": 0,
+            "rake": 0,
             "z": 0,
             "tipDepth": 1.191939690451427
           }
@@ -1201,7 +1262,7 @@
             "mass": 27,
             "p": {
               "x": -4.15,
-              "y": 1.315,
+              "y": 1.275,
               "z": 0
             }
           },
@@ -1209,7 +1270,7 @@
             "mass": 8,
             "p": {
               "x": -4.15,
-              "y": 1.0699999999999998,
+              "y": 1.03,
               "z": 0
             }
           },
@@ -1217,23 +1278,23 @@
             "mass": 6,
             "p": {
               "x": -4.15,
-              "y": 1.785,
+              "y": 1.745,
               "z": 0
             }
           },
           {
             "mass": 8,
             "p": {
-              "x": -3.7350235307145754,
-              "y": 1.0733254897618079,
+              "x": -3.7363469885076346,
+              "y": 1.0551250914535344,
               "z": 0
             }
           },
           {
             "mass": 4,
             "p": {
-              "x": -3.6900235307145755,
-              "y": 0.9383254897618079,
+              "x": -3.6913469885076347,
+              "y": 0.9401250914535342,
               "z": 0
             }
           },
@@ -1249,7 +1310,7 @@
             "mass": 2,
             "p": {
               "x": -4.22078429837247,
-              "y": 1.4080729692585745,
+              "y": 1.368072969258575,
               "z": 0
             }
           },
@@ -1257,7 +1318,7 @@
             "mass": 1.5,
             "p": {
               "x": -4.26578429837247,
-              "y": 1.2755729692585744,
+              "y": 1.2355729692585746,
               "z": 0
             }
           },
@@ -1265,23 +1326,23 @@
             "mass": 0.5,
             "p": {
               "x": -4.42,
-              "y": 1.2599999999999998,
+              "y": 1.22,
               "z": 0
             }
           },
           {
             "mass": 8,
             "p": {
-              "x": -4.564976469285424,
-              "y": 1.0733254897618079,
+              "x": -4.563653011492366,
+              "y": 1.0551250914535344,
               "z": 0
             }
           },
           {
             "mass": 4,
             "p": {
-              "x": -4.609976469285424,
-              "y": 0.9383254897618079,
+              "x": -4.608653011492366,
+              "y": 0.9401250914535342,
               "z": 0
             }
           },
@@ -1297,7 +1358,7 @@
             "mass": 2,
             "p": {
               "x": -4.079613060339328,
-              "y": 1.4084453904684726,
+              "y": 1.3684453904684726,
               "z": 0
             }
           },
@@ -1305,7 +1366,7 @@
             "mass": 1.5,
             "p": {
               "x": -4.034613060339328,
-              "y": 1.2809453904684727,
+              "y": 1.2409453904684726,
               "z": 0
             }
           },
@@ -1313,7 +1374,7 @@
             "mass": 0.5,
             "p": {
               "x": -3.8800000000000003,
-              "y": 1.2699999999999998,
+              "y": 1.23,
               "z": 0
             }
           },
@@ -1321,7 +1382,7 @@
             "mass": 27,
             "p": {
               "x": -3.4000000000000004,
-              "y": 1.315,
+              "y": 1.275,
               "z": 0
             }
           },
@@ -1329,7 +1390,7 @@
             "mass": 8,
             "p": {
               "x": -3.4000000000000004,
-              "y": 1.0699999999999998,
+              "y": 1.03,
               "z": 0
             }
           },
@@ -1337,23 +1398,23 @@
             "mass": 6,
             "p": {
               "x": -3.4000000000000004,
-              "y": 1.785,
+              "y": 1.745,
               "z": 0
             }
           },
           {
             "mass": 8,
             "p": {
-              "x": -2.9850235307145754,
-              "y": 1.0733254897618079,
+              "x": -2.9863469885076346,
+              "y": 1.0551250914535344,
               "z": 0
             }
           },
           {
             "mass": 4,
             "p": {
-              "x": -2.9400235307145755,
-              "y": 0.9383254897618079,
+              "x": -2.9413469885076347,
+              "y": 0.9401250914535342,
               "z": 0
             }
           },
@@ -1369,7 +1430,7 @@
             "mass": 2,
             "p": {
               "x": -3.47078429837247,
-              "y": 1.4080729692585745,
+              "y": 1.368072969258575,
               "z": 0
             }
           },
@@ -1377,7 +1438,7 @@
             "mass": 1.5,
             "p": {
               "x": -3.51578429837247,
-              "y": 1.2755729692585744,
+              "y": 1.2355729692585746,
               "z": 0
             }
           },
@@ -1385,23 +1446,23 @@
             "mass": 0.5,
             "p": {
               "x": -3.6700000000000004,
-              "y": 1.2599999999999998,
+              "y": 1.22,
               "z": 0
             }
           },
           {
             "mass": 8,
             "p": {
-              "x": -3.8149764692854253,
-              "y": 1.0733254897618079,
+              "x": -3.8136530114923657,
+              "y": 1.0551250914535344,
               "z": 0
             }
           },
           {
             "mass": 4,
             "p": {
-              "x": -3.8599764692854253,
-              "y": 0.9383254897618079,
+              "x": -3.8586530114923656,
+              "y": 0.9401250914535342,
               "z": 0
             }
           },
@@ -1417,7 +1478,7 @@
             "mass": 2,
             "p": {
               "x": -3.3296130603393284,
-              "y": 1.4084453904684726,
+              "y": 1.3684453904684726,
               "z": 0
             }
           },
@@ -1425,7 +1486,7 @@
             "mass": 1.5,
             "p": {
               "x": -3.2846130603393284,
-              "y": 1.2809453904684727,
+              "y": 1.2409453904684726,
               "z": 0
             }
           },
@@ -1433,7 +1494,7 @@
             "mass": 0.5,
             "p": {
               "x": -3.1300000000000003,
-              "y": 1.2699999999999998,
+              "y": 1.23,
               "z": 0
             }
           },
@@ -1441,7 +1502,7 @@
             "mass": 27,
             "p": {
               "x": -2.6500000000000004,
-              "y": 1.315,
+              "y": 1.275,
               "z": 0
             }
           },
@@ -1449,7 +1510,7 @@
             "mass": 8,
             "p": {
               "x": -2.6500000000000004,
-              "y": 1.0699999999999998,
+              "y": 1.03,
               "z": 0
             }
           },
@@ -1457,23 +1518,23 @@
             "mass": 6,
             "p": {
               "x": -2.6500000000000004,
-              "y": 1.785,
+              "y": 1.745,
               "z": 0
             }
           },
           {
             "mass": 8,
             "p": {
-              "x": -2.2350235307145754,
-              "y": 1.0733254897618079,
+              "x": -2.2363469885076346,
+              "y": 1.0551250914535344,
               "z": 0
             }
           },
           {
             "mass": 4,
             "p": {
-              "x": -2.1900235307145755,
-              "y": 0.9383254897618079,
+              "x": -2.1913469885076347,
+              "y": 0.9401250914535342,
               "z": 0
             }
           },
@@ -1489,7 +1550,7 @@
             "mass": 2,
             "p": {
               "x": -2.72078429837247,
-              "y": 1.4080729692585745,
+              "y": 1.368072969258575,
               "z": 0
             }
           },
@@ -1497,7 +1558,7 @@
             "mass": 1.5,
             "p": {
               "x": -2.76578429837247,
-              "y": 1.2755729692585744,
+              "y": 1.2355729692585746,
               "z": 0
             }
           },
@@ -1505,23 +1566,23 @@
             "mass": 0.5,
             "p": {
               "x": -2.9200000000000004,
-              "y": 1.2599999999999998,
+              "y": 1.22,
               "z": 0
             }
           },
           {
             "mass": 8,
             "p": {
-              "x": -3.0649764692854253,
-              "y": 1.0733254897618079,
+              "x": -3.063653011492366,
+              "y": 1.0551250914535344,
               "z": 0
             }
           },
           {
             "mass": 4,
             "p": {
-              "x": -3.1099764692854253,
-              "y": 0.9383254897618079,
+              "x": -3.108653011492366,
+              "y": 0.9401250914535342,
               "z": 0
             }
           },
@@ -1537,7 +1598,7 @@
             "mass": 2,
             "p": {
               "x": -2.5796130603393284,
-              "y": 1.4084453904684726,
+              "y": 1.3684453904684726,
               "z": 0
             }
           },
@@ -1545,7 +1606,7 @@
             "mass": 1.5,
             "p": {
               "x": -2.5346130603393284,
-              "y": 1.2809453904684727,
+              "y": 1.2409453904684726,
               "z": 0
             }
           },
@@ -1553,7 +1614,7 @@
             "mass": 0.5,
             "p": {
               "x": -2.3800000000000003,
-              "y": 1.2699999999999998,
+              "y": 1.23,
               "z": 0
             }
           },
@@ -1561,7 +1622,7 @@
             "mass": 27,
             "p": {
               "x": -1.9000000000000004,
-              "y": 1.315,
+              "y": 1.275,
               "z": 0
             }
           },
@@ -1569,7 +1630,7 @@
             "mass": 8,
             "p": {
               "x": -1.9000000000000004,
-              "y": 1.0699999999999998,
+              "y": 1.03,
               "z": 0
             }
           },
@@ -1577,23 +1638,23 @@
             "mass": 6,
             "p": {
               "x": -1.9000000000000004,
-              "y": 1.785,
+              "y": 1.745,
               "z": 0
             }
           },
           {
             "mass": 8,
             "p": {
-              "x": -1.4850235307145758,
-              "y": 1.073325489761808,
+              "x": -1.4863469885076348,
+              "y": 1.0551250914535344,
               "z": 0
             }
           },
           {
             "mass": 4,
             "p": {
-              "x": -1.4400235307145757,
-              "y": 0.9383254897618081,
+              "x": -1.4413469885076347,
+              "y": 0.9401250914535344,
               "z": 0
             }
           },
@@ -1609,7 +1670,7 @@
             "mass": 2,
             "p": {
               "x": -1.97078429837247,
-              "y": 1.4080729692585745,
+              "y": 1.368072969258575,
               "z": 0
             }
           },
@@ -1617,7 +1678,7 @@
             "mass": 1.5,
             "p": {
               "x": -2.01578429837247,
-              "y": 1.2755729692585744,
+              "y": 1.2355729692585746,
               "z": 0
             }
           },
@@ -1625,23 +1686,23 @@
             "mass": 0.5,
             "p": {
               "x": -2.1700000000000004,
-              "y": 1.2599999999999998,
+              "y": 1.22,
               "z": 0
             }
           },
           {
             "mass": 8,
             "p": {
-              "x": -2.3149764692854253,
-              "y": 1.0733254897618079,
+              "x": -2.313653011492366,
+              "y": 1.0551250914535344,
               "z": 0
             }
           },
           {
             "mass": 4,
             "p": {
-              "x": -2.3599764692854253,
-              "y": 0.9383254897618079,
+              "x": -2.358653011492366,
+              "y": 0.9401250914535342,
               "z": 0
             }
           },
@@ -1657,7 +1718,7 @@
             "mass": 2,
             "p": {
               "x": -1.8296130603393284,
-              "y": 1.4084453904684726,
+              "y": 1.3684453904684726,
               "z": 0
             }
           },
@@ -1665,7 +1726,7 @@
             "mass": 1.5,
             "p": {
               "x": -1.7846130603393284,
-              "y": 1.2809453904684724,
+              "y": 1.2409453904684726,
               "z": 0
             }
           },
@@ -1673,7 +1734,7 @@
             "mass": 0.5,
             "p": {
               "x": -1.6300000000000003,
-              "y": 1.2699999999999998,
+              "y": 1.23,
               "z": 0
             }
           }
@@ -1732,11 +1793,11 @@
         "helmSpeedReference": 4.8,
         "helmMinimumFraction": 0.55,
         "rudderCenterRate": 1.8,
-        "crewPoseRate": 0.65,
-        "crewPoseAcceleration": 1.5,
-        "crewPoseResponse": 0.23,
-        "crewPoseReturnRate": 1.1,
-        "crewPoseReturnAcceleration": 3.2,
+        "crewPoseRate": 1.95,
+        "crewPoseAcceleration": 6.2,
+        "crewPoseResponse": 0.16,
+        "crewPoseReturnRate": 1.95,
+        "crewPoseReturnAcceleration": 6.2,
         "crewPoseReturnResponse": 0.16,
         "crewSideRate": 0.8,
         "crewSideAcceleration": 1.8,
@@ -1772,7 +1833,6 @@
         "rigRollDamping": 9000,
         "rigPitchDamping": 18000,
         "rigYawDamping": 6000,
-        "hullHeelDrag": 2.5,
         "hullWetRigDrag": 5,
         "hullWetRigLateralDrag": 2.2,
         "floodFillSeconds": 0.7,
@@ -1822,6 +1882,7 @@
         "boomLength": 5.7,
         "sailLuff": 16,
         "sailCPChord": 2.3,
+        "runningPressureArm": 0.28,
         "sailCPHeight": 7.8,
         "mainCPX": -0.8,
         "mainCPHeight": 7.8,
@@ -1832,7 +1893,6 @@
         "jibHeadX": 1.5,
         "jibHeadY": 16.9,
         "jibLuff": 16.3,
-        "jibFoot": 4.0583386176,
         "daggerArea": 2.9,
         "daggerDepth": 3.15,
         "daggerCPY": -1.325,
@@ -1850,10 +1910,13 @@
         "hullLinearDrag": 110,
         "hullQuadraticDrag": 55,
         "hullWaveDrag": 4.8,
+        "hullWaveHeelDrag": 2.5,
         "hullLateralLinear": 260,
-        "hullLateralQuadratic": 600,
+        "hullCrossflowCD": 0.85,
         "yawLinearDamping": 2800,
         "yawQuadraticDamping": 3600,
+        "sheetCurve": 0.78,
+        "sheetReleaseKeyRate": 0.95,
         "foilProfileCD": 0.009,
         "cockpitMinX": -4.85,
         "cockpitMaxX": -1.25,
@@ -1912,6 +1975,7 @@
         },
         "mastHeight": 18.2,
         "sailFoot": 5.640000000000001,
+        "jibFoot": 4.058338617628409,
         "crewMax": 2.455,
         "crewForeAftRange": 0.8515,
         "massPoints": [
@@ -1946,6 +2010,14 @@
           "pitch": 76000,
           "yaw": 76000
         },
+        "originInertia": {
+          "roll": 32119.61,
+          "pitch": 104945.9,
+          "yaw": 77026.29,
+          "xy": -1965.37,
+          "xz": 0,
+          "yz": 0
+        },
         "waterBlades": {
           "board": {
             "x": 0.25,
@@ -1961,7 +2033,10 @@
             "tip": -1.27,
             "chord": 0.62,
             "area": 0.82,
-            "taper": 0.82
+            "taper": 0.82,
+            "steering": true,
+            "offset": 0,
+            "rake": 0
           }
         },
         "displacementVolume": 50.42737629185389
@@ -1989,7 +2064,10 @@
         "inertiaAtCG": {
           "roll": 92048.37212015942,
           "pitch": 187804.16768436227,
-          "yaw": 161119.83262420289
+          "yaw": 161119.83262420289,
+          "xy": -5850.865965942029,
+          "xz": 0,
+          "yz": 0
         },
         "appendages": [
           {
@@ -2276,7 +2354,6 @@
         "rigRollDamping": 230,
         "rigPitchDamping": 200,
         "rigYawDamping": 150,
-        "hullHeelDrag": 2.5,
         "hullWetRigDrag": 8,
         "hullWetRigLateralDrag": 2,
         "floodFillSeconds": 0.7,
@@ -2301,6 +2378,7 @@
         "hullDepth": 2.1,
         "rocker": 0.7,
         "chinePower": 2.2,
+        "crewForeAftRange": 0.55,
         "hullMass": 2890,
         "rigMass": 500,
         "equipmentMass": 260,
@@ -2381,6 +2459,8 @@
             "mass": 90
           }
         ],
+        "sheetCurve": 0.68,
+        "sheetReleaseKeyRate": 0.9,
         "boomInertia": 820,
         "boomDamping": 3300,
         "foilHingeX": 0.55,
@@ -2419,6 +2499,7 @@
         "rudderDepth": 3.5,
         "rudderChord": 0.26,
         "waterborneRudderMax": 0.15707963267948966,
+        "waterborneSlowRudderMax": 0.22689280275926285,
         "easySlowRudderMax": 0.3665191429188092,
         "rudderFlapMin": -0.20943951023931956,
         "rudderFlapMax": 0.2617993877991494,
@@ -2518,9 +2599,9 @@
         },
         "mastHeight": 26.5,
         "sailFoot": 12.799999999999999,
+        "jibFoot": 6.004618937644342,
         "crewX": -2.277,
         "crewMax": 2.93,
-        "crewForeAftRange": 0.15,
         "massPoints": [
           {
             "mass": 2890,
@@ -2550,7 +2631,7 @@
       "loadCondition": {
         "crewPose": 1,
         "crewSide": 0,
-        "heave": -0.08564491126978613,
+        "heave": -0.08564491126977325,
         "weight": 67689,
         "buoyancy": 67689.00000071061,
         "submergedHullVolume": 6.7317073171438375,
@@ -2566,7 +2647,10 @@
         "inertiaAtCG": {
           "roll": 323269.44268695643,
           "pitch": 308739.7028681161,
-          "yaw": 358693.88018115936
+          "yaw": 358693.88018115936,
+          "xy": -21113.733173913042,
+          "xz": 0,
+          "yz": 0
         },
         "appendages": [
           {
@@ -2916,7 +3000,6 @@
         "rigRollDamping": 230,
         "rigPitchDamping": 200,
         "rigYawDamping": 150,
-        "hullHeelDrag": 2.5,
         "hullWetRigDrag": 8,
         "hullWetRigLateralDrag": 2,
         "floodFillSeconds": 0.7,
@@ -2948,6 +3031,7 @@
         "hullDepth": 2,
         "rocker": 0.46,
         "chinePower": 2.3,
+        "crewForeAftRange": 0.5,
         "hullMass": 3260,
         "rigMass": 900,
         "equipmentMass": 1150,
@@ -2962,12 +3046,16 @@
         "jibTackY": 1.9,
         "jibHeadX": 2.2,
         "jibHeadY": 31.5,
-        "jibFoot": 3.72,
         "mastX": 2.2,
         "mastTop": 40,
         "boomY": 1.8,
         "boomLength": 8.520126593921667,
         "sailLuff": 38.2,
+        "heavyAir": {
+          "jib": 0.56,
+          "wingFlap": 0.22,
+          "wingLift": 0.68
+        },
         "wingSections": [
           [
             0,
@@ -3110,6 +3198,7 @@
         "rudderDepth": 4.65,
         "rudderChord": 0.24,
         "waterborneRudderMax": 0.12217304763960307,
+        "waterborneSlowRudderMax": 0.19198621771937624,
         "easySlowRudderMax": 0.29670597283903605,
         "rudderFlapMin": -0.20943951023931956,
         "rudderFlapMax": 0.29670597283903605,
@@ -3207,9 +3296,9 @@
         },
         "mastHeight": 40,
         "sailFoot": 8.520126593921667,
+        "jibFoot": 3.7162162162162162,
         "crewX": -2.42,
         "crewMax": 7.43,
-        "crewForeAftRange": 0.15,
         "massPoints": [
           {
             "mass": 1630,

@@ -87,6 +87,7 @@ function contact(s,c,env={}){
  const foilKeys=c.kind==='foiler'&&s.foils&&F?F.foilKeys(s):[];
  const m=mass/(points.length+foilKeys.length),k=m*9.81/.045,damping=2*Math.sqrt(k*m)*.82;
  function inspect(p){
+  if(c.rudderRake&&p.kind==='rudder')p={...p,...g.SailingBoats.rudderPoint({...c.waterBlades.rudder,z:p.z},1,s.rudder)};
   const w=P.bodyPoint(s,p),bed=heightAt(w.x,w.y),penetration=bed-w.z;
   return penetration>0?{p,w,bed,penetration}:null;
  }

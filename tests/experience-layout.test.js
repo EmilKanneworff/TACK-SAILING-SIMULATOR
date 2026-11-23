@@ -20,7 +20,14 @@ test('the two front-page buttons each enter live sailing with one click',async({
     await page.setViewportSize({width,height});
     await page.goto(game);
     const intro=page.locator('#intro');
-    await expect(intro.locator('.intro-actions button')).toHaveText(['Fri sejlads','Kapsejlads']);
+    const actions=intro.locator('.intro-actions button');
+    await expect(actions).toHaveText(['Fri sejlads','Kapsejlads','Sejl sammen']);
+    await expect(intro.getByRole('button',{name:/Startsted/})).toHaveCount(0);
+    const sizes=await actions.evaluateAll(buttons=>buttons.map(button=>{
+      const {width,height}=button.getBoundingClientRect();
+      return {width,height};
+    }));
+    expect(sizes).toEqual([sizes[0],sizes[0],sizes[0]]);
     await intro.getByRole('button',{name:button,exact:true}).click();
     await page.waitForFunction(target=>SAILING_GAME.course.phase===target&&SAILING_GAME.state.time>.1,phase);
     await expect(intro).toBeHidden();
@@ -37,7 +44,9 @@ test('the two front-page buttons each enter live sailing with one click',async({
 
 test('the start picker rejects land, starts at a map point and remembers it',async({page})=>{
   await page.goto(process.env.TACK_URL||game);
-  await page.click('#introStartLocation');
+  await page.click('#startButton');
+  await page.click('#preferencesButton');
+  await page.click('#startLocationButton');
   const picker=page.locator('#startLocationPicker'),launch=picker.locator('#startAtLocation');
   const selectOnMap=async point=>{
     const pixel=await page.evaluate(point=>SAILING_GAME.startLocationMap.worldToScreen(point),point);
@@ -55,7 +64,6 @@ test('the start picker rejects land, starts at a map point and remembers it',asy
   await expect(picker).toBeHidden();
   expect(await distance()).toBeLessThan(5);
   await page.reload();
-  await expect(page.locator('#introStartLocation')).toHaveText('Startsted · Valgt på kortet');
   await page.click('#startButton');
   expect(await distance()).toBeLessThan(5);
   await page.click('#preferencesButton');
@@ -80,7 +88,9 @@ test('all start areas offer a safe launch for the foil catamaran on a touch scre
     const page=await context.newPage();
     await page.goto(process.env.TACK_URL||game);
     await (await introOption(page,'#introBoat')).selectOption('ac72');
-    await page.locator('#introStartLocation').tap();
+    await page.locator('#startButton').tap();
+    await page.locator('#preferencesButton').tap();
+    await page.locator('#startLocationButton').tap();
     const picker=page.locator('#startLocationPicker'),launch=picker.locator('#startAtLocation');
     for(const area of ['bjorno','lyo','svelmo','avernako','default','open']){
       await picker.locator('select').selectOption(area);
@@ -109,13 +119,14 @@ test('the speed log damps short spikes, follows sustained changes and resets wit
     SailPhysics.instruments=(...args)=>({...instruments(...args),logKnots:window.waterSpeedSample});
   });
   const speed=page.locator('#speed');
+  const displayedKnots=async()=>Number((await speed.textContent()).replace(',','.'));
   await page.click('#startButton');
-  await expect(speed).toHaveText('5.0');
+  await expect(speed).toHaveText('5,0');
 
   await page.clock.runFor(180);
   await page.evaluate(()=>window.waterSpeedSample=7);
   await page.clock.runFor(180);
-  expect(Number(await speed.textContent())).toBeLessThan(5.5);
+  expect(await displayedKnots()).toBeLessThan(5.5);
   await page.evaluate(()=>window.waterSpeedSample=5);
   await page.clock.runFor(1400);
 
@@ -126,16 +137,16 @@ test('the speed log damps short spikes, follows sustained changes and resets wit
     window.waterSpeedSample=9;
   });
   await page.clock.runFor(1000);
-  const settled=Number(await speed.textContent());
+  const settled=await displayedKnots();
   expect(settled).toBeGreaterThan(7);
   expect(settled).toBeLessThan(8.2);
   expect(await page.evaluate(()=>window.speedEdits)).toBeLessThanOrEqual(4);
   await page.clock.runFor(3200);
-  expect(Number(await speed.textContent())).toBeGreaterThanOrEqual(8.9);
+  expect(await displayedKnots()).toBeGreaterThanOrEqual(8.9);
 
   await page.evaluate(()=>window.waterSpeedSample=0);
   await page.keyboard.press('KeyR');
-  await expect(speed).toHaveText('0.0');
+  await expect(speed).toHaveText('0,0');
 });
 
 test('the live chart shows wind direction without covering the race clock',async({page})=>{

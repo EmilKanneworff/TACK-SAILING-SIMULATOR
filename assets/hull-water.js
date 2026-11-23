@@ -332,7 +332,10 @@ class HullWater {
       }
       if(!actor.isYacht&&model.daggerX!=null&&actor.daggerboard)gear('board',{x:model.daggerX,y:model.waterBlades?.board.tip??-(model.daggerDepth||.9)*.92,z:0},{x:model.daggerX,y:model.deckY,z:0});
       const rudderOffsets=model.rudderOffsets||[0];
-      for(const [i,z] of rudderOffsets.entries())gear('rudder'+i,{x:model.rudderX,y:model.waterBlades?.rudder.tip??model.deckY-(model.rudderDepth||.7),z},{x:model.rudderX,y:model.deckY,z});
+      for(const [i,z] of rudderOffsets.entries()){
+        const blade={...model.waterBlades.rudder,z};
+        gear('rudder'+i,root.SailingBoats.rudderPoint(blade,1,s.rudder),root.SailingBoats.rudderPoint(blade,0,s.rudder));
+      }
     }
     const h=P.waveAt(s.x,s.y,s.time,env),film=actor.hullWetUniforms;
     // Tangent fallback for boats too far away to need a sampled waterline.

@@ -1,6 +1,74 @@
 const {test,expect}=require('@playwright/test');
 const {pathToFileURL}=require('node:url');const path=require('node:path');
+const {introOption}=require('../scripts/browser-setup.cjs');
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
+
+test('the dock reef setting changes the reference geometry and sail loads on all boats',async({page})=>{
+ test.setTimeout(90000);
+ await page.clock.install();
+ const expected={
+  laser:[[7.06,0],[5.9304,0],[4.8008,0]],
+  dinghy:[[35,20],[27.3,20],[19.6,20]],
+  yacht:[[48,32],[37.44,32],[26.88,32]],
+  ac75:[[165,65],[130.35,50.7],[95.7,36.4]],
+  ac72:[[205,55],[205,42.9],[205,30.8]]
+ };
+ for(const [boat,areas] of Object.entries(expected)){
+  await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+  await (await introOption(page,'#introBoat')).selectOption(boat);
+  await page.click('#startButton');
+  await page.clock.pauseAt(await page.evaluate(()=>Date.now()+150));
+  await page.evaluate(()=>{
+   const {state,env}=SAILING_GAME;
+   Object.assign(env,{speed:0,gusts:0,waveHeight:0,chop:0,shelter:false});
+   state.windClimate={speed:0,direction:0,gusts:0};
+  });
+  let previous;
+  for(const level of [0,1,2,0]){
+   await page.selectOption('#reefSetting',String(level));
+   await page.clock.runFor(4100);
+   const row=await page.evaluate(()=>{
+    const {scene,state,env}=SAILING_GAME,P=SailPhysics;
+    const flat={...state,boom:0,boomRate:0,rig:{sideBlend:0},wing:{angle:0,flap:0,twist:0},
+     sail:{main:{...state.sail.main,twist:0},jib:{...state.sail.jib,angle:0,twist:0}}};
+    // Integrate flat chord widths over height without twist, camber or flutter.
+    function planform(point){
+     let area=0,lastWidth=0,lastY=0;
+     for(let i=0;i<=512;i++){
+      const luff=point(0,i/512),leech=point(1,i/512);
+      const width=Math.hypot(leech.x-luff.x,leech.z-luff.z);
+      if(i>0)area+=(width+lastWidth)*.5*(luff.y-lastY);
+      lastWidth=width;lastY=luff.y;
+     }
+     return area;
+    }
+    const mainPoint=scene.isCat?scene.wingPoint:scene.isYacht||scene.isFoiler?scene.mainFoilerPoint:scene.sailPoint;
+    const main=planform((u,v)=>mainPoint.call(scene,u,v,flat));
+    const jib=state.sail.jib?planform((u,v)=>scene.jibFoilerPoint(u,v,flat)):0;
+
+    // Hold motion, immersion, wind and trim fixed to isolate the reef's loads.
+    const model=P.configFor(state),sample=P.createState({boatId:state.boatId,x:0,y:-1500,theta:0,vx:0,vy:0,boom:.52},env);
+    Object.assign(sample,{heave:0,cruiserRig:state.cruiserRig,rig:{side:1,sideBlend:1,reef:state.rig?.reef,camber:model.camber,twist:0,fill:1}});
+    if(model.rigidWing)sample.wing={flap:-.12*(1-.78*(state.rig.reef??0)),jibAngle:.32,twist:0};
+    const loads=P.aero(sample,env,{vx:0,vy:9,speed:9});
+    return {main,jib,physics:[state.sail.main.area,state.sail.jib?.area??0],
+     moment:Math.abs(loads.rollMoment),weight:state.hydro.weight,sheet:state.sheet};
+   });
+   expect(row.physics[0],boat).toBeCloseTo(areas[level][0],6);
+   expect(row.physics[1],boat).toBeCloseTo(areas[level][1],6);
+   expect(row.main,boat).toBeCloseTo(row.physics[0],3);
+   expect(row.jib,boat).toBeCloseTo(row.physics[1],3);
+   if(previous){
+    if(level>0)expect(row.moment,boat).toBeLessThan(previous.moment);
+    expect(row.sheet,boat).toBe(previous.sheet);
+    expect(row.weight,boat).toBeCloseTo(previous.weight,7);
+   }
+   previous=row;
+  }
+  await page.clock.resume();
+ }
+});
+
 test('local air, quadratic force, calm water and mirrored tacks',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
  const r=await page.evaluate(()=>{const P=SailPhysics,e={...SAILING_GAME.env,boatId:'laser',speed:0,gusts:0,waves:0,direction:0},s=P.createState({boatId:'laser',x:0,y:-5000,theta:0,vx:0,vy:0,boom:.5,boomRate:0,heel:0,pitch:0,omega:0,heelRate:0,pitchRate:0,heaveVelocity:0},e);

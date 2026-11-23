@@ -42,6 +42,23 @@ const presets = {
   'cat-hull': { boat: 'ac72', wind: 5.5, modes: ['hard'], settle: 8500, right: 900, left: 1000 },
   'mono-flight': { boat: 'ac75', wind: 14, modes: ['hard'], settle: 6500, right: 240, left: 480 },
   'cat-flight': { boat: 'ac72', wind: 14, modes: ['hard'], settle: 6500, right: 240, left: 480 },
+  'control-chain': {
+    wind: 5.5, direction: 180, wave: 1.5, modes: ['hard'], location: 'open',
+    plan: [
+      ['Fri sejlads', 5500, []],
+      ['Ror mod styrbord', 650, ['ArrowRight']],
+      ['Ror mod bagbord', 650, ['ArrowLeft']],
+      ['Vægt på kanten og agter', 1200, ['2', 'z']],
+      ['Vægt frem', 1800, ['x']],
+      ['Fuldt indhalet', 4100, ['@sheet:100']],
+      ['Fuldt slækket', 4400, ['@sheet:0']],
+      ['Hal ind igen', 4400, ['@sheet:100']],
+      ['Ét reb og trim', 2600, ['@reef:1', '@sheet:52']],
+      ['To reb', 2200, ['@reef:2']],
+      ['Styrbord ved sejladsfart', 650, ['ArrowRight']],
+      ['Bagbord ved sejladsfart', 650, ['ArrowLeft']]
+    ]
+  },
   controls: {
     wind: 5.5, modes: ['hard'],
     plan: [
@@ -105,6 +122,12 @@ async function sample(page) {
       input: s.steerIntent, target: (s.helmTarget ?? 0) / D, rudder: s.rudder / D,
       sheet: s.sheet, crew: s.crewPoseBlend, side: s.crewSideBlend, foreAft: s.crewForeAft,
       boom: s.boom / D, tacks: s.tackCount, gybes: s.gybeCount,
+      trim: game.sheetDiagnostics, pitch: s.pitch / D, cg: s.hydro?.cg, waveHeight: wave.height,
+      referenceWave: s.seaState, reef: s.cruiserRig?.reef ?? s.rig?.reef,
+      sailArea: s.sail?.main?.area, sailLuffScale: s.sail?.main?.luffScale, sailChordScale: s.sail?.main?.chordScale,
+      sailVertical: s.sail?.fz, displacement: s.hydro?.submergedVolume, support: s.hydro?.buoyancy,
+      hullDrag: forces.hullF, renderedRudder: game.scene.rudder?.rotation.y,
+      rudders: rudder?.parts || Object.values(s.foils || {}).flatMap(f => f.rudderBlade ? [f.rudderBlade] : []),
       wet: rudder?.strutEffectiveWet ?? rudder?.wet, axial: rudder?.axialFlow ?? s.steering?.localForward,
       stall: rudder?.stall, ventilation: rudder?.ventilation,
       yawRudder: forces.yawRudder, yawSail: forces.yawSail ?? s.sail.yawMoment,
@@ -170,8 +193,12 @@ async function sailRoute(page, tick, route, snapshots) {
   return inputs;
 }
 
-async function runPlan(page, tick, plan, snapshots) {
-  for (const [label, ms, actions] of plan) {
+async function runPlan(page, tick, plan, snapshots, captureDir) {
+  for (const [index, [label, ms, actions]] of plan.entries()) {
+    for (const action of actions) {
+      if (action.startsWith('@sheet:')) await page.locator('#sheetControl').fill(action.slice(7));
+      if (action.startsWith('@reef:')) await page.selectOption('#reefSetting', action.slice(6));
+    }
     if (actions.includes('@trim')) {
       const rect = await page.locator('#sheetControl').boundingBox();
       await page.mouse.click(rect.x + rect.width * .45, rect.y + rect.height / 2);
@@ -211,6 +238,7 @@ async function runPlan(page, tick, plan, snapshots) {
     }
     await tick(ms);
     snapshots.push({ label, ...await sample(page) });
+    if (captureDir) await page.screenshot({ path: path.join(captureDir, String(index + 1).padStart(2, '0') + '.jpg'), type: 'jpeg', quality: 80 });
     for (const key of keys) await page.keyboard.up(key);
   }
   return plan;
@@ -249,6 +277,12 @@ async function run(browser, cfg, url, name, difficulty) {
       await page.keyboard.press('Escape');
     }
     await page.click(cfg.race ? '#introCourse' : '#startButton');
+    if (cfg.location) {
+      await page.click('#preferencesButton');
+      await page.click('#startLocationButton');
+      await page.selectOption('#startLocationPreset', cfg.location);
+      await page.click('#startAtLocation');
+    }
     const tick = ms => cfg.real ? page.waitForTimeout(ms) : page.clock.runFor(ms);
     await page.evaluate(() => { tackTrace.frames.length = 0; });
     const snapshots = [{ label: 'Menu start', ...await sample(page) }];
@@ -261,8 +295,10 @@ async function run(browser, cfg, url, name, difficulty) {
       ['Ease', 480, ['ArrowDown']],
       ['Sail', 1800, []]
     ];
+    const captureDir = process.env.TACK_CAPTURE_DIR ? path.resolve(process.env.TACK_CAPTURE_DIR, name + '-' + difficulty) : undefined;
+    if (captureDir) fs.mkdirSync(captureDir, { recursive: true });
     const inputPlan = cfg.route ? await sailRoute(page, tick, cfg.route, snapshots)
-      : await runPlan(page, tick, plan, snapshots);
+      : await runPlan(page, tick, plan, snapshots, captureDir);
     console.log(JSON.stringify({
       name, url, difficulty, browser: browser.version(), persisted, boat: cfg.boat || 'laser',
       revision: await response.headerValue('x-fri-vind-revision'), errors, snapshots, inputPlan,

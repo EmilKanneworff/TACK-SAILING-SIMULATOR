@@ -68,7 +68,7 @@ test('the held haul key crosses 0 to 50 faster than 50 to 100 and taps are fine 
  expect(end.time-middle.time).toBeGreaterThan((middle.time-start.time)*1.3);
 
  await slider.fill('85');
- await page.clock.runFor(650);
+ await page.clock.runFor(900);
  await page.locator('#sea').focus();
  const before=(await reading()).applied;
  expect(before).toBeCloseTo(85,2);
@@ -80,9 +80,9 @@ test('the held haul key crosses 0 to 50 faster than 50 to 100 and taps are fine 
 });
 
 for(const control of ['keyboard','slider']){
- test('mainsheet eases at a steady displayed rate with '+control,async({page})=>{
+ test('mainsheet eases slowly above 50% and faster below with '+control,async({page})=>{
   await page.clock.install();
-  await page.goto(pathToFileURL(path.resolve('index.html')).href);
+  await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
   await page.click('#startButton');
   await page.evaluate(()=>{
    const {state,env}=SAILING_GAME,P=SailPhysics;
@@ -96,7 +96,8 @@ for(const control of ['keyboard','slider']){
    return page.evaluate(()=>{
     const {applied,time,limitDegrees}=SAILING_GAME.sheetDiagnostics;
     const shown=parseFloat(document.getElementById('sheetValue').textContent.replace(',','.'));
-    return {applied,time,limitDegrees,shown};
+    const handle=document.getElementById('sheetControl').valueAsNumber;
+    return {applied,time,limitDegrees,shown,handle};
    });
   };
   await slider.fill('100');
@@ -105,21 +106,23 @@ for(const control of ['keyboard','slider']){
    await page.locator('#sea').focus();
    await page.keyboard.down('ArrowDown');
   }else await slider.fill('0');
-  const upperStart=await sample(120);
-  const upperEnd=await sample(280);
-  const lowerStart=await sample(320);
-  const lowerEnd=await sample(270);
+  const upperStart=await sample(200);
+  const upperEnd=await sample(800);
+  const lowerStart=await sample(1720);
+  const lowerEnd=await sample(220);
   expect(upperEnd.applied).toBeGreaterThan(50);
   expect(lowerStart.applied).toBeLessThan(50);
   expect(lowerEnd.applied).toBeGreaterThan(5);
-  for(const row of [upperStart,upperEnd,lowerStart,lowerEnd])expect(Math.abs(row.shown-row.applied)).toBeLessThan(.06);
+  for(const row of [upperStart,upperEnd,lowerStart,lowerEnd]){
+   expect(Math.abs(row.shown-row.applied)).toBeLessThan(.06);
+   expect(row.handle).toBe(row.shown);
+  }
   const rate=(start,end,key)=>(end[key]-start[key])/(end.time-start.time);
   const high=-rate(upperStart,upperEnd,'shown'),low=-rate(lowerStart,lowerEnd,'shown');
-  expect(high).toBeGreaterThan(75);
-  expect(high).toBeLessThan(90);
-  expect(Math.abs(high-low)).toBeLessThan(1);
+  expect(high).toBeCloseTo(20,0);
+  expect(low).toBeGreaterThan(1.6*high);
   expect(rate(lowerStart,lowerEnd,'limitDegrees')).toBeGreaterThan(1.6*rate(upperStart,upperEnd,'limitDegrees'));
-  expect((await sample(400)).applied).toBe(0);
+  expect((await sample(650)).applied).toBe(0);
   if(control==='keyboard')await page.keyboard.up('ArrowDown');
  });
 }
