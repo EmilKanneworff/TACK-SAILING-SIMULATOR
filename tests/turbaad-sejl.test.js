@@ -5,7 +5,22 @@ test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/
 test('four crew move the actual mass and all three sails produce different downwind forces',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
  const r=await page.evaluate(()=>{const c=SailingBoats.get('yacht'),poses=[1,2,3].map(i=>{const p=SailingBoats.crewPose(c,i,1);return {cg:p.cg,mass:p.segments.reduce((n,v)=>n+v.mass,0),members:p.members.map(m=>({x:m.pelvis.x,mass:m.segments.reduce((n,v)=>n+v.mass,0)}))}}),env={...SAILING_GAME.env,boatId:'yacht',speed:7,direction:0,waves:0,gusts:0,crewPose:2};
- const runs=[['normal',-90,.42],['spinnaker',-90,.42],['normalReach',0,.52],['code0',0,.52],['normalBroad',-35,.48],['gennaker',-35,.48]].map(([type,degrees,sheet])=>{const theta=degrees*SailPhysics.DEG,s=SailPhysics.createState({boatId:'yacht',x:0,y:-5000,theta,vx:2*Math.cos(theta),vy:2*Math.sin(theta),sheet},env);let samples=[];for(let i=0;i<1200;i++){SailPhysics.step(s,{steer:0,trim:0,crewPose:2,spinnaker:Object.hasOwn(SailingBoats.cruiserSails,type),downwindType:type},env,1/60);if(i%60===59)samples.push({speed:Math.hypot(s.vx,s.vy),heel:s.heel,drive:s.sail?.spinnaker?.drive||0,area:s.sail?.spinnaker?.area||0,hoist:s.spinnaker?.hoist||0,jib:s.sail?.jib?.drive})}return {type,last:samples.at(-1),finite:samples.every(p=>Number.isFinite(p.speed)&&Number.isFinite(p.heel))}});
+ const P=SailPhysics;
+ const runs=[['normal',-90,.42,7],['spinnaker',-90,.42,7],
+  ['normalReach',-10,.52,5],['code0',-10,.52,5],['normalBroad',-35,.48,7],['gennaker',-35,.48,7]
+ ].map(([type,degrees,sheet,speed])=>{
+  const theta=degrees*P.DEG,field={...env,speed};
+  const s=P.createState({boatId:'yacht',x:0,y:-5000,theta,vx:2*Math.cos(theta),vy:2*Math.sin(theta),sheet},field);
+  const samples=[];
+  for(let i=0;i<1200;i++){
+   // Compare the rigs on the same point of sail. Code 0 is a light-air sail.
+   const steer=P.clamp(3*P.wrap(s.theta-theta)+1.8*s.omega,-1,1);
+   P.step(s,{steer,steerDigital:false,trim:0,crewPose:2,spinnaker:Object.hasOwn(SailingBoats.cruiserSails,type),downwindType:type},field,1/60);
+   if(i%60===59)samples.push({speed:Math.hypot(s.vx,s.vy),heel:s.heel,drive:s.sail?.spinnaker?.drive||0,
+    area:s.sail?.spinnaker?.area||0,hoist:s.spinnaker?.hoist||0,jib:s.sail?.jib?.drive});
+  }
+  return {type,last:samples.at(-1),finite:samples.every(p=>Number.isFinite(p.speed)&&Number.isFinite(p.heel))};
+ });
  return {boatMass:c.mass,crewMass:c.crewMass,poses,runs};});
  expect(r.boatMass).toBe(9600);expect(r.crewMass).toBe(300);for(const p of r.poses){expect(p.mass).toBeCloseTo(300,6);expect(p.members).toHaveLength(4);for(const m of p.members)expect(m.mass).toBeCloseTo(75,6)}expect(r.poses[2].cg.z).toBeGreaterThan(r.poses[0].cg.z);for(const v of r.runs)expect(v.finite).toBe(true);for(const run of [r.runs[1],r.runs[3],r.runs[5]]){expect(run.last.hoist).toBeGreaterThan(.99);expect(run.last.drive).toBeGreaterThan(100);expect(Math.abs(run.last.jib)).toBeLessThan(.01)}expect(r.runs[1].last.speed).toBeGreaterThan(r.runs[0].last.speed);expect(r.runs[3].last.speed).toBeGreaterThan(r.runs[2].last.speed);expect(r.runs[1].last.area).toBe(115);expect(r.runs[3].last.area).toBe(90);expect(r.runs[5].last.area).toBe(105);expect(r.runs[5].last.speed).toBeGreaterThan(r.runs[4].last.speed);
 });
