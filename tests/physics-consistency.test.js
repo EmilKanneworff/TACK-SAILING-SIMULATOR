@@ -173,13 +173,19 @@ test('Laser water inertia resists the initial wind-driven turn while the hull an
   return [1,-1].map(side=>[false,true].map(dry=>{
    const state=P.createState({boatId:'laser',x:0,y:-5000,theta:(90-side*153)*D,
     vx:0,vy:0,crewPose:2,crewSide:-side,...(dry?{heave:3}:{})},env);
-   P.step(state,{crewPose:2,steer:0},env,1/60);
+   const dt=1/6000;
+   P.step(state,{crewPose:2,steer:0},env,dt);
    const f=state.forces;
    const axis=P.axes((90-side*153)*D),r=P.bodyOffset({heel:0,pitch:0},state.hydro.cg);
    const forward=f.world.x*axis.fx+f.world.y*axis.fy;
    const across=f.world.x*axis.rx+f.world.y*axis.ry;
-   const dryYaw=(f.yaw-r.r*forward+r.f*across)/state.massMotion.inertia.yaw;
-   return {actual:state.omega*60,predictedWithoutWater:dryYaw,sway:f.waterInertia.sway,
+   const {roll,pitch,yaw,xy,xz,yz}=state.massMotion.inertia;
+   const tx=f.roll-r.up*across+r.r*f.world.z,ty=f.yaw-r.r*forward+r.f*across,tz=f.pitch+r.up*forward-r.f*f.world.z;
+   // Eliminate the roll and pitch accelerations from I * angularAcceleration = torque.
+   const det=roll*pitch-xz*xz;
+   const effectiveYaw=yaw-(xy*xy*pitch+yz*yz*roll-2*xy*yz*xz)/det;
+   const dryYaw=(ty-(xy*(pitch*tx-xz*tz)+yz*(roll*tz-xz*tx))/det)/effectiveYaw;
+   return {actual:(state.omega+state.heelRate*Math.sin(state.pitch))/dt,predictedWithoutWater:dryYaw,sway:f.waterInertia.sway,
     buoyancy:state.hydro.buoyancy,weight:state.hydro.weight,rudder:f.rudder.wet};
   }));
  });
@@ -190,7 +196,7 @@ test('Laser water inertia resists the initial wind-driven turn while the hull an
   expect(Math.sign(wet.actual)).toBe(Math.sign(wet.predictedWithoutWater));
   expect(Math.abs(wet.actual)).toBeLessThan(.85*Math.abs(wet.predictedWithoutWater));
   expect(dry.sway).toBe(0);
-  expect(dry.actual).toBeCloseTo(dry.predictedWithoutWater,7);
+  expect(dry.actual).toBeCloseTo(dry.predictedWithoutWater,6);
  }
  expect(results[0][0].actual).toBeCloseTo(-results[1][0].actual,4);
 });

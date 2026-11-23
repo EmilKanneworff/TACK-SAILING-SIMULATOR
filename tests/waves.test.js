@@ -7,7 +7,7 @@ test('one regular 2.5 metre wave has a 1.25 metre amplitude',async({page})=>{
   const P=SailPhysics,w=P.WAVE_COMPONENTS[0];
   const env={waveHeight:2.5,chop:0,waveCurrent:1.25/(w.amplitude*w.swellGain),wavePeriod:P.BASE_WAVE_PERIOD,
    direction:270,waveComponent:0,shelter:false};
-  const k=w.k/w.managedPeriod**2;
+  const k=w.k/(P.waveProfileFor(env).period*w.managedPeriod)**2;
   const crest=P.waveAt((Math.PI/2-w.phase)/k,0,0,env).height;
   const trough=P.waveAt((-Math.PI/2-w.phase)/k,0,0,env).height;
   return {height:crest-trough,amplitude:(crest-trough)/2};
@@ -47,6 +47,9 @@ test('live sea settings apply while sailing and wait when manually paused',async
  await page.click('#settingsButton');
  const before=await page.evaluate(()=>SAILING_GAME.seaDiagnostics);
  await page.locator('#waveHeight').fill('2.5');
+ await page.locator('#chop').fill('0');
+ await page.waitForFunction(()=>SAILING_GAME.seaDiagnostics.applied.longOpen>=2.45&&SAILING_GAME.seaDiagnostics.applied.chop===0);
+ const soft=await page.evaluate(()=>SAILING_GAME.seaDiagnostics.applied);
  await page.locator('#chop').fill('1');
  const selected=await page.evaluate(()=>SAILING_GAME.seaDiagnostics);
  expect(selected.selected).toEqual({waveHeight:2.5,chop:1});
@@ -55,8 +58,9 @@ test('live sea settings apply while sailing and wait when manually paused',async
   return time>before.time&&applied.longOpen>=2.45&&applied.chop>.999;
  },before);
  const reached=await page.evaluate(()=>SAILING_GAME.seaDiagnostics);
+ expect(reached.applied.wavelength).toBeLessThan(soft.wavelength*.5);
  console.log('Søindstilling under Fri sejlads',JSON.stringify({selected:selected.time,reached:reached.time,applied:reached.applied}));
- await expect(page.locator('#liveSea')).toContainText('Aktuelt på åbent vand');
+ await expect(page.locator('#liveSea')).toContainText('m mellem toppene');
  await page.keyboard.press('Escape');
  await page.locator('#sea').focus();await page.keyboard.press('Space');
  await page.click('#settingsButton');
@@ -132,7 +136,7 @@ test('GPU wave shader matches the physics field at sampled coordinates',async({p
   const P=SailPhysics,T=THREE,g=SAILING_GAME,world=g.scene,renderer=world.renderer,time=7.5;
   const env={...g.env,direction:0,speed:5,waveHeight:2.5,chop:1,windSeed:189224,shelter:false};
   const s=P.createState({time},env);
-  s.waveProfile={from:P.waveProfileFor(env),to:P.waveProfileFor({...env,direction:90,swellDirection:140,wavePeriod:8,shortSea:.7}),start:time-P.PROFILE_SECONDS/2};
+  s.waveProfile={from:P.waveProfileFor(env),to:P.waveProfileFor({...env,direction:90,swellDirection:140,wavePeriod:8,chop:0}),start:time-P.PROFILE_SECONDS/2};
   world.update(s,env,{marks:[]},1/60,{});
   const uniforms={...world.waterUniforms,coord:{value:new T.Vector2()}};
   const material=new T.ShaderMaterial({uniforms,vertexShader:'void main(){gl_Position=vec4(position,1.);}',

@@ -38,19 +38,25 @@ function trajectory(initial, weather, step) {
 function knownMoment() {
   const wet = model.createBoat('laser', atRest, field);
   model.stepBoat(wet, control, field, dt, { diagnostics: true });
-  const inertia = { yaw: wet.forces.inertiaYaw, roll: wet.forces.inertiaRoll, pitch: wet.forces.inertiaPitch };
+  const { cg, inertia } = wet.massMotion;
   const fluid = wet.forces.waterInertia;
   const moment = { yaw: 20, pitch: 0, roll: 0 };
   const force = { x: 0, y: 0, z: 0 };
   const mass = model.profiles.get('laser').mass;
+  const aboutOrigin = { ...inertia };
+  model.profiles.addPointInertia(aboutOrigin, cg, mass);
   const compute = added => {
     const s = model.createBoat('laser', atRest, field);
-    P.integrateMass(s, dt, mass, s.hydro.cg, inertia, force, moment, added);
-    return s.omega / dt;
+    const probeDt = 1e-4;
+    P.integrateMass(s, probeDt, mass, cg, aboutOrigin, force, moment, added);
+    return (s.omega + s.heelRate * Math.sin(s.pitch)) / probeDt;
   };
-  const x = wet.hydro.cg.x;
+  const x = cg.x;
   const cross = x * fluid.sway - fluid.firstMoment;
-  const inertiaAtCG = inertia.yaw - mass * (x ** 2 + wet.hydro.cg.z ** 2);
+  const { yaw, roll, pitch, xy, xz, yz } = inertia;
+  // Eliminate the coupled roll and pitch rates for a vertical impulse on
+  // the upright hull. The remaining scalar inertia should predict the probe.
+  const inertiaAtCG = yaw - (pitch * xy ** 2 - 2 * xy * xz * yz + roll * yz ** 2) / (roll * pitch - xz ** 2);
   const matrixYaw = inertiaAtCG + fluid.secondMoment - 2 * x * fluid.firstMoment + x * x * fluid.sway;
   const effectiveYaw = matrixYaw - cross ** 2 / (mass + fluid.sway);
   return { moment: moment.yaw, dry: compute(null), wet: compute(fluid), expectedWet: moment.yaw / effectiveYaw,

@@ -207,6 +207,105 @@ test('steering keys resume after using the chart selector and trim slider',async
   await page.waitForFunction(()=>SAILING_GAME.state.steerIntent===-1&&SAILING_GAME.state.rudder<-.05);
   await page.keyboard.up('ArrowLeft');
 });
+test('the sailing toolbar keeps the helm active while the sheet or reef control has focus',async({page})=>{
+  await page.clock.install();
+  await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+  await page.selectOption('#introDifficulty','hard');
+  await page.click('#startButton');
+  await page.clock.pauseAt(await page.evaluate(()=>Date.now()+150));
+  const initialHeading=await page.evaluate(()=>{
+    const {state,env}=SAILING_GAME,P=SailPhysics,theta=54*P.DEG;
+    Object.assign(env,{speed:8.6,direction:90,gusts:0,waveHeight:0,chop:0,shelter:false});
+    Object.assign(state,P.createState({boatId:'laser',x:30,y:-1500,theta,
+      vx:2.315*Math.cos(theta),vy:2.315*Math.sin(theta),sheet:P.sheetFromTrim(.408,'laser'),
+      crewPose:1,crewPoseBlend:1,crewSide:1,crewSideBlend:1},env),{windClimate:{speed:8.6,direction:90,gusts:0}});
+    document.getElementById('pose1').click();
+    const sheet=document.getElementById('sheetControl');
+    sheet.value='40.8';
+    sheet.dispatchEvent(new Event('input'));
+    return theta;
+  });
+  const read=()=>page.evaluate(()=>{
+    const {state}=SAILING_GAME;
+    return {heading:state.theta,helm:state.steerIntent,rudder:state.rudder,sheet:state.sheet,
+      reef:document.getElementById('reefSetting').value};
+  });
+  await page.locator('#sheetControl').focus();
+  await page.keyboard.down('ArrowLeft');
+  await page.clock.runFor(550);
+  const port=await read();
+  expect(port.helm).toBe(-1);
+  expect(port.rudder).toBeLessThan(-.2);
+  expect(port.heading-initialHeading).toBeGreaterThan(.04);
+
+  await page.keyboard.down('ArrowDown');
+  await page.clock.runFor(260);
+  await page.keyboard.up('ArrowDown');
+  const eased=await read();
+  expect(eased.helm).toBe(-1);
+  expect(eased.sheet).toBeLessThan(port.sheet-.04);
+
+  await page.locator('#reefSetting').focus();
+  await page.clock.runFor(300);
+  expect((await read()).helm).toBe(-1);
+  await page.keyboard.up('ArrowLeft');
+  await page.keyboard.down('ArrowRight');
+  await page.clock.runFor(900);
+  const starboard=await read();
+  expect(starboard).toMatchObject({helm:1,reef:'0'});
+  expect(starboard.rudder).toBeGreaterThan(.2);
+  await page.keyboard.up('ArrowRight');
+  await page.clock.runFor(300);
+  expect((await read()).helm).toBe(0);
+});
+
+test('the on-screen rudder turns the Laser and releases even outside the button',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.clock.install();
+  await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+  await page.selectOption('#introDifficulty','hard');
+  await page.click('#startButton');
+  await page.clock.pauseAt(await page.evaluate(()=>Date.now()+120));
+  await page.evaluate(()=>{
+    const {state,env}=SAILING_GAME,P=SailPhysics,theta=-28*P.DEG,speed=5/1.94384;
+    Object.assign(env,{speed:7.8,direction:90,gusts:0,waveHeight:.35,chop:.4,shelter:false});
+    Object.assign(state,TackSimulation.createBoat('laser',{x:0,y:-1500,theta,
+      vx:speed*Math.cos(theta),vy:speed*Math.sin(theta),sheet:P.sheetFromTrim(.939,'laser'),
+      crewPose:3,crewPoseBlend:3,crewSide:-1,crewSideBlend:-1},env),{windClimate:{speed:7.8,direction:90,gusts:0}});
+    document.getElementById('pose3').click();
+    const sheet=document.getElementById('sheetControl');
+    sheet.value='93.9';sheet.dispatchEvent(new Event('input'));
+  });
+  const read=()=>page.evaluate(()=>{
+    const {state}=SAILING_GAME;
+    return {input:state.steerIntent,rudder:state.rudder,heading:state.theta,
+      rudderMoment:state.forces.yawRudder,ground:state.ground?.contact};
+  });
+  await page.getByRole('button',{name:'Drej mod styrbord'}).click();
+  const tapSteps=[];
+  for(let i=0;i<4;i++){
+    await page.clock.runFor(17);
+    tapSteps.push(await read());
+  }
+  expect(tapSteps.some(s=>s.input===1&&s.rudder>0)).toBe(true);
+  expect(tapSteps.at(-1).input).toBe(0);
+
+  const left=page.getByRole('button',{name:'Drej mod bagbord'}),box=await left.boundingBox();
+  const start=await read();
+  await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
+  await page.mouse.down();
+  await page.mouse.move(20,80);
+  await page.clock.runFor(680);
+  const held=await read();
+  expect(held).toMatchObject({input:-1,ground:false});
+  expect(held.rudder).toBeLessThan(-.22);
+  expect(held.rudderMoment).toBeGreaterThan(0);
+  expect(held.heading-start.heading).toBeGreaterThan(.08);
+  await page.mouse.up();
+  await page.clock.runFor(370);
+  expect(await read()).toMatchObject({input:0,rudder:0});
+});
+
 test('dragging the map during a race keeps its anchor and view',async({page})=>{
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));

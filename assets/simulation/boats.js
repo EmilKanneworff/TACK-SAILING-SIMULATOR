@@ -35,21 +35,35 @@
   rollRestoring:0,autoBalanceGain:0,heaveDamping:1300,rollDamping:95,pitchDamping:210,
   hydroNx:18,hydroNz:10,hydroNy:5,mastFloatVolume:.0196,crewFloatVolume:.072,
   rigDragLinear:8,rigDragQuadratic:4,rigRollDamping:230,rigPitchDamping:200,rigYawDamping:150,
-  hullHeelDrag:2.5,hullWetRigDrag:8,hullWetRigLateralDrag:2,
+  hullWetRigDrag:8,hullWetRigLateralDrag:2,
   floodFillSeconds:.7,floodDrainSeconds:3.5,
   cockpitRadius:.12,planing:false,helmReverseThreshold:.20,helmForwardThreshold:.26,ironsSpeed:.72,ironsAngle:55*D,ironsYawAcceleration:.10,ironsMaxYawRate:8*D,ironsBackAngle:18*D};
+ function addPointInertia(inertia,p,mass){
+  inertia.roll+=mass*(p.y*p.y+p.z*p.z);
+  inertia.pitch+=mass*(p.x*p.x+p.y*p.y);
+  inertia.yaw+=mass*(p.x*p.x+p.z*p.z);
+  inertia.xy-=mass*p.x*p.y;
+  inertia.xz-=mass*p.x*p.z;
+  inertia.yz-=mass*p.y*p.z;
+ }
  function make(id,name,description,v){
   const p={...COMMON,id,name,label:name,description,...v};p.hullRigMass=p.hullMass+p.rigMass+p.equipmentMass+(p.ballastMass||0)+2*(p.armMass||0);p.mass=p.hullRigMass+p.crewMass;
   p.hullSections=v.shape.map(([x,w])=>[x*p.length,w*(p.hullBeam||p.beam)*.5]);delete p.shape;
   p.cockpit={minX:p.cockpitMinX,maxX:p.cockpitMaxX,x0:p.cockpitMinX,x1:p.cockpitMaxX,halfWidth:p.cockpitHalfWidth,floorY:p.cockpitFloorY,radius:p.cockpitRadius};
   p.mastHeight=p.mastTop;p.sailFoot=p.boomLength-.06;
+  // Flat reference areas in the sail plane, shared by the rig and its mesh.
+  if(p.id==='laser')p.sailRoach=(p.sailArea/p.sailLuff-p.sailFoot*.5)*Math.PI*.5;
+  if(p.jibArea)p.jibFoot=2*p.jibArea/(p.jibHeadY-p.jibTackY);
   p.crewX=p.crewX??(-.11*p.length);p.crewMax=p.beam*.5+.43;
-  p.crewForeAftRange=p.kind==='foiler'?.15:p.length*.065;
+  p.crewForeAftRange??=p.length*.065;
   p.massPoints=[...(p.hullOffsets||[0]).map(z=>({mass:p.hullMass/(p.hullOffsets?.length||1),x:p.hullCGX,y:p.hullCGY,z})),{mass:p.rigMass,x:p.mastX-.12,y:p.rigCGY,z:0},{mass:p.equipmentMass,x:-.25,y:p.deckY-.05,z:0}];
   if(p.ballastMass)p.massPoints.push({mass:p.ballastMass,x:p.ballastX,y:p.ballastY,z:0,ballast:true});
   if(p.kind!=='foiler'){
    p.intrinsicInertia={roll:p.rollInertia,pitch:p.pitchInertia,yaw:p.yawInertia};
-   for(const m of p.massPoints){p.rollInertia+=m.mass*(m.y*m.y+m.z*m.z);p.pitchInertia+=m.mass*(m.x*m.x+m.y*m.y);p.yawInertia+=m.mass*(m.x*m.x+m.z*m.z);}
+   const inertia={...p.intrinsicInertia,xy:0,xz:0,yz:0};
+   for(const m of p.massPoints)addPointInertia(inertia,m,m.mass);
+   p.originInertia=inertia;
+   p.rollInertia=inertia.roll;p.pitchInertia=inertia.pitch;p.yawInertia=inertia.yaw;
   }
   return p;
  }
@@ -58,7 +72,7 @@
   // the hull. These are GAME righting parameters, not measured ILCA data.
   laser:make('laser','Laserjolle','4,23 meter. Let skrog, stort sejl og aktiv balance.',{
    length:4.23,referenceWaterline:3.81,beam:1.37,hullDepth:.385,deckY:.245,rocker:.09,chinePower:6.0,planing:true,planingAreaFraction:.12,planingLiftSlope:1.2,planingMaxWeightFraction:.70,
-   crewHikingInset:.11,crewHikingLean:1.05,
+   crewHikingInset:.11,crewHikingLean:1.05,crewForeAftRange:.43,
    crewPoseRate:4.2,crewPoseAcceleration:30,crewPoseResponse:.10,
    crewPoseReturnRate:4.8,crewPoseReturnAcceleration:38.4,crewPoseReturnResponse:.095,
    crewSideRate:3.55,crewSideAcceleration:17,crewSideResponse:.09,
@@ -66,7 +80,8 @@
    shape:[[-.485,.745],[-.390,.876],[-.248,.972],[-.059,1],[.118,.949],[.272,.745],[.390,.438],[.515,.018]],
    hullMass:56,rigMass:10,equipmentMass:2,hullCGX:-.02,hullCGY:-.035,rigCGY:1.65,
    sailArea:7.06,mastX:1.02,mastTop:6.18,boomY:.98,boomLength:2.73,sailLuff:5.15,sailCPChord:1.04,sailCPHeight:2.66,
-   daggerArea:.245,daggerDepth:1.02,daggerChord:.30,daggerX:.05,rudderArea:.075,rudderDepth:.66,rudderChord:.205,rudderX:-1.95,
+   daggerArea:.245,daggerDepth:1.02,daggerChord:.30,daggerX:.05,rudderArea:.105,rudderDepth:.66,rudderChord:.205,rudderX:-1.95,
+   rudderOffset:.03,rudderRake:.10,
    yawInertia:182,rollInertia:57,pitchInertia:220,boomInertia:4.8,boomDamping:10,
    sheetCurve:.90,sheetReleaseRate:.85,sheetReleaseKeyRate:1.55,
    hullLinearDrag:2.8,hullQuadraticDrag:2.7,hullWaveDrag:.60,hullWaveRise:{from:.54,to:.70,extra:.40},hullLateralLinear:22,hullCrossflowCD:.82,
@@ -92,10 +107,10 @@
    ballastX:.10,ballastY:-1.65,ballastVolume:.096,keelBottomY:-1.80,keelTopY:-.40,keelChord:1.18,keelArea:1.95,
    sailArea:55,mainArea:35,jibArea:20,mastX:1.20,mastTop:13.6,boomY:1.30,boomLength:4.72,sailLuff:12.1,
    sailCPChord:1.90,sailCPHeight:5.85,mainCPX:-.62,mainCPHeight:5.85,jibCPX:1.65,jibCPHeight:5.15,
-   jibTackX:4.55,jibTackY:.77,jibHeadX:1.20,jibHeadY:12.5,jibLuff:12.20,jibFoot:40/12.20,
+   jibTackX:4.55,jibTackY:.77,jibHeadX:1.20,jibHeadY:12.5,jibLuff:12.20,
    daggerArea:1.95,daggerDepth:2.40,daggerCPY:-1.0,daggerChord:1.18,daggerX:.10,rudderArea:.62,rudderDepth:2.00,rudderChord:.44,rudderX:-4.24,rudderOffsets:[-.90,.90],
    yawInertia:17400,rollInertia:1850,pitchInertia:17500,boomInertia:32,boomDamping:90,
-   hullLinearDrag:21,hullQuadraticDrag:24,hullWaveDrag:1.65,hullLateralLinear:160,hullLateralQuadratic:305,
+   hullLinearDrag:21,hullQuadraticDrag:24,hullWaveDrag:1.65,hullWaveHeelDrag:2.5,hullLateralLinear:160,hullCrossflowCD:.85,
    yawLinearDamping:1170,yawQuadraticDamping:1540,heaveDamping:10800,rollDamping:2500,pitchDamping:6600,
    boomMin:4*D,boomMax:83*D,sheetRate:.24,sheetCurve:.82,sheetReleaseRate:.43,sheetReleaseKeyRate:1.05,rudderMax:28*D,rudderRate:1.64,baseTwist:5*D,pressureTwist:34*D,sailCLMax:1.3,foilProfileCD:.008,
    cockpitMinX:-4.24,cockpitMaxX:-.64,cockpitHalfWidth:1.00,cockpitFloorY:.37,cockpitRadius:.16,crewX:-3.25,crewOffsets:[0,1.13,2.26],crewFloatVolume:.216,
@@ -111,10 +126,10 @@
    ballastX:.25,ballastY:-1.88,ballastVolume:.265,keelBottomY:-2.15,keelTopY:-.50,keelChord:1.65,keelArea:2.90,
    sailArea:80,mainArea:48,jibArea:32,code0Area:90,gennakerArea:105,spinnakerArea:115,mastX:1.5,mastTop:18.2,boomY:2.0,boomLength:5.7,sailLuff:16.0,
    sailCPChord:2.3,runningPressureArm:.28,sailCPHeight:7.8,mainCPX:-.8,mainCPHeight:7.8,jibCPX:1.7,jibCPHeight:6.9,
-   jibTackX:5.7,jibTackY:1.13,jibHeadX:1.5,jibHeadY:16.9,jibLuff:16.3,jibFoot:4.0583386176,
+   jibTackX:5.7,jibTackY:1.13,jibHeadX:1.5,jibHeadY:16.9,jibLuff:16.3,
    daggerArea:2.90,daggerDepth:3.15,daggerCPY:-1.325,daggerChord:1.65,daggerX:.25,rudderArea:.82,rudderDepth:2.35,rudderChord:.62,rudderX:-5.25,
    yawInertia:76000,rollInertia:4200,pitchInertia:76000,boomInertia:110,boomDamping:280,
-   hullLinearDrag:110,hullQuadraticDrag:55,hullWaveDrag:4.8,hullLateralLinear:260,hullLateralQuadratic:600,
+   hullLinearDrag:110,hullQuadraticDrag:55,hullWaveDrag:4.8,hullWaveHeelDrag:2.5,hullLateralLinear:260,hullCrossflowCD:.85,
    yawLinearDamping:2800,yawQuadraticDamping:3600,heaveDamping:21000,rollDamping:6500,pitchDamping:14000,
    boomMin:5*D,boomMax:83*D,sheetRate:.20,sheetCurve:.78,sheetReleaseKeyRate:.95,rudderMax:26*D,rudderRate:.9,baseTwist:6*D,
    sailProfileCD:.026,sailInducedCD:.10,sailCLMax:1.3,foilProfileCD:.009,
@@ -131,6 +146,7 @@
   // a second time. Main+jib areas are projected area (twin skin counts once).
   ac75:make('ac75','Foilmonohull','20,7 meter. Automatisk foiltrim; styr kurs og sejl selv.',{
    kind:'foiler',courseScale:8,length:20.7,beam:5,deckY:1.30,hullDepth:2.10,rocker:.70,chinePower:2.2,
+   crewForeAftRange:.55,
    shape:[[-.48,.55],[-.40,.77],[-.28,.94],[-.10,1],[.12,.95],[.30,.68],[.43,.32],[.52,.009]],
    hullMass:2890,rigMass:500,equipmentMass:260,armMass:1265,crewMass:720,waterDensity:1025,
    hullCGX:-.30,hullCGY:.52,rigCGY:9.0,
@@ -178,10 +194,12 @@
   // The 6,900kg total includes all eleven 90kg crew+gear stations.
   ac72:make('ac72','Foilkatamaran','To skrog, et stift vingesejl og fire bærende foilflader.',{
    kind:'foiler',hullType:'catamaran',rigidWing:true,courseScale:8,length:22,beam:14,hullBeam:1.70,hullOffsets:[-6.15,6.15],deckY:1.65,hullDepth:2.0,rocker:.46,chinePower:2.3,
+   crewForeAftRange:.50,
    shape:[[-.49,.48],[-.40,.77],[-.23,.97],[0,1],[.22,.92],[.39,.63],[.51,.015]],
    hullMass:3260,rigMass:900,equipmentMass:1150,armMass:300,crewMass:990,waterDensity:1025,
    hullCGX:-.15,hullCGY:.58,rigCGY:13.0,
-   sailArea:260,mainArea:205,jibArea:55,jibTackX:12.0,jibTackY:1.9,jibHeadX:2.2,jibHeadY:31.5,jibFoot:3.72,mastX:2.2,mastTop:40,boomY:1.8,boomLength:11.12,sailLuff:38.2,
+   sailArea:260,mainArea:205,jibArea:55,jibTackX:12.0,jibTackY:1.9,jibHeadX:2.2,jibHeadY:31.5,mastX:2.2,mastTop:40,boomY:1.8,boomLength:11.12,sailLuff:38.2,
+   heavyAir:{jib:.56,wingFlap:.22,wingLift:.68},
    wingSections:[[0,11.12],[.18,10.55],[.43,8.2],[.68,5.4],[.88,2.6],[1,.9]],wingFlapFraction:.28,wingFlapMax:11*D,wingFlapRate:38*D,
    sailCPChord:3.30,sailCPHeight:15.0,mainCPX:-1.1,mainCPHeight:15.0,jibCPX:4,jibCPHeight:9,
    crewStations:[-2.2,-3.25,-4.3,-5.35,-6.4].flatMap(x=>[-1,1].map(side=>({x,y:1.94,z:side*5.88,mass:90}))).concat([{x:-7.3,y:1.92,z:0,mass:90}]),
@@ -223,8 +241,13 @@
  for(const p of [CONFIGS.laser,CONFIGS.dinghy,CONFIGS.yacht]){
   p.waterBlades={
    board:{x:p.daggerX,root:p.keelTopY??hullBottom(p,p.daggerX,0),tip:p.keelBottomY??-p.daggerDepth,chord:p.daggerChord,area:p.daggerArea,taper:.78},
-   rudder:{x:p.rudderX,root:p.deckY-.10,tip:p.deckY-p.rudderDepth,chord:p.rudderChord,area:p.rudderArea,taper:.82}
+   rudder:{x:p.rudderX,root:p.deckY-.10,tip:p.deckY-p.rudderDepth,chord:p.rudderChord,area:p.rudderArea,taper:.82,steering:true,
+    offset:p.rudderOffset??0,rake:p.rudderRake??0}
   };
+ }
+ function rudderPoint(blade,fraction,angle=0){
+  const arm=(blade.offset??0)+(blade.rake??0)*fraction;
+  return {x:blade.x-arm*Math.cos(angle),y:mix(blade.root,blade.tip,fraction),z:(blade.z??0)+arm*Math.sin(angle)};
  }
  function insideCockpit(model,x,z){const p=get(model),c=p.cockpit,r=c.radius,ax=Math.max(c.minX+r-x,0,x-(c.maxX-r)),az=Math.max(Math.abs(z)-(c.halfWidth-r),0);return ax*ax+az*az<=r*r&&x>=c.minX&&x<=c.maxX&&Math.abs(z)<=c.halfWidth;}
  function point(x,y,z){return {x,y,z};}
@@ -336,6 +359,9 @@
   // and the furthest usable windward position. All people retain their mass.
   return p.crewStations.map(q=>{const centre=q.z===0,shift=(centre?.12:.18)*first+(centre?.08:.18)*second;return {...q,x:q.x+foreAft,z:q.z+shift*side,y:q.y-.025*second};});
  }
+ function softSailReefScale(model,reef=0){
+  return 1-(model.id==='laser'?.16:.22)*reef;
+ }
  function foilerSailScale(model,name,reef=0){
   return Math.sqrt(mix(1,model.heavyAir?.[name]??1,reef));
  }
@@ -344,6 +370,6 @@
   gennaker:{name:'Gennaker',area:'gennakerArea',open:68,close:61,full:87,shadow:139,shadowLoss:.48,maxWind:17,sheet:.48,drag:.70,lift:.46,hint:'Til slør'},
   spinnaker:{name:'Spiler',area:'spinnakerArea',open:82,close:70,full:100,shadow:151,shadowLoss:.16,maxWind:19,sheet:.42,drag:1,lift:.28,hint:'Til dybt slør og læns'}
  });
- root.SailingBoats={CONFIGS,cruiserSails,LIST:Object.values(CONFIGS),get,halfBeamAt,hullBottom,insideCockpit,crewPose,crewPoseAt,boomDistance,foilerCrewPositions,foilerSailScale,jointBetween};
+ root.SailingBoats={CONFIGS,cruiserSails,LIST:Object.values(CONFIGS),get,halfBeamAt,hullBottom,rudderPoint,insideCockpit,crewPose,crewPoseAt,boomDistance,foilerCrewPositions,softSailReefScale,foilerSailScale,jointBetween,addPointInertia};
 
 });

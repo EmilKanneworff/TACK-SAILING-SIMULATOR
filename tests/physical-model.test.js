@@ -114,11 +114,43 @@ test('foil crew can move fore and aft at their stations and change the physical 
  }));
  for(const {boatId,neutral,forward} of samples){
   expect(forward.mass,boatId).toBeCloseTo(neutral.mass,7);
-  expect(forward.station-neutral.station,boatId).toBeCloseTo(.15,3);
+  expect(forward.station-neutral.station,boatId).toBeGreaterThan(.45);
   expect(forward.rendered,boatId).toBeCloseTo(forward.station,5);
-  expect(forward.pelvis-neutral.pelvis,boatId).toBeGreaterThan(.10);
-  expect(forward.cg-neutral.cg,boatId).toBeGreaterThan(.01);
+  expect(forward.pelvis-neutral.pelvis,boatId).toBeCloseTo(forward.station-neutral.station,5);
+  expect(forward.cg-neutral.cg,boatId).toBeGreaterThan(.05);
   expect(forward.pitch,boatId).toBeLessThan(neutral.pitch-.0001);
+ }
+});
+
+test('the flight controller keeps a measurable bow response to crew weight on both foilers',async({page})=>{
+ await page.goto(game);
+ const results=await page.evaluate(()=>['ac75','ac72'].map(boatId=>{
+  const P=SailPhysics,c=SailingBoats.get(boatId),dt=1/60,theta=-22*P.DEG;
+  const env={...P.DEFAULT_ENV,boatId,difficulty:'hard',speed:12,direction:0,waveHeight:0,chop:0,gusts:0,shelter:false};
+  const initial=P.createState({boatId,x:0,y:-13000,theta,sheet:.52,vx:11*Math.cos(theta),vy:11*Math.sin(theta)},env);
+  for(let i=0;i<840;i++)P.step(initial,{crewPose:1},env,dt);
+  const samples=[-1,1].map(foreAft=>{
+   const s=structuredClone(initial);
+   let pitch=0,bow=0,minClearance=Infinity;
+   for(let i=0;i<540;i++){
+    P.step(s,{foreAft,crewPose:1},env,dt);
+    minClearance=Math.min(minClearance,s.foiling.clearance);
+    if(i<360)continue;
+    pitch+=s.pitch/P.DEG/180;
+    bow+=P.bodyPoint(s,{x:c.hullSections.at(-1)[0],y:c.deckY,z:0}).z/180;
+   }
+   return {pitch,bow,minClearance,phase:s.foiling.support.phase,capsized:s.capsized};
+  });
+  return {boatId,samples};
+ }));
+ for(const {boatId,samples:[aft,forward]} of results){
+  for(const sample of [aft,forward]){
+   expect(sample.phase,boatId).toBe('foiling');
+   expect(sample.capsized,boatId).toBe(false);
+   expect(sample.minClearance,boatId).toBeGreaterThan(.2);
+  }
+  expect(aft.pitch-forward.pitch,boatId).toBeGreaterThan(.4);
+  expect(aft.bow-forward.bow,boatId).toBeGreaterThan(.08);
  }
 });
 

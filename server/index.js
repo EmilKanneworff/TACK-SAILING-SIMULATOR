@@ -203,22 +203,22 @@ function readControl(m,boat) {
   const validSwitch=value=>value===undefined||typeof value==='boolean';
   const inRange=(value,min,max)=>value===undefined||Number.isFinite(value)&&value>=min&&value<=max;
   if (!Number.isSafeInteger(m.seq)||m.seq<0||!Number.isFinite(m.steer)||!validUnit(m.steer)||
-      !Number.isFinite(m.trim)||!validUnit(m.trim)||![1,2,3].includes(m.crewPose)||
+      !Number.isFinite(m.trim)||!validUnit(m.trim)||!inRange(m.sheetTarget,0,1)||![1,2,3].includes(m.crewPose)||
       (m.difficulty!==undefined&&!['easy','hard'].includes(m.difficulty))||!validUnit(m.crew)||!validUnit(m.foreAft)||
       ![m.trimFast,m.steerDigital,m.spinnaker,m.ironsHelp].every(validSwitch)||
       !inRange(m.controlRate,.6,1.6)||!inRange(m.controlSensitivity,.5,1.5)||!inRange(m.motionDamping,.6,1.6)||
       (m.downwindType!==undefined&&!['spinnaker','gennaker','code0'].includes(m.downwindType))) return null;
-  const control={ steer:m.steer,trim:m.trim,crew:m.crew??0,foreAft:m.foreAft??0,crewPose:m.crewPose,
+  const control={ steer:m.steer,trim:m.trim,sheetTarget:m.sheetTarget,crew:m.crew??0,foreAft:m.foreAft??0,crewPose:m.crewPose,
     difficulty:m.difficulty??'hard',ironsHelp:m.ironsHelp??false,spinnaker:m.spinnaker??false,
     downwindType:m.downwindType??'spinnaker',trimFast:m.trimFast??true,steerDigital:m.steerDigital??true,
     controlRate:m.controlRate??1,controlSensitivity:m.controlSensitivity??1,motionDamping:m.motionDamping??1 };
   if (m.rig===undefined) return control;
   const rig=m.rig;
   const sheet=value=>value===undefined||Number.isFinite(value)&&value>=0&&value<=1;
-  if (!rig||typeof rig!=='object'||Array.isArray(rig)||!['yacht','ac75'].includes(boat)||
+  if (!rig||typeof rig!=='object'||Array.isArray(rig)||
       (rig.reef!==undefined&&![0,1,2].includes(rig.reef))||(rig.headsail!==undefined&&![0,1].includes(rig.headsail))||
       !sheet(rig.jibSheet)||!sheet(rig.extraSheet)||
-      (boat==='ac75'&&[rig.headsail,rig.jibSheet,rig.extraSheet].some(value=>value!==undefined))) return null;
+      (boat!=='yacht'&&[rig.headsail,rig.jibSheet,rig.extraSheet].some(value=>value!==undefined))) return null;
   control.rig={reef:rig.reef,headsail:rig.headsail,jibSheet:rig.jibSheet,extraSheet:rig.extraSheet};
   return control;
 }

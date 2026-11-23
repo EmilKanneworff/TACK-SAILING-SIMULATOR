@@ -96,10 +96,24 @@ test('the server sails boats, filters inputs and hands over while preserving ide
   assert.ok(Math.hypot(moving.boats[g.id].x-start.boats[g.id].x,moving.boats[g.id].y-start.boats[g.id].y)>0);
   post(guest,input(session,1,{steer:1}));
   assert.match((await next(guest,'error')).message,/forældet/);
-  post(guest,input(session,2,{rig:{reef:20}}));
+  post(guest,input(session,2,{rig:{reef:2},foreAft:.6}));
+  const reefed=(await next(guest,'snapshot',m=>m.state.acks[g.id]===2&&m.state.boats[g.id]?.cruiserRig?.reef>0)).state;
+  assert.ok(reefed.boats[g.id].sail.main.area<moving.boats[g.id].sail.main.area);
+  const held=(await next(guest,'snapshot',m=>m.state.time>reefed.time+1.4)).state;
+  assert.ok(held.boats[g.id].crewForeAft>.55);
+  assert.equal(held.boats[g.id].steerIntent,0);
+  post(guest,input(session,3,{rig:{reef:20}}));
   assert.match((await next(guest,'error')).message,/Ugyldigt/);
-  post(guest,input(session,2,{controlRate:100}));
+  post(guest,input(session,3,{controlRate:100}));
   assert.match((await next(guest,'error')).message,/Ugyldigt/);
+  post(guest,input(session,3,{sheetTarget:1.1}));
+  assert.match((await next(guest,'error')).message,/Ugyldigt/);
+  const target=held.boats[g.id].sheet-.008;
+  post(guest,input(session,3,{sheetTarget:target,trim:1}));
+  const trimmed=(await next(host,'snapshot',m=>m.state.acks[g.id]===3&&Math.abs(m.state.boats[g.id].sheet-target)<1e-6)).state;
+  assert.ok(trimmed.boats[g.id].sheet<held.boats[g.id].sheet);
+  post(guest,input(session,2,{sheetTarget:1}));
+  assert.match((await next(guest,'error')).message,/forældet/);
   post(guest,{type:'snapshot',session,seq:9,state:{time:9999}});
   assert.equal((await next(guest,'error')).message,'Ukendt besked.');
 

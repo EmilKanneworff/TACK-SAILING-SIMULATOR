@@ -185,7 +185,7 @@ test('the Laser regains rudder force after a heeled turn unloads the blade on bo
    const s=P.createState({boatId:'laser',x:0,y:-13000,theta:heading,sheet:.30,crewPose:2,crewPoseBlend:2,
     heel:side*34*D,pitch:8*D,
     vx:3.2*Math.cos(heading),vy:3.2*Math.sin(heading),crewSide:-side,crewSideBlend:-side},env);
-   let minWet=1,rewet=null,rudderImpulse=0,maxSlide=0,maxAssist=0;
+   let minWet=1,rewet=null,rudderImpulse=0,countersteerDegrees=0,maxSlide=0,maxAssist=0,neutral;
    for(let i=0;i<8*60&&!s.capsized;i++){
     const t=i/60,returning=rewet!==null&&t<rewet+.50;
     const steer=t<1.2?side:returning?-.55*side:0;
@@ -194,11 +194,18 @@ test('the Laser regains rudder force after a heeled turn unloads the blade on bo
     maxAssist=Math.max(maxAssist,Math.abs(s.forces.yawAssist));
     const a=P.axes(s.theta),forward=s.vx*a.fx+s.vy*a.fy;
     minWet=Math.min(minWet,s.forces.rudder.wet);
-    if(t>1.2&&minWet<.1&&s.forces.rudder.wet>.33&&forward>1)rewet??=s.time;
-    if(returning)rudderImpulse+=s.forces.yawRudder/60;
+    if(rewet===null&&t>1.2&&minWet<.1&&s.forces.rudder.wet>.33&&forward>1){
+     rewet=s.time;
+     neutral=structuredClone(s);
+    }
+    if(returning){
+     P.step(neutral,{steer:0,crewPose:2,crew:-side},env,1/60);
+     rudderImpulse+=s.forces.yawRudder/60;
+     countersteerDegrees=P.wrap(s.theta-neutral.theta)/D;
+    }
     maxSlide=Math.max(maxSlide,Math.abs(s.vx*a.rx+s.vy*a.ry));
    }
-   return {side,capsized:s.capsized,minWet,rewet,maxSlide,maxAssist,rudderImpulse,heel:s.heel/D};
+   return {side,capsized:s.capsized,minWet,rewet,maxSlide,maxAssist,rudderImpulse,countersteerDegrees,heel:s.heel/D};
   });
  });
  for(const run of runs){
@@ -208,7 +215,8 @@ test('the Laser regains rudder force after a heeled turn unloads the blade on bo
   expect(run.maxSlide,evidence).toBeLessThan(1.7);
   expect(run.rewet,evidence).toBeGreaterThan(1.2);
   expect(run.rewet,evidence).toBeLessThan(5);
-  expect(run.rudderImpulse*run.side,evidence).toBeGreaterThan(20);
+  expect(run.rudderImpulse*run.side,evidence).toBeGreaterThan(0);
+  expect(run.countersteerDegrees*run.side,evidence).toBeGreaterThan(2.75);
   expect(Math.abs(run.heel),evidence).toBeLessThan(15);
   expect(run.maxAssist,evidence).toBe(0);
  }

@@ -28,6 +28,31 @@ async function setUpLaserTack(page,side,{speed=9,difficulty='hard'}={}){
  },{side,speed});
 }
 
+test('Z and X keep the selected fore-and-aft weight after release',async({page})=>{
+ await setUpLaserTack(page,-1,{speed:0});
+ const offset=()=>page.evaluate(()=>SAILING_GAME.state.crewForeAft);
+ const target=page.locator('#foreAftSetting');
+ await page.keyboard.press('z');
+ await page.clock.runFor(1600);
+ await expect(target).toHaveValue('-50');
+ expect(await offset()).toBeCloseTo(-.5,2);
+ await expect(page.locator('#dockForeAft')).toHaveText(/2[12] cm agter/);
+ await page.keyboard.down('x');
+ await page.clock.runFor(900);
+ await page.keyboard.up('x');
+ const selected=Number(await target.inputValue())/100;
+ expect(selected).toBeGreaterThan(.65);
+ expect(selected).toBeLessThan(.95);
+ await page.clock.runFor(1600);
+ const settled=await offset();
+ // The slider rounds to whole percentages while the simulation keeps the exact target.
+ expect(Math.abs(settled-selected)).toBeLessThan(.01);
+ await page.clock.runFor(500);
+ expect(await offset()).toBeCloseTo(settled,3);
+ await expect(page.locator('#dockForeAft')).toContainText('cm frem');
+ await expect(target).toHaveValue(String(Math.round(selected*100)));
+});
+
 test('difficulty is remembered and switching to hard restores the manual weight controls',async({page})=>{
  await page.setViewportSize({width:390,height:744});
  await page.goto(game);
@@ -50,7 +75,7 @@ test('difficulty is remembered and switching to hard restores the manual weight 
  await page.waitForFunction(()=>SAILING_GAME.state.crewDifficulty==='hard'&&SAILING_GAME.state.crewPose===3);
 });
 
-test('Laser on hard responds to side taps, short helm inputs and a fast sheet release',async({page})=>{
+test('Laser on hard responds to side taps, short helm inputs and controlled easing',async({page})=>{
  await setUpLaserTack(page,-1,{speed:0});
  await page.keyboard.press('KeyE');
  await page.clock.runFor(1100);
@@ -74,7 +99,8 @@ test('Laser on hard responds to side taps, short helm inputs and a fast sheet re
  expect(after.capsized).toBe(false);
  expect(rudder).toBeGreaterThan(3);
  expect(Number.isFinite(after.turn)).toBe(true);
- expect(before.sheet-after.sheet).toBeGreaterThan(.23);
+ expect(before.sheet-after.sheet).toBeGreaterThan(.025);
+ expect(before.sheet-after.sheet).toBeLessThan(.075);
 });
 
 test('Laser on hard keeps the manually selected side in calm water when 1–3 change the stance',async({page})=>{

@@ -20,7 +20,7 @@ function makeWorld(env) {
 }
 
 function neutral(control = {}) {
-  return { ...control, steer: 0, trim: 0, crew: 0, foreAft: 0, crewPose: control.crewPose ?? 2 };
+  return { ...control, steer: 0, trim: 0, sheetTarget: undefined, crew: 0, foreAft: control.foreAft ?? 0, crewPose: control.crewPose ?? 2 };
 }
 
 function roomWeather(patch, current = Settings.defaults) {
@@ -117,7 +117,7 @@ class RoomSimulation {
     const grid = model ? this.startGrid(model,players,largest) : null;
     let slot = 0;
     for (const p of players.values()) {
-      p.control = neutral(p.control);
+      p.control = neutral({...p.control, foreAft: 0});
       this.spawn(p,grid?.get(p.id) ?? this.freeSpawn(p.slot ?? slot++));
       if (model) {
         const race = new Sim.Course({ ...field, boatId: p.boat, difficulty: p.control.difficulty },'course',courseType,model);

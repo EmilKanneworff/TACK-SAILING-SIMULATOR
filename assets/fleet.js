@@ -29,7 +29,7 @@ function visualPose(view,now){
   for(const key of ['main','jib']){
    const part=to.sail[key],old=from.sail?.[key];
    if(!part)continue;
-   draw.sail[key]=blendFields(old,part,t,['angle','alpha','load','luff','stall','twist','camber','fill']);
+   draw.sail[key]=blendFields(old,part,t,['area','luffScale','chordScale','angle','alpha','load','luff','stall','twist','camber','fill']);
    if(old?.sections&&part.sections)draw.sail[key].sections=part.sections.map((section,i)=>
     blendFields(old.sections[i],section,t,['alpha','luff','stall','airForward','airRight','localAirSpeed']));
   }
@@ -79,7 +79,7 @@ class Fleet {
   const old=this.lastControl;
   // Send small analogue changes on the network cadence, and key changes
   // immediately so a quick tap can reach an authority tick.
-  const changed=!old||['steer','steerDigital','trimKey','crewPose','crew','spinnaker','downwindType'].some(key=>old[key]!==control[key]);
+  const changed=!old||['steer','steerDigital','trimKey','sheetTarget','crewPose','crew','spinnaker','downwindType'].some(key=>old[key]!==control[key]);
   if(changed||now-this.lastInput>=50){
    this.lastInput=now;
    this.lastControl=control;
@@ -91,7 +91,7 @@ class Fleet {
   if(!this.inWorld||!this.lastControl)return;
   const control=this.lastControl;
   this.lastControl=null;
-  this.send({...control,type:'input',seq:this.inputSeq++,steer:0,trim:0,crew:0,foreAft:0});
+  this.send({...control,type:'input',seq:this.inputSeq++,steer:0,trim:0,sheetTarget:undefined,crew:0});
  }
  startFree(){
   if(this.host)this.send({type:'start',settings:{mode:'free',courseType:'gates',courseVariant:'short'}});

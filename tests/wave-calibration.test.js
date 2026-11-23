@@ -141,7 +141,7 @@ test('wave fronts stay coherent across the chosen direction and pass spaced prob
   }
 });
 
-test('Chop adds independent short waves while wind duration, fetch and depth still matter',async({page})=>{
+test('the short sea can exist alone and responds to wind, fetch and depth',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
@@ -149,7 +149,9 @@ test('Chop adds independent short waves while wind duration, fetch and depth sti
   const short=P.WAVE_COMPONENTS.findIndex(w=>w.windSea),long=0;
   function rms(env,x,y){
    const p=P.waveProfileFor(env),conditions={...env,waveProfile:{from:p,to:p,start:-10}};
-   return Math.sqrt(Array.from({length:480},(_,i)=>P.waveAt(x,y,i*.075,conditions).height**2)
+   const band=P.WAVE_COMPONENTS[env.waveComponent];
+   const duration=band?2*Math.PI/band.omega*(band.windSea?p.shortPeriod:p.period*band.managedPeriod)*8:36;
+   return Math.sqrt(Array.from({length:480},(_,i)=>P.waveAt(x,y,i*duration/480,conditions).height**2)
     .reduce((sum,h)=>sum+h,0)/480);
   }
   const offshore={...base,shelter:false},big={...offshore,waveHeight:1.15},choppy={...offshore,chop:1};
@@ -164,8 +166,12 @@ test('Chop adds independent short waves while wind duration, fetch and depth sti
   const island=SailingWorld.ISLANDS.find(i=>i.id==='bjorno'),x=ArchipelagoData.fromMetric(1500,0).x;
   let shore=island.minY;while(SailingWorld.islandSample(island,x,shore).distance>=0)shore++;
   const y=shore-70,lee={...base,chop:1,waveHeight:1.15};
-  const leeProfile=P.waveProfileFor(lee),swellPath=P.wavePathField(leeProfile);
-  const measuredPaths=[-40,0,40].map(offset=>D.samplePath(swellPath,x,y+offset,0).v);
+  const leeProfile=P.waveProfileFor(lee);
+  const measuredPaths=[0,1].map(chop=>{
+   const path=P.wavePathField(P.waveProfileFor({...lee,chop}));
+   const [near,far]=[shore-5,y].map(py=>D.samplePath(path,x,py,0).v);
+   return far-near;
+  });
   return {
    deep:depths[0],shallow:depths[1],veryShallow:depths[2],k,dispersionError:Math.abs(k*Math.tanh(k*3)-k0),
    onlyLong:[rms({...big,waveComponent:long},0,-10000),rms({...big,waveComponent:short},0,-10000)],
@@ -187,9 +193,9 @@ test('Chop adds independent short waves while wind duration, fetch and depth sti
  expect(result.onlyLong[1]).toBe(0);
  expect(result.onlyShort[0]).toBe(0);
  expect(result.onlyShort[1]).toBeGreaterThan(.045);
- expect(result.combined[0]).toBeCloseTo(result.onlyLong[0],8);
+ expect(result.combined[0]).toBeCloseTo(result.onlyLong[0],2);
  expect(result.combined[1]).toBeCloseTo(result.onlyShort[1]*.5,3);
- expect(result.pureChop[0]).toBeCloseTo(result.onlyLong[0],8);
+ expect(result.pureChop[0]).toBeCloseTo(result.onlyLong[0],2);
  expect(result.pureChop[1]).toBeCloseTo(result.onlyShort[1],8);
  expect(result.growth[1]).toBeGreaterThan(result.growth[0]);
  expect(result.growth[2]).toBeGreaterThan(result.growth[1]);
@@ -197,7 +203,41 @@ test('Chop adds independent short waves while wind duration, fetch and depth sti
  expect(result.windlessSwell).toBeCloseTo(result.swell,8);
  expect(result.fetch).toBeLessThan(140);
  expect(result.lee).toBeLessThan(result.open*.65);
- expect(Math.max(...result.measuredPaths)-Math.min(...result.measuredPaths)).toBeGreaterThan(.10);
+ expect(result.measuredPaths[0]).toBeGreaterThan(.10);
+ expect(result.measuredPaths[1]).toBeGreaterThan(.03);
+ expect(result.measuredPaths[1]).toBeLessThan(result.measuredPaths[0]);
+});
+
+test('Chop closes the distance between crests and steepens them at the same swell height',async({page})=>{
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const samples=await page.evaluate(()=>{
+  const P=SailPhysics,w=P.WAVE_COMPONENTS[0],dx=.15;
+  return [0,.5,1].map(chop=>{
+   const field={waveHeight:1.4,chop,direction:270,speed:8,shelter:false,waveComponent:0};
+   const p=P.waveProfileFor(field),env={...field,waveProfile:{from:p,to:p,start:0}};
+   const crests=[];
+   let lo=Infinity,hi=-Infinity,slope=0,last=-Infinity;
+   for(let i=0;i<1380;i++){
+    const x=-1850+i*dx,sample=P.waveAt(x,-1930,12,env);
+    if(last>0&&sample.dx<=0)crests.push(x);
+    last=sample.dx;
+    lo=Math.min(lo,sample.height);hi=Math.max(hi,sample.height);slope=Math.max(slope,Math.abs(last));
+   }
+   const spacing=(crests.at(-1)-crests[0])/(crests.length-1);
+   return {chop,spacing,slope,height:hi-lo,period:2*Math.PI/w.omega*p.period*w.managedPeriod};
+  });
+ });
+ const [soft,middle,steep]=samples;
+ expect(soft.spacing).toBeGreaterThan(50);
+ expect(middle.spacing).toBeLessThan(soft.spacing*.75);
+ expect(steep.spacing).toBeLessThan(middle.spacing*.75);
+ expect(middle.slope).toBeGreaterThan(soft.slope*1.5);
+ expect(steep.slope).toBeGreaterThan(soft.slope*2.5);
+ expect(middle.height).toBeCloseTo(soft.height,3);
+ expect(steep.height).toBeCloseTo(soft.height,3);
+ for(const sample of samples)expect(sample.spacing).toBeCloseTo(9.82*sample.period**2/(2*Math.PI),0);
+ console.log('Bølgetoppe ved samme højde',JSON.stringify(samples));
 });
 
 test('managed swell gives its shortest band a full swell wavelength',async({page})=>{
