@@ -1,0 +1,617 @@
+{
+  "machine": "Apple M5",
+  "os": "25.3.0",
+  "browser": "158.0.8127.37",
+  "test": {
+    "viewport": {
+      "width": 390,
+      "height": 664
+    },
+    "deviceScaleFactor": 3,
+    "downloadMbit": 10,
+    "latencyMs": 80,
+    "cpuThrottle": 4
+  },
+  "results": [
+    {
+      "url": "http://localhost:5179/",
+      "cache": "cold",
+      "repetition": 0,
+      "revision": "d28234900d94",
+      "firstUI": 268,
+      "ready": 5906.89999999851,
+      "start": 6572.39999999851,
+      "firstScene": 6194,
+      "draw": 6853.39999999851,
+      "controls": 7079.800000000745,
+      "stable": 7523.699999999255,
+      "longTasks": [
+        {
+          "start": 1107.800000000745,
+          "duration": 4804
+        },
+        {
+          "start": 5912.39999999851,
+          "duration": 288
+        },
+        {
+          "start": 6203.800000000745,
+          "duration": 266
+        },
+        {
+          "start": 6570.199999999255,
+          "duration": 252
+        }
+      ],
+      "bytes": {
+        "transferSize": 1180704,
+        "encodedBodySize": 1175794,
+        "decodedBodySize": 2665828
+      },
+      "fieldMarks": {},
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "boat": "laser",
+      "wind": 5,
+      "windDirection": 0,
+      "waves": 0.35,
+      "chop": 0.35,
+      "quality": "low",
+      "camera": 0,
+      "buffer": [
+        288,
+        491
+      ]
+    },
+    {
+      "url": "http://localhost:5179/",
+      "cache": "warm",
+      "repetition": 0,
+      "revision": "d28234900d94",
+      "firstUI": 212,
+      "ready": 5282.199999999255,
+      "start": 5848.800000000745,
+      "firstScene": 5497.60000000149,
+      "draw": 5975.60000000149,
+      "controls": 6147,
+      "stable": 6483.199999999255,
+      "longTasks": [
+        {
+          "start": 701.1000000014901,
+          "duration": 4581
+        },
+        {
+          "start": 5282.300000000745,
+          "duration": 221
+        },
+        {
+          "start": 5508.10000000149,
+          "duration": 250
+        },
+        {
+          "start": 5848.300000000745,
+          "duration": 110
+        }
+      ],
+      "bytes": {
+        "transferSize": 12000,
+        "encodedBodySize": 185380,
+        "decodedBodySize": 589196
+      },
+      "fieldMarks": {},
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "boat": "laser",
+      "wind": 5,
+      "windDirection": 0,
+      "waves": 0.35,
+      "chop": 0.35,
+      "quality": "low",
+      "camera": 0,
+      "buffer": [
+        288,
+        491
+      ]
+    },
+    {
+      "url": "http://localhost:4180/",
+      "cache": "cold",
+      "repetition": 0,
+      "revision": "55afe8661449",
+      "firstUI": 256,
+      "ready": 3004.400000002235,
+      "start": 3610,
+      "firstScene": 3264,
+      "draw": 3718.5,
+      "controls": 3924.400000002235,
+      "stable": 4280.10000000149,
+      "longTasks": [
+        {
+          "start": 1955,
+          "duration": 1054
+        },
+        {
+          "start": 3026.5,
+          "duration": 244
+        },
+        {
+          "start": 3277.60000000149,
+          "duration": 256
+        },
+        {
+          "start": 3609.60000000149,
+          "duration": 92
+        }
+      ],
+      "bytes": {
+        "transferSize": 2205349,
+        "encodedBodySize": 2200139,
+        "decodedBodySize": 3701261
+      },
+      "fieldMarks": {
+        "tack-fields-response": 756.8000000007451,
+        "tack-fields-decompressed": 1955,
+        "tack-fields-ready": 2001.9000000022352
+      },
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "boat": "laser",
+      "wind": 5,
+      "windDirection": 0,
+      "waves": 0.35,
+      "chop": 0.35,
+      "quality": "low",
+      "camera": 0,
+      "buffer": [
+        288,
+        491
+      ]
+    },
+    {
+      "url": "http://localhost:4180/",
+      "cache": "warm",
+      "repetition": 0,
+      "revision": "55afe8661449",
+      "firstUI": 184,
+      "ready": 1135.6000000014901,
+      "start": 1670.5,
+      "firstScene": 1344.6000000014901,
+      "draw": 1733.4000000022352,
+      "controls": 1873.1000000014901,
+      "stable": 2240.199999999255,
+      "longTasks": [
+        {
+          "start": 236.10000000149012,
+          "duration": 899
+        },
+        {
+          "start": 1135.6000000014901,
+          "duration": 213
+        },
+        {
+          "start": 1355.199999999255,
+          "duration": 251
+        }
+      ],
+      "bytes": {
+        "transferSize": 300,
+        "encodedBodySize": 2200139,
+        "decodedBodySize": 3701261
+      },
+      "fieldMarks": {
+        "tack-fields-response": 185.10000000149012,
+        "tack-fields-decompressed": 236.10000000149012,
+        "tack-fields-ready": 284.4000000022352
+      },
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "boat": "laser",
+      "wind": 5,
+      "windDirection": 0,
+      "waves": 0.35,
+      "chop": 0.35,
+      "quality": "low",
+      "camera": 0,
+      "buffer": [
+        288,
+        491
+      ]
+    },
+    {
+      "url": "http://localhost:4180/",
+      "cache": "cold",
+      "repetition": 1,
+      "revision": "55afe8661449",
+      "firstUI": 252,
+      "ready": 2997.400000002235,
+      "start": 3621.10000000149,
+      "firstScene": 3265.10000000149,
+      "draw": 3740.400000002235,
+      "controls": 3917.699999999255,
+      "stable": 4257.300000000745,
+      "longTasks": [
+        {
+          "start": 1949.9000000022352,
+          "duration": 1052
+        },
+        {
+          "start": 3019.10000000149,
+          "duration": 253
+        },
+        {
+          "start": 3279.800000000745,
+          "duration": 268
+        },
+        {
+          "start": 3618.800000000745,
+          "duration": 92
+        }
+      ],
+      "bytes": {
+        "transferSize": 2205349,
+        "encodedBodySize": 2200139,
+        "decodedBodySize": 3701261
+      },
+      "fieldMarks": {
+        "tack-fields-response": 751.6000000014901,
+        "tack-fields-decompressed": 1949.9000000022352,
+        "tack-fields-ready": 1999.4000000022352
+      },
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "boat": "laser",
+      "wind": 5,
+      "windDirection": 0,
+      "waves": 0.35,
+      "chop": 0.35,
+      "quality": "low",
+      "camera": 0,
+      "buffer": [
+        288,
+        491
+      ]
+    },
+    {
+      "url": "http://localhost:4180/",
+      "cache": "warm",
+      "repetition": 1,
+      "revision": "55afe8661449",
+      "firstUI": 184,
+      "ready": 1164.800000000745,
+      "start": 1704.6000000014901,
+      "firstScene": 1378,
+      "draw": 1762.300000000745,
+      "controls": 1911,
+      "stable": 2290.10000000149,
+      "longTasks": [
+        {
+          "start": 233.80000000074506,
+          "duration": 931
+        },
+        {
+          "start": 1164.800000000745,
+          "duration": 218
+        },
+        {
+          "start": 1388.6000000014901,
+          "duration": 251
+        }
+      ],
+      "bytes": {
+        "transferSize": 300,
+        "encodedBodySize": 2200139,
+        "decodedBodySize": 3701261
+      },
+      "fieldMarks": {
+        "tack-fields-response": 181.80000000074506,
+        "tack-fields-decompressed": 234.19999999925494,
+        "tack-fields-ready": 280.80000000074506
+      },
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "boat": "laser",
+      "wind": 5,
+      "windDirection": 0,
+      "waves": 0.35,
+      "chop": 0.35,
+      "quality": "low",
+      "camera": 0,
+      "buffer": [
+        288,
+        491
+      ]
+    },
+    {
+      "url": "http://localhost:5179/",
+      "cache": "cold",
+      "repetition": 1,
+      "revision": "d28234900d94",
+      "firstUI": 260,
+      "ready": 5862.800000000745,
+      "start": 6493.60000000149,
+      "firstScene": 6130.70000000298,
+      "draw": 6654.60000000149,
+      "controls": 6861,
+      "stable": 7211.400000002235,
+      "longTasks": [
+        {
+          "start": 1110.4000000022352,
+          "duration": 4757
+        },
+        {
+          "start": 5868.10000000149,
+          "duration": 269
+        },
+        {
+          "start": 6139.900000002235,
+          "duration": 252
+        },
+        {
+          "start": 6492.300000000745,
+          "duration": 130
+        }
+      ],
+      "bytes": {
+        "transferSize": 1180704,
+        "encodedBodySize": 1175794,
+        "decodedBodySize": 2665828
+      },
+      "fieldMarks": {},
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "boat": "laser",
+      "wind": 5,
+      "windDirection": 0,
+      "waves": 0.35,
+      "chop": 0.35,
+      "quality": "low",
+      "camera": 0,
+      "buffer": [
+        288,
+        491
+      ]
+    },
+    {
+      "url": "http://localhost:5179/",
+      "cache": "warm",
+      "repetition": 1,
+      "revision": "d28234900d94",
+      "firstUI": 224,
+      "ready": 5225.29999999702,
+      "start": 5722.79999999702,
+      "firstScene": 5409.89999999851,
+      "draw": 5840.599999997765,
+      "controls": 6011.099999997765,
+      "stable": 6360.699999999255,
+      "longTasks": [
+        {
+          "start": 694.7999999970198,
+          "duration": 4530
+        },
+        {
+          "start": 5225.29999999702,
+          "duration": 189
+        },
+        {
+          "start": 5418.699999999255,
+          "duration": 229
+        },
+        {
+          "start": 5722.79999999702,
+          "duration": 107
+        }
+      ],
+      "bytes": {
+        "transferSize": 12000,
+        "encodedBodySize": 185380,
+        "decodedBodySize": 589196
+      },
+      "fieldMarks": {},
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "boat": "laser",
+      "wind": 5,
+      "windDirection": 0,
+      "waves": 0.35,
+      "chop": 0.35,
+      "quality": "low",
+      "camera": 0,
+      "buffer": [
+        288,
+        491
+      ]
+    },
+    {
+      "url": "http://localhost:5179/",
+      "cache": "cold",
+      "repetition": 2,
+      "revision": "d28234900d94",
+      "firstUI": 244,
+      "ready": 5827.89999999851,
+      "start": 6503.099999997765,
+      "firstScene": 6106.39999999851,
+      "draw": 6668.39999999851,
+      "controls": 6863,
+      "stable": 7256.199999999255,
+      "longTasks": [
+        {
+          "start": 1113.300000000745,
+          "duration": 4720
+        },
+        {
+          "start": 5850.39999999851,
+          "duration": 263
+        },
+        {
+          "start": 6115.89999999851,
+          "duration": 287
+        },
+        {
+          "start": 6501.300000000745,
+          "duration": 137
+        }
+      ],
+      "bytes": {
+        "transferSize": 1180704,
+        "encodedBodySize": 1175794,
+        "decodedBodySize": 2665828
+      },
+      "fieldMarks": {},
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "boat": "laser",
+      "wind": 5,
+      "windDirection": 0,
+      "waves": 0.35,
+      "chop": 0.35,
+      "quality": "low",
+      "camera": 0,
+      "buffer": [
+        288,
+        491
+      ]
+    },
+    {
+      "url": "http://localhost:5179/",
+      "cache": "warm",
+      "repetition": 2,
+      "revision": "d28234900d94",
+      "firstUI": 220,
+      "ready": 5138.099999997765,
+      "start": 5820.599999997765,
+      "firstScene": 5425.599999997765,
+      "draw": 5952.800000000745,
+      "controls": 6163,
+      "stable": 6477.300000000745,
+      "longTasks": [
+        {
+          "start": 696.8999999985099,
+          "duration": 4441
+        },
+        {
+          "start": 5138.099999997765,
+          "duration": 293
+        },
+        {
+          "start": 5439.300000000745,
+          "duration": 298
+        },
+        {
+          "start": 5818.39999999851,
+          "duration": 114
+        }
+      ],
+      "bytes": {
+        "transferSize": 12000,
+        "encodedBodySize": 185380,
+        "decodedBodySize": 589196
+      },
+      "fieldMarks": {},
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "boat": "laser",
+      "wind": 5,
+      "windDirection": 0,
+      "waves": 0.35,
+      "chop": 0.35,
+      "quality": "low",
+      "camera": 0,
+      "buffer": [
+        288,
+        491
+      ]
+    },
+    {
+      "url": "http://localhost:4180/",
+      "cache": "cold",
+      "repetition": 2,
+      "revision": "55afe8661449",
+      "firstUI": 252,
+      "ready": 3035.099999997765,
+      "start": 3722.89999999851,
+      "firstScene": 3345.599999997765,
+      "draw": 3848.199999999255,
+      "controls": 4026.89999999851,
+      "stable": 4377.89999999851,
+      "longTasks": [
+        {
+          "start": 1959,
+          "duration": 1081
+        },
+        {
+          "start": 3058.199999999255,
+          "duration": 294
+        },
+        {
+          "start": 3359.89999999851,
+          "duration": 291
+        },
+        {
+          "start": 3721.699999999255,
+          "duration": 94
+        }
+      ],
+      "bytes": {
+        "transferSize": 2205349,
+        "encodedBodySize": 2200139,
+        "decodedBodySize": 3701261
+      },
+      "fieldMarks": {
+        "tack-fields-response": 757.6999999992549,
+        "tack-fields-decompressed": 1959,
+        "tack-fields-ready": 2010.3999999985099
+      },
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "boat": "laser",
+      "wind": 5,
+      "windDirection": 0,
+      "waves": 0.35,
+      "chop": 0.35,
+      "quality": "low",
+      "camera": 0,
+      "buffer": [
+        288,
+        491
+      ]
+    },
+    {
+      "url": "http://localhost:4180/",
+      "cache": "warm",
+      "repetition": 2,
+      "revision": "55afe8661449",
+      "firstUI": 180,
+      "ready": 1158.5,
+      "start": 1701.7999999970198,
+      "firstScene": 1367.8999999985099,
+      "draw": 1767,
+      "controls": 1908.5,
+      "stable": 2288.099999997765,
+      "longTasks": [
+        {
+          "start": 235.19999999925494,
+          "duration": 923
+        },
+        {
+          "start": 1158.5,
+          "duration": 215
+        },
+        {
+          "start": 1379.5999999977648,
+          "duration": 257
+        }
+      ],
+      "bytes": {
+        "transferSize": 300,
+        "encodedBodySize": 2200139,
+        "decodedBodySize": 3701261
+      },
+      "fieldMarks": {
+        "tack-fields-response": 183.29999999701977,
+        "tack-fields-decompressed": 235.19999999925494,
+        "tack-fields-ready": 284.5999999977648
+      },
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+      "boat": "laser",
+      "wind": 5,
+      "windDirection": 0,
+      "waves": 0.35,
+      "chop": 0.35,
+      "quality": "low",
+      "camera": 0,
+      "buffer": [
+        288,
+        491
+      ]
+    }
+  ]
+}

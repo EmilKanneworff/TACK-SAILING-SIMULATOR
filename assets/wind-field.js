@@ -29,6 +29,9 @@
   function groundRaster(){
     const world=g.SailingWorld,step=CONFIG.gridStep,pad=Math.ceil(480/step)*step;
     const x0=B.minX-pad,y0=B.minY-pad,w=width+2*pad/step,h=height+2*pad/step;
+    const baked=g.TackArchipelagoFields?.wind;
+    if(baked?.land.length===w*h&&baked.relief.length===w*h&&baked.cover.length===w*h)return {...baked,x0,y0,w,h};
+    if(g.TackArchipelagoFields)throw Error('Produktionsbuildets terrængitter har forkerte dimensioner.');
     const land=new Uint8Array(w*h),relief=new Float32Array(w*h),cover=new Float32Array(w*h);
     const houses=(world.LANDMARKS||[]).filter(p=>p.kind==='house');
     for(let j=0;j<h;j++)for(let i=0;i<w;i++){
@@ -319,5 +322,5 @@
       return vec3(-sin(heading),cos(heading),max(0.,windSpeed*terrain.r*(1.+gustStrength*g)));
     }
   `;
-  g.SailingWind={at,terrain,field,prepare,grove,shader,seedPhase,CONFIG,bounds:B};
+  g.SailingWind={at,terrain,field,prepare,groundRaster,grove,shader,seedPhase,CONFIG,bounds:B};
 });

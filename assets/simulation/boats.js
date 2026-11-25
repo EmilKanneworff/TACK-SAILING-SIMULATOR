@@ -214,7 +214,7 @@
    foilStallStart:15*D,foilStallEnd:27*D,foilStrutArea:.72,foilStrutCD:.003,
    foilVentDepth:.17,foilVentLoss:.84,foilVentOnset:.5,foilVentRecovery:2.5,
    rudderX:-9.5,rudderY:-3.00,rudderSpan:1.75,rudderWingArea:.45,rudderArea:.37,rudderDepth:4.65,rudderChord:.24,
-   rudderMax:13*D,waterborneRudderMax:7*D,waterborneSlowRudderMax:11*D,easySlowRudderMax:17*D,rudderRate:100*D,rudderCenterRate:96*D,helmInitialFraction:.27,helmGrowthSeconds:.34,helmSpeedReference:8,helmMinimumFraction:.65,
+   rudderMax:22*D,flightRudderMax:13*D,waterborneRudderMax:7*D,waterborneSlowRudderMax:22*D,easySlowRudderMax:22*D,rudderRate:100*D,rudderCenterRate:96*D,helmInitialFraction:.27,helmGrowthSeconds:.34,helmSpeedReference:8,helmMinimumFraction:.65,
    rudderFlapMin:-12*D,rudderFlapMax:17*D,rudderFlapRate:32*D,daggerArea:0,daggerDepth:0,daggerChord:0,daggerX:.8,
    rollInertia:24000,pitchInertia:160000,yawInertia:155000,
    heaveDamping:30000,rollDamping:2800,pitchDamping:7000,
@@ -255,6 +255,20 @@
   const arm=(blade.offset??0)+(blade.rake??0)*fraction;
   return {x:blade.x-arm*Math.cos(angle),y:mix(blade.root,blade.tip,fraction),z:(blade.z??0)+arm*Math.sin(angle)};
  }
+ // Local mid-plane of the Laser's rounded blade, relative to its pivot in x.
+ function laserRudderOutline(blade){
+  const root=rudderPoint(blade,0).x-blade.x,tip=rudderPoint(blade,1).x-blade.x,c=blade.chord;
+  const leading={x:tip+c*.45,y:blade.tip+.05},control={x:tip-c*.30,y:blade.tip-.04};
+  const trailing={x:tip-c*.55,y:blade.tip+.08};
+  const outline=[{x:root+c*.5,y:blade.root}];
+  for(let i=0;i<=8;i++){
+   const t=i/8,u=1-t;
+   outline.push({x:u*u*leading.x+2*u*t*control.x+t*t*trailing.x,
+    y:u*u*leading.y+2*u*t*control.y+t*t*trailing.y});
+  }
+  outline.push({x:root-c*.5,y:blade.root});
+  return outline;
+ }
  function insideCockpit(model,x,z){const p=get(model),c=p.cockpit,r=c.radius,ax=Math.max(c.minX+r-x,0,x-(c.maxX-r)),az=Math.max(Math.abs(z)-(c.halfWidth-r),0);return ax*ax+az*az<=r*r&&x>=c.minX&&x<=c.maxX&&Math.abs(z)<=c.halfWidth;}
  function point(x,y,z){return {x,y,z};}
  function blendPoint(a,b,t){return point(mix(a.x,b.x,t),mix(a.y,b.y,t),mix(a.z,b.z,t));}
@@ -270,7 +284,7 @@
   const along=clamp(x*fx+p.z*fz,0,model.boomLength);
   return Math.hypot(x-fx*along,p.z-fz*along,horizontal?0:p.y-model.boomY);
  }
- function crewPose(model,degree,side,swim=0,offset=0,single=false,motion=null){
+ function crewPose(model,degree,side,swim=0,offset=0,single=false,motion=null,advanceDuck){
   const p=get(model),d=clamp(degree,1,3),sg=clamp(side,-1,1),k=clamp(swim,0,1);
   const lo=Math.min(1,Math.floor(d-1)),u=d-1-lo,t=u*u*u*(u*(u*6-15)+10);
   const x=p.crewX+offset+(motion?.crewForeAft??0)*p.crewForeAftRange;
@@ -299,13 +313,19 @@
   const A=seat[lo],B=seat[lo+1],r=mix(mix(A.r,B.r,t),edge+.08,k*.55),y=mix(mix(A.y,B.y,t),p.deckY+.18,k),lean=mix(mix(A.lean,B.lean,t),.28,k)*sg;
   const torso=.49,laserMotion=p.id==='laser'&&motion;
   const smooth=a=>{const q=clamp(a,0,1);return q*q*(3-2*q);};
-  let duck=0;
-  if(laserMotion&&!motion.capsized&&!motion.recovering){
-   const headAtRest=point(x,y+Math.cos(lean)*.715,r*sg+Math.sin(lean)*.715);
-   const nextAngle=motion.boom+(motion.boomRate||0)*.09;
-   const near=Math.min(boomDistance(p,motion.boom,headAtRest,true),boomDistance(p,nextAngle,headAtRest,true));
-   const clearance=(1-smooth((near-.13)/.22))*smooth((headAtRest.y-p.boomY+.25)/.16);
-   duck=Math.max(motion.crewDuck||0,clearance);
+  let duck=laserMotion?clamp(motion.crewDuck??0,0,1):0;
+  if(laserMotion&&advanceDuck){
+   let target=0;
+   if(!motion.capsized&&!motion.recovering){
+    const headAtRest=point(x,y+Math.cos(lean)*.715,r*sg+Math.sin(lean)*.715);
+    const nextAngle=motion.boom+(motion.boomRate||0)*.19;
+    const nearestAngle=clamp(Math.atan2(headAtRest.z,p.mastX-headAtRest.x),
+     Math.min(motion.boom,nextAngle),Math.max(motion.boom,nextAngle));
+    const near=boomDistance(p,nearestAngle,headAtRest,true);
+    const clearance=(1-smooth((near-.13)/.22))*smooth((headAtRest.y-p.boomY+.25)/.16);
+    target=Math.max(motion.crewTransfer?1:0,clearance);
+   }
+   duck=advanceDuck(target);
   }
   const fold=.64*duck,hipY=y-.135*duck,vertical=Math.cos(lean)*Math.cos(fold),lateral=Math.sin(lean)*Math.cos(fold);
   const pelvis=point(x,hipY,r*sg);
@@ -342,7 +362,14 @@
    const sheet=clamp(motion.sheet??.45,0,1);
    hands[1].x+=.10-.18*sheet;hands[1].y+=.06*duck+.045*sheet;hands[1].z-=sg*.045;
   }
-  const elbows=shoulders.map((sh,i)=>jointBetween(sh,hands[i],.32,.31,{x:0,y:-1,z:0}));
+  const elbows=shoulders.map((shoulder,i)=>{
+   const hand=hands[i];
+   // A vertical arm makes the old downward pole degenerate. Keep each elbow
+   // on its own side of the arm in the longitudinal plane as the hand crosses.
+   const direction=i===0?-1:1;
+   const bend=laserMotion?point(direction*(shoulder.y-hand.y),direction*(hand.x-shoulder.x),0):point(0,-1,0);
+   return jointBetween(shoulder,hand,.32,.31,bend);
+  });
   const segments=[{mass:27,p:midpoint(pelvis,chest)},{mass:8,p:pelvis},{mass:6,p:head}];
   for(let i=0;i<2;i++){segments.push({mass:8,p:midpoint(hips[i],knees[i])},{mass:4,p:midpoint(knees[i],feet[i])},{mass:1,p:feet[i]},{mass:2,p:midpoint(shoulders[i],elbows[i])},{mass:1.5,p:midpoint(elbows[i],hands[i])},{mass:.5,p:hands[i]});}
   let members;if(p.crewOffsets&&!single){members=p.crewOffsets.map(dx=>crewPose(p,d,sg,k,dx,true,motion));segments.splice(0,segments.length,...members.flatMap(member=>member.segments.map(v=>({mass:v.mass,p:{...v.p}}))));}
@@ -351,8 +378,8 @@
    ...(laserMotion?{sharedMotion:true,duck,lookDown:.05+.38*duck,lookYaw:Math.PI/2+clamp((motion.rudder||0)*.8+stepDirection*duck*.25,-.55,.55)}:{}),
    ...(members?{members}:{})};
  }
- function crewPoseAt(s){
-  return crewPose(s.boatId,s.crewPoseBlend??s.crewPose??1,s.crewSideBlend??s.crewSide??-1,s.crewSwim||0,0,false,s);
+ function crewPoseAt(s,advanceDuck){
+  return crewPose(s.boatId,s.crewPoseBlend??s.crewPose??1,s.crewSideBlend??s.crewSide??-1,s.crewSwim||0,0,false,s,advanceDuck);
  }
 
  // AC75 players select only a small seated crew redistribution. Pose2 is the
@@ -376,6 +403,6 @@
   gennaker:{name:'Gennaker',area:'gennakerArea',open:68,close:61,full:87,shadow:139,shadowLoss:.48,maxWind:17,sheet:.48,drag:.70,lift:.46,hint:'Til slør'},
   spinnaker:{name:'Spiler',area:'spinnakerArea',open:82,close:70,full:100,shadow:151,shadowLoss:.16,maxWind:19,sheet:.42,drag:1,lift:.28,hint:'Til dybt slør og læns'}
  });
- root.SailingBoats={CONFIGS,cruiserSails,LIST:Object.values(CONFIGS),get,halfBeamAt,hullBottom,rudderPoint,insideCockpit,crewPose,crewPoseAt,boomDistance,foilerCrewPositions,softSailReefScale,foilerSailScale,jointBetween,addPointInertia};
+ root.SailingBoats={CONFIGS,cruiserSails,LIST:Object.values(CONFIGS),get,halfBeamAt,hullBottom,rudderPoint,laserRudderOutline,insideCockpit,crewPose,crewPoseAt,boomDistance,foilerCrewPositions,softSailReefScale,foilerSailScale,jointBetween,addPointInertia};
 
 });

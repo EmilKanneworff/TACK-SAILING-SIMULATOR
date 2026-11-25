@@ -2,6 +2,7 @@
 (() => {
   'use strict';
   const $ = id=>document.getElementById(id);
+  const assets=new URL('.',document.currentScript.src);
   const protocol=globalThis.TackLiveProtocol, reconnectMs=30000, sessionKey='tack.live.session';
   const phases={lobby:'Venter på start',free:'Fri sejlads',countdown:'Nedtælling',race:'Kapsejlads',results:'Resultater'};
   let ws,room,adapter,fleet,pending,retryTimer,openTimer,reconnectDeadline=0,attempt=0;
@@ -92,7 +93,9 @@
       stopWorker();
       workerRun=data.run;
       try{
-        const simulation=new Worker(new URL('assets/live-worker.js',document.baseURI));
+        const url=new URL('live-worker.js',assets);
+        if(globalThis.TackRequireArchipelagoFields)url.searchParams.set('fields','precomputed');
+        const simulation=new Worker(url);
         simulation.onmessage=event=>{
           if(worker===simulation)send(event.data);
         };

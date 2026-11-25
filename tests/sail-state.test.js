@@ -85,7 +85,7 @@ test('rig shape feeds the calculated section forces and crew side is independent
  expect(r.a.sections).toHaveLength(3);expect(r.b.camber).toBeGreaterThan(r.a.camber);expect(Math.abs(r.b.drive-r.a.drive)+Math.abs(r.b.sideForce-r.a.sideForce)).toBeGreaterThan(.1);expect(r.crew).toBe(-1);expect(r.rigSide).toBe(1);expect(r.torques[0]).toBe(0);expect(r.torques[1]).toBeLessThan(0);expect(r.torques[2]).toBeGreaterThan(0);
 });
 test('pause freezes both the rig state and the sail mesh',async({page})=>{
- await page.clock.install();await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);await page.click('#startButton');await page.clock.runFor(1000);await page.keyboard.press('Space');await page.clock.runFor(100);
+ await page.clock.install();await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);await page.click('#startButton');await page.clock.runFor(1000);await page.locator('#sea').focus();await page.keyboard.press('Space');await page.clock.runFor(100);
  const before=await page.evaluate(()=>({time:SAILING_GAME.state.time,rig:SAILING_GAME.state.rig,vertices:Array.from(SAILING_GAME.scene.sailMesh.geometry.attributes.position.array.slice(0,24))}));await page.clock.runFor(2000);const after=await page.evaluate(()=>({time:SAILING_GAME.state.time,rig:SAILING_GAME.state.rig,vertices:Array.from(SAILING_GAME.scene.sailMesh.geometry.attributes.position.array.slice(0,24))}));expect(after).toEqual(before);
 });
 test('tack and gybe change rig side smoothly while crew remains on the old side',async({page})=>{
@@ -129,13 +129,13 @@ test('rig evolution is independent of rendering frame rate',async({page})=>{
 });
 
 test('a wind shift across the stern moves the boom and loads the sheet on hard',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
  const results=await page.evaluate(()=>{
   const P=SailPhysics,D=P.DEG;
-  function run(boatId,difficulty,trim=.15){
+  function run(boatId,difficulty,trim=.15,crewPose=boatId==='laser'?1:2){
    const env={...P.DEFAULT_ENV,boatId,difficulty,direction:5,speed:10,waves:0,gusts:0,shelter:false,ironsHelp:false,autoBalance:false};
-   const s=P.createState({boatId,theta:-Math.PI/2,x:0,y:-5000,vx:0,vy:-1.8,boom:P.boomLimit(trim,boatId),sheet:trim},env);
-   const step=()=>P.step(s,{steer:0,trim:0,crewPose:2},env,1/60);
+   const s=P.createState({boatId,theta:-Math.PI/2,x:0,y:-5000,vx:0,vy:-1.8,boom:P.boomLimit(trim,boatId),sheet:trim,crewPose,crewSide:-1},env);
+   const step=()=>P.step(s,{steer:0,trim:0,crewPose},env,1/60);
    for(let i=0;i<42;i++)step();
    const before=s.boom,was=s.gybeCount;
    env.direction=344;env.speed=12;
@@ -153,7 +153,7 @@ test('a wind shift across the stern moves the boom and loads the sheet on hard',
    return {before,across,shock,flutter,jibFlutter,peakRoll,peakYaw,reaction,gybes:s.gybeCount-was,capsized:s.capsized};
   }
   return {soft:['laser','dinghy','yacht','ac75'].map(boat=>({boat,easy:run(boat,'easy'),hard:run(boat,'hard')})),
-   sheeted:run('yacht','hard',.92),wing:run('ac72','hard')};
+   sheeted:run('yacht','hard',.92),wing:run('ac72','hard'),laserOnEdge:run('laser','hard',.15,2)};
  });
  for(const {boat,easy,hard} of results.soft){
   expect(easy.shock,boat).toBe(0);
@@ -167,8 +167,11 @@ test('a wind shift across the stern moves the boom and loads the sheet on hard',
   expect(hard.peakRoll,boat).toBeGreaterThan(5);
   expect(hard.peakYaw,boat).toBeGreaterThan(1);
  }
+ expect(results.laserOnEdge).toMatchObject({capsized:true});
+ expect(results.laserOnEdge.gybes).toBeGreaterThan(0);
  expect(results.sheeted.shock).toBe(0);
- expect(results.wing).toMatchObject({shock:0,reaction:0,capsized:false,flutter:0});
+ expect(results.wing).toMatchObject({shock:0,capsized:false,flutter:0});
+ expect(results.wing.reaction).toBeGreaterThan(0); // The rotating rigid wing carries angular momentum.
  expect(results.wing.jibFlutter).toBeGreaterThan(0);
 });
 

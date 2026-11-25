@@ -14,6 +14,9 @@
   let grid;
   function data(){
     if(grid)return grid;
+    const baked=root.TackArchipelagoFields?.depth;
+    if(baked?.length===width*height*4)return (grid=baked);
+    if(root.TackArchipelagoFields)throw Error('Produktionsbuildets dybdegitter har forkerte dimensioner.');
     grid=new Uint8Array(width*height*4);
     for(let j=0;j<height;j++)for(let i=0;i<width;i++){
       const d=-root.SailingWorld.heightAt(bounds.minX+i*stepX,bounds.minY+j*stepY);

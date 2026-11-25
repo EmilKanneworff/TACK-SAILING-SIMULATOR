@@ -62,6 +62,9 @@ function voyage({boatId,kind,wind,angle,dt=1/60,extra,sheetSetting,crewSetting})
   return result;
  }
  let status='timeout',lastControl={heading,steer:0},managedHike=false,tackCrossed=false;
+ const tackCriteria={eye:10*D,course:10*D,recovery:.80,hold:2};
+ const maneuver={eyeEntry:null,eyeExit:null,minimumSpeed:null,recoveredAt:null,maxHeel:0,approachSpeed:0};
+ let approachSamples=0,tackHold=0,failureReason=null;
  const stride=Math.round(.25/dt);
  for(let k=0;k<Math.round(duration/dt);k++){
   const t=k*dt;
@@ -80,6 +83,24 @@ function voyage({boatId,kind,wind,angle,dt=1/60,extra,sheetSetting,crewSetting})
   lastControl={heading:desiredHeading,steer,steerDigital:false,crewPose,trim:kind==='calm'?0:clamp((trim-state.sheet)*6,-1,1),trimFast:true,
    ...(kind==='tack'?{crew:crewSide}:{}),...(extra?{spinnaker:true,downwindType:extra}:{}),...(kind==='reef'&&t>=14?{reef:1,headsail:1}:{})};
   P.step(state,lastControl,env,dt);
+  if(kind==='tack'&&t>=6){
+   const {waterSpeed,vmgWind,twa}=P.instruments(state,null,env);
+   if(!tack){
+    approachSamples++;
+    maneuver.approachSpeed+=(waterSpeed-maneuver.approachSpeed)/approachSamples;
+   }else{
+    if(maneuver.eyeEntry===null&&Math.abs(twa)<=tackCriteria.eye)maneuver.eyeEntry=state.time;
+    if(maneuver.eyeEntry!==null&&maneuver.eyeExit===null&&twa*Math.sign(angle)>tackCriteria.eye)maneuver.eyeExit=state.time;
+    if(maneuver.recoveredAt===null)maneuver.minimumSpeed=Math.min(maneuver.minimumSpeed??Infinity,waterSpeed);
+    maneuver.maxHeel=Math.max(maneuver.maxHeel,Math.abs(state.heel)/D);
+    const established=maneuver.eyeExit!==null&&twa*Math.sign(angle)>0&&
+     Math.abs(wrap(state.theta-desiredHeading))<=tackCriteria.course&&vmgWind>0&&
+     waterSpeed>=maneuver.approachSpeed*tackCriteria.recovery;
+    tackHold=established?tackHold+dt:0;
+    if(maneuver.recoveredAt===null&&tackHold>=tackCriteria.hold-1e-9)maneuver.recoveredAt=state.time;
+   }
+   if(state.ground?.contact||state.recovering){status='interrupted';failureReason=state.recovering?'recovery':'grounded';break;}
+  }
   if(![state.x,state.y,state.vx,state.vy,state.heave,state.heel,state.theta].every(Number.isFinite)){status='invalid';break;}
   if(state.capsized&&kind!=='capsize'){status='capsize';break;}
   if((k+1)%stride)continue;
@@ -93,9 +114,22 @@ function voyage({boatId,kind,wind,angle,dt=1/60,extra,sheetSetting,crewSetting})
      Math.abs(recent.headingError.mean)<7&&recent.headingError.sd<3){status='steady';break;}
   }
  }
+ const runCompleted=status==='timeout'||status==='steady';
+ const maneuverSucceeded=kind==='tack'?runCompleted&&maneuver.recoveredAt!==null:null;
+ if(kind==='tack'&&!maneuverSucceeded&&runCompleted){
+  status='maneuver-failed';
+  failureReason=maneuver.eyeEntry===null?'never-entered-wind-eye':
+   maneuver.eyeExit===null?'never-exited-on-new-tack':'did-not-hold-course-and-recovery-speed';
+ }
  if(status==='timeout'&&!steady)status='completed';
  if(status==='timeout'&&steady){const tail=stats(window.slice(-32));if(tail.headingError?.sd>3||tail.heel?.sd>2.5||tail.yawRate?.sd>2)status='oscillating';}
- return {boatId,kind,status,waterDensity:c.waterDensity,condition:{wind,windFrom,angle,seed,dt,crewPose:pose,crewMass:c.crewMass,mass:c.mass,
+ if(!failureReason&&(!runCompleted||(steady&&status!=='steady')))failureReason=status;
+ if(kind==='tack'){
+  maneuver.eyeSeconds=maneuver.eyeExit===null?null:maneuver.eyeExit-maneuver.eyeEntry;
+  maneuver.recoverySeconds=maneuver.recoveredAt===null?null:maneuver.recoveredAt-8;
+ }
+ return {boatId,kind,status,runCompleted,maneuverSucceeded,steadyReached:steady?status==='steady':null,failureReason,
+  ...(kind==='tack'?{maneuver}:{}),waterDensity:c.waterDensity,condition:{wind,windFrom,angle,seed,dt,crewPose:pose,crewMass:c.crewMass,mass:c.mass,
   waveHeight:env.waveHeight??0,chop:env.chop??0,gusts:env.gusts,currentX:0,currentY:0,shelter:env.shelter,assistance:'hard',sheet,extra},
   initial,elapsed:state.time,statistics:stats(window.slice(-32)),end:snapshot(lastControl),...(samples.length?{samples}:{})};
 }

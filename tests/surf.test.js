@@ -2,10 +2,11 @@ const {test,expect}=require('@playwright/test');
 const {pathToFileURL}=require('node:url');
 const path=require('node:path');
 
+const game=process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href;
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
 
 test('a dinghy accelerates on a swell face and slows after leaving it',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const P=SailPhysics,component=0;
@@ -39,7 +40,7 @@ test('a dinghy accelerates on a swell face and slows after leaving it',async({pa
 });
 
 test('a following wave accelerates the dinghy on its face and brakes it on its back',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const P=SailPhysics,theta=15*P.DEG;

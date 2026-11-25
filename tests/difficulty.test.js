@@ -163,26 +163,27 @@ test('Laser in free sailing reports its live balance while manual trim and stanc
 });
 
 for(const from of [-1,1]){
- test(`Hard places 1–3 on the true windward side from ${from<0?'port':'starboard'}`,async({page})=>{
+ test(`Hard accepts both sides with all stances on the ${from<0?'port':'starboard'} tack`,async({page})=>{
   await setUpLaserTack(page,from,{speed:7.5});
-  for(const pose of [1,3,2]){
-   await page.evaluate(side=>{SAILING_GAME.state.crewSide=-side;},from);
-   await page.keyboard.press(String(pose));
-   await page.clock.runFor(50);
-   const crew=await page.evaluate(()=>{
-    const {state}=SAILING_GAME;
-    return {windSide:SailPhysics.windwardCrewSide(state.wind),side:state.crewSide,pose:state.crewPose};
-   });
-   expect(crew).toEqual({windSide:from,side:from,pose});
+  const read=()=>page.evaluate(()=>{
+   const {state}=SAILING_GAME;
+   return {side:state.crewSide,pose:state.crewPose,blend:state.crewSideBlend};
+  });
+  for(const side of [-from,from]){
+   await page.keyboard.press(side<0?'KeyQ':'KeyE');
+   await page.clock.runFor(60);
+   expect((await read()).side).toBe(side);
+   for(const pose of [1,3,2]){
+    await page.keyboard.press(String(pose));
+    await page.clock.runFor(70);
+    expect(await read()).toMatchObject({side,pose});
+   }
   }
-  await page.keyboard.press(from<0?'KeyE':'KeyQ');
-  await page.clock.runFor(100);
-  expect(await page.evaluate(()=>SAILING_GAME.state.crewSide)).toBe(from);
  });
 }
 
 for(const from of [-1,1]){
- test(`Laser on hard crosses to the new side when 2 is pressed head to wind from ${from<0?'port':'starboard'}`,async({page})=>{
+ test(`Laser on hard crosses with an explicit side command at the wind eye from ${from<0?'port':'starboard'}`,async({page})=>{
   await setUpLaserTack(page,from,{speed:7.5});
   const read=()=>page.evaluate(()=>{
    const {state,scene}=SAILING_GAME;
@@ -204,11 +205,14 @@ for(const from of [-1,1]){
   expect(atPress.angle*from).toBeLessThanOrEqual(4);
   expect(atPress).toMatchObject({side:from,pose:1,capsized:false});
   await page.keyboard.press('2');
-  await page.clock.runFor(25);
+  await page.clock.runFor(50);
+  expect(await read()).toMatchObject({side:from,pose:2,capsized:false});
+  await page.keyboard.press(from<0?'KeyE':'KeyQ');
+  await page.clock.runFor(50);
   expect(await read()).toMatchObject({side:-from,pose:2,capsized:false});
   await page.keyboard.press('2');
   let end=await read();
-  for(let n=0;n<28&&end.angle*-from<36;n++){
+  for(let n=0;n<55&&end.angle*-from<36;n++){
    await page.clock.runFor(90);
    end=await read();
   }
@@ -220,6 +224,7 @@ for(const from of [-1,1]){
   expect(end.blend*-from).toBeGreaterThan(.95);
   expect(end.shown*-from).toBeGreaterThan(.9);
   expect(end.massSide*-from).toBeGreaterThan(.2);
+  if(process.env.TACK_TRACE)console.log('Stagvending',JSON.stringify({from,atPress,end}));
  });
 }
 
@@ -270,16 +275,18 @@ for(const [difficulty,from] of [['easy',-1],['easy',1],['hard',-1],['hard',1]]){
 
 test.describe('touch controls',()=>{
  test.use({hasTouch:true,isMobile:true,viewport:{width:390,height:844}});
- test('Laser on hard places the sailor to windward using the balance controls',async({page})=>{
+ test('Hard touch input selects both sides and keeps the chosen stance',async({page})=>{
   await setUpLaserTack(page,-1,{speed:7.5});
-  await page.clock.runFor(200);
-  await expect(page.locator('#crewStarboard')).toBeDisabled();
+  await page.locator('#mobileCrewToggle').tap();
+  await expect(page.locator('#crewStarboard')).toBeEnabled();
   await expect(page.locator('#crewPort')).toBeEnabled();
-  await page.evaluate(()=>{SAILING_GAME.state.crewSide=1;});
-  await page.locator('#pose2').tap();
-  await page.clock.runFor(200);
+  await page.locator('#crewStarboard').tap();
+  await page.clock.runFor(350);
+  await expect(page.locator('#crewStarboard')).toHaveAttribute('aria-pressed','true');
+  await page.locator('#crewPort').tap();
+  await page.clock.runFor(350);
   await expect(page.locator('#crewPort')).toHaveAttribute('aria-pressed','true');
-  expect(await page.evaluate(()=>SAILING_GAME.state.crewPose)).toBe(2);
+  expect(await page.evaluate(()=>SAILING_GAME.state.crewSide)).toBe(-1);
  });
 });
 
@@ -350,4 +357,37 @@ test('strong wind leaves the helm and sheet under the player’s control on both
   expect(r.sheet,evidence).toBeCloseTo(r.expectedSheet,8);
  }
  expect(results.find(r=>r.id==='laser'&&r.difficulty==='easy').maxPose).toBeGreaterThan(2.5);
+});
+
+test('Laser debug shows the rendered rudder, water heights and submerged force points together',async({page})=>{
+ await setUpLaserTack(page,-1,{speed:7.5});
+ await page.keyboard.press('Backquote');
+ await page.keyboard.down('ArrowRight');
+ await page.clock.runFor(450);
+ await page.keyboard.up('ArrowRight');
+ const contact=await page.evaluate(()=>{
+  const {scene}=SAILING_GAME,group=scene.rudderDebug,trace=group.userData.contact;
+  const shape=SailingBoats.laserRudderOutline(scene.model.waterBlades.rudder);
+  const meshPoint=scene.rudder.localToWorld(new THREE.Vector3(shape[0].x,shape[0].y-scene.rudder.position.y,0));
+  const {x,y,z}=trace.outline[0];
+  const difference=meshPoint.distanceTo(new THREE.Vector3(x,z,-y));
+  const [outline,segments,all,submerged,water]=scene.rudderDebugLayers.map(layer=>layer.geometry.drawRange.count);
+  const wet=trace.sections.filter(section=>section.wetArea>0);
+  return {visible:group.visible,outline,segments,all,submerged,water,correctContact:submerged===wet.length,difference};
+ });
+ expect(contact).toMatchObject({visible:true,outline:11,segments:8,all:4,water:4,correctContact:true});
+ expect(contact.submerged).toBeGreaterThan(0);
+ expect(contact.difference).toBeLessThan(.0001);
+ if(process.env.TACK_RUDDER_IMAGE){
+  await page.evaluate(()=>{
+   const {scene}=SAILING_GAME,point=scene.rudder.getWorldPosition(new THREE.Vector3());
+   const side=scene.hull.localToWorld(new THREE.Vector3(-3.6,1.1,1.6));
+   scene.camera.position.copy(side);scene.camera.lookAt(point.x+.3,point.y+.14,point.z);
+   scene.camera.updateMatrixWorld();scene.render();
+  });
+  await page.locator('#sea').screenshot({path:process.env.TACK_RUDDER_IMAGE});
+ }
+ await page.keyboard.press('Backquote');
+ await page.clock.runFor(70);
+ expect(await page.evaluate(()=>SAILING_GAME.scene.rudderDebug.visible)).toBe(false);
 });

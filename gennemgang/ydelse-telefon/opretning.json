@@ -1,0 +1,101 @@
+[
+    {
+        "boat": "laser",
+        "y": -1400,
+        "heel": 0,
+        "baselineQueries": 35302,
+        "cachedQueries": 203,
+        "baselineMs": 91.68724699999984,
+        "cachedMs": 14.907920999999533
+    },
+    {
+        "boat": "laser",
+        "y": -40,
+        "heel": -0.41,
+        "baselineQueries": 35302,
+        "cachedQueries": 929,
+        "baselineMs": 47.30858400000079,
+        "cachedMs": 12.64908700000069
+    },
+    {
+        "boat": "laser",
+        "y": -47,
+        "heel": -1.6,
+        "baselineQueries": 35302,
+        "cachedQueries": 929,
+        "baselineMs": 34.45316599999978,
+        "cachedMs": 9.586581000000024
+    },
+    {
+        "boat": "dinghy",
+        "y": -1400,
+        "heel": 0,
+        "baselineQueries": 22496,
+        "cachedQueries": 138,
+        "baselineMs": 22.73520499999995,
+        "cachedMs": 5.463500000000522
+    },
+    {
+        "boat": "dinghy",
+        "y": -40,
+        "heel": -0.41,
+        "baselineQueries": 22496,
+        "cachedQueries": 592,
+        "baselineMs": 22.616454999999632,
+        "cachedMs": 6.642003999999588
+    },
+    {
+        "boat": "yacht",
+        "y": -1400,
+        "heel": 0,
+        "baselineQueries": 22420,
+        "cachedQueries": 136,
+        "baselineMs": 23.610507000000553,
+        "cachedMs": 6.0011729999991985
+    },
+    {
+        "boat": "yacht",
+        "y": -40,
+        "heel": -0.41,
+        "baselineQueries": 22420,
+        "cachedQueries": 590,
+        "baselineMs": 22.91771000000017,
+        "cachedMs": 6.960793999998941
+    },
+    {
+        "boat": "ac75",
+        "y": -1400,
+        "heel": 0,
+        "baselineQueries": 46758,
+        "cachedQueries": 358,
+        "baselineMs": 26.312045000000353,
+        "cachedMs": 5.838172000000213
+    },
+    {
+        "boat": "ac75",
+        "y": -40,
+        "heel": -0.41,
+        "baselineQueries": 46680,
+        "cachedQueries": 1167,
+        "baselineMs": 30.14221099999895,
+        "cachedMs": 11.020212999999103
+    },
+    {
+        "boat": "ac72",
+        "y": -1400,
+        "heel": 0,
+        "baselineQueries": 76901,
+        "cachedQueries": 630,
+        "baselineMs": 63.853706999999304,
+        "cachedMs": 14.474622000000409
+    },
+    {
+        "boat": "ac72",
+        "y": -40,
+        "heel": -0.41,
+        "baselineQueries": 76866,
+        "cachedQueries": 1920,
+        "baselineMs": 44.01645899999926,
+        "cachedMs": 12.565168999999969
+    }
+]

@@ -42,3 +42,11 @@ test('map dimensions persist and legacy map sizes migrate to new dimensions',()=
  Settings.save(storage,saved);
  assert.deepEqual(Settings.load(storage).personal.mapDimensions,{width:451,height:367});
 });
+
+test('a saved modern height and chop replace a conflicting legacy wave value',()=>{
+ const data=new Map([[Settings.key,JSON.stringify({weather:{waveHeight:0,chop:.8,waves:.85}})]]);
+ const storage={getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,value)};
+ assert.equal(Settings.load(storage).weather.waveHeight,0);
+ assert.equal(Settings.load(storage).weather.chop,.8);
+ assert.equal(Object.hasOwn(JSON.parse(data.get(Settings.key)).weather,'waves'),false);
+});
