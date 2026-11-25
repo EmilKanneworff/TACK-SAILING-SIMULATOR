@@ -10,7 +10,7 @@ export interface ControlInput {
   sheetTarget?: number;
   trimFast?: boolean;
   crewPose?: CrewPose;
-  /** On Hard, signed values request a side within the wind limits. Zero holds the current side. */
+  /** On Hard, signed values choose a side independently of wind. Zero holds the current side. */
   crew?: number;
   foreAft?: number;
   difficulty?: Difficulty;
@@ -129,7 +129,6 @@ export interface RuntimeComponents {
     createState(initial: StartState & { boatId: BoatId }, field: FieldInputs): BoatState;
     step(state: BoatState, control: ControlInput, field: FieldInputs, dt: number): BoatState;
     windwardCrewSide(wind?: { tws: number; twa: number | null }): number;
-    tackCrewSide(state: BoatState, steer: number): number;
   };
   SailingSettings: {
     advanceWind(state: BoatState, field: FieldInputs, dt: number): FieldInputs;

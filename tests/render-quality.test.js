@@ -9,13 +9,14 @@ test.use({
     args: ['--enable-unsafe-swiftshader']
   }
 });
-const game = pathToFileURL(resolve('index.html')).href;
+const game = process.env.TACK_URL || pathToFileURL(resolve('index.html')).href;
 
 test('a failed sky image leaves free sailing and controls available', async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(window, 'FRI_VIND_SKY_PHOTO', {
     get: () => 'data:image/jpeg;base64,eA==', set: () => {}
   }));
   await page.goto(game);
+  await page.waitForFunction(() => window.SAILING_GAME);
   await page.evaluate(()=>SAILING_GAME.scene.skyPhotoReady);
   await expect(page.locator('#startButton')).toBeEnabled();
   await page.click('#startButton');
@@ -29,6 +30,7 @@ test('a failed sky image leaves free sailing and controls available', async ({ p
 test('low graphics lowers the drawing resolution and keeps the active frame cadence', async ({ page }) => {
   await page.clock.install();
   await page.goto(game);
+  await page.waitForFunction(() => window.SAILING_GAME);
   await page.locator('#quality').evaluate(select => {
     select.value = '1';
     select.dispatchEvent(new Event('change', { bubbles: true }));
@@ -60,18 +62,44 @@ test('low graphics lowers the drawing resolution and keeps the active frame cade
     visibleShores: SAILING_GAME.scene.coastTerrain.filter(tile => tile.visible).length,
     fog: SAILING_GAME.scene.scene.fog.density,
     weatherFog: SAILING_GAME.scene.atmosphere.fogDensity,
+    pendingTrees: SAILING_GAME.scene.treeSectors.filter(sector => sector.pending).length,
     opponentRange: SAILING_GAME.scene.graphicsProfile.remoteDistance,
+    windArrows: SAILING_GAME.scene.windStrokeMesh.visible,
     waterRadius: SAILING_GAME.scene.water.geometry.attributes.position.array.at(-3),
     displayedQuality: document.querySelector('#qualityValue').textContent
   }));
   expect(result.draws).toBeGreaterThanOrEqual(26);
   expect(result.ratio).toBeLessThanOrEqual(result.device * .74);
-  expect(result.waterTriangles).toBeLessThan(31_000);
-  expect(result).toMatchObject({ far: 8000, opponentRange: 1850, reflection: 0, displayedQuality: 'Lav', coastPreserved:true });
+  expect(result.waterTriangles).toBeLessThan(22_000);
+  expect(result).toMatchObject({ far: 8000, opponentRange: 1850, reflection: 0, displayedQuality: 'Lav', coastPreserved:true, windArrows:true });
+  expect(result.pendingTrees).toBeGreaterThan(0);
   expect(result.fog).toBeCloseTo(result.weatherFog,7);
   expect(result.visibleShores).toBeGreaterThan(0);
   expect(result.activeScenery).toBeLessThan(result.availableScenery * .6);
   expect(result.waterRadius).toBeGreaterThan(10000);
+});
+
+test('foil sail geometry follows graphics quality and restores full detail', async ({ page }) => {
+  await page.goto(game);
+  await page.waitForFunction(() => window.SAILING_GAME);
+  const render = await page.evaluate(() => {
+    const {scene,env}=SAILING_GAME;
+    return ['ac75','ac72'].map(boat=>{
+      const state=SailPhysics.createState({boatId:boat},env);
+      const counts=quality=>{
+        scene.update(state,env,SAILING_GAME.course,1/60,{quality});
+        return [scene.sailMesh,scene.jibMesh].map(mesh=>mesh.geometry.attributes.position.count);
+      };
+      const full=counts('high'),reduced=counts('low'),restored=counts('high');
+      return {full,reduced,restored};
+    });
+  });
+  for(const {full,reduced,restored} of render){
+    expect(reduced[1]).toBeLessThan(full[1]*.5);
+    expect(restored).toEqual(full);
+  }
+  expect(render[0].reduced[0]).toBeLessThan(render[0].full[0]*.5);
+  await expect(page.locator('#fatal')).toBeHidden();
 });
 
 test('the simulator resumes sailing after the browser restores WebGL', async ({ page }) => {

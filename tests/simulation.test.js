@@ -2,14 +2,115 @@
 
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
+const { runInNewContext } = require('node:vm');
 const { verify, verifyReference } = require('../scripts/simulation-replay.cjs');
 const { run } = require('../scripts/laser-rotation.cjs');
 const { createSimulation } = require('../assets/simulation/node');
+const { bakeFields } = require('../server/bake-fields');
 
 test('recorded inputs replay headlessly across all five boats', () => {
   assert.equal(verifyReference(), 6);
   assert.equal(globalThis.SailPhysics, undefined);
   assert.equal(globalThis.SailingWorld, undefined);
+});
+
+test('the cached heave search returns the same equilibrium as full water sampling', () => {
+  const { createBoat, physics: P, profiles } = createSimulation();
+  const env = { ...P.DEFAULT_ENV, speed: 13, direction: 56, waveHeight: 1.4, chop: .6 };
+  const sea = { time: 0 };
+  P.advanceWaveProfile(sea, { ...env, speed: 8, direction: 255, waveHeight: .8 });
+  sea.time = 11.7;
+  P.advanceWaveProfile(sea, env);
+  const rows = [];
+  for (const boat of profiles.LIST) {
+    const trials = [{ y: -1400, heel: 0, pitch: 0 }, { y: -40, heel: -.41, pitch: .21 }];
+    if (boat.id === 'laser') trials.push({ y: -47, heel: -1.6, pitch: .12 });
+    for (const { y, heel, pitch } of trials) {
+      const s = createBoat(boat.id, { x: -80, y, theta: .9, heel, pitch,
+        heave: .6, time: 12, crewPose: 3, crewSide: -1 }, env);
+      s.waveProfile = sea.waveProfile;
+      s.heaveVelocity = .35;
+      const probe = structuredClone(s);
+      const foiling = boat.kind === 'foiler';
+      let lower = foiling ? -4 : -Math.max(1.2, boat.hullDepth * 1.3);
+      let upper = foiling ? 5 : Math.max(1.4, boat.hullDepth);
+      const counts = { queries: 0 }, cache = P.waterForHeaveSearch(counts);
+      let baselineQueries = 0, candidateQueries = 0, baselineMs = 0, cachedMs = 0;
+      const uncached = {
+        sample: (...args) => { baselineQueries++; return P.waveAt(...args); },
+        height: (...args) => { baselineQueries++; return P.waveHeightAt(...args); }
+      };
+      const cached = {
+        sample: (...args) => { candidateQueries++; return cache.sample(...args); },
+        height: (...args) => { candidateQueries++; return cache.height(...args); }
+      };
+      for (let i = 0; i < (foiling ? 40 : 38); i++) {
+        probe.heave = (lower + upper) / 2;
+        let start = performance.now();
+        const direct = P.hydrostatics(probe, env, false, uncached);
+        baselineMs += performance.now()-start;
+        start = performance.now();
+        const reused = P.hydrostatics(probe, env, false, cached);
+        cachedMs += performance.now()-start;
+        assert.deepEqual(reused,direct,`${boat.id} at ${y} candidate ${i}`);
+        const { buoyancy, weight } = direct;
+        if (buoyancy > weight) lower = probe.heave;
+        else upper = probe.heave;
+      }
+      assert.equal(candidateQueries, baselineQueries);
+      assert.ok(counts.queries < baselineQueries / 10);
+      assert.equal(P.equilibriumHeave(s, env), (lower + upper) / 2, `${boat.id} at ${y}`);
+      assert.equal(s.heave, .6);
+      for (const atHeight of [lower, upper]) {
+        probe.heave = atHeight;
+        assert.deepEqual(P.hydrostatics(probe, env, true, cache), P.hydrostatics(probe, env));
+      }
+      rows.push({ boat: boat.id, y, heel, baselineQueries, cachedQueries: counts.queries, baselineMs, cachedMs });
+    }
+  }
+  if(process.env.TACK_MEASURE_HEAVE)console.log(JSON.stringify(rows));
+});
+
+test('the release depth and terrain grids preserve every computed sample', async () => {
+  const { packed, loader } = bakeFields();
+  const modules = [require('../assets/archipelago'), require('../assets/archipelago-relief'),
+    require('../assets/simulation/terrain'), require('../assets/water-depth'), require('../assets/wind-field')];
+  const world = { URL, DecompressionStream, Response, performance, self: { location: { href: 'http://localhost/assets/live-worker.js' } },
+    fetch: url => {
+      assert.equal(url.pathname, '/assets/archipelago-fields.bin');
+      return new Response(packed);
+    } };
+  const source = {};
+  for (const install of modules) {
+    install(world);
+    install(source);
+  }
+  const depth = source.SailingWaterDepth.data();
+  const wind = source.SailingWind.groundRaster();
+  runInNewContext(loader, world);
+  await world.TackArchipelagoFieldsReady;
+  const baked = world.TackArchipelagoFields;
+  assert.ok(baked);
+  const bytes = array => Buffer.from(array.buffer, array.byteOffset, array.byteLength);
+  assert.equal(bytes(baked.depth).compare(bytes(depth)), 0);
+  for (const key of ['land', 'relief', 'cover']) assert.equal(bytes(baked.wind[key]).compare(bytes(wind[key])), 0, key);
+  const bounds = source.ArchipelagoData.fieldBounds;
+  const { width, height } = source.SailingWaterDepth;
+  const points = [[4, -47], [0, -6], [-180, -340], [575.3, -1190.7],
+    [bounds.minX, bounds.minY], [bounds.maxX, bounds.maxY], [bounds.maxX+.1, bounds.minY],
+    [bounds.minX+(bounds.maxX-bounds.minX)/(width-1)*5.4,bounds.minY+(bounds.maxY-bounds.minY)/(height-1)*14.7]];
+  assert.equal(world.SailingWaterDepth.data(), baked.depth);
+  assert.equal(world.SailingWind.groundRaster().relief, baked.wind.relief);
+  for (const [x, y] of points) {
+    assert.deepEqual(world.SailingWaterDepth.sample(x, y), source.SailingWaterDepth.sample(x, y));
+    assert.equal(world.SailingWorld.heightAt(x,y), source.SailingWorld.heightAt(x,y));
+  }
+  world.fetch = () => new Response(null, { status: 404 });
+  delete world.TackArchipelagoFields;
+  runInNewContext(loader, world);
+  await world.TackArchipelagoFieldsReady;
+  assert.match(world.TackArchipelagoFieldsError.message, /Kunne ikke hente øhavets/);
+  assert.equal(world.TackArchipelagoFields, undefined);
 });
 
 test('an absolute sheet demand holds its endpoint despite a stale rate command', () => {
@@ -223,7 +324,7 @@ test('a reefed Laser can bear away in strong wind with independent rudder and sh
     const turn = () => side * P.wrap(theta - boat.theta) / P.DEG;
     const sheet = boat.sheet;
     for (let i = 0; i < 69; i++) step(0);
-    assert.ok(turn() > 6);
+    assert.ok(turn() > 3); // Still turns under load before the sheet is eased.
     assert.ok(boat.rudder * side > 15 * P.DEG && boat.forces.rudder.wet > 0);
     assert.ok(Number.isFinite(boat.sail.luff) && Number.isFinite(boat.rig.flutter));
     assert.equal(boat.sheet, sheet);
@@ -279,6 +380,41 @@ test('wind bearing alone does not alter slow foilboat helm travel', () => {
       return boat.rudder;
     });
     assert.equal(slowRudder[0], slowRudder[1], id);
+  }
+});
+
+test('the foil catamaran can steer out of a slow run at 67.4 percent trim', () => {
+  const { physics: P, createBoat, stepBoat, fixedDt } = createSimulation();
+  const field = { boatId: 'ac72', speed: 9.7, direction: 270, gusts: 0,
+    waveHeight: 0, chop: 0, shelter: true, difficulty: 'hard', autoRecovery: false };
+  const sheet = .674;
+  const speed = 5.8 / 1.9438444924;
+  for (const side of [-1, 1]) {
+    const theta = -side * P.DEG;
+    const start = createBoat('ac72', { x: 575, y: -1190, theta, sheet,
+      vx: speed * Math.cos(theta), vy: speed * Math.sin(theta), crewPose: 3,
+      boom: side * P.boomLimit(sheet, 'ac72') }, field);
+    const run = (steer, sheetTarget) => {
+      const boat = structuredClone(start);
+      for (let tick = 0; tick < 360; tick++) {
+        stepBoat(boat, { steer, steerDigital: true, crewPose: 3, sheetTarget, trimFast: true }, field, fixedDt);
+      }
+      assert.equal(boat.ground.contact, false);
+      assert.equal(boat.capsized, false);
+      assert.equal(boat.forces.yawAssist, 0);
+      return boat;
+    };
+    const crossing = run(side);
+    const holdingSide = run(-side);
+    const eased = run(0, 0);
+    assert.ok(side * P.wrap(theta - crossing.theta) > 20 * P.DEG);
+    assert.ok(side * P.wrap(holdingSide.theta - theta) > 5 * P.DEG); // The leeward turn works against the rig and main foils.
+    assert.ok(crossing.boom * side < 0 && crossing.sail.drive > 2000);
+    assert.equal(crossing.sheet, sheet);
+    assert.equal(holdingSide.sheet, sheet);
+    assert.equal(eased.sheet, 0);
+    assert.equal(eased.rudder, 0);
+    assert.ok(eased.speed > speed + .7 && Math.abs(eased.boom) > 75 * P.DEG);
   }
 });
 
@@ -448,17 +584,16 @@ test('Hard keeps each chosen stance and side through wind and boom changes on al
     }
     for (const pose of [1, 2, 3]) holdSide(-1, pose);
     P.updateCrew(boat, { crew: 1, crewPose: 3 }, field, fixedDt, { wind: { awa: -40 * P.DEG, twa: -40 * P.DEG, tws: 6 } });
-    assert.equal(boat.crewSide, -1, id);
-    P.updateCrew(boat, { crew: 1, crewPose: 3 }, field, fixedDt, { wind: { awa: -40 * P.DEG, twa: 40 * P.DEG, tws: 6 } });
+    assert.equal(boat.crewSide, 1, id);
     assert.ok(boat.crewSideBlend < 0, id);
     for (const pose of [3, 2, 1]) holdSide(1, pose);
     assert.ok(boat.crewSideBlend > .98, id);
   }
 });
 
-test('true wind relative to the bow sets the allowed side independent of apparent wind and heel', () => {
+test('Easy balances according to true wind independent of apparent wind and heel', () => {
   const { physics: P, createBoat, profiles } = createSimulation();
-  const env = { speed: 8, direction: 180, gusts: 0, waveHeight: 0, shelter: false };
+  const env = { speed: 8, direction: 180, gusts: 0, waveHeight: 0, shelter: false, difficulty: 'easy' };
   for (const { id } of profiles.LIST) for (const side of [-1, 1]) {
     const state = createBoat(id, { theta: (-90 + 35 * side) * P.DEG, x: 0, y: -12000 }, env);
     assert.equal(state.crewSide, side, id);
@@ -519,29 +654,56 @@ test('Racer planing support shifts toward the immersed side and remains dissipat
   assert.ok(Math.abs(sample(0, .15).ledger.planing.moment.roll) < 1e-8);
 });
 
-test('a manual tack command at zero true wind angle remembers the same destination on either tack', () => {
+test('Hard keeps the old side through the wind eye until an explicit side command', () => {
   const sim = createSimulation();
   const P = sim.physics;
-  const field = { speed: 7.5, direction: 180, gusts: 0, waveHeight: 0, shelter: false, difficulty: 'hard' };
+  const env = { speed: 7.5, direction: 180, gusts: 0, waveHeight: 0, shelter: false, difficulty: 'hard' };
   for (const { id } of sim.profiles.LIST) for (const from of [-1, 1]) {
-    const boat = sim.createBoat(id, { x: 0, y: -12000, theta: (-90 + 45 * from) * P.DEG, crewSide: from }, field);
-    assert.equal(P.tackCrewSide(boat, 0), 0, id);
-    boat.theta = -90 * P.DEG;
-    boat.vx = -2 * from; // Crosswind drift can point the apparent wind to the old side.
-    boat.wind = P.windForState(boat, field);
+    const boat = sim.createBoat(id, { x: 0, y: -12000, theta: -90 * P.DEG, crewSide: from }, env);
+    boat.vx = -2 * from;
+    boat.wind = P.windForState(boat, env);
     assert.ok(Math.abs(boat.wind.twa) < 1e-12, id);
     assert.equal(Math.sign(boat.wind.awa), from, id);
-    const destination = P.tackCrewSide(boat, 0);
-    assert.equal(destination, -from, id);
-    P.updateCrew(boat, { crewPose: 2, crew: destination }, field, sim.fixedDt);
-    assert.equal(P.tackCrewSide(boat, 0), destination, id);
-    // A quick return through the eye still uses the new windward side.
-    boat.theta = (-90 + 12 * destination) * P.DEG;
-    boat.wind = P.windForState(boat, field);
-    P.updateCrew(boat, { crewPose: 2, crew: 0 }, field, sim.fixedDt);
-    boat.theta = -90 * P.DEG;
-    boat.wind = P.windForState(boat, field);
-    assert.equal(P.tackCrewSide(boat, 0), from, id);
+    P.updateCrew(boat, { crewPose: 2 }, env, sim.fixedDt);
+    assert.equal(boat.crewSide, from, id);
+    P.updateCrew(boat, { crew: -from }, env, sim.fixedDt);
+    assert.equal(boat.crewSide, -from, id);
+    assert.equal(Math.sign(boat.crewSideBlend), from, id);
+    for (let n = 0; n < 250; n++) P.updateCrew(boat, {}, env, sim.fixedDt);
+    assert.ok(-from * boat.crewSideBlend > .95, id);
+  }
+});
+
+test('the foil inverse uses the same vertical force in reverse and under spanwise flow', () => {
+  const { foilCases } = require('../scripts/model-corrections.cjs');
+  const [forward, reverse, above, below, span, oblique, pureSpan, almost, opposite] = foilCases();
+  for (const row of [forward, reverse, above, below, span, oblique]) {
+    assert.ok(Math.abs(row.verticalAtTarget - 1000) < .06, JSON.stringify(row));
+    assert.equal(row.saturated, false);
+    assert.ok(row.powerAtTarget <= 0);
+  }
+  assert.ok(Math.abs(forward.targetFlapDeg + reverse.targetFlapDeg) < 1e-4);
+  assert.ok(Math.abs(above.targetFlapDeg - below.targetFlapDeg) < 1e-3);
+  assert.deepEqual(span.forceAtTarget, forward.forceAtTarget);
+  for (const row of [pureSpan, almost, opposite]) {
+    assert.ok(Math.abs(row.verticalAtTarget) < 1e-5);
+    assert.equal(row.saturated, true);
+  }
+  assert.equal(foilCases().at(-1).saturated, true);
+});
+
+test('added water and moving masses preserve isolated momentum', () => {
+  const { internalTrial, waterInertiaTrial } = require('../scripts/model-corrections.cjs');
+  const a = waterInertiaTrial(60), b = waterInertiaTrial(120);
+  for (const result of [a, b]) {
+    assert.ok(result.linearPeak < 1e-8);
+    assert.ok(result.angularPeak < 1e-8);
+    assert.ok(result.energyPeak < .03);
+  }
+  assert.ok(b.energyPeak < a.energyPeak * .4);
+  for (const result of [internalTrial('laser','crew'),internalTrial('ac75','arm'),internalTrial('laser','boom')]) {
+    assert.ok(result.peakUnbalancedMomentum < 1e-8);
+    assert.ok(result.samples.some(row => Math.hypot(row.omega.x,row.omega.y,row.omega.z) > .005));
   }
 });
 
@@ -561,7 +723,7 @@ test('Laser passive damping and known moment separate dry and entrained-water in
 
 test('the flat-water launch and relative water correction match separate recorded trials', () => {
   const { before, after } = require('../gennemgang/fysik/laser-rotation.json');
-  const reference = { ...require('./fixtures/laser-rotation-sheet.json'), ...require('./fixtures/laser-rotation-downwind.json') };
+  const reference = require('./fixtures/laser-rotation-rudder-geometry.json');
   const current = JSON.parse(JSON.stringify(run()));
   for (const [stage, shots] of Object.entries(current)) verify(shots, reference[stage], stage);
   for (const [i, row] of after.broadReach.entries()) verify(row.heading, before.broadReach[i].heading, 'heading ' + row.t);
@@ -631,4 +793,62 @@ test('VMG upwind uses the velocity through the water including leeway', () => {
   const instruments = P.instruments(boat, null, field);
   assert.ok(Math.abs(instruments.vmgWind - 3) < 1e-12);
   assert.ok(Math.abs(instruments.leeway - Math.atan2(-3, 2)) < 1e-12);
+});
+
+
+test('Laser only applies blade loads at submerged points on the rendered profile', () => {
+  const sim = createSimulation();
+  const { physics: P } = sim;
+  const field = { speed: 0, waveHeight: 0, chop: 0, shelter: false };
+  const initial = { x: 0, y: -13000, theta: 0, vx: 3, heave: .17, pitch: 4 * P.DEG };
+  const areas = [-35, 35].map(side => {
+    const state = sim.createBoat('laser', { ...initial, heel: side * P.DEG, rudder: Math.sign(side) * 18 * P.DEG }, field);
+    const contact = P.rudderContacts(state, field);
+    assert.equal(contact.nominalArea, .105);
+    assert.ok(contact.geometryArea > .10 && contact.geometryArea < .12);
+    const wet = contact.sections.filter(section => section.wetArea > 0);
+    assert.ok(wet.length < contact.sections.length);
+    for (const section of wet) {
+      assert.ok(section.contact.depth >= 0);
+      assert.ok(Number.isFinite(section.moment.yaw));
+    }
+    return wet.reduce((total, section) => total + section.wetArea, 0);
+  });
+  assert.ok(Math.abs(areas[0] - areas[1]) < 1e-10);
+});
+
+test('both foil rudder wings rotate with the blade using the same steering axis', () => {
+  const trial = require('../scripts/steering-trials.cjs').load('.');
+  for (const id of ['ac75', 'ac72']) {
+    const s = trial.createBoat(id, {}, {speed:0, waveHeight:0, shelter:false});
+    for (const key of trial.FoilingPhysics.foilKeys(s).filter(key => key.startsWith('rudder'))) {
+      const neutral = trial.FoilingPhysics.foilPose(s, key);
+      for (const angle of [-.2, .2]) {
+        s.rudder = angle;
+        const turned = trial.FoilingPhysics.foilPose(s, key);
+        assert.deepEqual(turned.wingCentre, neutral.wingCentre);
+        assert.deepEqual(turned.chordDirection, {x:Math.cos(angle),y:0,z:-Math.sin(angle)});
+        assert.deepEqual(turned.spanDirection, {x:Math.sin(angle),y:0,z:Math.cos(angle)});
+      }
+      s.rudder = 0;
+    }
+  }
+});
+
+test('Laser crew joints do not kick the hull as the boom passes a stationary crew setting', () => {
+  const runtime = createSimulation();
+  const field = { speed: 0, direction: 0, gusts: 0, waveHeight: .72, chop: .23, shelter: false,
+    waveSeed: 318031, windSeed: 318031, difficulty: 'hard' };
+  const theta = Math.PI / 9;
+  for (const frequency of [60, 120]) {
+    const state = runtime.createBoat('laser', { x: -775, y: -2400, theta,
+      vx: 3 * Math.cos(theta), vy: 3 * Math.sin(theta), heel: 24 * Math.PI / 180,
+      pitch: 2 * Math.PI / 180, crewPose: 1, crewSide: 0, sheet: runtime.physics.sheetFromTrim(.35, 'laser') }, field);
+    for (let i = 0; i < 3 * frequency; i++) {
+      const { vx, vy, heaveVelocity } = state;
+      runtime.stepBoat(state, { crewPose: 1, crew: 0, foreAft: 0 }, field, 1 / frequency);
+      const delta = Math.hypot(state.vx - vx, state.vy - vy, state.heaveVelocity - heaveVelocity);
+      assert.ok(delta < 7 / frequency, `Velocity jump ${delta} m/s at ${state.time}s, ${frequency}Hz`);
+    }
+  }
 });

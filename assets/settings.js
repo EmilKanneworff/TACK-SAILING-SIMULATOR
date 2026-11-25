@@ -63,7 +63,7 @@ function load(storage){
     const current=JSON.parse(storage.getItem(key));
     if(current){
       const settings={weather:migrate(current.weather),personal:personal(current.personal)};
-      if(Object.hasOwn(current.personal||{},'showWind'))save(storage,settings);
+      if(Object.hasOwn(current.personal||{},'showWind')||Object.hasOwn(current.weather||{},'waves'))save(storage,settings);
       return settings;
     }
     for(const previousKey of previousKeys){

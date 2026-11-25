@@ -25,12 +25,25 @@ function seabedDepth(worldDistance){
  const extra=6*smooth(worldDistance/6)*(1-smooth((worldDistance-9)/27));
  return base+extra;
 }
-function islandSample(i,x,y){
- let inside=false,best=Infinity;const pts=i.points;
+const shoreEdges=new WeakMap();
+function edgesFor(pts){
+ const cached=shoreEdges.get(pts);
+ if(cached)return cached;
+ const edges=new Float64Array(pts.length*6);
  for(let k=0,j=pts.length-1;k<pts.length;j=k++){
-  const a=pts[j],b=pts[k],dx=b.x-a.x,dy=b.y-a.y,t=clamp(((x-a.x)*dx+(y-a.y)*dy)/(dx*dx+dy*dy||1),0,1),d=(x-a.x-t*dx)**2+(y-a.y-t*dy)**2;
+  const a=pts[j],b=pts[k],dx=b.x-a.x,dy=b.y-a.y;
+  edges.set([a.x,a.y,b.y,dx,dy,dx*dx+dy*dy||1],k*6);
+ }
+ shoreEdges.set(pts,edges);
+ return edges;
+}
+function islandSample(i,x,y){
+ let inside=false,best=Infinity;const edges=edgesFor(i.points);
+ for(let k=0;k<edges.length;k+=6){
+  const ax=edges[k],ay=edges[k+1],by=edges[k+2],dx=edges[k+3],dy=edges[k+4],px=x-ax,py=y-ay;
+  const t=clamp((px*dx+py*dy)/edges[k+5],0,1),d=(px-t*dx)**2+(py-t*dy)**2;
   if(d<best)best=d;
-  if((a.y>y)!==(b.y>y)&&x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x)inside=!inside;
+  if((ay>y)!==(by>y)&&x<dx*py/dy+ax)inside=!inside;
  }
  const distance=Math.sqrt(best)*(inside?-1:1);
  const relief=g.ArchipelagoRelief;

@@ -13,7 +13,8 @@ test('trim responds through its range across headings and boat speeds',async({pa
 });
 
 test('easing the visible mainsheet from 50 to 0 releases the boom during free sailing',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.clock.install();
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
  await page.click('#startButton');
  await page.evaluate(()=>{
   const {state,env}=SAILING_GAME, P=SailPhysics;
@@ -26,12 +27,18 @@ test('easing the visible mainsheet from 50 to 0 releases the boom during free sa
  await slider.fill('50');
  await page.waitForFunction(()=>Math.abs(SAILING_GAME.state.sheet-SailPhysics.sheetFromTrim(.5,SAILING_GAME.state))<.001);
  await expect(page.locator('#sheetValue')).toHaveText('50,0 %');
+ await page.clock.pauseAt(await page.evaluate(()=>Date.now()+200));
  const before=await page.evaluate(()=>({time:SAILING_GAME.state.time,boom:SAILING_GAME.state.boom}));
  await slider.fill('0');
- await page.waitForFunction(()=>SAILING_GAME.state.sheet===0);
+ let released=false;
+ for(let tick=0;tick<53&&!released;tick++){
+  await page.clock.runFor(1000/60);
+  released=await page.evaluate(()=>SAILING_GAME.state.sheet===0);
+ }
+ expect(released).toBe(true);
  await expect(page.locator('#sheetValue')).toHaveText('0,0 %');
  const after=await page.evaluate(()=>({time:SAILING_GAME.state.time,boom:SAILING_GAME.state.boom}));
- expect(after.time-before.time).toBeLessThan(.9);
+ expect(after.time-before.time).toBeLessThanOrEqual(.9+1e-10);
  expect(Math.abs(after.boom)).toBeGreaterThan(Math.abs(before.boom)+.2);
 });
 

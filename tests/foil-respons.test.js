@@ -1,9 +1,11 @@
 'use strict';
 const {introOption}=require('../scripts/browser-setup.cjs');
 const {test,expect}=require('@playwright/test');const {pathToFileURL}=require('node:url');const path=require('node:path');
+const game=process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href;
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
 test('both foilers have more direct rudder travel in flight than on the water',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
+ await page.waitForFunction(()=>window.SAILING_GAME);
  const runs=await page.evaluate(()=>['ac75','ac72'].map(boatId=>{
   const P=SailPhysics,env={...P.DEFAULT_ENV,boatId,difficulty:'easy',speed:0,waves:0,shelter:false};
   return [false,true].map(inFlight=>{
@@ -23,7 +25,7 @@ test('both foilers have more direct rudder travel in flight than on the water',a
 });
 
 test('both foilers turn promptly and reverse the turn using keys or partial rudder',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const runs=await page.evaluate(()=>{
   const P=SailPhysics,D=P.DEG;
@@ -71,7 +73,7 @@ test('both foilers turn promptly and reverse the turn using keys or partial rudd
 
 test('a manually reefed monohull accelerates and foils in strong wind on either tack',async({page})=>{
  test.setTimeout(90000);
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const runs=await page.evaluate(()=>{
   const P=SailPhysics,c=SailingBoats.get('ac75');
@@ -113,7 +115,7 @@ test('a manually reefed monohull accelerates and foils in strong wind on either 
 
 test('the catamaran lifts off in strong wind and retains controlled foil height in waves',async({page})=>{
  test.setTimeout(90000);
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const runs=await page.evaluate(()=>{
   const P=SailPhysics;
@@ -158,7 +160,8 @@ test('the catamaran lifts off in strong wind and retains controlled foil height 
 test('20 m/s from Faaborg leaves trim to the player and accepts keyboard helm and manual reef',async({page})=>{
  test.setTimeout(90000);
  await page.clock.install();
- await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
+ await page.waitForFunction(()=>window.SAILING_GAME);
  await (await introOption(page,'#introBoat')).selectOption('ac75');
  await page.selectOption('#introDifficulty','hard');
  await page.click('#introWeatherEdit');

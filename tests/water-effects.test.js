@@ -1,16 +1,17 @@
 const {test,expect}=require('@playwright/test');const {pathToFileURL}=require('node:url');const path=require('node:path');
+const game=process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href;
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
 test('a still hull makes no wake and a real bow impact produces spray',async({page})=>{
- await page.clock.install();await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);await page.click('#startButton');
+ await page.clock.install();await page.goto(game);await page.waitForFunction(()=>window.SAILING_GAME);await page.click('#startButton');
  const r=await page.evaluate(()=>{const g=SAILING_GAME,scene=g.scene,s=g.state,env={...g.env,speed:0,waves:0,gusts:0,waveCurrent:0,waveProfile:s.waveProfile};Object.assign(s,{vx:0,vy:0,theta:0,heel:0,pitch:0,heelRate:0,pitchRate:0,heaveVelocity:0,seaState:0,capsized:false});const x=scene.model.length*.38;s.heave=-scene.bottomAt(x,0);scene.updateBoat(s,env,0);scene.scene.updateMatrixWorld(true);scene.updateEffects(s,env,1/60,true);const quiet={spray:scene.spray.length,wake:scene.wakes.length};s.time+=.3;s.heaveVelocity=-1;scene.updateBoat(s,env,0);scene.scene.updateMatrixWorld(true);scene.updateEffects(s,env,1/60,false);return {quiet,after:scene.spray.length,impact:scene.spray.map(p=>p.vh),slam:SailPhysics.hydrostatics(s,env).slamForce};});expect(r.quiet).toEqual({spray:0,wake:0});expect(r.after).toBeGreaterThan(0);expect(r.impact.every(x=>x>0)).toBe(true);expect(r.slam).toBeGreaterThan(0);
 });
 test('laser cockpit mask follows its tapered opening when awash and seals when dry',async({page})=>{
- await page.clock.install();await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);await page.click('#startButton');
+ await page.clock.install();await page.goto(game);await page.waitForFunction(()=>window.SAILING_GAME);await page.click('#startButton');
  const result=await page.evaluate(()=>{const g=SAILING_GAME,w=g.scene,c=w.cockpitFor(),s=g.state;w.updateBoat(s,g.env,0);w.hull.updateMatrixWorld(true);const sample=(x,z)=>w.hull.localToWorld(new THREE.Vector3(x,(c.floorY+w.model.deckY)/2,z));const x=c.x1-.12,inside=sample(x,.20),outside=sample(x,.31);w.cockpitWet=true;const wet=[w.waterMaskedAt(inside),w.waterMaskedAt(outside)];w.cockpitWet=false;const dry=w.waterMaskedAt(inside);return {wet,dry,taper:w.waterUniforms.cockpitTaper.value};});
  expect(result.wet).toEqual([false,true]);expect(result.dry).toBe(true);expect(result.taper).toBeCloseTo(.82);
 });
 test('only occupied wake sections are drawn and each vertex follows the wave surface',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const scene=SAILING_GAME.scene,env={waveCurrent:.55,shelter:false},state={time:10};
@@ -32,7 +33,7 @@ test('only occupied wake sections are drawn and each vertex follows the wave sur
 });
 
 test('breaking foam leaves a fading patch and calm water supplies no new patches',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const {scene}=SAILING_GAME,P=SailPhysics,fx=scene.surfaceFoam;
@@ -61,7 +62,7 @@ test('breaking foam leaves a fading patch and calm water supplies no new patches
 });
 
 test('hull contact includes angular motion and chooses the wet side',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const P=SailPhysics,w=SAILING_GAME.scene;
@@ -80,7 +81,7 @@ test('hull contact includes angular motion and chooses the wet side',async({page
 });
 
 test('wake samples are spaced by distance, advect and never join across dry gaps or teleports',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const P=SailPhysics,scene=SAILING_GAME.scene,water=scene.hullWater;
@@ -125,7 +126,7 @@ test('wake samples are spaced by distance, advect and never join across dry gaps
 });
 
 test('the stern wave displaces the visible water and responds to hull loading and speed',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const P=SailPhysics,{scene,env:base}=SAILING_GAME,water=scene.hullWater,T=THREE;
@@ -186,7 +187,7 @@ test('the stern wave displaces the visible water and responds to hull loading an
 });
 
 test('foil hull wake stops in flight and resumes at the rounded belly on touchdown',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const P=SailPhysics,game=SAILING_GAME,scene=game.scene,boatId='ac75';
@@ -213,7 +214,7 @@ test('foil hull wake stops in flight and resumes at the rounded belly on touchdo
 });
 
 test('hull film follows the curved surface and returned spray meets the same waterline',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const P=SailPhysics,w=SAILING_GAME.scene,sea=w.hullWater;
@@ -256,7 +257,7 @@ test('hull film follows the curved surface and returned spray meets the same wat
 });
 
 test('the Laser sailor braces at the bow impact and keeps the physical stance',async({page})=>{
- await page.goto(pathToFileURL(path.resolve('index.html')).href);
+ await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const P=SailPhysics,w=SAILING_GAME.scene,C=SailingCrewMotion,env={speed:0,waves:0,waveCurrent:0};

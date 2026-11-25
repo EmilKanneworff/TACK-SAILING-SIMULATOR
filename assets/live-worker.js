@@ -5,6 +5,9 @@ importScripts('settings.js','simulation/boats.js','archipelago.js','archipelago-
   'simulation/foils.js','simulation/recovery.js','simulation/weather.js','simulation/course.js',
   'course-editor-model.js','collisions.js','simulation/runtime.js','simulation/live-room.js');
 
+const requiresFields = self.location.search === '?fields=precomputed';
+if (requiresFields) importScripts('archipelago-fields.js');
+
 const { RoomSimulation,Sim,neutral } = globalThis.TackLiveRoom;
 const stepMs = Sim.fixedDt * 1000;
 let sim,run,paused = false,lastUpdate = 0,lastFrame = 0,debt = 0;
@@ -51,8 +54,12 @@ function start(message) {
   publish();
 }
 
-onmessage = ({data})=>{
+onmessage = async ({data})=>{
   try {
+    if(requiresFields){
+      await globalThis.TackArchipelagoFieldsReady;
+      if(!globalThis.TackArchipelagoFields)throw Error('Værten kunne ikke hente øhavets dybde- og terrændata.');
+    }
     if(data.action==='start')return start(data);
     if(!sim||data.run!==run)return;
     if(data.action==='players')syncPlayers(data.players);
@@ -71,7 +78,7 @@ onmessage = ({data})=>{
       debt = 0;
     }
   }catch(error){
-    postMessage({type:'authority-failed',run,message:error.message});
+    postMessage({type:'authority-failed',run:run??data.run,message:error.message});
     sim = null;
   }
 };

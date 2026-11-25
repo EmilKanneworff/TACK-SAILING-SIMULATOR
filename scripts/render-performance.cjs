@@ -11,6 +11,7 @@ const stages = [
   { name: 'havn', boat: 'laser', x: 4, y: -47, heading: -1.5, speed: 2, camera: 0 },
   { name: 'kyst', boat: 'yacht', x: -180, y: -340, heading: -.65, speed: 3, camera: 0, turn: true },
   { name: 'aabent', boat: 'laser', x: -1900, y: -2170, heading: -.45, speed: 4, camera: 0 },
+  { name: 'opretning', boat: 'laser', x: -1900, y: -2170, heading: -.45, speed: 4, camera: 0, recover: true },
   { name: 'foil', boat: 'ac75', x: -1610, y: -1930, heading: -.40, speed: 11, heave: 1.12, camera: 1 },
   { name: 'seks', boat: 'laser', x: -1900, y: -2170, heading: -.45, speed: 4, camera: 1, fleet: true },
   { name: 'retur', boat: 'laser', x: 4, y: -47, heading: -1.5, speed: 2, camera: 0 },
@@ -151,13 +152,14 @@ function installProbe() {
           return [key,times.length?{n:times.length,p50:times[Math.ceil(times.length/2)-1],p95:times[Math.ceil(times.length*.95)-1]}:null];
         })) };
     },
-    begin() { run = []; previous = previousDraw = null; },
+    begin() { run = []; previous = previousDraw = null; return {wall: performance.now(), simulation:game.state.time}; },
     end() {
       const rows = run;
       run = null;
       const scene = game.scene;
       const ratio = renderer.getPixelRatio();
       const fleet = FriVindLobby.fleet;
+      const { env } = game;
       return { rows, snapshot: { ratio, size: [renderer.domElement.width, renderer.domElement.height],
         tier: scene.graphicsProfile.id, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
         waterTriangles: scene.water.geometry.index.count / 3, activeLand: scene.coastTerrain.filter(tile => tile.visible).length,
@@ -168,7 +170,8 @@ function installProbe() {
         activeTerrainRegions: scene.terrainRegions?.filter(r => r.merged?.visible).length ?? null,
         simulationDebt: game.simulationDebt ?? null, fleetSize: 1 + fleet.boats.size, detailedRemotes: [...fleet.actors.values()].filter(a => a.boatRoot.visible).length,
         simpleRemotes: [...fleet.silhouettes?.values() || []].filter(a => a.root.visible).length,
-        x: game.state.x, y: game.state.y, time: game.state.time, grounded: game.state.ground?.contact } };
+        x: game.state.x, y: game.state.y, time: game.state.time, grounded: game.state.ground?.contact,
+        boat:game.state.boatId, speed:env.speed, windDirection:env.direction, waveHeight:env.waveHeight, chop:env.chop } };
     }
   };
 }
@@ -195,14 +198,17 @@ function setupFleet(enabled) {
     return;
   }
   const {state, env} = SAILING_GAME;
-  // Drive the normal host simulation and player models. The network transport
-  // itself is measured in the project's six-client Playwright suite.
+  // Render five representative snapshots with the local player's prediction.
+  // Live simulation and transport are exercised separately by test:six-rigs.
   fleet.send = () => {};
-  fleet.joined({session:'graphics-benchmark', id:'own', host:true}, [
+  fleet.joined({session:'graphics-benchmark', id:'own', host:true, nextSeq:0, phase:'lobby'}, [
     {id:'own', boat:state.boatId, host:true}, ...['dinghy','yacht','ac75','ac72','laser'].map((boat,i) =>
       ({id:'p'+i, boat, name:'Sejler '+(i+1)}))
   ]);
   fleet.inWorld = true;
+  fleet.phase = 'free';
+  fleet.synced = true;
+  fleet.serverTime = Infinity;
   const distances = [[-12,-14],[7,-24],[-4,-48],[27,-76],[36,-153]];
   for(const [i,[x,y]] of distances.entries()){
     const player = fleet.players[i+1],boat = TackSimulation.createBoat(player.boat,
@@ -218,7 +224,7 @@ function summarize(passes) {
       const onlyDraws = ['calls', 'triangles', 'gpu'].includes(key);
       const values = rows.filter(r=>!onlyDraws||r.calls>0).map(r => r[key]).filter(Number.isFinite).sort((a, b) => a - b);
       return values.length ? { n: values.length, ...Object.fromEntries(cuts.map(p =>
-        ['p' + p, +values[Math.ceil(values.length * p / 100) - 1].toFixed(3)])) } : null;
+        ['p' + p, +values[Math.ceil(values.length * p / 100) - 1].toFixed(3)])), max:values.at(-1) } : null;
     };
     const keys = ['interval', 'drawInterval', 'cpu', 'simulation', 'scene', 'boat', 'crew', 'waterContact',
       'map', 'ui', 'interpolate', 'terrainRange', 'atmosphere', 'reflection', 'renderer', 'fleetPhysics', 'fleetGraphics', 'boatBuild', 'gpu', 'calls', 'triangles'];
@@ -240,13 +246,15 @@ async function measure(browser, url, destination, tier, throttle) {
     page.on('console', m => { if (m.type() === 'error') errors.push(m.text().slice(0, 500)); });
     await page.addInitScript(installProbe);
     await page.addInitScript(quality => localStorage.setItem('fri-vind.settings.v3',
-      JSON.stringify({ personal: { quality, camera: 0 } })), tier);
+      JSON.stringify({ personal: { quality, camera: 0, difficulty: 'hard' } })), tier);
     await page.route(url, async route => {
       const response = await route.fetch();
-      const html = (await response.text()).replace('try{\n  if(!P||!W||!B',
-        `fixedStep=tackPerf.wrap(fixedStep,'simulation');updateUI=tackPerf.wrap(updateUI,'ui');
+      const original = await response.text();
+      const html = original.replace('  if(!P||!W||!B',
+        `  fixedStep=tackPerf.wrap(fixedStep,'simulation');updateUI=tackPerf.wrap(updateUI,'ui');
         updateLiveControls=tackPerf.wrap(updateLiveControls,'ui');interpolate=tackPerf.wrap(interpolate,'interpolate');
-        try{\n  if(!P||!W||!B`);
+        if(!P||!W||!B`);
+      if(html===original)throw Error('TACK simulation probe could not find initialization');
       await route.fulfill({ response, body: html });
     });
     const load = performance.now();
@@ -269,7 +277,10 @@ async function measure(browser, url, destination, tier, throttle) {
       for (let i = 0; i < (target - camera + 5) % 5; i++) await page.keyboard.press('KeyC');
       camera = target;
     }
-    for (const stage of only || capture ? stages.filter(s => s.name === 'havn' || s.name === 'foil') : stages) {
+    const selected=process.env.TACK_PERF_STAGES?.split(',');
+    const stageList=selected?stages.filter(s=>selected.includes(s.name)):
+      only||capture?stages.filter(s=>s.name==='havn'||s.name==='foil'):stages;
+    for (const stage of stageList) {
       await setCamera(stage.camera);
       if (!stage.fleet) await page.evaluate(setupFleet, false);
       if (stage.boat !== 'laser' && !stage.fleet) await page.evaluate(() => tackPerf.begin());
@@ -284,11 +295,23 @@ async function measure(browser, url, destination, tier, throttle) {
         passes.push({ name: 'kameraskift', ...await page.evaluate(() => tackPerf.end()) });
         await setCamera(stage.camera);
       }
-      await page.evaluate(() => tackPerf.begin());
-      await page.waitForTimeout(2400);
+      const began = await page.evaluate(recover => {
+        const started = tackPerf.begin();
+        if(recover){
+          const s=SAILING_GAME.state;
+          Object.assign(s,{heel:1.5,capsized:true,capsizeSide:1});
+        }
+        return started;
+      },Boolean(stage.recover));
+      if(stage.recover)await page.waitForFunction(()=>SAILING_GAME.state.lastRecovery&&!SAILING_GAME.state.recovering);
+      else await page.waitForTimeout(Number(process.env.TACK_PERF_MS)||2400);
       // Allow the last asynchronous GPU timers to resolve on subsequent frames.
-      const result = await page.evaluate(() => tackPerf.end());
-      passes.push({ name: stage.name, camera: stage.camera, ...result });
+      const result = await page.evaluate(began => {
+        const result=tackPerf.end(),wall=(performance.now()-began.wall)/1000;
+        return {...result,wall,simulated:SAILING_GAME.state.time-began.simulation,
+          recoverySeconds:SAILING_GAME.state.lastRecovery?.elapsedSeconds??null};
+      },began);
+      passes.push({ name: stage.name, camera: stage.camera, initial:stage, ...result });
       if (only) { layers[stage.name] = await page.evaluate(() => tackPerf.waterLayers()); }
       if (!only && (stage.name === 'havn' || stage.name === 'foil')) {
         // The seeded voyage bypasses the boat picker. Match its normal title

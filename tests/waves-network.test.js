@@ -21,9 +21,10 @@ test('the host and guest use the same developing and settled sea', async ({ brow
       const context = await browser.newContext({ viewport: { width: 1024, height: 660 } });
       contexts.push(context);
       const page = await context.newPage();
-      await page.route('**/assets/config.js*', route => route.fulfill({
-        contentType: 'application/javascript', body: 'window.FRI_VIND_REALTIME_URL="ws://127.0.0.1:33127";'
-      }));
+      await page.addInitScript(() => {
+        window.FRI_VIND_REALTIME_URL = 'ws://127.0.0.1:33127';
+        localStorage.setItem('fri-vind.settings.v3',JSON.stringify({personal:{difficulty:'hard',quality:'low'}}));
+      });
       await page.goto(process.env.TACK_URL || 'http://localhost:34127/');
       if (code) await (await introOption(page, '#introBoat')).selectOption('yacht');
       await (await introOption(page, '#introLobby')).click();
@@ -43,6 +44,21 @@ test('the host and guest use the same developing and settled sea', async ({ brow
 
     await guest.waitForFunction(() => FriVindLobby.fleet.synced);
     const guestId = await guest.evaluate(() => FriVindLobby.fleet.id);
+    for (const [key, side, pose] of [['KeyE', 1, 2], ['KeyQ', -1, 3]]) {
+      await guest.locator('#sea').focus();
+      await guest.keyboard.press(key);
+      await guest.keyboard.press(String(pose));
+      await host.waitForFunction(({id,side,pose}) => {
+        const s = FriVindLobby.fleet.boats.get(id);
+        return s?.crewSide === side && s.crewSideBlend * side > .9 && s.crewPose === pose;
+      }, {id:guestId,side,pose}, {timeout:20000});
+      expect(await guest.evaluate(() => SAILING_GAME.state.crewSide)).toBe(side);
+    }
+    await guest.selectOption('#reefSetting', '2');
+    await host.waitForFunction(id => {
+      const state = FriVindLobby.fleet.boats.get(id);
+      return state?.cruiserRig?.reef === 2 && Math.abs(state.sail.main.area - 26.88) < .01;
+    }, guestId, {timeout:15000});
     await host.click('#settingsButton');
     await host.locator('#waveHeight').fill('2.5');
     await host.locator('#chop').fill('1');

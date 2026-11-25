@@ -1,0 +1,35 @@
+{
+  "revision": "55afe8661449",
+  "files": {
+    "archipelago-fields.js": {
+      "mime": "text/javascript; charset=utf-8",
+      "compression": "gzip",
+      "cache": "public, max-age=31536000, immutable"
+    },
+    "archipelago-fields.bin": {
+      "mime": "application/octet-stream",
+      "compression": "gzip file payload",
+      "cache": "public, max-age=31536000, immutable"
+    },
+    "interface.css": {
+      "mime": "text/css; charset=utf-8",
+      "compression": "gzip",
+      "cache": "public, max-age=31536000, immutable"
+    },
+    "simulation/physics.js": {
+      "mime": "text/javascript; charset=utf-8",
+      "compression": "gzip",
+      "cache": "public, max-age=31536000, immutable"
+    },
+    "live-worker.js": {
+      "mime": "text/javascript; charset=utf-8",
+      "compression": "gzip",
+      "cache": "public, max-age=31536000, immutable"
+    }
+  },
+  "fieldsInUse": {
+    "depth": true,
+    "wind": true
+  },
+  "missingFilesVisible": true
+}

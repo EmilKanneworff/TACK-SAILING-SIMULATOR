@@ -8,6 +8,133 @@ const path = require('node:path');
 test.use({ launchOptions: { executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', args: ['--enable-unsafe-swiftshader'] } });
 const game = pathToFileURL(path.resolve('index.html')).href;
 
+test.describe('phone sailing',()=>{
+  test.use({hasTouch:true,isMobile:true,viewport:{width:390,height:664},deviceScaleFactor:3});
+
+  test('large touch buttons operate helm and sheet at once in both orientations',async({page})=>{
+    await page.goto(process.env.TACK_URL||game);
+    await page.locator('#startButton').tap();
+    await page.waitForFunction(()=>SAILING_GAME.state.time>.15);
+    expect(await page.evaluate(()=>SAILING_GAME.scene.graphicsProfile.id)).toBe('low');
+    const cdp=await page.context().newCDPSession(page);
+    const buttons=['steerLeftKey','touchEase','touchHaul','steerRightKey'];
+    const point=async(id,finger)=>{
+      const box=await page.locator('#'+id).boundingBox();
+      return {x:box.x+box.width/2,y:box.y+box.height/2,id:finger};
+    };
+    for(const [width,height] of [[390,664],[844,390]]){
+      await page.setViewportSize({width,height});
+      await expect.poll(()=>page.evaluate(()=>document.getElementById('sea').clientWidth)).toBe(width);
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      for(const id of [...buttons,'pose3','reefSetting','preferencesButton']){
+        const box=await page.locator('#'+id).boundingBox();
+        expect(box.width,id).toBeGreaterThanOrEqual(44);
+        expect(box.height,id).toBeGreaterThanOrEqual(buttons.includes(id)?64:44);
+        expect(box.x+box.width,id).toBeLessThanOrEqual(width);
+        expect(box.y+box.height,id).toBeLessThanOrEqual(height);
+      }
+      const [left,right,haul,ease]=await Promise.all(['steerLeftKey','steerRightKey','touchHaul','touchEase'].map((id,i)=>point(id,i+1)));
+      expect(left.x).toBeLessThan(right.x);
+      expect(right.x).toBeLessThan(haul.x);
+      expect(haul.x).toBeLessThan(ease.x);
+      await expect(page.locator('#boatMenuButton')).toBeHidden();
+      const startingSheet=await page.evaluate(()=>SAILING_GAME.state.sheet);
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[left,haul]});
+      // Leave enough line to ease after releasing the other contact.
+      await page.waitForFunction(sheet=>SAILING_GAME.state.steerIntent===-1&&
+        SAILING_GAME.state.sheet>Math.max(.25,sheet+.025),startingSheet);
+      // Chromium's WebTouch backend can release one identified contact.
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[haul]});
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{...left,x:right.x,y:right.y}]});
+      await expect(page.locator('#touchHaul')).not.toHaveClass(/input-active/);
+      await expect(page.locator('#steerLeftKey')).toHaveClass(/input-active/);
+      await expect(page.locator('#steerRightKey')).not.toHaveClass(/input-active/);
+      await page.waitForFunction(()=>SAILING_GAME.state.steerIntent===-1);
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+      await page.waitForFunction(()=>SAILING_GAME.state.steerIntent===0);
+      const hauled=await page.evaluate(()=>SAILING_GAME.state.sheet);
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[right,ease]});
+      await page.waitForFunction(sheet=>SAILING_GAME.state.steerIntent===1&&SAILING_GAME.state.sheet<sheet-.025,hauled);
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[right]});
+      await page.waitForFunction(()=>SAILING_GAME.state.steerIntent===0);
+      await expect(page.locator('#touchEase')).toHaveClass(/input-active/);
+      const afterRelease=await page.evaluate(()=>SAILING_GAME.state.sheet);
+      await page.waitForFunction(sheet=>SAILING_GAME.state.sheet<sheet-.012,afterRelease);
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});
+      await expect(page.locator('#touchEase')).not.toHaveClass(/input-active/);
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[left,right,haul,ease]});
+      await page.waitForFunction(()=>SAILING_GAME.state.steerIntent===0);
+      const neutral=await page.evaluate(()=>SAILING_GAME.state.sheet);
+      await page.waitForTimeout(95);
+      expect(await page.evaluate(()=>SAILING_GAME.state.sheet)).toBeCloseTo(neutral,6);
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    }
+    const left=await point('steerLeftKey',1);
+    const ease=await point('touchEase',2);
+    const steer=page.locator('#steerLeftKey');
+    await steer.evaluate(button=>button.addEventListener('gotpointercapture',event=>{
+      button.dataset.testPointer=String(event.pointerId);
+    },{once:true}));
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[left,ease]});
+    await expect(steer).toHaveClass(/input-active/);
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{...left,y:left.y-25},ease]});
+    await expect(steer).toHaveAttribute('data-test-pointer', /^\d+$/);
+    await steer.evaluate(button=>button.releasePointerCapture(Number(button.dataset.testPointer)));
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{...left,y:left.y-44},ease]});
+    await expect(steer).not.toHaveClass(/input-active/);
+    await expect(page.locator('#touchEase')).toHaveClass(/input-active/);
+    await page.evaluate(()=>window.dispatchEvent(new Event('blur')));
+    await expect(page.locator('#touchEase')).not.toHaveClass(/input-active/);
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});
+    await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
+    await page.waitForFunction(()=>!SAILING_GAME.paused);
+
+    await page.locator('#pose3').tap();
+    await expect(page.locator('#pose3')).toHaveAttribute('aria-pressed','true');
+    const beforeCrew=await page.evaluate(()=>SAILING_GAME.state.time);
+    await page.locator('#mobileCrewToggle').tap();
+    await expect(page.locator('#mobileCrewPanel')).toBeVisible();
+    await expect(page.locator('#crewPort').or(page.locator('#crewStarboard')).and(page.locator(':enabled')).first()).toBeVisible();
+    await page.locator('#mobileForeAft').tap({position:{x:15,y:22}});
+    await page.waitForFunction(t=>SAILING_GAME.state.time>t+.3&&SAILING_GAME.state.crewForeAft<-.1,beforeCrew);
+    await page.locator('#mobileCrewToggle').tap();
+    await expect(page.locator('#mobileCrewPanel')).toBeHidden();
+    expect(await page.evaluate(()=>SAILING_GAME.state.crewForeAft)).toBeLessThan(-.1);
+    await page.locator('#expandChart').tap();
+    await expect(page.locator('#expandChart')).toHaveAttribute('aria-expanded','true');
+    await expect(page.locator('#mapView')).toBeVisible();
+    await page.locator('#expandChart').tap();
+    await expect(page.locator('#expandChart')).toHaveAttribute('aria-expanded','false');
+    await page.locator('#preferencesButton').tap();
+    await expect(page.locator('#touchBoatMenu')).toBeVisible();
+    await page.locator('#touchRaceMenu').tap();
+    await page.waitForFunction(()=>SAILING_GAME.course.phase==='countdown');
+    await expect(page.locator('#settings')).toBeHidden();
+  });
+
+  test('the expanded chart leaves room for pinch and pan on a short screen',async({page})=>{
+    await page.setViewportSize({width:667,height:320});
+    await page.goto(process.env.TACK_URL||game);
+    await page.locator('#startButton').tap();
+    await page.locator('#expandChart').tap();
+    const {x,y,width,height}=await page.locator('#map').boundingBox();
+    const center={x:x+width/2,y:y+height/2};
+    const cdp=await page.context().newCDPSession(page);
+    const touch=(type,touchPoints)=>cdp.send('Input.dispatchTouchEvent',{type,touchPoints});
+    const pair=distance=>[{...center,x:center.x-distance,id:1},{...center,x:center.x+distance,id:2}];
+    const before=await page.evaluate(()=>SAILING_GAME.map.getView());
+    await touch('touchStart',pair(24));
+    await touch('touchMove',pair(54));
+    await touch('touchEnd',[]);
+    await page.waitForFunction(scale=>SAILING_GAME.map.getView().scale>scale*1.2,before.scale);
+    const after=await page.evaluate(()=>SAILING_GAME.map.getView());
+    await touch('touchStart',[{...center,id:3}]);
+    await touch('touchMove',[{...center,x:center.x+60,id:3}]);
+    await touch('touchEnd',[]);
+    await page.waitForFunction(x=>Math.abs(SAILING_GAME.map.getView().x-x)>20,after.x);
+  });
+});
+
 async function sail(page, boat='laser'){
   await page.goto(game);
   await (await introOption(page, '#introBoat')).selectOption(boat);
@@ -87,6 +214,7 @@ test('all start areas offer a safe launch for the foil catamaran on a touch scre
   try{
     const page=await context.newPage();
     await page.goto(process.env.TACK_URL||game);
+    await page.waitForFunction(()=>window.SAILING_GAME);
     await (await introOption(page,'#introBoat')).selectOption('ac72');
     await page.locator('#startButton').tap();
     await page.locator('#preferencesButton').tap();

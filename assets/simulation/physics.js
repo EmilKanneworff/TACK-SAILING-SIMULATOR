@@ -46,7 +46,7 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
     return merged;
   }
   // Direct physics probes can still supply their dimensionless wave forcing.
-  const hasWaveHeight=env=>Number.isFinite(env?.waveHeight)&&!Number.isFinite(env.waves);
+  const hasWaveHeight=env=>Number.isFinite(env?.waveHeight);
   const independentSea=env=>hasWaveHeight(env)&&Number.isFinite(env.chop);
   const seaShape=env=>hasWaveHeight(env)?root.SailingSettings.seaShape(env.waveHeight):null;
   const BASE_WAVE_DIRECTION=wrap360(Math.atan2(-WAVE_COMPONENTS[0].kx,-WAVE_COMPONENTS[0].ky)/DEG);
@@ -181,7 +181,7 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
       dy:derivative*(long*hLong*swell.dy+short*hShort*chop.dy-depthWeight*site.dy)/r,
       rate:derivative*(long*LONG_HEIGHT_UNIT*rate*swell.v+short*SHORT_HEIGHT_UNIT*windRate*chop.v)*inv/r};
   }
-  function analyticWaveAt(x,y,time,inputEnv,depth=0,heightOnly=false){
+  function analyticWaveAt(x,y,time,inputEnv,depth=0,heightOnly=false,searchPoint){
     const scale=inputEnv?.waveCurrent??seaTarget(inputEnv),scaleRate=inputEnv?.waveCurrentRate||0;
     let height=0,dx=0,dy=0,velocity=0,waterVx=0,waterVy=0,waterVz=0,waterAx=0,waterAy=0,curvature=0;
     const component=Number.isInteger(inputEnv?.waveComponent)?inputEnv.waveComponent:-1;
@@ -190,6 +190,7 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
     if(!scale&&!scaleRate&&!((from.managed&&from.short)||(to.managed&&to.short)))
       return heightOnly?height:{height,dx,dy,velocity,waterVx,waterVy,waterVz,waterAx,waterAy,curvature};
     const transition=blend>0&&blend<1;
+    const bands=searchPoint?[]:null;
     const shelter=root.SailingShelter,covered=inputEnv?.shelter!==false&&shelter.contains(x,y),below=Math.max(0,depth);
     const wind=windWaveAt(time,profile,inputEnv);
     const coast=root.SailingWaterDepth,site=covered?coast.sample(x,y):null;
@@ -200,6 +201,8 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
     });
     const addBand=(p,weight)=>{
       const band=waveBand(p);
+      const terms=bands?[]:null;
+      if(terms)bands.push({terms,managed:p.managed});
       const field=covered?band.exposure||waveExposureField(p,band):null;
       let swell=field?shelter.sampleGradient(field,x,y,p.coupled&&!p.managed?2:0):openWater;
       let chop=field?shelter.sampleGradient(field,x,y,1):openWater;
@@ -244,6 +247,7 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
         const gx=forwardX+travel.dx,gy=forwardY+travel.dy,directionLength=Math.hypot(gx,gy),localK=w.k*directionLength;
         const cos=Math.cos(q),rate=a*cos+4*harmonic*sin*cos;
         const areaGradient=sin-2*bend*a*cos2,base=amplitude*areaGradient;
+        if(terms)terms.push({w,a,sin,cos,cos2,harmonic,crest,driven,weight,gx,gy,directionLength,localK});
         const decay=below?Math.exp(-localK*below):1;
         let sideDecay=decay,verticalDecay=decay;
         if(p.managed&&site&&site.depth>0&&site.depth*w.k<5){
@@ -279,7 +283,39 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
       const phase=(time-profile.start)/PROFILE_SECONDS,rate=6*phase*(1-phase)/PROFILE_SECONDS;
       velocity+=(b.height-a.height)*rate;waterVz+=(b.depth-a.depth)*rate;
     }
-    return heightOnly?height:{height,dx,dy,velocity,waterVx,waterVy,waterVz,waterAx,waterAy,curvature};
+    if(heightOnly)return height;
+    const surface={height,dx,dy,velocity,waterVx,waterVy,waterVz,waterAx,waterAy,curvature};
+    if(searchPoint)searchPoint.atDepth=depth=>resolveHeaveWater(surface,bands,site,coast,transition,(time-(profile?.start??0))/PROFILE_SECONDS,depth);
+    return surface;
+  }
+  // Reevaluate orbital motion at the trial depth. The elevation, slope,
+  // surface velocity and per-band phase are fixed for this point and instant.
+  function resolveHeaveWater(surface,bands,site,coast,transition,phase,depth){
+    if(!depth)return surface;
+    const below=Math.max(0,depth);
+    let waterVx=0,waterVy=0,waterVz=0,waterAx=0,waterAy=0,transitionDepth=0;
+    for(const [index,{terms,managed}] of bands.entries()){
+      let profileDepth=0;
+      for(const {w,a,sin,cos,cos2,harmonic,crest,driven,weight,gx,gy,directionLength,localK} of terms){
+        const decay=Math.exp(-localK*below);
+        let sideDecay=decay,verticalDecay=decay;
+        if(managed&&site&&site.depth>0&&site.depth*w.k<5){
+          const k=coast.waveNumber(w.k,site.depth),relativeDepth=Math.min(site.depth,below);
+          const down=Math.exp(-k*relativeDepth),up=Math.exp(-k*(2*site.depth-relativeDepth)),column=-Math.expm1(-2*k*site.depth);
+          sideDecay=below<=site.depth?(down+up)/column:0;
+          verticalDecay=(down-up)/column;
+        }
+        const orbital=weight*a*sin*sideDecay,normalizer=w.omega/Math.max(1e-8,directionLength);
+        waterVx+=orbital*gx*normalizer;waterVy+=orbital*gy*normalizer;
+        const acceleration=-weight*a*w.omega*cos*sideDecay*normalizer;
+        waterAx+=acceleration*gx;waterAy+=acceleration*gy;
+        waterVz+=weight*verticalDecay*(-w.omega*(a*cos+4*harmonic*sin*cos*verticalDecay)+(sin-2*w.bend*a*cos2*verticalDecay)*driven);
+        if(transition)profileDepth+=verticalDecay*(a*sin-crest*verticalDecay);
+      }
+      if(transition)transitionDepth=index===0?-profileDepth:profileDepth+transitionDepth;
+    }
+    if(transition)waterVz+=transitionDepth*(6*phase*(1-phase)/PROFILE_SECONDS);
+    return {...surface,waterVx,waterVy,waterVz,waterAx,waterAy};
   }
   function axes(theta) { return { fx: Math.cos(theta), fy: Math.sin(theta), rx: Math.sin(theta), ry: -Math.cos(theta) }; }
   function windForState(s, env, overrideWind) {
@@ -580,16 +616,62 @@ function advanceAttitude(s,frame,velocity,dt){
  const heel=Math.atan2(up.x*a.rx+up.y*a.ry,up.z*Math.cos(s.pitch)-along*Math.sin(s.pitch));
  s.heel+=wrap(heel-s.heel);
 }
+const addScaled=(a,b,k)=>({x:a.x+k*b.x,y:a.y+k*b.y,z:a.z+k*b.z});
+// The reduced added-water inertia is a symmetric sway/yaw block. Transport
+// its coupled linear and angular momentum as the local basis rotates.
+function advanceAddedWater(s,h,mass,offset,water,frame,axis,inverse,initial,spin,angular,torque,force,internal){
+ const {sway,firstMoment,secondMoment}=water;
+ const current={x:s.waterX||0,y:s.waterY||0,z:0};
+ initial=addScaled(initial,current,-1);
+ const coupling=offset.f*sway-firstMoment, moment=secondMoment-offset.f*(2*firstMoment-offset.f*sway);
+ const mSide=mass+sway,addedYaw=moment-coupling*coupling/mSide;
+ const starboard={x:axis.rx,y:axis.ry,z:0},sideSpeed=dot3(initial,starboard),initialYaw=spin.z;
+ const p0=addScaled(addScaled({x:0,y:0,z:0},initial,mass),starboard,sway*sideSpeed+coupling*initialYaw);
+ const hydro0=coupling*sideSpeed+moment*initialYaw;
+ const h0={...angular,z:angular.z+hydro0};
+ const incident=water.incidentSway??0,incidentYaw=offset.f*incident-(water.incidentFirstMoment??0);
+ const externalForce=addScaled(force,starboard,incident),externalTorque={...torque,z:torque.z+incidentYaw};
+ const decode=(basis,currentAxis,linear,H)=>{
+  const starboard={x:currentAxis.rx,y:currentAxis.ry,z:0},up={x:basis.x.z,y:basis.y.z,z:basis.z.z};
+  const pSide=dot3(linear,starboard),local=addScaled(toLocal(basis,H),internal,-1);
+  const free=multiplyInertia(inverse,addScaled(local,up,-coupling*pSide/mSide)),response=multiplyInertia(inverse,up);
+  const yaw=dot3(up,free)/(1+addedYaw*dot3(up,response));
+  const spin=toWorld(basis,addScaled(free,response,-addedYaw*yaw));
+  const side=(pSide-coupling*yaw)/mSide;
+  const drift={x:linear.x/mass,y:linear.y/mass,z:linear.z/mass};
+  return {spin,velocity:addScaled(drift,starboard,side-pSide/mass),waterYaw:coupling*side+moment*yaw};
+ };
+ const middle={theta:s.theta,pitch:s.pitch,heel:s.heel};
+ advanceAttitude(middle,frame,spin,h*.5);
+ const halfTorque={...externalTorque,z:externalTorque.z-cross3(initial,p0).z};
+ const pMid=addScaled(p0,externalForce,h*.5),hMid=addScaled(h0,halfTorque,h*.5);
+ const mid=decode(rotationFrame(middle),axes(middle.theta),pMid,hMid);
+ const transport=cross3(mid.velocity,pMid).z,totalTorque={...externalTorque,z:externalTorque.z-transport};
+ advanceAttitude(s,frame,mid.spin,h);
+ const end=decode(rotationFrame(s),axes(s.theta),addScaled(p0,externalForce,h),addScaled(h0,totalTorque,h));
+ return {spin:end.spin,velocity:addScaled(end.velocity,current,1),
+  positionVelocity:addScaled(mid.velocity,current,1),yawWater:incidentYaw-transport+(hydro0-end.waterYaw)/h};
+}
+function internalAngularMomentum(points,before,cg,dt,boomMomentum=0){
+ const momentum={x:0,y:boomMomentum,z:0};
+ if(!points||!before)return momentum;
+ for(let i=0;i<points.length;i++){
+  const {p,mass}=points[i],old=before[i].p;
+  const angular=cross3({x:p.x-cg.x,y:p.y-cg.y,z:p.z-cg.z},{x:p.x-old.x,y:p.y-old.y,z:p.z-old.z});
+  momentum.x+=angular.x*mass/dt;momentum.y+=angular.y*mass/dt;momentum.z+=angular.z*mass/dt;
+ }
+ return momentum;
+}
 // Translate and rotate about the instantaneous centre of mass. Forces and
 // moments arrive about the hull origin in the same convention as pointMotion.
-function integrateMass(s,dt,mass,cg,originInertia,force,moment,waterInertia,balance){
+function integrateMass(s,dt,mass,cg,originInertia,force,moment,waterInertia,balance,motion){
  const previous=s.massMotion,oldCg=previous?.cg??s.hydro?.cg??cg;
  const rate={x:(cg.x-oldCg.x)/dt,y:(cg.y-oldCg.y)/dt,z:(cg.z-oldCg.z)/dt};
  const axis=axes(s.theta),oldOffset=bodyOffset(s,oldCg),oldDrift=bodyOffset(s,previous?.rate??{x:0,y:0,z:0});
  const velocity=pointMotion(s,oldOffset,axis);
- let vx=velocity.x+oldDrift.f*axis.fx+oldDrift.r*axis.rx+force.x/mass*dt;
- let vy=velocity.y+oldDrift.f*axis.fy+oldDrift.r*axis.ry+force.y/mass*dt;
- const vz=velocity.z+oldDrift.up+force.z/mass*dt;
+ const initial={x:velocity.x+oldDrift.f*axis.fx+oldDrift.r*axis.rx,
+  y:velocity.y+oldDrift.f*axis.fy+oldDrift.r*axis.ry,z:velocity.z+oldDrift.up};
+ let endVelocity=addScaled(initial,force,dt/mass),positionVelocity=endVelocity;
  const offset=bodyOffset(s,cg),forward=force.x*axis.fx+force.y*axis.fy,side=force.x*axis.rx+force.y*axis.ry;
  const originMoment=forceMoment(s,cg,forward,side,force.z);
  const inertia={
@@ -613,51 +695,42 @@ function integrateMass(s,dt,mass,cg,originInertia,force,moment,waterInertia,bala
  // of the vertical moment, which must be removed to recover the spatial torque.
  const along=(rollAboutCG-frame.sp*yawAboutCG)/(Math.sign(frame.cp||1)*Math.max(.001,Math.abs(frame.cp)));
  const torque=toLocal(frame,{x:along*axis.fx+pitchAboutCG*axis.rx,y:along*axis.fy+pitchAboutCG*axis.ry,z:yawAboutCG});
- const momentum=multiplyInertia(previous?.inertia??inertia,oldSpin);
- momentum.x+=torque.x*dt;momentum.y+=torque.y*dt;momentum.z+=torque.z*dt;
+ const zero={x:0,y:0,z:0};
+ const internal=motion?internalAngularMomentum(motion.points,motion.before,cg,dt,motion.boomInertia*s.boomRate):zero;
+ const oldInternal=previous?.internalMomentum??{x:0,y:(motion?.boomInertia||0)*(motion?.oldBoomRate||0),z:0};
+ const angular=addScaled(multiplyInertia(previous?.inertia??inertia,oldSpin),oldInternal,1);
  const verticalAxis={x:frame.x.z,y:frame.y.z,z:frame.z.z};
- let yawWater=0;
+ let spin,yawWater=0;
  if(waterInertia?.sway>0){
-  // Eliminate sway from the existing added-water model, then apply the
-  // remaining impulse about world vertical through the full body inertia.
-  const {sway,firstMoment,secondMoment}=waterInertia;
-  const effectiveSway=mass+sway;
-  const coupling=offset.f*sway-firstMoment;
-  const addedYaw=secondMoment-offset.f*(2*firstMoment-offset.f*sway)-coupling*coupling/effectiveSway;
-  const incidentSway=waterInertia.incidentSway??0,relativeSide=side+incidentSway;
-  const incidentYaw=offset.f*incidentSway-(waterInertia.incidentFirstMoment??0);
-  const freeChange=dot3(verticalAxis,multiplyInertia(inverse,momentum))-dot3(verticalAxis,oldSpin);
-  const yawResponse=dot3(verticalAxis,multiplyInertia(inverse,verticalAxis));
-  const impulse=((incidentYaw-coupling*relativeSide/effectiveSway)*dt-addedYaw*freeChange)/(1+addedYaw*yawResponse);
-  momentum.x+=verticalAxis.x*impulse;momentum.y+=verticalAxis.y*impulse;momentum.z+=verticalAxis.z*impulse;
-  const change=(relativeSide*dt-coupling*(freeChange+yawResponse*impulse))/effectiveSway-side/mass*dt;
-  vx+=change*axis.rx;vy+=change*axis.ry;
-  yawWater=impulse/dt;
+  const wet=advanceAddedWater(s,dt,mass,offset,waterInertia,frame,axis,inverse,initial,
+    toWorld(frame,oldSpin),toWorld(frame,angular),toWorld(frame,torque),force,internal);
+  spin=wet.spin;endVelocity=wet.velocity;positionVelocity=wet.positionVelocity;yawWater=wet.yawWater;
+ }else{
+  const momentum=addScaled(angular,torque,dt);
+  const worldMomentum=toWorld(frame,momentum);
+  advanceAttitude(s,frame,toWorld(frame,multiplyInertia(inverse,addScaled(momentum,internal,-1))),dt);
+  const nextFrame=rotationFrame(s);
+  spin=toWorld(nextFrame,multiplyInertia(inverse,addScaled(toLocal(nextFrame,worldMomentum),internal,-1)));
  }
  if(balance){
-  balance.yawAboutCG=yawAboutCG;
-  balance.yawApplied=yawAboutCG+yawWater;
-  balance.yawWater=yawWater;
+  balance.yawAboutCG=yawAboutCG;balance.yawApplied=yawAboutCG+yawWater;balance.yawWater=yawWater;
   balance.yawInertia=1/dot3(verticalAxis,multiplyInertia(inverse,verticalAxis));
-  balance.inertiaAtCG=inertia;
-  balance.torqueAboutCG=toWorld(frame,torque);
+  balance.inertiaAtCG=inertia;balance.torqueAboutCG=toWorld(frame,torque);
+  balance.internalMomentum=internal;
  }
- const worldMomentum=toWorld(frame,momentum);
- advanceAttitude(s,frame,toWorld(frame,multiplyInertia(inverse,momentum)),dt);
  const nextAxis=axes(s.theta),nextFrame=rotationFrame(s,nextAxis);
- const spin=toWorld(nextFrame,multiplyInertia(inverse,toLocal(nextFrame,worldMomentum)));
  s.heelRate=(spin.x*nextAxis.fx+spin.y*nextAxis.fy)/Math.max(.001,nextFrame.cp);
  s.pitchRate=spin.x*nextAxis.rx+spin.y*nextAxis.ry;
  s.omega=spin.z-s.heelRate*nextFrame.sp;
  const next=bodyOffset(s,cg),nextDrift=bodyOffset(s,rate);
  const nextVelocity=pointMotion({vx:0,vy:0,heaveVelocity:0,omega:s.omega,heelRate:s.heelRate,pitchRate:s.pitchRate,pitch:s.pitch},next,nextAxis);
- s.x+=oldOffset.f*axis.fx+oldOffset.r*axis.rx+vx*dt-next.f*nextAxis.fx-next.r*nextAxis.rx;
- s.y+=oldOffset.f*axis.fy+oldOffset.r*axis.ry+vy*dt-next.f*nextAxis.fy-next.r*nextAxis.ry;
- s.heave+=oldOffset.up+vz*dt-next.up;
- s.vx=vx-nextVelocity.x-nextDrift.f*nextAxis.fx-nextDrift.r*nextAxis.rx;
- s.vy=vy-nextVelocity.y-nextDrift.f*nextAxis.fy-nextDrift.r*nextAxis.ry;
- s.heaveVelocity=vz-nextVelocity.z-nextDrift.up;
- s.massMotion={cg,rate,inertia};
+ s.x+=oldOffset.f*axis.fx+oldOffset.r*axis.rx+positionVelocity.x*dt-next.f*nextAxis.fx-next.r*nextAxis.rx;
+ s.y+=oldOffset.f*axis.fy+oldOffset.r*axis.ry+positionVelocity.y*dt-next.f*nextAxis.fy-next.r*nextAxis.ry;
+ s.heave+=oldOffset.up+positionVelocity.z*dt-next.up;
+ s.vx=endVelocity.x-nextVelocity.x-nextDrift.f*nextAxis.fx-nextDrift.r*nextAxis.rx;
+ s.vy=endVelocity.y-nextVelocity.y-nextDrift.f*nextAxis.fy-nextDrift.r*nextAxis.ry;
+ s.heaveVelocity=endVelocity.z-nextVelocity.z-nextDrift.up;
+ s.massMotion={cg,rate,inertia,internalMomentum:internal};
 }
 const hullCache=new Map();
 function hullSamples(model){
@@ -690,27 +763,15 @@ function windwardCrewSide(wind){
  const angle=wind?.twa,offBow=Math.abs(angle);
  return wind?.tws>.6&&offBow>crewWindDeadband&&offBow<PI-crewWindDeadband?Math.sign(angle):0;
 }
-function tackCrewSide(s,steer){
- const wind=s.wind,angle=wind?.twa;
- if(s.capsized||s.recovering||!(wind?.tws>.6)||angle==null||Math.abs(angle)>crewWindDeadband)return 0;
- const from=s.crewTackFrom;
- // The last established windward side stays fixed through the wind eye.
- // Small changes of wind angle or a second press should keep the same target.
- if(from)return -from;
- if(Math.abs(s.omega)>.10)return Math.sign(s.omega);
- if(Math.abs(steer)>.19)return -Math.sign(steer);
- return Math.sign(s.boom);
-}
-function manualCrewTarget(s,controls,env,dt,windSide){
- const requested=controls.crewPose??env.crewPose??s.crewPose??2;s.crewPose=clamp(Math.round(requested),1,3);
+function manualCrewTarget(s,controls,env,dt){
+ const requested=controls.crewPose??s.crewPose??env.crewPose??2;s.crewPose=clamp(Math.round(requested),1,3);
  if(s.recovering)s.crewPose=1;
  if(!Number.isFinite(s.crewSide))s.crewSide=-1;
  const requestedSide=Math.sign(controls.crew||0);
- if(!s.capsized&&!s.recovering&&Math.abs(controls.crew||0)>.2&&(!windSide||requestedSide===windSide))s.crewSide=requestedSide;
+ if(!s.capsized&&!s.recovering&&Math.abs(controls.crew||0)>.2)s.crewSide=requestedSide;
  if(s.boatId==='laser'){
   // The sailor ducks during a commanded crossing. Zero input holds the side.
-  const crossing=Math.abs((s.crewSideBlend??s.crewSide)-s.crewSide)>.15,duck=crossing?1:0;
-  s.crewDuck=move(s.crewDuck||0,duck,dt*(duck>(s.crewDuck||0)?5.6:3.2));
+  const crossing=Math.abs((s.crewSideBlend??s.crewSide)-s.crewSide)>.15;
   if(crossing)(s.crewTransfer??={}).phase='crossing';
   else s.crewTransfer=null;
  }
@@ -740,18 +801,15 @@ function automaticCrewTarget(s,c,controls,wind,sail,dt,windSide){
  s.crewPose=Math.round(pose);
  if(c.id==='laser'&&(crossingEye||crossing))(s.crewTransfer??={}).phase=crossing?'crossing':'prepare';
  else s.crewTransfer=null;
- s.crewDuck=move(s.crewDuck||0,crossingEye||crossing?1:0,dt*7);
  return pose;
 }
 function updateCrew(s,controls,env,dt,sail){
  const c=configFor(s);
- const wind=sail?.wind??s.wind??windForState(s,env),angle=Math.abs(wind.twa??PI);
- const windSide=windwardCrewSide(wind);
- if(windSide&&angle<90*DEG)s.crewTackFrom=windSide;
+ const wind=sail?.wind??s.wind??windForState(s,env);
  s.crewDifficulty=(controls.difficulty??env.difficulty)==='easy'?'easy':'hard';
  const automatic=s.crewDifficulty==='easy'&&dt>0&&!s.recovering&&!s.capsized;
- const poseTarget=automatic?automaticCrewTarget(s,c,controls,wind,sail??s.sail,dt,windSide)
-  :manualCrewTarget(s,controls,env,dt,windSide);
+ const poseTarget=automatic?automaticCrewTarget(s,c,controls,wind,sail??s.sail,dt,windwardCrewSide(wind))
+  :manualCrewTarget(s,controls,env,dt);
  const inward=poseTarget<(s.crewPoseBlend??poseTarget);
  crewMotion(s,'crewPoseBlend','crewPoseVelocity',poseTarget,automatic?9:inward?c.crewPoseReturnRate:c.crewPoseRate,
   automatic?80:inward?c.crewPoseReturnAcceleration:c.crewPoseAcceleration,automatic?.07:inward?c.crewPoseReturnResponse:c.crewPoseResponse,dt);
@@ -761,15 +819,25 @@ function updateCrew(s,controls,env,dt,sail){
  crewMotion(s,'crewForeAft','crewForeAftVelocity',foreAft,2.5,10,.18,dt);
  const capTarget=s.capsized&&!s.recovering?1:0;s.crewSwim=move(s.crewSwim||0,capTarget,dt*.85);
  if(c.kind==='foiler'){const people=B.foilerCrewPositions(s),sum=people.reduce((n,p)=>n+p.mass,0);s.crewStations=people;s.crewCG=people.reduce((v,p)=>({x:v.x+p.x*p.mass/sum,y:v.y+p.y*p.mass/sum,z:v.z+p.z*p.mass/sum}),{x:0,y:0,z:0});s.crew=s.crewCG.z;s.crewJoints=null;}
- else{s.crewJoints=B.crewPoseAt(s);s.crewCG=s.crewJoints.cg;s.crew=s.crewCG.z;}
+ else{
+  // The boom can stop quickly, but the sailor has finite acceleration.
+  // Use the same actuated duck for the mass segments and the visible joints.
+  const duck=c.id==='laser'?target=>{
+   const rate=target>(s.crewDuck??0)?5.6:3.2;
+   crewMotion(s,'crewDuck','crewDuckVelocity',target,rate,52,.085,dt);
+   return clamp(s.crewDuck,0,1);
+  }:undefined;
+  s.crewJoints=B.crewPoseAt(s,duck);s.crewCG=s.crewJoints.cg;s.crew=s.crewCG.z;
+ }
 }
-function hydrostatics(s,inputEnv,withDamping=true){
- if(configFor(s).kind==='foiler'&&root.FoilingPhysics)return root.FoilingPhysics.hullLoads(s,inputEnv,root.FoilingPhysics.massProperties(s),withDamping);
+function hydrostatics(s,inputEnv,withDamping=true,searchWater){
+ if(configFor(s).kind==='foiler'&&root.FoilingPhysics)return root.FoilingPhysics.hullLoads(s,inputEnv,root.FoilingPhysics.massProperties(s),withDamping,searchWater);
  const c=configFor(s),env={...environment(inputEnv),waveCurrent:s.seaState??seaTarget(inputEnv),waveCurrentRate:s.seaStateRate||0,waveProfile:s.waveProfile},data=hullSamples(c),a=axes(s.theta),ch=Math.cos(s.heel||0),sh=Math.sin(s.heel||0),cp=Math.cos(s.pitch||0),sp=Math.sin(s.pitch||0);
+ const sampleWater=searchWater?.sample??waveAt,surfaceHeight=searchWater?.height??waveHeightAt;
  let buoyancy=0,verticalDamping=0,rollBuoyancy=0,pitchBuoyancy=0,rollHydroDamping=0,pitchHydroDamping=0,submergedVolume=0,centerX=0,centerY=0,centerZ=0,waveFx=0,waveFy=0,waveRoll=0,wavePitch=0,waveYaw=0;
  for(const p of data.points){
   const oy=ch*p.y-sh*p.z,rr=sh*p.y+ch*p.z,ff=cp*p.x-sp*oy,up=sp*p.x+cp*oy;
-  const x=s.x+ff*a.fx+rr*a.rx,y=s.y+ff*a.fy+rr*a.ry,w=waveAt(x,y,s.time,env,Math.max(0,-s.heave-up)),verticalSpan=Math.abs(sp)*p.dx+Math.abs(cp*ch)*p.dy+Math.abs(cp*sh)*p.dz;
+  const x=s.x+ff*a.fx+rr*a.rx,y=s.y+ff*a.fy+rr*a.ry,w=sampleWater(x,y,s.time,env,Math.max(0,-s.heave-up)),verticalSpan=Math.abs(sp)*p.dx+Math.abs(cp*ch)*p.dy+Math.abs(cp*sh)*p.dz;
   const fraction=clamp(.5+(w.height-s.heave-up)/Math.max(.008,verticalSpan),0,1)*(p.dryAir?1-(s.cockpitWet||0):1);if(fraction<=0)continue;
   const volume=p.volume*fraction,fb=c.waterDensity*c.gravity*volume,dHeel=-cp*rr,dPitch=ff;
   const relativeV=(s.heaveVelocity||0)+dHeel*(s.heelRate||0)+dPitch*(s.pitchRate||0)-(w.waterVz||0);
@@ -794,7 +862,7 @@ function hydrostatics(s,inputEnv,withDamping=true){
  // sealed mast prevents immediate turtling but does not force a capsize angle.
  let rigBuoyancy=0,rollRigBuoyancy=0,rollRig=0,pitchRig=0,rigWet=0,rigDrag=0;
  for(let i=0;i<7;i++){
-  const p={x:c.mastX,y:c.boomY+(i+.5)/7*(c.mastTop-c.boomY),z:0},q=bodyOffset(s,p),wp=bodyPoint(s,p),w=waveAt(wp.x,wp.y,s.time,env),wet=smooth(-.04,.13,w.height-wp.z);
+  const p={x:c.mastX,y:c.boomY+(i+.5)/7*(c.mastTop-c.boomY),z:0},q=bodyOffset(s,p),wp=bodyPoint(s,p),w=sampleWater(wp.x,wp.y,s.time,env),wet=smooth(-.04,.13,w.height-wp.z);
   rigWet+=wet/7;if(!wet)continue;
   const displaced=wet*c.mastFloatVolume/7,f=displaced*c.waterDensity*c.gravity;rigBuoyancy+=f;rollRigBuoyancy+=q.dHeel*f;rollRig+=q.dHeel*f;pitchRig+=q.dPitch*f;centerX+=q.f*displaced;centerY+=q.up*displaced;centerZ+=q.r*displaced;
   const localV=(s.heaveVelocity||0)+q.dHeel*(s.heelRate||0)+q.dPitch*(s.pitchRate||0)-(w.velocity||0);
@@ -802,13 +870,13 @@ function hydrostatics(s,inputEnv,withDamping=true){
  }
  // The yacht's dense ballast is a distinct gravity point, already counted
  // once above. Its small displaced volume adds buoyancy at that same location.
- let keelBuoyancy=0;if(c.ballastVolume){const p={x:c.ballastX,y:c.ballastY,z:0},q=bodyOffset(s,p),wp=bodyPoint(s,p),water=waveHeightAt(wp.x,wp.y,s.time,env),wet=smooth(-.05,.30,water-wp.z);keelBuoyancy=wet*c.ballastVolume*c.waterDensity*c.gravity;buoyancy+=keelBuoyancy;rollBuoyancy+=keelBuoyancy*q.dHeel;pitchBuoyancy+=keelBuoyancy*q.dPitch;centerX+=q.f*wet*c.ballastVolume;centerY+=q.up*wet*c.ballastVolume;centerZ+=q.r*wet*c.ballastVolume;}
+ let keelBuoyancy=0;if(c.ballastVolume){const p={x:c.ballastX,y:c.ballastY,z:0},q=bodyOffset(s,p),wp=bodyPoint(s,p),water=surfaceHeight(wp.x,wp.y,s.time,env),wet=smooth(-.05,.30,water-wp.z);keelBuoyancy=wet*c.ballastVolume*c.waterDensity*c.gravity;buoyancy+=keelBuoyancy;rollBuoyancy+=keelBuoyancy*q.dHeel;pitchBuoyancy+=keelBuoyancy*q.dPitch;centerX+=q.f*wet*c.ballastVolume;centerY+=q.up*wet*c.ballastVolume;centerZ+=q.r*wet*c.ballastVolume;}
  // Include body and buoyancy-aid volume as each trapeze sailor enters the water.
  const crewCenters=c.racingYacht?crew.members.map(member=>member.cg):[crew.cg];
  const bodyVolume=c.crewFloatVolume/crewCenters.length;
  let crewDisplacement=0,crewWet=0;
  for(const center of crewCenters){
-  const q=bodyOffset(s,center),wp=bodyPoint(s,center),water=waveHeightAt(wp.x,wp.y,s.time,env);
+  const q=bodyOffset(s,center),wp=bodyPoint(s,center),water=surfaceHeight(wp.x,wp.y,s.time,env);
   const wet=smooth(-.03,.35,water-wp.z),volume=wet*bodyVolume,force=volume*c.waterDensity*c.gravity;
   crewWet+=wet/crewCenters.length;
   crewDisplacement+=volume;
@@ -817,9 +885,9 @@ function hydrostatics(s,inputEnv,withDamping=true){
  }
  const totalDisplacedVolume=submergedVolume+(rigBuoyancy+keelBuoyancy)/(c.waterDensity*c.gravity)+crewDisplacement;
  const cc=c.cockpit;let coamingClearance=Infinity,floorClearance=Infinity,deckClearance=Infinity;
- for(let i=0;i<6;i++)for(const side of [-1,1]){const x=cc.minX+(cc.maxX-cc.minX)*i/5,p=bodyPoint(s,{x,y:c.deckY,z:side*cc.halfWidth}),water=waveHeightAt(p.x,p.y,s.time,env);coamingClearance=Math.min(coamingClearance,p.z-water);}
- for(const z of [-cc.halfWidth*.65,0,cc.halfWidth*.65]){const p=bodyPoint(s,{x:(cc.minX+cc.maxX)/2,y:cc.floorY,z}),water=waveHeightAt(p.x,p.y,s.time,env);floorClearance=Math.min(floorClearance,p.z-water);}
- for(const x of [c.hullSections[0][0]+.15,0,c.hullSections.at(-1)[0]-.15])for(const side of [-1,1]){const p=bodyPoint(s,{x,y:c.deckY,z:side*B.halfBeamAt(c,x)*.95}),water=waveHeightAt(p.x,p.y,s.time,env);deckClearance=Math.min(deckClearance,p.z-water);}
+ for(let i=0;i<6;i++)for(const side of [-1,1]){const x=cc.minX+(cc.maxX-cc.minX)*i/5,p=bodyPoint(s,{x,y:c.deckY,z:side*cc.halfWidth}),water=surfaceHeight(p.x,p.y,s.time,env);coamingClearance=Math.min(coamingClearance,p.z-water);}
+ for(const z of [-cc.halfWidth*.65,0,cc.halfWidth*.65]){const p=bodyPoint(s,{x:(cc.minX+cc.maxX)/2,y:cc.floorY,z}),water=surfaceHeight(p.x,p.y,s.time,env);floorClearance=Math.min(floorClearance,p.z-water);}
+ for(const x of [c.hullSections[0][0]+.15,0,c.hullSections.at(-1)[0]-.15])for(const side of [-1,1]){const p=bodyPoint(s,{x,y:c.deckY,z:side*B.halfBeamAt(c,x)*.95}),water=surfaceHeight(p.x,p.y,s.time,env);deckClearance=Math.min(deckClearance,p.z-water);}
  let slam=0;
  if(withDamping&&!s.capsized){
   const shoulder=c.length*.32,span=B.halfBeamAt(c,shoulder)*.61;
@@ -842,9 +910,43 @@ function hydrostatics(s,inputEnv,withDamping=true){
   submergedVolume,totalDisplacedVolume,totalVolume:data.volume,rigWet,crewWet,coamingClearance,floorClearance,deckClearance,cockpitWet:s.cockpitWet||0,hullCenterOfBuoyancy,
   centerOfBuoyancy:{x:centerX/(totalDisplacedVolume||1),y:centerY/(totalDisplacedVolume||1),z:centerZ/(totalDisplacedVolume||1)},cg};
 }
-function equilibriumHeave(s,env){
- if(configFor(s).kind==='foiler'&&root.FoilingPhysics)return root.FoilingPhysics.equilibrium(s,env);
- let lo=-Math.max(1.2,configFor(s).hullDepth*1.3),hi=Math.max(1.4,configFor(s).hullDepth);const before=s.heave;for(let i=0;i<38;i++){s.heave=(lo+hi)/2;const h=hydrostatics(s,env,false);if(h.buoyancy>h.weight)lo=s.heave;else hi=s.heave;}const result=(lo+hi)/2;s.heave=before;return result;
+// During a static heave search only the reference height changes. The same
+// horizontal points meet the same wave phase throughout the bisection.
+function waterForHeaveSearch(measure){
+ if(injectedWater)return null;
+ const columns=new Map();
+ const pointAt=(x,y,t,env)=>{
+  let column=columns.get(x);
+  if(!column){column=new Map();columns.set(x,column);}
+  let point=column.get(y);
+  if(!point){
+   if(measure)measure.queries++;
+   point={};
+   const surface=analyticWaveAt(x,y,t,env,0,false,point);
+   point.height=surface.height;
+   point.atDepth??=()=>surface;
+   column.set(y,point);
+  }
+  return point;
+ };
+ return {
+  sample:(x,y,t,env,depth)=>pointAt(x,y,t,env).atDepth(depth),
+  height:(x,y,t,env)=>pointAt(x,y,t,env).height
+ };
+}
+function equilibriumHeave(s,env,measure){
+ if(configFor(s).kind==='foiler'&&root.FoilingPhysics)return root.FoilingPhysics.equilibrium(s,env,measure);
+ const c=configFor(s),before=s.heave,water=waterForHeaveSearch(measure);
+ let lo=-Math.max(1.2,c.hullDepth*1.3),hi=Math.max(1.4,c.hullDepth);
+ try{
+  for(let i=0;i<38;i++){
+   s.heave=(lo+hi)/2;
+   const h=hydrostatics(s,env,false,water);
+   if(h.buoyancy>h.weight)lo=s.heave;
+   else hi=s.heave;
+  }
+  return (lo+hi)/2;
+ }finally{s.heave=before;}
 }
 // With the air from aft, pressure on a soft sail is concentrated in the
 // forward part of each section. The twisted, unsupported leech carries less.
@@ -981,21 +1083,102 @@ function foil(u,v,angle,area,model,ventilation=0,steering=false){const c=model?c
  const q=.5*c.waterDensity*area*speed*speed,forward=q*(-wr*cl+wf*cd),side=q*(wf*cl+wr*cd);
  return{forward,side,power:forward*u+side*v,speed,alpha:fold,stall,profileDrag:q*profile,inducedDrag:q*induced,stallDrag:q*stallCD};
 }
+// Clip a blade's two-dimensional mid-plane against a signed distance.
+function clipBladePolygon(points,distance){
+ const polygon=[];
+ let p=points.at(-1),before=distance(p);
+ for(const q of points){
+  const after=distance(q);
+  if((before>=0)!==(after>=0)){
+   const t=before/(before-after);
+   polygon.push({x:p.x+(q.x-p.x)*t,y:p.y+(q.y-p.y)*t});
+  }
+  if(after>=0)polygon.push(q);
+  p=q;before=after;
+ }
+ return polygon;
+}
+function bladePolygonArea(points){
+ if(points.length<3)return {area:0};
+ let sum=0,x=0,y=0,lo=Infinity,hi=-Infinity,p=points.at(-1);
+ for(const q of points){
+  const cross=p.x*q.y-q.x*p.y;
+  sum+=cross;x+=(p.x+q.x)*cross;y+=(p.y+q.y)*cross;
+  lo=Math.min(lo,q.y);hi=Math.max(hi,q.y);p=q;
+ }
+ if(Math.abs(sum)<1e-10)return {area:0};
+ return {area:Math.abs(sum)/2,x:x/(3*sum),y:y/(3*sum),span:hi-lo};
+}
+const laserRudderSections=new WeakMap();
+function laserRudderShape(blade){
+ let shape=laserRudderSections.get(blade);
+ if(shape)return shape;
+ const outline=B.laserRudderOutline(blade),floor=Math.min(...outline.map(p=>p.y));
+ const band=(blade.root-floor)/4;
+ const sections=Array.from({length:4},(_,i)=>{
+  const low=floor+i*band,high=low+band;
+  const points=clipBladePolygon(clipBladePolygon(outline,p=>p.y-low),p=>high-p.y);
+  return {points,...bladePolygonArea(points)};
+ });
+ shape={outline,sections,area:sections.reduce((sum,p)=>sum+p.area,0)};
+ laserRudderSections.set(blade,shape);
+ return shape;
+}
+function laserRudderContact(s,a,blade,angle,env,diagnostics){
+ const shape=laserRudderShape(blade),cos=Math.cos(angle),sin=Math.sin(angle);
+ const local=p=>({x:blade.x+p.x*cos,y:p.y,z:(blade.z??0)-p.x*sin});
+ const chord=bodyOffset(s,{x:cos,y:0,z:-sin}),span=bodyOffset(s,{x:0,y:1,z:0});
+ const slope=(v,w)=>v.up-w.dx*(v.f*a.fx+v.r*a.rx)-w.dy*(v.f*a.fy+v.r*a.ry);
+ const sections=shape.sections.map(section=>{
+  const centre=waterContact(s,local(section),env);
+  const dx=slope(chord,centre),dy=slope(span,centre);
+  const depthAt=p=>centre.depth-dx*(p.x-section.x)-dy*(p.y-section.y);
+  const allWet=section.points.every(p=>depthAt(p)>=0);
+  const wet=allWet?section:bladePolygonArea(clipBladePolygon(section.points,depthAt));
+  return {centre,contact:allWet?centre:wet.area?waterContact(s,local(wet),env):centre,
+   areaFraction:wet.area/shape.area,area:section.area,wetArea:wet.area,span:wet.span??0};
+ });
+ return {sections,diagnostic:diagnostics?{
+  outline:shape.outline.map(p=>bodyPoint(s,local(p))),geometryArea:shape.area,nominalArea:blade.area,
+  root:bodyPoint(s,B.rudderPoint(blade,0,angle)),tip:bodyPoint(s,local(shape.outline.reduce((a,p)=>p.y<a.y?p:a)))
+ }:undefined};
+}
+function rudderContacts(s,inputEnv){
+ const c=configFor(s);
+ if(c.id!=='laser')return null;
+ const env={...environment(inputEnv),waveCurrent:s.seaState,waveCurrentRate:s.seaStateRate||0,waveProfile:s.waveProfile};
+ const {geometry}=appendageBlade(s,axes(s.theta),c,c.waterBlades.rudder,s.rudder,{...env,forceDiagnostics:true},0,s.forces?.rudder);
+ return geometry;
+}
 function appendageBlade(s,a,model,blade,angle,env,dt,previous,waterInertia){
  const along=bodyOffset(s,{x:1,y:0,z:0}),across=bodyOffset(s,{x:0,y:0,z:1}),span=bodyOffset(s,{x:0,y:1,z:0});
  const verticalSpan=blade.root-blade.tip,band=verticalSpan/4,moment={roll:0,pitch:0,yaw:0};
  const rake=blade.rake??0;
  const stripSpan=rake?bodyOffset(s,{x:rake/verticalSpan*Math.cos(angle),y:1,z:-rake/verticalSpan*Math.sin(angle)}):span;
  const load={forward:0,side:0,vertical:0,power:0,speed:0,wet:0,alpha:0,stall:0,axialSpeed:0,axialFlow:0,crossFlow:0,steeringPressure:0,ventilation:0,profileDrag:0,inducedDrag:0,stallDrag:0};
+ const laser=blade.steering&&model.id==='laser'
+  ?laserRudderContact(s,a,model.waterBlades.rudder,angle,env,env.forceDiagnostics):null;
+ const geometry=laser?.diagnostic;
+ if(geometry)geometry.sections=[];
  let airSupply=0,wetSpan=0,wetCentre=0,wetAcceleration=0;
  for(let i=0;i<4;i++){
   const fraction=(i+.5)/4;
-  const p=blade.steering?B.rudderPoint(blade,fraction,angle):{x:blade.x,y:blade.root-fraction*verticalSpan,z:blade.z??0};
-  const contact=waterContact(s,p,env);
-  const surfaceSpan=stripSpan.up-contact.dx*(stripSpan.f*a.fx+stripSpan.r*a.rx)-contact.dy*(stripSpan.f*a.fy+stripSpan.r*a.ry);
-  const immersed=clamp(.5+contact.depth/Math.max(.036,band*Math.abs(surfaceSpan)),0,1);
+  const section=laser?.sections[i];
+  let contact,immersed,areaFraction;
+  if(section){
+   ({contact,areaFraction}=section);
+   immersed=section.wetArea/section.area;
+  }else{
+   const p=blade.steering?B.rudderPoint(blade,fraction,angle):{x:blade.x,y:blade.root-fraction*verticalSpan,z:blade.z??0};
+   contact=waterContact(s,p,env);
+   const surfaceSpan=stripSpan.up-contact.dx*(stripSpan.f*a.fx+stripSpan.r*a.rx)-contact.dy*(stripSpan.f*a.fy+stripSpan.r*a.ry);
+   immersed=clamp(.5+contact.depth/Math.max(.036,band*Math.abs(surfaceSpan)),0,1);
+   areaFraction=immersed*(1+(blade.taper-1)*fraction)/(2*(1+blade.taper));
+  }
+  const trace=geometry?{centre:section.centre,contact,wetArea:section.wetArea,areaFraction}:null;
+  if(trace)geometry.sections.push(trace);
   if(!immersed)continue;
-  const areaFraction=immersed*(1+(blade.taper-1)*fraction)/(2*(1+blade.taper));
+  const p=contact.point;
   const f=contact.relativeX*a.fx+contact.relativeY*a.fy,r=contact.relativeX*a.rx+contact.relativeY*a.ry,up=contact.relativeZ;
   const u=along.f*f+along.r*r+along.up*up,v=across.f*f+across.r*r+across.up*up;
   const nearSurface=1-smooth(blade.chord*.35,blade.chord*1.5,contact.depth);
@@ -1004,10 +1187,12 @@ function appendageBlade(s,a,model,blade,angle,env,dt,previous,waterInertia){
   const forward=along.f*force.forward+across.f*force.side,side=along.r*force.forward+across.r*force.side,vertical=along.up*force.forward+across.up*force.side;
   const q=bodyOffset(s,p),m=forceMoment(s,p,forward,side);
   if(waterInertia){
-   const length=immersed*band;
+   const length=section?.span??immersed*band;
    wetSpan+=length;wetCentre+=q.f*length;
    wetAcceleration+=(contact.waterAx*a.rx+contact.waterAy*a.ry)*length;
   }
+  if(trace)Object.assign(trace,{u,v,force:{forward,side,vertical},alpha:force.alpha,stall:force.stall,ventilation,
+   moment:{yaw:m.yaw,roll:m.roll+q.dHeel*vertical,pitch:m.pitch+q.dPitch*vertical}});
   moment.yaw+=m.yaw;moment.roll+=m.roll+q.dHeel*vertical;moment.pitch+=m.pitch+q.dPitch*vertical;
   load.forward+=forward;load.side+=side;load.vertical+=vertical;load.power+=force.power;load.wet+=areaFraction;
   load.profileDrag+=force.profileDrag??0;load.inducedDrag+=force.inducedDrag??0;load.stallDrag+=force.stallDrag??0;
@@ -1027,7 +1212,7 @@ function appendageBlade(s,a,model,blade,angle,env,dt,previous,waterInertia){
   const mass=model.waterDensity*PI*(blade.chord*.5)**2*wetSpan**2/(wetSpan+blade.chord*.5)*normal**2;
   addSwayWaterMass(waterInertia,mass,wetCentre/wetSpan,wetAcceleration/wetSpan);
  }
- return {load,moment};
+ return {load,moment,geometry};
 }
 // Each soft rig sets the curvature of its control scale. Solver, replay and
 // network values all stay in physical actuator travel, with linear wing trim.
@@ -1085,6 +1270,27 @@ function sheetTorque(s,limit,c){
 }
 // A right input turns the bow to starboard while moving forward. The actual
 // blade keeps its speed and travel limits on both difficulty settings.
+function steeringDiagnostic(s,cg,ctrl,env,dt,blades,ledger,received=ctrl.steer||0){
+ const a=axes(s.theta);
+ const yawAtCg=({force,moment})=>moment.yaw-forceMoment(s,cg,force.x*a.fx+force.y*a.fy,force.x*a.rx+force.y*a.ry,force.z).yaw;
+ const yawMoments=Object.fromEntries(Object.entries(ledger).map(([name,load])=>[name,yawAtCg(load)]));
+ return {time:s.time,dt,received,effective:ctrl.steer||0,target:s.helmTarget||0,actual:s.rudder,maximum:s.helmMaximum??null,
+  meanForward:s.steering?.meanForward??null,localForward:s.steering?.localForward??null,flowSign:s.helmFlowSign??1,
+  sensitivity:env.controlSensitivity??1,controlRate:env.controlRate??1,difficulty:ctrl.difficulty??env.difficulty??'hard',
+  recovery:s.recoveryState?.phase??null,ironsHelp:!!s.helmAssist?.active,foilTrim:!!s.foiling?.autopilot,
+  cg:{...cg},omegaBefore:s.omega,verticalOmegaBefore:s.omega+s.heelRate*Math.sin(s.pitch),blades:blades.map(b=>({...b,yawAtCg:yawAtCg(b)})),
+  yawMoments,yawExternal:Object.values(yawMoments).reduce((sum,value)=>sum+value,0),
+  heading:wrap360(90-s.theta/DEG),sheet:s.sheet,boom:s.boom,crewSide:s.crewSide,heel:s.heel};
+}
+function finishSteeringDiagnostic(s,record,balance){
+ if(!record)return;
+ record.omegaAfter=s.omega;
+ record.verticalOmegaAfter=s.omega+s.heelRate*Math.sin(s.pitch);
+ record.angularAcceleration=(record.verticalOmegaAfter-record.verticalOmegaBefore)/record.dt;
+ record.yawWater=balance?.yawWater??0;
+ record.yawTotal=record.yawExternal+record.yawWater;
+ s.forces.steering=record;
+}
 function updateHelm(s,controls,inputEnv,dt){
  const c=configFor(s),env=environment(inputEnv),a=axes(s.theta);
  const p={x:c.rudderX,y:c.rudderY??(c.deckY-c.rudderDepth*.62),z:0},flow=waterVelocity(s);
@@ -1122,10 +1328,11 @@ function updateHelm(s,controls,inputEnv,dt){
  const demand=digital?steer*progressive:sign*Math.pow(Math.abs(steer),1.25-.37*flight);
  const easy=(controls.difficulty??env.difficulty)==='easy',speed=Math.hypot(s.vx-flow.x,s.vy-flow.y);
  const waterborneMax=c.waterborneRudderMax??c.rudderMax;
+ const flightMax=c.flightRudderMax??c.rudderMax;
  // Give the player extra blade travel to finish a slow turn after touching down.
  const slowMax=(easy?c.easySlowRudderMax:c.waterborneSlowRudderMax)??waterborneMax;
  const slowTravel=(1-flight)*(1-smooth(3.8,8.5,speed))*(slowMax-waterborneMax);
- const travel=waterborneMax+flight*(c.rudderMax-waterborneMax)+slowTravel;
+ const travel=waterborneMax+flight*(flightMax-waterborneMax)+slowTravel;
  // In Hard, use the hull's way through the mean current for the progressive
  // helm travel. Water at an individual blade can change its force abruptly
  // without taking the selected travel away during a turn or wave passage.
@@ -1151,7 +1358,10 @@ function updateBoom(s,c,sail,env,dt,lively){
  const limit=boomLimit(s.sheet,c),awa=sail.wind.awa,side=Math.sign(s.boom),rig=s.rig;
  const hardBoom=lively&&!c.rigidWing&&sail.wind.aws>1;
  const sternMargin=hardBoom?4*DEG:c.gybeHysteresis;
- const openEnough=Math.abs(s.boom)>(hardBoom?28:35)*DEG;
+ // The wing can cross at an ordinary running trim, where the sheet stops
+ // it well before the fixed opening used for a soft boom.
+ const gybeOpening=c.rigidWing?clamp(.75*limit,5*DEG,35*DEG):(hardBoom?28:35)*DEG;
+ const openEnough=Math.abs(s.boom)>gybeOpening;
  if(!s.capsized&&!s.recovering&&awa!=null&&Math.abs(awa)>120*DEG&&
    Math.abs(awa)<PI-sternMargin&&openEnough&&Math.sign(awa)===side&&!s.gybeTarget){
   s.gybeTarget=-side;s.gybeCount++;
@@ -1197,19 +1407,19 @@ function updateBoom(s,c,sail,env,dt,lively){
   rig.gybeImpact=Math.max(rig.gybeImpact,smooth(.36,2.3,Math.abs(speed)));
   rig.gybeSide=0;
  }
- // The hull takes the opposite change in the boom's angular momentum.
- // Aerodynamic moments have already been counted once, at the sail.
- const reaction=swing?-c.boomInertia*(s.boomRate-oldRate)/dt:0;
+ // Report the joint reaction for telemetry. integrateMass transports the
+ // boom momentum internally; the aerodynamic moment is applied at the sail.
+ const reaction=-c.boomInertia*(s.boomRate-oldRate)/dt;
  return {torque:torque+stopTorque,reaction,limit};
 }
 function refresh(s,env){if(configFor(s).kind==='foiler'&&root.FoilingPhysics)return root.FoilingPhysics.refresh(s,env);s.sail=aero(s,env);s.wind=s.sail.wind;s.speed=Math.hypot(s.vx,s.vy);return s;}
 function createState(overrides,inputEnv){
  if(configFor(overrides?.boatId||inputEnv?.boatId).kind==='foiler'){if(!root.FoilingPhysics)throw Error('Foilmodellen er ikke indlæst.');return root.FoilingPhysics.createState(overrides,inputEnv);}
  const env=environment(inputEnv),o=overrides||{},boatId=B.get(o.boatId||env.boatId).id,c=configFor(boatId),theta=(90-env.direction)*DEG-90*DEG,sheet=.35,boom=boomLimit(sheet,c),a=axes(theta),pose=env.crewPose??2;
- const s=Object.assign({boatId,x:0,y:0,vx:1.5*a.fx,vy:1.5*a.fy,theta,omega:0,heel:0,heelRate:0,pitch:0,pitchRate:0,heave:0,heaveVelocity:0,rudder:0,sheet,boom,boomRate:0,crewPose:pose,crewPoseBlend:pose,crewSide:-1,crewSideBlend:-1,crewTackFrom:0,crewSwim:0,time:0,capsized:false,recovering:false,recovery:0,cockpitWet:0,seaState:seaTarget(env),gybeTarget:0,gybeCount:0,tackCount:0,lastTackSide:0,waterX:0,waterY:0,forces:{}},o);
+ const s=Object.assign({boatId,x:0,y:0,vx:1.5*a.fx,vy:1.5*a.fy,theta,omega:0,heel:0,heelRate:0,pitch:0,pitchRate:0,heave:0,heaveVelocity:0,rudder:0,sheet,boom,boomRate:0,crewPose:pose,crewPoseBlend:pose,crewSide:-1,crewSideBlend:-1,crewSwim:0,time:0,capsized:false,recovering:false,recovery:0,cockpitWet:0,seaState:seaTarget(env),gybeTarget:0,gybeCount:0,tackCount:0,lastTackSide:0,waterX:0,waterY:0,forces:{}},o);
  const wind=windForState(s,env);
  if(o.crew!=null){s.crewSide=Math.sign(o.crew);s.crewSideBlend=s.crewSide;}
- if(o.crew==null&&o.crewSide==null)s.crewSide=windwardCrewSide(wind)||s.crewSide;
+ if(env.difficulty==='easy'&&o.crew==null&&o.crewSide==null)s.crewSide=windwardCrewSide(wind)||s.crewSide;
  if(o.crewSideBlend==null)s.crewSideBlend=s.crewSide;
  if(o.boom==null){
   const from=wind.awa??0,side=Math.abs(from)>7*DEG&&Math.abs(from)<175*DEG?Math.sign(from):Math.sign(s.crewSide)||-1;
@@ -1285,6 +1495,7 @@ function step(s,controls,inputEnv,dt){
  if(c.id==='yacht'||ctrl.rig?.reef||s.cruiserRig)updateSoftRig(s,ctrl,env,h);
  if(c.id==='yacht')updateCruiserSail(s,ctrl,env,c,h);
  let sail=aero(s,env);const awa=sail.wind.awa;
+ const oldBoomRate=s.boomRate,beforeCrew=(s.crewJoints||B.crewPoseAt(s)).segments;
  const boom=updateBoom(s,c,sail,env,h,lively);
  if(awa!=null&&Math.abs(awa)<100*DEG&&Math.abs(awa)>12*DEG){const side=Math.sign(awa);if(s.lastTackSide&&side!==s.lastTackSide&&Math.abs(awa)<60*DEG)s.tackCount++;s.lastTackSide=side;}
  updateCrew(s,ctrl,env,h,sail);
@@ -1297,7 +1508,7 @@ function step(s,controls,inputEnv,dt){
   const prior=s.forces?.rudder?.parts?.[i]??s.forces?.rudder;
   return appendageBlade(s,a,c,blade,s.rudder,wetEnv,h,prior,waterInertia);
  });
- const rudder={parts:rudders.map(({load,moment},i)=>({...load,x:blades.rudder.x,z:offsets[i],area:blades.rudder.area/offsets.length,wetArea:load.wet*blades.rudder.area/offsets.length,moment}))};
+ const rudder={parts:rudders.map(({load,moment,geometry},i)=>({...load,geometry,x:blades.rudder.x,z:offsets[i],area:blades.rudder.area/offsets.length,wetArea:load.wet*blades.rudder.area/offsets.length,moment}))};
  for(const key of Object.keys(rudders[0].load)){
   const total=rudders.reduce((sum,r)=>sum+r.load[key],0);
   rudder[key]=['forward','side','vertical','power','profileDrag','inducedDrag','stallDrag'].includes(key)?total:total/offsets.length;
@@ -1322,9 +1533,9 @@ function step(s,controls,inputEnv,dt){
  let rollMoment=sail.rollMoment+bMoment.roll+rMoment.roll+planingMoment.roll+resistance.roll+hydro.roll+rollDamping+ground.roll,pitchMoment=sail.pitchMoment+bMoment.pitch+rMoment.pitch+planingMoment.pitch+resistance.pitch+hydro.pitch+pitchDamping+ground.pitch;
  const vertical=hydro.vertical+sail.fz+planingLift+ground.fz+(board.vertical||0)+(rudder.vertical||0);
  const rollPhysical=rollMoment,pitchPhysical=pitchMoment,rescue=root.SailingRecovery?.forces(s,env,{roll:inertiaRoll,pitch:inertiaPitch,yaw:inertiaYaw,mass:c.mass,physicalRoll:rollPhysical,physicalPitch:pitchPhysical,physicalYaw,physicalFz:vertical})||{roll:0,pitch:0,yaw:0,fx:0,fy:0,fz:0};
- const recoveryRoll=rescue.roll,recoveryPitch=rescue.pitch,yawMoment=physicalYaw+boom.reaction+rescue.yaw;rollMoment+=recoveryRoll;pitchMoment+=recoveryPitch;
+ const recoveryRoll=rescue.roll,recoveryPitch=rescue.pitch,yawMoment=physicalYaw+rescue.yaw;rollMoment+=recoveryRoll;pitchMoment+=recoveryPitch;
  const force={x:forceF*a.fx+forceR*a.rx+ground.fx+rescue.fx+hydro.waveFx,y:forceF*a.fy+forceR*a.ry+ground.fy+rescue.fy+hydro.waveFy,z:vertical+rescue.fz};
- let balance;
+ let balance,forceLedger,steering;
  if(env.forceDiagnostics){
   const cg=hydro.cg,arm=bodyOffset(s,cg).dHeel;
   balance={
@@ -1332,18 +1543,9 @@ function step(s,controls,inputEnv,dt){
    staticRoll:hydro.rollBuoyancy+hydro.rollRigBuoyancy+hydro.rollGravity-arm*(hydro.buoyancy-hydro.weight),
    netRoll:rollMoment-forceMoment(s,cg,force.x*a.fx+force.y*a.fy,force.x*a.rx+force.y*a.ry,force.z).roll
   };
- }
- integrateMass(s,h,c.mass,hydro.cg,inertia,force,{roll:rollMoment,pitch:pitchMoment,yaw:yawMoment},waterInertia,balance);
- const floodTarget=smooth(.025,-.065,hydro.coamingClearance);s.cockpitWet+=(floodTarget-s.cockpitWet)*(1-Math.exp(-h/(floodTarget>s.cockpitWet?c.floodFillSeconds:c.floodDrainSeconds)));
- if(!s.capsized&&Math.abs(wrap(s.heel))>c.capsizeAngle){s.capsized=true;s.gybeTarget=0;}
- s.hydro=hydro;s.hydro.cockpitWet=s.cockpitWet;
- s.forces={forward:forceF+waterDrive+(ground.fx+rescue.fx)*a.fx+(ground.fy+rescue.fy)*a.fy,side:forceR+waterSide+(ground.fx+rescue.fx)*a.rx+(ground.fy+rescue.fy)*a.ry,world:force,hullF,hullR,skinF:resistance.skinF,ownWaveF:resistance.ownWaveF,waveForward:waterDrive,planingLift,planingDrag,planingSurge,planingRelativeRise:planing?.rise??0,planingPower:planing?.power??0,board,rudder,yaw:yawMoment,yawSail:sail.yawMoment,yawBoard:bMoment.yaw,yawRudder:rMoment.yaw,yawDamping,yawAssist:0,yawPhysical:physicalYaw,yawRecovery:rescue.yaw,ground,roll:rollMoment,rollPhysical,pitchPhysical,rollSail:sail.rollMoment,rollCrew:hydro.rollCrew,rollHull:hydro.rollBuoyancy+hydro.rollGravity-hydro.rollCrew,rollHydro:bMoment.roll+rMoment.roll+hydro.rollRig,rollDamping:rollDamping+hydro.rollHydroDamping,pitch:pitchMoment,vertical:vertical+rescue.fz,recoveryVertical:rescue.fz,recoveryDrag:{x:rescue.fx,y:rescue.fy},buoyancy:hydro.buoyancy,weight:hydro.weight,recoveryRoll,recoveryPitch,inertiaRoll,inertiaPitch,inertiaYaw,boomTorque:boom.torque,boomReaction:boom.reaction,sheetTension:Math.abs(s.boom)>=boom.limit-.001?Math.abs(boom.torque):0};
- if(env.forceDiagnostics){
-  s.forces.balance=balance;
-  s.forces.waterInertia=waterInertia;
   const ledger=(forward,side,up,roll,pitch,yaw)=>({force:{x:forward*a.fx+side*a.rx,y:forward*a.fy+side*a.ry,z:up},moment:{roll,pitch,yaw}});
   const at=(load,m)=>ledger(load.forward,load.side,load.vertical??0,m.roll,m.pitch,m.yaw);
-  s.forces.ledger={
+  forceLedger={
    sail:ledger(sail.drive,sail.sideForce,sail.fz,sail.rollMoment,sail.pitchMoment,sail.yawMoment),
    hull:ledger(hullF,hullR,0,resistance.roll,resistance.pitch,resistance.yaw),
    board:at(board,bMoment),rudder:at(rudder,rMoment),planing:at({forward:planingSurge,side:0,vertical:planingLift},planingMoment),
@@ -1351,15 +1553,30 @@ function step(s,controls,inputEnv,dt){
    gravity:ledger(0,0,-hydro.weight,hydro.rollGravity,hydro.pitchGravity,0),
    wave:ledger(waterDrive,waterSide,0,hydro.waveRoll,hydro.wavePitch,hydro.waveYaw),
    ground:{force:{x:ground.fx,y:ground.fy,z:ground.fz},moment:{roll:ground.roll,pitch:ground.pitch,yaw:ground.yaw}},
-   boom:ledger(0,0,0,0,0,boom.reaction),assist:{force:{x:rescue.fx,y:rescue.fy,z:rescue.fz},moment:{roll:rescue.roll,pitch:rescue.pitch,yaw:rescue.yaw}}
+   assist:{force:{x:rescue.fx,y:rescue.fy,z:rescue.fz},moment:{roll:rescue.roll,pitch:rescue.pitch,yaw:rescue.yaw}}
   };
+  const samples=rudder.parts.map(part=>({
+   offset:part.z,geometry:part.geometry,wetArea:part.wetArea,flowAlong:part.axialFlow,flowAcross:part.crossFlow,alpha:part.alpha,
+   stall:part.stall,ventilation:part.ventilation,...at(part,part.moment)
+  }));
+  steering=steeringDiagnostic(s,hydro.cg,ctrl,env,h,samples,forceLedger,controls?.steer||0);
  }
- root.SailingRecovery?.postStep(s,env);if(root.SailingRecovery?.active(s)&&s.recoveryState.fallback)s.hydro=hydrostatics(s,env,false);return refresh(s,env);
+ integrateMass(s,h,c.mass,hydro.cg,inertia,force,{roll:rollMoment,pitch:pitchMoment,yaw:yawMoment},waterInertia,balance,
+  {points:crewSegments,before:beforeCrew,oldBoomRate,boomInertia:c.boomInertia});
+ const floodTarget=smooth(.025,-.065,hydro.coamingClearance);s.cockpitWet+=(floodTarget-s.cockpitWet)*(1-Math.exp(-h/(floodTarget>s.cockpitWet?c.floodFillSeconds:c.floodDrainSeconds)));
+ if(!s.capsized&&Math.abs(wrap(s.heel))>c.capsizeAngle){s.capsized=true;s.gybeTarget=0;}
+ s.hydro=hydro;s.hydro.cockpitWet=s.cockpitWet;
+ s.forces={forward:forceF+waterDrive+(ground.fx+rescue.fx)*a.fx+(ground.fy+rescue.fy)*a.fy,side:forceR+waterSide+(ground.fx+rescue.fx)*a.rx+(ground.fy+rescue.fy)*a.ry,world:force,hullF,hullR,skinF:resistance.skinF,ownWaveF:resistance.ownWaveF,waveForward:waterDrive,planingLift,planingDrag,planingSurge,planingRelativeRise:planing?.rise??0,planingPower:planing?.power??0,board,rudder,yaw:yawMoment,yawSail:sail.yawMoment,yawBoard:bMoment.yaw,yawRudder:rMoment.yaw,yawDamping,yawAssist:0,yawPhysical:physicalYaw,yawRecovery:rescue.yaw,ground,roll:rollMoment,rollPhysical,pitchPhysical,rollSail:sail.rollMoment,rollCrew:hydro.rollCrew,rollHull:hydro.rollBuoyancy+hydro.rollGravity-hydro.rollCrew,rollHydro:bMoment.roll+rMoment.roll+hydro.rollRig,rollDamping:rollDamping+hydro.rollHydroDamping,pitch:pitchMoment,vertical:vertical+rescue.fz,recoveryVertical:rescue.fz,recoveryDrag:{x:rescue.fx,y:rescue.fy},buoyancy:hydro.buoyancy,weight:hydro.weight,recoveryRoll,recoveryPitch,inertiaRoll,inertiaPitch,inertiaYaw,boomTorque:boom.torque,boomReaction:boom.reaction,sheetTension:Math.abs(s.boom)>=boom.limit-.001?Math.abs(boom.torque):0};
+ if(env.forceDiagnostics){
+  s.forces.balance=balance;s.forces.waterInertia=waterInertia;s.forces.ledger=forceLedger;
+  finishSteeringDiagnostic(s,steering,balance);
+ }
+ root.SailingRecovery?.postStep(s,env);if(root.SailingRecovery?.active(s)&&s.recoveryState.fallback){s.hydro=hydrostatics(s,env,false);if(steering)steering.omegaAfterRecovery=s.omega;}return refresh(s,env);
 }
 function recover(s,env,nowMs){const R=root.SailingRecovery;if(!R)throw Error('Opretningsmodellen er ikke indlæst.');R.start(s,env,nowMs);return s;}
 function instruments(s,target,env){const a=axes(s.theta),w=s.wind,speed=Math.hypot(s.vx,s.vy);
  const logSpeed=Math.hypot(s.vx-(s.waterX||0),s.vy-(s.waterY||0));
  const flow=waterVelocity(s,env?waveAt(s.x,s.y,s.time,{...env,waveCurrent:s.seaState,waveProfile:s.waveProfile},Math.max(0,-s.heave)):undefined),waterX=s.vx-flow.x,waterY=s.vy-flow.y,waterSpeed=Math.hypot(waterX,waterY);let distance=null,vmg=null,bearing=null;if(target){const dx=target.x-s.x,dy=target.y-s.y;distance=Math.hypot(dx,dy);vmg=distance>1e-8?(s.vx*dx+s.vy*dy)/distance:0;bearing=wrap360(Math.atan2(dx,dy)/DEG);}return{speed,knots:speed*1.9438444924,waterSpeed,waterKnots:waterSpeed*1.9438444924,logKnots:logSpeed*1.9438444924,heading:wrap360(90-s.theta/DEG),course:speed>.03?wrap360(Math.atan2(s.vx,s.vy)/DEG):null,leeway:waterSpeed>.03?Math.atan2(waterX*a.rx+waterY*a.ry,waterX*a.fx+waterY*a.fy):null,tws:w.tws,twd:w.twd,twa:w.twa,aws:w.aws,awa:w.awa,heel:s.heel,sheet:s.sheet,boom:s.boom,distance,vmg,bearing,boatId:s.boatId,crewPose:s.crewPose,heave:s.heave,pitch:s.pitch,vmgWind:w.tws>.01?-(waterX*w.vx+waterY*w.vy)/w.tws:null};}
-root.SailPhysics={CONFIG,DEFAULT_ENV,environment,WAVE_COMPONENTS,BASE_WAVE_DIRECTION,BASE_WAVE_PERIOD,WAVE_HEIGHT_UNIT,LONG_HEIGHT_UNIT,SHORT_HEIGHT_UNIT,CREST_BEND,SWELL_BEND,PROFILE_SECONDS,MAX_WAVE_HEIGHT,CHOP_PERIOD,CHOP_SPREAD,CHOP_HEIGHT,SWELL_SPREAD,waveHeightUnit,windWaveAt,windWaveTarget,waveProfileFor,waveBlendAt,advanceWaveProfile,advanceSea,waveExposureField,waveExposureAt,wavePathField,DEG,clamp,wrap,wrap360,configFor,createState,step,windAt,waveAt,waveHeightAt,seaTarget,aero,sailCoefficients,aftSailLoading,loadedChordArm,foil,windForState,instruments,sheetFromTrim,trimFromSheet,limitSheetTravel,boomLimit,sheetRateFor,updateSheet,sheetTorque,integrateMass,recover,refresh,axes,windwardCrewSide,tackCrewSide,bodyPoint,bodyOffset,pointMotion,waterVelocity,waterContact,bowWaterContact,hydrostatics,equilibriumHeave,hullSamples,updateCrew,updateRig,updateBoom,sailFlutter,sailAirAt,updateHelm,backingBoomTorque};
+root.SailPhysics={CONFIG,DEFAULT_ENV,environment,WAVE_COMPONENTS,BASE_WAVE_DIRECTION,BASE_WAVE_PERIOD,WAVE_HEIGHT_UNIT,LONG_HEIGHT_UNIT,SHORT_HEIGHT_UNIT,CREST_BEND,SWELL_BEND,PROFILE_SECONDS,MAX_WAVE_HEIGHT,CHOP_PERIOD,CHOP_SPREAD,CHOP_HEIGHT,SWELL_SPREAD,waveHeightUnit,windWaveAt,windWaveTarget,waveProfileFor,waveBlendAt,advanceWaveProfile,advanceSea,waveExposureField,waveExposureAt,wavePathField,DEG,clamp,wrap,wrap360,configFor,createState,step,windAt,waveAt,waveHeightAt,seaTarget,aero,sailCoefficients,aftSailLoading,loadedChordArm,foil,windForState,instruments,sheetFromTrim,trimFromSheet,limitSheetTravel,boomLimit,sheetRateFor,updateSheet,sheetTorque,integrateMass,recover,refresh,axes,windwardCrewSide,bodyPoint,rudderContacts,bodyOffset,pointMotion,waterVelocity,waterContact,bowWaterContact,hydrostatics,equilibriumHeave,waterForHeaveSearch,hullSamples,updateCrew,updateRig,updateBoom,sailFlutter,sailAirAt,updateHelm,steeringDiagnostic,finishSteeringDiagnostic,backingBoomTorque};
 
 });
