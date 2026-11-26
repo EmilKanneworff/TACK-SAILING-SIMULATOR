@@ -1,5 +1,7 @@
 # TACK · Optimering af fysik og rendering
 
+Den afsluttende verifikation af build `9e3326f286c9` følger med som [ZIP med rapport, rådata, genkørselskommandoer og kildetræer](TACK-verifikation.zip). Åbn `verifikation/rapport.md` efter udpakning.
+
 - **Udgangspunkt** `97841c6fe0a3`, kilde `412cd1d76a9b201651b5470606bf131c89436638`. Siden analysen var der tilføjet måleværktøj og rapportfiler i arbejdsområdet. Det byggede spil var fra samme revision.
 - **Testet build** `37be7ac83c33`, produktionsbygget lokalt fra arbejdsområdet. Den lokale frontend kører på [localhost:4211](http://localhost:4211/).
 - **Mål i prøverne** Ca. 60 FPS og ca. 1 simuleret sekund pr. realtidssekund på Mac17,2 med Apple M5. Ca. 30 FPS, ca. samme simulationshastighed og ingen voksende simulationsgæld ved 4× CPU-drosling og portræt på samme maskine.

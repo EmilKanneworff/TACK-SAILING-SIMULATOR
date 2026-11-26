@@ -179,3 +179,25 @@ test('after a service restart the old identity is no longer accepted',async t=>{
   assert.equal((await next(client,'error')).code,'expired');
   assert.ok((await create(client)).session!==h.session);
 });
+
+test('foil snapshots omit duplicate rudder loads and preserve the next physics step', () => {
+  const { RoomSimulation, Sim, roomWeather } = require('../server/room');
+  const weather = roomWeather({ speed: 14, direction: 260, waveHeight: .6, chop: .4 });
+  const room = new RoomSimulation(weather);
+  for (const boat of ['ac75', 'ac72']) {
+    const env = { ...weather, boatId: boat };
+    const state = Sim.createBoat(boat, { x: -1775, y: -1980, vx: 11, vy: 0, theta: 0 }, env);
+    const controls = { steer: .23, sheetTarget: .62, crewPose: 2, difficulty: 'hard' };
+    Sim.stepBoat(state, controls, env, Sim.fixedDt);
+    room.boats.set(boat, state);
+    const packed = JSON.parse(JSON.stringify(room.packet().boats[boat]));
+    const liveRudder = state.forces.rudder;
+    assert.ok(liveRudder.parts.length > 0);
+    assert.equal(Object.hasOwn(packed.forces.rudder, 'parts'), false);
+    const previous = structuredClone(packed);
+    previous.forces.rudder = JSON.parse(JSON.stringify(liveRudder));
+    assert.ok(JSON.stringify(previous).length - JSON.stringify(packed).length > 1000);
+    for (const snapshot of [previous, packed]) Sim.stepBoat(snapshot, controls, env, Sim.fixedDt);
+    assert.deepEqual(packed, previous);
+  }
+});

@@ -205,7 +205,12 @@ class RoomSimulation {
 function packBoat(state) {
   const s = { ...state, crewJoints:undefined, hydro:{ ...state.hydro,items:undefined },
     sail:{ ...state.sail,accumulator:undefined }, forces:{ ...state.forces,ledger:undefined } };
-  if (state.foils) s.foils = Object.fromEntries(Object.entries(state.foils).map(([key,foil])=>[key,{ ...foil,parts:undefined }]));
+  if (state.foils) {
+    s.foils = Object.fromEntries(Object.entries(state.foils).map(([key,foil])=>[key,{ ...foil,parts:undefined }]));
+    // The force summary aliases this foil. Keep its scalar readings but do not
+    // send a second copy of the transient section loads through that alias.
+    if (state.forces.rudder) s.forces.rudder = s.foils.rudder ?? s.foils.rudderPort;
+  }
   return s;
 }
 
