@@ -53,6 +53,35 @@ test('Z and X keep the selected fore-and-aft weight after release',async({page})
  await expect(target).toHaveValue(String(Math.round(selected*100)));
 });
 
+test('at 285 degrees with 9.7 m/s from west, the Laser suggests bearing away and 2 moves to port',async({page})=>{
+ await setUpLaserTack(page,1,{speed:9.7});
+ await page.evaluate(()=>{
+  const {state,env}=SAILING_GAME,P=SailPhysics,theta=(90-285)*P.DEG,speed=1.9/1.9438444924;
+  Object.assign(env,{direction:270,waveHeight:0,chop:0,crewPose:1});
+  Object.assign(state,P.createState({boatId:'laser',x:0,y:-5000,theta,
+   vx:speed*Math.cos(theta),vy:speed*Math.sin(theta),sheet:1,crewPose:1,crewSide:1},env));
+  state.windClimate={speed:9.7,direction:270,gusts:0};
+  SailingWeather.initialize(state,env);
+  const sheet=document.getElementById('sheetControl');
+  sheet.value='100';sheet.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ await page.clock.runFor(250);
+ await expect(page.locator('#coachText')).toHaveText('For tæt på vinden');
+ await expect(page.locator('#coachSub')).toContainText('→');
+ expect(await page.evaluate(()=>SAILING_GAME.state.crewSide)).toBe(1);
+ await page.locator('#reefSetting').focus();
+ await page.keyboard.press('2');
+ await page.clock.runFor(980);
+ const actual=await page.evaluate(()=>{
+  const {state,scene}=SAILING_GAME;
+  return {side:state.crewSide,pose:state.crewPose,cg:state.crewCG.z,visible:scene.visibleCrewPose.side,
+   rudder:state.rudder,sheet:state.sheet};
+ });
+ expect(actual).toMatchObject({side:-1,pose:2,rudder:0,sheet:1});
+ expect(actual.cg).toBeLessThan(-.2);
+ expect(actual.visible).toBeLessThan(-.9);
+});
+
 test('difficulty is remembered and switching to hard restores the manual weight controls',async({page})=>{
  await page.setViewportSize({width:390,height:744});
  await page.goto(game);
@@ -179,6 +208,43 @@ for(const from of [-1,1]){
     expect(await read()).toMatchObject({side,pose});
    }
   }
+ });
+}
+
+for(const from of [-1,1]){
+ test(`2 requests the new windward side through the wind eye from ${from<0?'port':'starboard'}`,async({page})=>{
+  await setUpLaserTack(page,from,{speed:7.5});
+  const read=()=>page.evaluate(()=>{
+   const {state,scene}=SAILING_GAME;
+   return {angle:state.wind.twa/SailPhysics.DEG,side:state.crewSide,pose:state.crewPose,
+    blend:state.crewSideBlend,visible:scene.visibleCrewPose?.side,cg:state.crewCG.z,capsized:state.capsized};
+  });
+  await page.keyboard.press(from<0?'KeyQ':'KeyE');
+  await page.keyboard.press('1');
+  await page.clock.runFor(800);
+  const steer=from<0?'ArrowLeft':'ArrowRight';
+  await page.keyboard.down(steer);
+  let sample=await read();
+  for(let n=0;n<70&&sample.angle*from>4;n++){
+   await page.clock.runFor(50);
+   sample=await read();
+  }
+  expect(sample.angle*from).toBeGreaterThan(-2);
+  expect(sample.angle*from).toBeLessThanOrEqual(4);
+  expect(sample).toMatchObject({side:from,pose:1,capsized:false});
+  await page.keyboard.press('2');
+  for(let n=0;n<75&&sample.angle*-from<40;n++){
+   await page.clock.runFor(60);
+   sample=await read();
+  }
+  await page.keyboard.up(steer);
+  expect(sample.angle*-from).toBeGreaterThanOrEqual(40);
+  await page.clock.runFor(650);
+  const after=await read();
+  expect(after).toMatchObject({side:-from,pose:2,capsized:false});
+  expect(after.blend*-from).toBeGreaterThan(.95);
+  expect(after.visible*-from).toBeGreaterThan(.9);
+  expect(after.cg*-from).toBeGreaterThan(.2);
  });
 }
 

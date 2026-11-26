@@ -177,7 +177,7 @@ class Fleet {
    const fraction=view?clamp((now-view.at)/view.duration,0,1):1;
    const bodyPose=view?blendFields(view.from,view.to,fraction,['x','y','heave','heel','pitch','boom']):s;
    const distance=Math.hypot(bodyPose.x-eye.x,bodyPose.y+eye.z);
-   const detailRange=scene.graphicsProfile.detailRanges[1];
+   const detailRange=scene.graphicsProfile.detailRanges[1]*(1-.14*scene.cpuDetail);
    const showDetail=distance<detailRange+(actor?.boatRoot.visible?20:0);
    if(!showDetail&&actor){actor.boatRoot.visible=actor.hull.visible=false;}
    if(distance>=remoteDistance){
@@ -207,8 +207,10 @@ class Fleet {
    const draw={...pose,time:world.time,seaState:world.seaState,waveProfile:world.waveProfile};
    actor.boatRoot.visible=actor.hull.visible=true;
    this.updateNameplate(actor.nameplate,distance);
-   actor.crewDetail=distance<(scene.quality==='low'?34:96);
-   const detailInterval=scene.quality==='low'?(distance<37?65:140):distance<160?30:125;
+   const crewRange=(scene.quality==='low'?34:96)*(1-.12*scene.cpuDetail);
+   actor.crewDetail=distance<crewRange+(actor.crewDetail?5:0);
+   const baseInterval=scene.quality==='low'?(distance<37?65:140):distance<160?30:125;
+   const detailInterval=baseInterval+(distance>50?scene.cpuDetail*30:0);
    if(!actor.lastDetailAt||now-actor.lastDetailAt>=detailInterval){
     const detailDt=actor.lastDetailAt?Math.min(.2,(now-actor.lastDetailAt)*.001):dt;
     actor.lastDetailAt=now;actor.updateBoat(draw,env,detailDt);

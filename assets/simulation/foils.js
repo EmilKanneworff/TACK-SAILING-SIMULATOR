@@ -239,7 +239,8 @@ const displacedCache=new Map();
 function displacedGroups(c){if(displacedCache.has(c.id))return displacedCache.get(c.id);const data=P.hullSamples(c),patches=hullPatches(c),out={data,groups:(c.hullOffsets||[0]).map(offset=>({offset,cells:offset?data.points.map(p=>({...p,z:p.z+offset})):data.points,patches:offset?patches.map(p=>({...p,z:p.z+offset})):patches}))};displacedCache.set(c.id,out);return out;}
 function hullLoads(s,inputEnv,properties,withDamping=true,searchWater){
  const c=cfg(s),env={...envFor(inputEnv),waveCurrent:s.seaState,waveCurrentRate:s.seaStateRate||0,waveProfile:s.waveProfile},acc=accumulator(),prepared=displacedGroups(c),data=prepared.data,m=properties||massProperties(s),cp=Math.cos(s.pitch),sp=Math.sin(s.pitch),ch=Math.cos(s.heel),sh=Math.sin(s.heel),offsets=c.hullOffsets||[0],damping=clamp(env.motionDamping??1,.35,2),ax=P.axes(s.theta),hulls=[];
- const sampleWater=searchWater?.sample??P.waveAt,surfaceHeight=searchWater?.height??P.waveHeightAt;
+ const water=searchWater??P.waterForInstant(s.time,env);
+ const sampleWater=water?.sample??P.waveAt,surfaceHeight=water?.height??P.waveHeightAt;
  let buoyancy=0,submergedVolume=0,wetArea=0,area=0,slamForce=0,slamPeak=0,rigWet=0,buoyancyRoll=0,buoyancyPitch=0,rollCrew=0,pitchCrew=0,hullF=0,hullR=0,coamingClearance=Infinity,clearance=Infinity,clearanceRate=0;
  // Each catamaran hull has its own displacement integral, local entry
  // pressure and drag application point. There is no buoyant bridge volume.
@@ -300,17 +301,40 @@ function hullLoads(s,inputEnv,properties,withDamping=true,searchWater){
  const rotationalDamping={roll:-c.rollDamping*s.heelRate*wetDrag*damping,pitch:-c.pitchDamping*s.pitchRate*wetDrag*damping,yaw:-(c.yawLinearDamping*s.omega+c.yawQuadraticDamping*s.omega*Math.abs(s.omega))*wetDrag*damping};acc.roll+=rotationalDamping.roll;acc.pitch+=rotationalDamping.pitch;acc.yaw+=rotationalDamping.yaw;
  return{...acc,hulls,rotationalDamping,waterContactDampingFraction:wetDrag,controlClearance:hulls.reduce((n,h)=>n+h.clearance/hulls.length,0),controlClearanceRate:hulls.reduce((n,h)=>n+h.clearanceRate/hulls.length,0),buoyancy,weight,vertical:acc.force.z,submergedVolume,totalDisplacedVolume:buoyancy/(c.waterDensity*c.gravity),totalVolume:data.volume*offsets.length,hullWetFraction:wetFraction,clearance,clearanceRate,slamForce,slamSeverity:clamp(slamForce/weight,0,4),slamPeak,rigWet,coamingClearance,cockpitWet:s.cockpitWet||0,hullF,hullR,rollBuoyancy:buoyancyRoll,pitchBuoyancy:buoyancyPitch,rollGravity:gravityRoll,pitchGravity:gravityPitch,rollCrew,pitchCrew,cg:m.cg};
 }
-function wingImmersion(s,pose,env){let wet=0,depth=0,minimum=Infinity;for(let i=0;i<5;i++){const offset=(i-2)/4*pose.span*.92,p=add(pose.wingCentre,mul(pose.spanDirection,offset)),wp=bodyPoint(s,p),d=P.waveHeightAt(wp.x,wp.y,s.time,env)-wp.z;depth+=d/5;minimum=Math.min(minimum,d);wet+=smooth(-pose.chord*.30,pose.chord*.45,d)/5;}return{wet,depth,minimum};}
+function wingImmersion(s,pose,env,heightAt){let wet=0,depth=0,minimum=Infinity;for(let i=0;i<5;i++){const offset=(i-2)/4*pose.span*.92,p=add(pose.wingCentre,mul(pose.spanDirection,offset)),wp=bodyPoint(s,p),d=heightAt(wp.x,wp.y,s.time,env)-wp.z;depth+=d/5;minimum=Math.min(minimum,d);wet+=smooth(-pose.chord*.30,pose.chord*.45,d)/5;}return{wet,depth,minimum};}
 const strutConfigCache=new WeakMap();
 function strutConfig(c){let cached=strutConfigCache.get(c);if(!cached||cached.cd!==c.foilStrutCD){cached={cd:c.foilStrutCD,config:{...c,foilProfileCD:c.foilStrutCD}};strutConfigCache.set(c,cached);}return cached.config;}
-function foilLoads(s,inputEnv,dt=0){
+// The two load passes have the same sea and body pose. A flap changes the
+// force, while an arm may also move the sampling points. Compare coordinates
+// before reusing a sample. This cache is discarded before the next substep.
+function foilWaterPasses(water){
+ const stream=method=>{
+  const points=[];
+  let index=0;
+  return {
+   query:(x,y,time,env,depth)=>{
+    const point=points[index++];
+    if(point&&point.x===x&&point.y===y&&point.depth===depth)return point.value;
+    const value=method(x,y,time,env,depth);
+    points[index-1]={x,y,depth,value};
+    return value;
+   },
+   reset:()=>{index=0;}
+  };
+ };
+ const samples=stream(water.sample),heights=stream(water.height);
+ return {sample:samples.query,height:heights.query,reset(){samples.reset();heights.reset();}};
+}
+function foilLoads(s,inputEnv,dt=0,preparedWater){
  const c=cfg(s),bladeConfig=strutConfig(c),env={...envFor(inputEnv),waveCurrent:s.seaState,waveCurrentRate:s.seaStateRate||0,waveProfile:s.waveProfile},acc=accumulator(),individual={};let vertical=0,foilDrag=0;
+ const water=preparedWater??P.waterForInstant(s.time,env);
+ const sampleWater=water?.sample??P.waveAt,heightAt=water?.height??P.waveHeightAt;
  for(const key of foilKeys(s)){
-  const f=s.foils[key],pose=foilPose(s,key),side=pose.side,rudder=key.startsWith('rudder'),imm=wingImmersion(s,pose,env),normal=bodyVector(s,pose.wingNormal),chord=bodyVector(s,pose.chordDirection),parts=[],wingAcc=accumulator(),liftAcc=accumulator();
+  const f=s.foils[key],pose=foilPose(s,key),side=pose.side,rudder=key.startsWith('rudder'),imm=wingImmersion(s,pose,env,heightAt),normal=bodyVector(s,pose.wingNormal),chord=bodyVector(s,pose.chordDirection),parts=[],wingAcc=accumulator(),liftAcc=accumulator();
   const specifications=rudder?[['whole',0,pose.area,f.flap]]:[['inner',-side*pose.span/4,pose.area/2,f.flapInner??f.flap],['outer',side*pose.span/4,pose.area/2,f.flapOuter??f.flap]];
   let lift=0,drag=0,alpha=0,cl=0,cd=0,speed=0,flowAngle=0,liftDirection=V();
   for(const [name,offset,area,flap]of specifications){
-   const localPoint=add(pose.wingCentre,mul(pose.spanDirection,offset)),fromHinge=sub(localPoint,pose.hinge),jointVelocity=pose.retracting?pose.jointVelocity:side?V(0,side*fromHinge.z*f.armRate,-side*fromHinge.y*f.armRate):V(),wp=bodyPoint(s,localPoint),wave=P.waveAt(wp.x,wp.y,s.time,env,Math.max(0,-wp.z)),velocity=sub(pointVelocity(s,localPoint,jointVelocity),P.waterVelocity(s,wave)),halfPose={...pose,wingCentre:localPoint,span:side?pose.span/2:pose.span},depth=wingImmersion(s,halfPose,env);
+   const localPoint=add(pose.wingCentre,mul(pose.spanDirection,offset)),fromHinge=sub(localPoint,pose.hinge),jointVelocity=pose.retracting?pose.jointVelocity:side?V(0,side*fromHinge.z*f.armRate,-side*fromHinge.y*f.armRate):V(),wp=bodyPoint(s,localPoint),wave=sampleWater(wp.x,wp.y,s.time,env,Math.max(0,-wp.z)),velocity=sub(pointVelocity(s,localPoint,jointVelocity),P.waterVelocity(s,wave)),depth=side?wingImmersion(s,{...pose,wingCentre:localPoint,span:pose.span/2},env,heightAt):imm;
    const foil=foilElement({velocity,normal,chord,area,flap,incidence:side===0?0:c.foilIncidence,wet:depth.wet,ventilation:f.ventilation,config:c}),moment=addForce(wingAcc,s,localPoint,foil.force,name),lm=addForce(liftAcc,s,localPoint,foil.liftForce||V());
    const count=specifications.length;lift+=foil.lift;drag+=foil.drag;alpha+=foil.alpha/count;cl+=foil.cl/count;cd+=foil.cd/count;speed+=foil.speed/count;flowAngle+=(foil.flowAngle||0)/count;liftDirection=add(liftDirection,mul(foil.liftDirection||normal,1/count));
    // The allocator converts its desired finite lift into flap using this
@@ -327,7 +351,7 @@ function foilLoads(s,inputEnv,dt=0){
   const bladeMoment={roll:0,pitch:0,yaw:0},bladeSections=rudder&&env.forceDiagnostics?[]:null;
   let bladeForce=V(),bladeWet=0,bladeAlpha=0,bladeForward=0,bladeSide=0,bladeStall=0;
   const rudderAngle=rudder?s.rudder:0,cn=bodyVector(s,V(Math.cos(rudderAngle),0,-Math.sin(rudderAngle))),nn=bodyVector(s,V(Math.sin(rudderAngle),0,Math.cos(rudderAngle)));
-  for(let j=0;j<5;j++){const t=(j+.5)/5,strut=add(pose.hinge,mul(sub(pose.wingCentre,pose.hinge),t)),sw=bodyPoint(s,strut),water=P.waveAt(sw.x,sw.y,s.time,env,Math.max(0,-sw.z)),strutWet=smooth(-.05,.18,water.height-sw.z),strutVelocity=sub(pointVelocity(s,strut,side?mul(pose.jointVelocity,t):null),P.waterVelocity(s,water));
+  for(let j=0;j<5;j++){const t=(j+.5)/5,strut=add(pose.hinge,mul(sub(pose.wingCentre,pose.hinge),t)),sw=bodyPoint(s,strut),water=sampleWater(sw.x,sw.y,s.time,env,Math.max(0,-sw.z)),strutWet=smooth(-.05,.18,water.height-sw.z),strutVelocity=sub(pointVelocity(s,strut,side?mul(pose.jointVelocity,t):null),P.waterVelocity(s,water));
    // The same entrained-air state can weaken the adjacent submerged blade.
    // Dry area has already been removed by strutWet; this is ventilation loss,
    // not a second immersion factor or a flight-mode bonus/penalty.
@@ -605,7 +629,14 @@ function advance(s,controls,env,h){
  P.updateRig(s,c,h,lively);
  let sail=aero(s,env);
  const boom=P.updateBoom(s,c,sail,env,h,lively);
- sail=aero(s,env);let m=massProperties(s),hull=hullLoads(s,env,m),water=foilLoads(s,env,h);autoFoils(s,ctrl,env,h,m,hull,sail,water);m=massProperties(s);water=foilLoads(s,env);
+ sail=aero(s,env);
+ const waterAt=P.waterForInstant(s.time,{...env,waveCurrent:s.seaState,waveCurrentRate:s.seaStateRate||0,waveProfile:s.waveProfile});
+ const foilWater=waterAt&&foilWaterPasses(waterAt);
+ let m=massProperties(s),hull=hullLoads(s,env,m,true,waterAt),water=foilLoads(s,env,h,foilWater);
+ autoFoils(s,ctrl,env,h,m,hull,sail,water);
+ m=massProperties(s);
+ foilWater?.reset();
+ water=foilLoads(s,env,0,foilWater);
  const gravityAtCg=P.bodyOffset(s,m.cg),gravityRoll=-hull.weight*gravityAtCg.dHeel,gravityPitch=-hull.weight*gravityAtCg.dPitch;
  hull.roll+=gravityRoll-hull.rollGravity;hull.pitch+=gravityPitch-hull.pitchGravity;
  hull.rollGravity=gravityRoll;hull.pitchGravity=gravityPitch;

@@ -66,7 +66,7 @@ test('hull contact includes angular motion and chooses the wet side',async({page
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const P=SailPhysics,w=SAILING_GAME.scene;
-  const env={...SAILING_GAME.env,speed:0,waves:0,waveCurrent:0,shelter:false};
+  const env={...SAILING_GAME.env,speed:0,waveHeight:0,chop:0,waveCurrent:0,shelter:false};
   const s=P.createState({boatId:'laser',x:0,y:-5100,theta:.1,vx:4,vy:0,heel:.35,heelRate:.9,pitchRate:-.7,heave:.04,time:1},env);
   const fx=w.hullWater.sample('local',w,s,env,{reset:true,local:true});
   const {contacts}=fx;
@@ -130,7 +130,7 @@ test('the stern wave displaces the visible water and responds to hull loading an
  await page.waitForFunction(()=>window.SAILING_GAME);
  const result=await page.evaluate(()=>{
   const P=SailPhysics,{scene,env:base}=SAILING_GAME,water=scene.hullWater,T=THREE;
-  const env={...base,sea:'calm',waves:0,waveCurrent:0,speed:0,gusts:0,shelter:false};
+  const env={...base,waveHeight:0,chop:0,waveCurrent:0,speed:0,gusts:0,shelter:false};
   const u=water.uniforms;
   const view=new T.PerspectiveCamera();view.position.y=62;
   const run=(speed,extraDraft=0)=>{
