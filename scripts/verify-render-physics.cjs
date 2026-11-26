@@ -3,12 +3,15 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { createSimulation } = require('../assets/simulation/node.js');
+const currentPath = require.resolve('../assets/simulation/node.js');
 
 const [baselineAssets, output] = process.argv.slice(2);
 if (!baselineAssets || !output) throw Error('node scripts/verify-render-physics.cjs BASELINE_ASSETS JSON');
-const before = require(path.resolve(baselineAssets, 'simulation/node.js')).createSimulation();
-const after = createSimulation();
+const baselinePath = require.resolve(path.resolve(baselineAssets, 'simulation/node.js'));
+assert.notEqual(fs.realpathSync(baselinePath), fs.realpathSync(currentPath), 'Load two independent source trees');
+const before = require(baselinePath).createSimulation();
+const after = require(currentPath).createSimulation();
+assert.notEqual(before.stepBoat, after.stepBoat);
 const dt = 1 / 60;
 const weather = { speed: 12, direction: 252, windSeed: 61, waveSeed: 127,
   waveHeight: .9, chop: .65, gusts: .28, difficulty: 'hard', forceDiagnostics: true };
@@ -64,5 +67,8 @@ for (const boat of boats) {
       events, end: { x: a.x, y: a.y, heave: a.heave, theta: a.theta, vx: a.vx, vy: a.vy }, meanStepMs: mean });
   }
 }
-fs.writeFileSync(output, JSON.stringify({ match: 'deepStrictEqual per step', scenarios }, (key, value) =>
+fs.writeFileSync(output, JSON.stringify({ match: 'deepStrictEqual of the full enumerable state before and after every fixed step',
+  baselineModule: baselinePath, currentModule: currentPath, totalSteps: scenarios.length * 480,
+  meanCurrent: 'No imposed uniform current; the simulated orbital water velocity is included.',
+  comparedTopLevelFields: Object.keys(scenarios[0].start).sort(), scenarios }, (key, value) =>
   typeof value === 'number' && !Number.isFinite(value) ? { $number: String(value) } : value, 2) + '\n');

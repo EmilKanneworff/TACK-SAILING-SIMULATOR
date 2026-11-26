@@ -83,7 +83,7 @@ function installAudit(light) {
     collect();
     if (!rows) return callback(timestamp);
     renderer.info.reset();
-    row = { interval: previous === undefined ? null : timestamp - previous, cpu: {}, gpu: {} };
+    row = { timestamp, interval: previous === undefined ? null : timestamp - previous, cpu: {}, gpu: {} };
     previous = timestamp;
     const start = performance.now();
     try {
@@ -95,6 +95,10 @@ function installAudit(light) {
         row.drawInterval = lastDraw === undefined ? null : timestamp - lastDraw;
         lastDraw = timestamp;
         row.tier = view.graphicsProfile.id;
+        row.cpuDetail = view.cpuDetail;
+        row.load = game.performanceBudget.load;
+        row.gpuBudgetMs = game.performanceBudget.gpuMs;
+        row.size = [renderer.domElement.width, renderer.domElement.height];
       }
       Object.assign(row, { calls, triangles, debtMs: game.simulationDebt * 1000, time: game.state.time });
       const budget = game.performanceBudget;
@@ -302,7 +306,7 @@ function installAudit(light) {
 
   window.tackAudit = {
     wrap, install, inventory, layers,
-    timing(callback, name) { return light ? callback : wrap(callback, name); },
+    timing(callback, name) { return light && name !== 'fixedStep' ? callback : wrap(callback, name); },
     control(input, time) {
       if (!controls) return input;
       const command = controls.findLast(part => time >= part.time);
@@ -383,7 +387,7 @@ function stats(values) {
   const rounded = n => Math.round(n * 1000) / 1000;
   const pct = p => rounded(samples[Math.ceil(samples.length * p) - 1]);
   return { n: samples.length, mean: rounded(samples.reduce((a, b) => a + b, 0) / samples.length),
-    p50: pct(.5), p95: pct(.95), max: pct(1) };
+    p50: pct(.5), p95: pct(.95), p99: pct(.99), max: pct(1) };
 }
 
 function summarize({ data, snapshot }) {
@@ -568,6 +572,8 @@ async function measure(browser, url, profile, throttle, mobile) {
           return capture ? scene.canvas.toDataURL('image/jpeg', .92).split(',')[1] : null;
         }, {replay, stage, capture: Boolean(images)});
         if (images) await fs.writeFile(path.join(images, stage.name + '.jpg'), Buffer.from(data, 'base64'));
+      } else if (images) {
+        await page.screenshot({ path:path.join(images,stage.name+'.jpg'), type:'jpeg', quality:90 });
       }
       const isolated = isolate ? await page.evaluate(() => tackAudit.layers()) : null;
       await page.evaluate(() => tackAudit.freeze(false));
@@ -576,18 +582,21 @@ async function measure(browser, url, profile, throttle, mobile) {
         tackAudit.useControls(null);
         const trials = [];
         // This uses the game's key handlers. Measurement is quantized to rAF.
-        for (const [code, sign] of [['ArrowRight', 1], ['ArrowLeft', -1], ['ArrowRight', 1]]) {
-          const rudder = state.rudder, started = performance.now();
+        for (const [code, sign, field] of [
+          ['ArrowRight', 1, 'rudder'], ['ArrowDown', -1, 'sheet'], ['ArrowLeft', -1, 'rudder'],
+          ['ArrowUp', 1, 'sheet'], ['ArrowRight', 1, 'rudder'], ['ArrowDown', -1, 'sheet']
+        ]) {
+          const value = state[field], started = performance.now();
           const key = type => window.dispatchEvent(new KeyboardEvent(type, {key: code, code, bubbles:true}));
           key('keydown');
           let elapsed = null;
           try {
             while (performance.now()-started < 600) {
               await new Promise(resolve => requestAnimationFrame(resolve));
-              if ((state.rudder-rudder)*sign > .003) { elapsed = performance.now()-started; break; }
+              if ((state[field]-value)*sign > .003) { elapsed = performance.now()-started; break; }
             }
           } finally { key('keyup'); }
-          trials.push({code, rudderMs: elapsed});
+          trials.push({code, field, stateChangeMs:elapsed});
           await new Promise(resolve => setTimeout(resolve, 160));
         }
         return trials;
