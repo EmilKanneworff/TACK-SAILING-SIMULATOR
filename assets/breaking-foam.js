@@ -44,7 +44,7 @@
       if(reset||time<this.last){this.patches.length=0;this.recent.clear();this.last=-Infinity;this.index=0;}
       this.patches=this.patches.filter(p=>time-p.time<p.life);
       const windSea=(env.chop??0)>.3&&(env.speed??0)>.15;
-      if(scene.graphicsProfile.ambientFoam&&time-this.last>.14&&(state.seaState>.14||windSea)){
+      if(scene.graphicsProfile.ambientFoam&&time-this.last>(.14+.13*scene.cpuDetail)&&(state.seaState>.14||windSea)){
         this.last=time;
         const step=3.8,ix=Math.round(state.x/step),iy=Math.round(state.y/step);
         const radius=scene.graphicsProfile.id==='balanced'?9:13;

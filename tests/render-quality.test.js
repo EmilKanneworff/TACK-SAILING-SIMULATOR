@@ -218,53 +218,59 @@ test('remote hulls blend uneven snapshots, snap after rescue and release unused 
   expect(result).toMatchObject({ removed: true, disposed: true, views: 0, actors: 0 });
 });
 
-test('auto scales the 3D scene down and recovers gradually after steady rendering', async ({ page }) => {
+test('auto lowers resolution for GPU load and keeps it for CPU load', async ({ page }) => {
   await page.addInitScript(() => {
+    let time = 0;
+    performance.now = () => time;
     const request = window.requestAnimationFrame;
     window.requestAnimationFrame = callback => {
-      if (callback.name === 'frame') {
-        window.gameFrame = callback;
-        return 0;
-      }
-      return request.call(window, callback);
+      if (callback.name !== 'frame') return request.call(window, callback);
+      window.tickGame = delta => { time += delta; callback(time); };
+      return 0;
     };
+    window.spend = ms => { time += ms; };
   });
   await page.goto(game);
   await page.click('#startButton');
   const result = await page.evaluate(() => {
-    const { scene } = SAILING_GAME, update = scene.update;
-    let now = performance.now();
-    // Supply frame timestamps without drawing hundreds of WebGL frames.
-    scene.update = () => {};
-    const step = (duration, frameMs) => {
-      for (let t = 0; t < duration; t += frameMs) window.gameFrame(now += frameMs);
-      return scene.graphicsProfile.id;
+    const { scene } = SAILING_GAME, update = scene.update, timedDraw = scene.timedDraw;
+    let cpuCost = 0;
+    scene.update = () => window.spend(cpuCost);
+    scene.timedDraw = callback => callback();
+    const step = (frames, frameMs, gpuMs, cost = 0) => {
+      cpuCost = cost;
+      for (let i = 0; i < frames; i++) {
+        scene.gpuMs = gpuMs;
+        scene.gpuAt = performance.now();
+        window.tickGame(frameMs - cost);
+      }
+      return SAILING_GAME.performanceBudget;
+    };
+    const setQuality = value => {
+      const select = document.querySelector('#quality');
+      select.value = value;
+      select.dispatchEvent(new Event('change'));
     };
     try {
-      const start = step(800, 20);
-      const singleSlowWindow = step(1100, 30);
-      const sustainedSlow = step(3400, 50);
-      const lowFar = scene.camera.far;
-      const lowTriangles = scene.water.geometry.index.count / 3;
-      const shortRecovery = step(6000, 16);
-      const stableRecovery = step(6600, 16);
-      const select = document.querySelector('#quality');
-      select.value = '3';
-      select.dispatchEvent(new Event('change'));
-      const manualHigh = step(3500, 50);
-      const highFar = scene.camera.far, highTriangles = scene.water.geometry.index.count / 3;
-      select.value = '0';
-      select.dispatchEvent(new Event('change'));
-      const severe = step(1600, 100);
-      return { start, singleSlowWindow, sustainedSlow, lowFar, lowTriangles, shortRecovery, stableRecovery,
-        manualHigh, highFar, highTriangles, severe };
-    } finally { scene.update = update; }
+      const start = step(30, 16, 2);
+      const cpu = step(66, 40, 2, 24);
+      const cpuTriangles = scene.water.geometry.index.count / 3;
+      const recovered = step(740, 16, 2);
+      const gpu = step(70, 40, 16);
+      const gpuTriangles = scene.water.geometry.index.count / 3;
+      setQuality('3');
+      const manual = step(80, 40, 16);
+      return { start, cpu, recovered, gpu, manual, cpuTriangles, gpuTriangles, far: scene.camera.far };
+    } finally { scene.update = update; scene.timedDraw = timedDraw; }
   });
   expect(result).toMatchObject({
-    start: 'balanced', singleSlowWindow: 'balanced', sustainedSlow: 'minimum', lowFar: 8000,
-    shortRecovery: 'minimum', stableRecovery: 'low', manualHigh: 'high', highFar: 8000, severe: 'minimum'
+    start: { tier: 'balanced', cpuDetail: 0 },
+    cpu: { tier: 'balanced', cpuDetail: 1, load: 'scene' },
+    recovered: { cpuDetail: 0 },
+    gpu: { tier: 'low', cpuDetail: 0, load: 'gpu' },
+    manual: { tier: 'high', cpuDetail: 0 }, far: 8000
   });
-  expect(result.lowTriangles).toBeLessThan(result.highTriangles * .65);
+  expect(result.gpuTriangles).toBeLessThan(result.cpuTriangles);
 });
 
 

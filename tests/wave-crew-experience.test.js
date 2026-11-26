@@ -325,19 +325,20 @@ test('the Laser sails into coastal shelter and out while arrows advect with loca
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
  await page.waitForFunction(()=>SAILING_GAME);
  const observations=await page.evaluate(()=>{
-  const {scene,env}=SAILING_GAME,P=SailPhysics,e={...env,sea:'calm',speed:7,direction:0,gusts:0};
+  const {scene,env}=SAILING_GAME,P=SailPhysics,e={...env,waveHeight:0,chop:0,speed:7,direction:0,gusts:0};
   // Cross the wake of Dyreborg's headland on the georeferenced chart.
-  const s=P.createState({boatId:'laser',x:-2025,y:-3060,theta:0,vx:4,vy:0,sheet:.36},e);
+  const start=ArchipelagoData.fromMetric(-2280,-3060);
+  const s=P.createState({boatId:'laser',...start,theta:0,vx:4,vy:0,sheet:.36},e);
   const points=[];
-  for(let step=0;step<=2040;step++){
+  for(let step=0;step<=2880;step++){
    P.step(s,{steer:0,trim:0,crewPose:2},e,1/60);
-   if(![0,1080,2040].includes(step))continue;
+   if(![0,1920,2880].includes(step))continue;
    scene.updateCamera(s,1/60,0,true,e);
    scene.updateWindStrokes(s,e,true);
    const index=scene.windStrokes.findIndex(arrow=>arrow.shown),arrow=scene.windStrokes[index],x=arrow.x,y=arrow.y,dt=.06;
-   const w=P.windAt(x,y,s.time,e);
    scene.updateWindStrokes({...s,time:s.time+dt},e,false);
    const next=scene.windStrokes[index],local=P.windAt(s.x,s.y,s.time,e);
+   const w=P.windAt((x+next.x)/2,(y+next.y)/2,s.time+dt/2,e);
    points.push({wind:local.speed,instrument:s.wind.tws,ground:s.ground.contact,
     arrowSpeed:Math.hypot(next.x-x,next.y-y)/dt,sourceSpeed:w.speed,pointsSouth:next.y<y});
   }
@@ -361,7 +362,8 @@ test('wind arrows on the sheltered coast follow the strength and direction of gu
   const {scene,env}=SAILING_GAME,P=SailPhysics;
   const weather={...env,speed:8.5,direction:0,gusts:.65,waveHeight:.24,shelter:true};
   // The camera sees both sheltered water east of Dyreborg and the open fjord.
-  const s=P.createState({boatId:'laser',x:-1220,y:-2274.4,theta:-20*P.DEG},weather);
+  const start=ArchipelagoData.fromMetric(-1220,-2274.4);
+  const s=P.createState({boatId:'laser',...start,theta:-20*P.DEG},weather);
   scene.updateCamera(s,1/60,0,true,weather);
   const {position,alpha}=scene.windStrokeMesh.geometry.attributes;
   let slowest=Infinity,fastest=0,angleShift=0,gustChange=0,maxDriftError=0,minAlignment=1,observations=0,minWater=Infinity;

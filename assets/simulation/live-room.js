@@ -50,10 +50,12 @@ class RoomSimulation {
     const previous = this.boats.get(player.id);
     const field = { ...this.env, boatId: player.boat, difficulty: player.control?.difficulty ?? 'hard' };
     const spawn = initial || previous || Sim.map.spawn;
-    const state = Sim.createBoat(player.boat, {
+    const initialState = {
       x: spawn.x, y: spawn.y, time: this.world.time, theta: spawn.theta ?? (90-this.env.direction-92)*P.DEG,
       vx: spawn.vx ?? 0, vy: spawn.vy ?? 0, crewPose: player.control?.crewPose ?? 2
-    }, field);
+    };
+    initialState.crewSide=P.windwardCrewSide(P.windForState(initialState,field))||-1;
+    const state = Sim.createBoat(player.boat, initialState, field);
     Sim.placeAtSafeSpawn(state);
     Sim.alignSpawn(state, this.world, true);
     P.refresh(state,field);

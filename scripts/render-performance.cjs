@@ -180,15 +180,21 @@ function changeScene(stage) {
   const { env, state, scene } = SAILING_GAME;
   const gusts = stage.boat === 'ac75' ? .2 : .08;
   Object.assign(env, { boatId: stage.boat, speed: stage.boat === 'ac75' ? 17 : 8, direction: 255, gusts,
-    waveHeight: stage.boat === 'ac75' ? .60 : .38, chop: .42, rain: .36, clouds: .65 });
+    waveHeight: stage.boat === 'ac75' ? .60 : .38, chop: .42, rain: stage.rain ?? .36, clouds: .65,
+    ...stage.weather });
   const start = { x: stage.x, y: stage.y, theta: stage.heading, time: 0, sheet: .44,
     vx: stage.speed * Math.cos(stage.heading), vy: stage.speed * Math.sin(stage.heading) };
   if (stage.heave !== undefined) start.heave = stage.heave;
+  if (stage.heel !== undefined) start.heel = stage.heel;
   const fresh = TackSimulation.createBoat(stage.boat, start, env);
   for (const key of Object.keys(state)) if (!Object.hasOwn(fresh, key)) delete state[key];
   Object.assign(state, fresh);
   scene.lastTime = -1;
   scene.cameraReady = false;
+  if (stage.replayControls) {
+    tackAudit.useControls(stage.replayControls);
+    return { state, env, controls: stage.replayControls };
+  }
 }
 
 function setupFleet(enabled) {
@@ -201,8 +207,9 @@ function setupFleet(enabled) {
   // Render five representative snapshots with the local player's prediction.
   // Live simulation and transport are exercised separately by test:six-rigs.
   fleet.send = () => {};
+  const count = typeof enabled === 'number' ? enabled : 5;
   fleet.joined({session:'graphics-benchmark', id:'own', host:true, nextSeq:0, phase:'lobby'}, [
-    {id:'own', boat:state.boatId, host:true}, ...['dinghy','yacht','ac75','ac72','laser'].map((boat,i) =>
+    {id:'own', boat:state.boatId, host:true}, ...['dinghy','yacht','ac75','ac72','laser'].slice(0,count).map((boat,i) =>
       ({id:'p'+i, boat, name:'Sejler '+(i+1)}))
   ]);
   fleet.inWorld = true;
@@ -210,7 +217,7 @@ function setupFleet(enabled) {
   fleet.synced = true;
   fleet.serverTime = Infinity;
   const distances = [[-12,-14],[7,-24],[-4,-48],[27,-76],[36,-153]];
-  for(const [i,[x,y]] of distances.entries()){
+  for(const [i,[x,y]] of distances.slice(0,count).entries()){
     const player = fleet.players[i+1],boat = TackSimulation.createBoat(player.boat,
       {x:state.x+x,y:state.y+y,time:state.time,theta:state.theta,sheet:.43,vx:state.vx,vy:state.vy},env);
     fleet.boats.set(player.id,boat);
@@ -344,4 +351,6 @@ async function main() {
   } finally { await browser.close(); }
 }
 
-main().catch(error => { console.error(error); process.exitCode = 1; });
+if (require.main === module) main().catch(error => { console.error(error); process.exitCode = 1; });
+
+module.exports = { changeScene, setupFleet };

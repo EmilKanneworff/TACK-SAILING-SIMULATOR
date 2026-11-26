@@ -148,7 +148,7 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
       const rotation=(w.windSea?windAngle:angle)+w.spreadAngle*(width-1);
       const c=Math.cos(rotation),s=Math.sin(rotation);
       const forwardX=(w.kx*c-w.ky*s)/w.k,forwardY=(w.kx*s+w.ky*c)/w.k;
-      return {k,omega,forwardX,forwardY,amplitude:w.amplitude*(w.windSea?short:managed?w.swellGain:1),
+      return {k,omega,forwardX,forwardY,directionLength:Math.hypot(forwardX,forwardY),amplitude:w.amplitude*(w.windSea?short:managed?w.swellGain:1),
         bend:(managed&&!w.windSea?swellBend:CREST_BEND)*k,phase:w.phase+seed*(i+1),windSea:w.windSea};
     });
     const prepared={angle,windAngle,period,short,shortPeriod,swellBend,spread,seed,managed,terms,exposure:null,path:null};
@@ -181,18 +181,33 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
       dy:derivative*(long*hLong*swell.dy+short*hShort*chop.dy-depthWeight*site.dy)/r,
       rate:derivative*(long*LONG_HEIGHT_UNIT*rate*swell.v+short*SHORT_HEIGHT_UNIT*windRate*chop.v)*inv/r};
   }
-  function analyticWaveAt(x,y,time,inputEnv,depth=0,heightOnly=false,searchPoint){
+  function waveContext(time,inputEnv){
     const scale=inputEnv?.waveCurrent??seaTarget(inputEnv),scaleRate=inputEnv?.waveCurrentRate||0;
-    let height=0,dx=0,dy=0,velocity=0,waterVx=0,waterVy=0,waterVz=0,waterAx=0,waterAy=0,curvature=0;
     const component=Number.isInteger(inputEnv?.waveComponent)?inputEnv.waveComponent:-1;
     const profile=inputEnv?.waveProfile,from=profile?.from||waveProfileFor(inputEnv),to=profile?.to||from;
     const blend=waveBlendAt(time,profile);
-    if(!scale&&!scaleRate&&!((from.managed&&from.short)||(to.managed&&to.short)))
+    const flat=!scale&&!scaleRate&&!((from.managed&&from.short)||(to.managed&&to.short));
+    return {scale,scaleRate,component,profile,from,to,blend,flat,
+      wind:flat?null:windWaveAt(time,profile,inputEnv)};
+  }
+  // One sampler belongs to one sea state and one integration instant.
+  // Body points still supply their own coordinates and immersion.
+  function waterForInstant(time,env){
+    if(injectedWater)return null;
+    const prepared=waveContext(time,env);
+    return {
+      sample:(x,y,t,field,depth)=>analyticWaveAt(x,y,t,field,depth,false,undefined,prepared),
+      height:(x,y,t,field)=>analyticWaveAt(x,y,t,field,0,true,undefined,prepared)
+    };
+  }
+  function analyticWaveAt(x,y,time,inputEnv,depth=0,heightOnly=false,searchPoint,prepared=waveContext(time,inputEnv)){
+    const {scale,scaleRate,component,profile,from,to,blend,flat,wind}=prepared;
+    let height=0,dx=0,dy=0,velocity=0,waterVx=0,waterVy=0,waterVz=0,waterAx=0,waterAy=0,curvature=0;
+    if(flat)
       return heightOnly?height:{height,dx,dy,velocity,waterVx,waterVy,waterVz,waterAx,waterAy,curvature};
     const transition=blend>0&&blend<1;
     const bands=searchPoint?[]:null;
     const shelter=root.SailingShelter,covered=inputEnv?.shelter!==false&&shelter.contains(x,y),below=Math.max(0,depth);
-    const wind=windWaveAt(time,profile,inputEnv);
     const coast=root.SailingWaterDepth,site=covered?coast.sample(x,y):null;
     const swellDepth=site&&site.depth<coast.swellDepth?coast.damp(site.depth,coast.swellDepth):null;
     const chopDepth=site&&site.depth<coast.chopDepth?coast.damp(site.depth,coast.chopDepth):null;
@@ -244,12 +259,12 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
         const bend=w.bend,cos2=1-2*sin*sin,harmonic=bend*a*a,crest=harmonic*cos2,h=a*sin-crest;
         height+=weight*h;
         if(heightOnly)continue;
-        const gx=forwardX+travel.dx,gy=forwardY+travel.dy,directionLength=Math.hypot(gx,gy),localK=w.k*directionLength;
+        const gx=forwardX+travel.dx,gy=forwardY+travel.dy;
+        const directionLength=travel.dx===0&&travel.dy===0?w.directionLength:Math.hypot(gx,gy),localK=w.k*directionLength;
         const cos=Math.cos(q),rate=a*cos+4*harmonic*sin*cos;
         const areaGradient=sin-2*bend*a*cos2,base=amplitude*areaGradient;
         if(terms)terms.push({w,a,sin,cos,cos2,harmonic,crest,driven,weight,gx,gy,directionLength,localK});
-        const decay=below?Math.exp(-localK*below):1;
-        let sideDecay=decay,verticalDecay=decay;
+        let sideDecay,verticalDecay;
         if(p.managed&&site&&site.depth>0&&site.depth*w.k<5){
           // Finite-depth orbital motion at a solid bottom. Horizontal
           // motion remains parallel to it and vertical motion goes to zero.
@@ -258,7 +273,7 @@ const DEFAULT_ENV=Object.freeze({speed:5,direction:0,gusts:.20,waves:.35,autoBal
           const column=-Math.expm1(-2*k*site.depth);
           sideDecay=below<=site.depth?(down+up)/column:0;
           verticalDecay=(down-up)/column;
-        }
+        }else sideDecay=verticalDecay=below?Math.exp(-localK*below):1;
         const slope=rate*w.k;
         dx+=weight*(slope*gx+base*local.dx);dy+=weight*(slope*gy+base*local.dy);
         curvature+=weight*(a*sin-4*crest)*localK*localK;
@@ -1577,6 +1592,6 @@ function recover(s,env,nowMs){const R=root.SailingRecovery;if(!R)throw Error('Op
 function instruments(s,target,env){const a=axes(s.theta),w=s.wind,speed=Math.hypot(s.vx,s.vy);
  const logSpeed=Math.hypot(s.vx-(s.waterX||0),s.vy-(s.waterY||0));
  const flow=waterVelocity(s,env?waveAt(s.x,s.y,s.time,{...env,waveCurrent:s.seaState,waveProfile:s.waveProfile},Math.max(0,-s.heave)):undefined),waterX=s.vx-flow.x,waterY=s.vy-flow.y,waterSpeed=Math.hypot(waterX,waterY);let distance=null,vmg=null,bearing=null;if(target){const dx=target.x-s.x,dy=target.y-s.y;distance=Math.hypot(dx,dy);vmg=distance>1e-8?(s.vx*dx+s.vy*dy)/distance:0;bearing=wrap360(Math.atan2(dx,dy)/DEG);}return{speed,knots:speed*1.9438444924,waterSpeed,waterKnots:waterSpeed*1.9438444924,logKnots:logSpeed*1.9438444924,heading:wrap360(90-s.theta/DEG),course:speed>.03?wrap360(Math.atan2(s.vx,s.vy)/DEG):null,leeway:waterSpeed>.03?Math.atan2(waterX*a.rx+waterY*a.ry,waterX*a.fx+waterY*a.fy):null,tws:w.tws,twd:w.twd,twa:w.twa,aws:w.aws,awa:w.awa,heel:s.heel,sheet:s.sheet,boom:s.boom,distance,vmg,bearing,boatId:s.boatId,crewPose:s.crewPose,heave:s.heave,pitch:s.pitch,vmgWind:w.tws>.01?-(waterX*w.vx+waterY*w.vy)/w.tws:null};}
-root.SailPhysics={CONFIG,DEFAULT_ENV,environment,WAVE_COMPONENTS,BASE_WAVE_DIRECTION,BASE_WAVE_PERIOD,WAVE_HEIGHT_UNIT,LONG_HEIGHT_UNIT,SHORT_HEIGHT_UNIT,CREST_BEND,SWELL_BEND,PROFILE_SECONDS,MAX_WAVE_HEIGHT,CHOP_PERIOD,CHOP_SPREAD,CHOP_HEIGHT,SWELL_SPREAD,waveHeightUnit,windWaveAt,windWaveTarget,waveProfileFor,waveBlendAt,advanceWaveProfile,advanceSea,waveExposureField,waveExposureAt,wavePathField,DEG,clamp,wrap,wrap360,configFor,createState,step,windAt,waveAt,waveHeightAt,seaTarget,aero,sailCoefficients,aftSailLoading,loadedChordArm,foil,windForState,instruments,sheetFromTrim,trimFromSheet,limitSheetTravel,boomLimit,sheetRateFor,updateSheet,sheetTorque,integrateMass,recover,refresh,axes,windwardCrewSide,bodyPoint,rudderContacts,bodyOffset,pointMotion,waterVelocity,waterContact,bowWaterContact,hydrostatics,equilibriumHeave,waterForHeaveSearch,hullSamples,updateCrew,updateRig,updateBoom,sailFlutter,sailAirAt,updateHelm,steeringDiagnostic,finishSteeringDiagnostic,backingBoomTorque};
+root.SailPhysics={CONFIG,DEFAULT_ENV,environment,WAVE_COMPONENTS,BASE_WAVE_DIRECTION,BASE_WAVE_PERIOD,WAVE_HEIGHT_UNIT,LONG_HEIGHT_UNIT,SHORT_HEIGHT_UNIT,CREST_BEND,SWELL_BEND,PROFILE_SECONDS,MAX_WAVE_HEIGHT,CHOP_PERIOD,CHOP_SPREAD,CHOP_HEIGHT,SWELL_SPREAD,waveHeightUnit,windWaveAt,windWaveTarget,waveProfileFor,waveBlendAt,advanceWaveProfile,advanceSea,waveExposureField,waveExposureAt,wavePathField,DEG,clamp,wrap,wrap360,configFor,createState,step,windAt,waveAt,waveHeightAt,seaTarget,aero,sailCoefficients,aftSailLoading,loadedChordArm,foil,windForState,instruments,sheetFromTrim,trimFromSheet,limitSheetTravel,boomLimit,sheetRateFor,updateSheet,sheetTorque,integrateMass,recover,refresh,axes,windwardCrewSide,bodyPoint,rudderContacts,bodyOffset,pointMotion,waterVelocity,waterContact,bowWaterContact,hydrostatics,equilibriumHeave,waterForHeaveSearch,waterForInstant,hullSamples,updateCrew,updateRig,updateBoom,sailFlutter,sailAirAt,updateHelm,steeringDiagnostic,finishSteeringDiagnostic,backingBoomTorque};
 
 });
