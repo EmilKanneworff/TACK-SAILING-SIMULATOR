@@ -112,6 +112,40 @@ test.describe('phone sailing',()=>{
     await expect(page.locator('#settings')).toBeHidden();
   });
 
+  test('a long press on a sailing button keeps steering without opening text actions',async({page})=>{
+    await page.goto(process.env.TACK_URL||game);
+    await page.locator('#startButton').tap();
+    await page.waitForFunction(()=>SAILING_GAME.state.time>.15);
+    const helm=page.locator('#steerRightKey');
+    const label=helm.locator('span');
+    await helm.evaluate(button=>button.addEventListener('touchstart',event=>{
+      button.dataset.touchDefaultPrevented=String(event.defaultPrevented);
+    },{passive:true,once:true}));
+    const {x,y,width,height}=await label.boundingBox();
+    const cdp=await page.context().newCDPSession(page);
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:x+width/2,y:y+height/2}]});
+    try {
+      await page.waitForFunction(()=>SAILING_GAME.state.steerIntent===1);
+      const start=await page.evaluate(()=>SAILING_GAME.state.time);
+      await page.waitForFunction(t=>SAILING_GAME.state.time>=t+1,start);
+      await expect(helm).toHaveClass(/input-active/);
+      await expect(helm).toHaveAttribute('data-touch-default-prevented','true');
+      const browserActions=await label.evaluate(text=>{
+        const menu=target=>target.dispatchEvent(new PointerEvent('contextmenu',{pointerType:'touch',bubbles:true,cancelable:true}));
+        return { selection:window.getSelection().toString(),
+          selectable:getComputedStyle(text).userSelect,
+          selectAllowed:text.dispatchEvent(new Event('selectstart',{bubbles:true,cancelable:true})),
+          menuAllowed:menu(text),outsideMenuAllowed:menu(document.getElementById('lobbyName')) };
+      });
+      expect(browserActions).toEqual({selection:'',selectable:'none',selectAllowed:false,menuAllowed:false,outsideMenuAllowed:true});
+      expect(await page.evaluate(()=>SAILING_GAME.state.steerIntent)).toBe(1);
+    }finally{
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    }
+    await page.waitForFunction(()=>SAILING_GAME.state.steerIntent===0);
+    await expect(helm).not.toHaveClass(/input-active/);
+  });
+
   test('the expanded chart leaves room for pinch and pan on a short screen',async({page})=>{
     await page.setViewportSize({width:667,height:320});
     await page.goto(process.env.TACK_URL||game);

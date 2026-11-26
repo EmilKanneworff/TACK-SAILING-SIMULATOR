@@ -512,7 +512,7 @@ body.easy-crew .pose-buttons{display:none}
   </section>
   
   
-  <div class="touch-helm" id="touchHelm" role="slider" tabindex="0" aria-label="Ror. Træk mod bagbord eller styrbord" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0"><div id="helmThumb">ROR</div><small>BAGBORD ↔ STYRBORD</small></div>
+  <div class="touch-helm hold-control" id="touchHelm" role="slider" tabindex="0" aria-label="Ror. Træk mod bagbord eller styrbord" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0"><div id="helmThumb">ROR</div><small>BAGBORD ↔ STYRBORD</small></div>
   
   
   <div class="bottom-hints" hidden=""><div class="keys"><span><kbd>← →</kbd> Kurs</span><span><kbd>↑ ↓</kbd> Sejltrim</span><span><kbd>1 2 3</kbd> Vægt</span><span class="foil-only">Foils betjenes af besætningen</span><span><kbd>H</kbd> Hjælp</span></div><span class="camera-label" id="cameraLabel">FØLGEKAMERA · BALANCEHJÆLP</span></div>
@@ -554,11 +554,11 @@ body.easy-crew .pose-buttons{display:none}
     <div class="sheet-feedback"><span id="sheetLine"></span><span id="sheetFlow"></span></div>
     <div class="helm-feedback" aria-label="Ønsket drejeretning og faktisk rorvinkel">
       <div>
-        <button class="keycap" id="steerLeftKey" type="button" aria-label="Drej mod bagbord" title="Hold for at dreje mod bagbord">←<span class="touch-action">Drej</span></button>
+        <button class="keycap hold-control" id="steerLeftKey" type="button" aria-label="Drej mod bagbord" title="Hold for at dreje mod bagbord">←<span class="touch-action">Drej</span></button>
         <span id="helmIntent">Ror · neutral</span><b id="rudderValue">0,0°</b>
-        <button class="keycap" id="steerRightKey" type="button" aria-label="Drej mod styrbord" title="Hold for at dreje mod styrbord">→<span class="touch-action">Drej</span></button>
-        <button class="keycap touch-sail" id="touchHaul" type="button" aria-label="Hal sejlet ind">↑<span>Hal ind</span></button>
-        <button class="keycap touch-sail" id="touchEase" type="button" aria-label="Slæk sejlet">↓<span>Slæk</span></button>
+        <button class="keycap hold-control" id="steerRightKey" type="button" aria-label="Drej mod styrbord" title="Hold for at dreje mod styrbord">→<span class="touch-action">Drej</span></button>
+        <button class="keycap touch-sail hold-control" id="touchHaul" type="button" aria-label="Hal sejlet ind">↑<span>Hal ind</span></button>
+        <button class="keycap touch-sail hold-control" id="touchEase" type="button" aria-label="Slæk sejlet">↓<span>Slæk</span></button>
       </div>
       <div class="rudder-track"><i id="rudderDot"></i></div>
     </div>
@@ -5295,6 +5295,13 @@ function bind(){
   $('foreAftSetting').oninput=$('mobileForeAft').oninput=event=>setForeAftTarget(event.currentTarget.valueAsNumber/100);
   $('sheetControl').addEventListener('pointerdown',e=>{sheetPointer=e.pointerId;});
   for(const event of ['pointerup','pointercancel'])window.addEventListener(event,e=>{if(e.pointerId===sheetPointer){sheetPointer=null;if(started&&!modalPaused)$('sea').focus({preventScroll:true});}});
+  // Touch text selection and callouts are separate from pointer capture.
+  const stopNativeHold=event=>{if(event.cancelable)event.preventDefault();};
+  for(const control of document.querySelectorAll('.hold-control')){
+    control.addEventListener('touchstart',stopNativeHold,{passive:false});
+    control.addEventListener('selectstart',stopNativeHold);
+    control.addEventListener('contextmenu',event=>{if(event.pointerType!=='mouse')stopNativeHold(event);});
+  }
   const helm=$('touchHelm');
   function helmMove(e){if(e.pointerId!==helmPointer)return;const r=helm.getBoundingClientRect();touchSteer=clamp((e.clientX-r.left-r.width/2)/(r.width*.34),-1,1);pendingTouchSteer=touchSteer;$('helmThumb').style.transform='translateX('+(touchSteer*r.width*.29)+'px)';helm.setAttribute('aria-valuenow',String(Math.round(touchSteer*100)));}
   helm.addEventListener('pointerdown',e=>{e.preventDefault();helmPointer=e.pointerId;helm.setPointerCapture(e.pointerId);helmMove(e);audio.start();});helm.addEventListener('pointermove',helmMove);

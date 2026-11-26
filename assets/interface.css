@@ -375,8 +375,12 @@ body.clear-view #hud .course-card{display:none}
 #sailingDock #sheetLine:not(:empty) + #sheetFlow:not(:empty)::before{content:"·";margin-inline-end:4px;color:var(--muted)}
 #sailingDock .helm-feedback{padding:0;margin-top:4px;border:0}
 #sailingDock .helm-feedback > div:first-child{justify-content:center;gap:5px}
+.hold-control{touch-action:none}
+.hold-control,.hold-control *{
+ -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+}
 #sailingDock .helm-feedback button.keycap{
- min-width:28px;height:24px;font-size:12px;touch-action:none;user-select:none;
+ min-width:28px;height:24px;font-size:12px;
 }
 #sailingDock .helm-feedback button.keycap:hover{border-color:#73a5a7}
 #sailingDock .helm-feedback #helmIntent{flex:none;font-size:10px}
