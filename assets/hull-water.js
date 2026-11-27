@@ -23,12 +23,27 @@ function foamTexture(T){
     const h=(a,b)=>hash((x+a+n)%n,(y+b+n)%n,seed);
     return mix(mix(h(0,0),h(1,0),fx),mix(h(0,1),h(1,1),fx),fy);
   };
+  // The distance between the two nearest bubble centres vanishes on their
+  // common membrane. Wrap the centres so both edges of the tile agree.
+  const n=12,sites=Array.from({length:n*n},(_,i)=>[
+    .12+.76*hash(i%n,Math.floor(i/n),7),.12+.76*hash(i%n,Math.floor(i/n),8)
+  ]);
+  const membrane=(u,v)=>{
+    const x=Math.floor(u*n),y=Math.floor(v*n);
+    let first=Infinity,second=Infinity;
+    for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++){
+      const cx=x+i,cy=y+j,site=sites[((cy+n)%n)*n+(cx+n)%n];
+      const d=(cx+site[0]-u*n)**2+(cy+site[1]-v*n)**2;
+      if(d<first){second=first;first=d;}else if(d<second)second=d;
+    }
+    return 1-smooth(.012,.16,second-first);
+  };
   for(let y=0;y<size;y++)for(let x=0;x<size;x++){
     const u=x/size,v=y/size,k=(y*size+x)*4;
     const warp=noise(u,v,8,1)-.5;
     data[k]=255*(.62*noise(u+warp*.044,v,5,2)+.25*noise(u,v,12,3)+.13*noise(u,v,28,1));
     data[k+1]=255*(.53*noise(u,v+warp*.041,16,4)+.47*noise(u,v,31,2));
-    data[k+2]=255*noise(u,v,9,5);
+    data[k+2]=255*membrane(u+warp*.035,v-warp*.024);
     data[k+3]=255;
   }
   const texture=new T.DataTexture(data,size,size,T.RGBAFormat);

@@ -1,6 +1,42 @@
 const {test,expect}=require('@playwright/test');const {pathToFileURL}=require('node:url');const path=require('node:path');
 const game=process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href;
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
+test('loaded waterline foam fades on the immersed rail on either tack',async({page})=>{
+ await page.goto(game);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const result=await page.evaluate(()=>{
+   const {scene,env}=SAILING_GAME;
+   const s=SailPhysics.createState({boatId:'laser',x:0,y:0,theta:0},env);
+   const contacts=[-1,1].flatMap(side=>[-1,1].map(x=>({
+     kind:'side',side,hullIndex:0,point:{x},strength:.65,impact:.22
+   })));
+   scene.hullWater.surfaceHeight=()=>0;
+   const sample=(heel,clearance)=>{
+     s.heel=heel;s.pitch=0;s.heave=0;
+     scene.updateBoat(s,env,0);scene.scene.updateMatrixWorld(true);
+     const m=scene.model,x=(m.hullSections[0][0]+m.hullSections.at(-1)[0])/2;
+     const z=Math.sign(heel)*scene.halfBeamAt(x);
+     const rail=scene.hull.localToWorld(new THREE.Vector3(x,scene.bottomAt(x,z),z));
+     s.heave=clearance-rail.y;
+     scene.updateBoat(s,env,0);scene.scene.updateMatrixWorld(true);
+     scene.updateContactFoam(s,env,{contacts});
+     const g=scene.contactFoam.geometry,{position,alpha,fresh,across}=g.attributes;
+     for(let i=0;i<g.drawRange.count;i++){
+       if(across.getX(i)===0&&Math.abs(position.getX(i)-rail.x)<.001&&Math.abs(position.getZ(i)-rail.z)<.001){
+         return {opacity:alpha.getX(i),fresh:fresh.getX(i)};
+       }
+     }
+     return null;
+   };
+   return [-.49,.49].map(heel=>[sample(heel,-.012),sample(heel,-.054),sample(heel,-.22)]);
+ });
+ for(const [justWet,immersed,deep] of result){
+   expect(justWet.fresh).toBeGreaterThan(.3);
+   expect(immersed.opacity).toBeGreaterThan(0);
+   expect(immersed.opacity).toBeLessThan(justWet.opacity);
+   expect(deep).toBeNull();
+ }
+});
 test('a still hull makes no wake and a real bow impact produces spray',async({page})=>{
  await page.clock.install();await page.goto(game);await page.waitForFunction(()=>window.SAILING_GAME);await page.click('#startButton');
  const r=await page.evaluate(()=>{const g=SAILING_GAME,scene=g.scene,s=g.state,env={...g.env,speed:0,waves:0,gusts:0,waveCurrent:0,waveProfile:s.waveProfile};Object.assign(s,{vx:0,vy:0,theta:0,heel:0,pitch:0,heelRate:0,pitchRate:0,heaveVelocity:0,seaState:0,capsized:false});const x=scene.model.length*.38;s.heave=-scene.bottomAt(x,0);scene.updateBoat(s,env,0);scene.scene.updateMatrixWorld(true);scene.updateEffects(s,env,1/60,true);const quiet={spray:scene.spray.length,wake:scene.wakes.length};s.time+=.3;s.heaveVelocity=-1;scene.updateBoat(s,env,0);scene.scene.updateMatrixWorld(true);scene.updateEffects(s,env,1/60,false);return {quiet,after:scene.spray.length,impact:scene.spray.map(p=>p.vh),slam:SailPhysics.hydrostatics(s,env).slamForce};});expect(r.quiet).toEqual({spray:0,wake:0});expect(r.after).toBeGreaterThan(0);expect(r.impact.every(x=>x>0)).toBe(true);expect(r.slam).toBeGreaterThan(0);
@@ -272,6 +308,28 @@ for(const boat of ['ac75','ac72'])test(`${boat} hull wake stops in flight and re
   return {...stages,leftHullWake};
  },boat);
  expect(result).toEqual({onWater:true,flying:true,landing:true,appendageTrail:true,leftHullWake:true});
+});
+
+test('both ripple layers advance continuously across their repeat boundary',async({page})=>{
+ await page.goto(game);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const phases=await page.evaluate(()=>{
+  const {env:base,scene}=SAILING_GAME,env={...base,direction:270,speed:10,shelter:false};
+  const s=SailPhysics.createState({boatId:'laser',x:0,y:-1400,time:0},env);
+  const options={quality:'high',helpers:false,windArrows:false};
+  scene.lastTime=-1;
+  scene.update(s,env,{marks:[]},.05,options);
+  const offset=scene.waterUniforms.windChopDrift.value;
+  offset.set(.997,0,0,-.997);
+  s.time+=.05;
+  scene.update(s,env,{marks:[]},.05,options);
+  return offset.toArray();
+ });
+ const travel=.05*(.12+.016*10);
+ expect(phases[0]).toBeCloseTo(.997+travel*1.88-1,8);
+ expect(phases[1]).toBeCloseTo(0,8);
+ expect(phases[2]).toBeCloseTo(0,8);
+ expect(phases[3]).toBeCloseTo(-.997-travel*.87+1,8);
 });
 
 test('hull film follows the curved surface and returned spray meets the same waterline',async({page})=>{

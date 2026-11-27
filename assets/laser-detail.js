@@ -60,7 +60,10 @@
     group.name = 'Laser · ' + name;
     for (const { geometry, finish } of model[name]) {
       const pbr = finish.pbrMetallicRoughness;
-      const material = new T.MeshStandardMaterial({
+      const gelcoat = name === 'Hull';
+      const Material = gelcoat ? T.MeshPhysicalMaterial : T.MeshStandardMaterial;
+      const material = new Material({
+        ...(gelcoat ? { clearcoat: .55, clearcoatRoughness: .22 } : {}),
         color: new T.Color().fromArray(pbr.baseColorFactor),
         roughness: pbr.roughnessFactor,
         metalness: pbr.metallicFactor,
