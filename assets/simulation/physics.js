@@ -565,6 +565,17 @@ function mastWindage(s,c,a,env,wet,exposure){
  const forward=pressure*(air.x*a.fx+air.y*a.fy),side=pressure*(air.x*a.rx+air.y*a.ry);
  return {forward,side,...forceMoment(s,point,forward,side)};
 }
+// Signed depth/chord relative to the sail normal. Pressure is N/m² of the
+// reefed planform. The cut limits the available depth once the panels are taut.
+function pressureDraft(current,pressurePa,cut,dt,response){
+ const target=cut*Math.tanh((pressurePa??0)/5);
+ return current+(target-current)*(-Math.expm1(-dt/response));
+}
+function mainDraftAt(rig,height){
+ if(rig?.mainDraft==null)return undefined;
+ const head=rig.headDraft??rig.mainDraft;
+ return rig.mainDraft+(head-rig.mainDraft)*smooth(.25,.82,height);
+}
 // Cloth response is stepped with the forces and shared with the rendered sail.
 function updateRig(s,c,dt,lively=false){
  const previous=s.sail?.main||s.sail||{},wind=s.sail?.wind||s.wind||{},old=s.rig||(s.rig={side:Math.sign(s.boom)||-1,camber:c.camber,twist:c.baseTwist||0,fill:.7});
@@ -578,6 +589,17 @@ function updateRig(s,c,dt,lively=false){
  const baseTwist=c.kind==='foiler'?1.2:1;
  const targetTwist=(c.baseTwist||0)*(baseTwist-twistTravel*s.sheet)+pressureTwist;
  const blend=1-Math.exp(-dt/0.7);old.camber+=(targetCamber-old.camber)*blend;old.twist+=(targetTwist-old.twist)*blend;old.fill+=(fill-old.fill)*(1-Math.exp(-dt/.45));
+ if(!c.rigidWing){
+  const cut=old.camber,sections=previous.sections;
+  // Lower panels load first. Local wind shear and twist can also leave the
+  // head feathered while the lower sail continues to draw.
+  old.mainDraft=pressureDraft(old.mainDraft??0,sections?.[0]?.pressurePa??previous.pressurePa,cut,dt,.17);
+  old.headDraft=pressureDraft(old.headDraft??0,sections?.at(-1)?.pressurePa??previous.pressurePa,cut,dt,.29);
+ }
+ if(c.jibArea){
+  const jib=s.sail?.jib;
+  old.jibDraft=pressureDraft(old.jibDraft??0,jib?.pressurePa,jib?.cutCamber??c.camber,dt,.19);
+ }
  const mean=old.apparentSpeed??speed;
  old.apparentSpeed=mean+(speed-mean)*(1-Math.exp(-dt/.52));
  const gust=smooth(.25,2.1,Math.abs(speed-mean)),pressure=smooth(2,11,speed);
@@ -1063,7 +1085,7 @@ function aero(s,inputEnv,overrideWind){
  const mainArea=(c.mainArea||c.sailArea)*mainScale*chordScale,jibArea=(c.jibArea??0)*jibScale*jibChordScale,totalArea=mainArea+jibArea;
  const laser=c.id==='laser',along=bodyOffset(s,{x:1,y:0,z:0}),across=bodyOffset(s,{x:0,y:0,z:1});
  const side=s.rig?.side??(Math.abs(s.boom)>.02?Math.sign(s.boom):-1),twist=s.rig?.twist??c.baseTwist*(.6+.4*(1-s.sheet));
- let mainPressure=0,jibPressure=0,boomTorque=0;
+ let mainPressure=0,jibPressure=0,boomTorque=0,mainNormalForce=0;
  const sections=[],actualCamber=(s.rig?.camber??c.camber)*(.55+.45*(s.rig?.fill??1)),mainFraction=mainArea/totalArea,strips=[[5/9,7/45],[3/9,13/27],[1/9,7/9]];
  for(const [weight,height]of strips){
   const beta=s.boom+(s.rig?.sideBlend??side)*twist*height*height+sailFlutter(s.rig,height)*.56,cp={x:c.mastX-chordArm*(1-height)*1.5*Math.cos(beta),y:c.boomY+c.sailLuff*height*mainScale,z:chordArm*(1-height)*1.5*Math.sin(beta)},wp=bodyPoint(s,cp),water=waveHeightAt(wp.x,wp.y,s.time,env),exposed=smooth(-.05,.22,wp.z-water);exposure+=exposed*weight;
@@ -1081,14 +1103,16 @@ function aero(s,inputEnv,overrideWind){
   const ff=along.f*sectionF+across.f*sectionR;
   const rr=along.r*sectionF+across.r*sectionR;
   const up=along.up*sectionF+across.up*sectionR,m=forceMoment(s,cp,ff,rr,up);
+  const normalForce=sectionF*Math.sin(beta)+sectionR*Math.cos(beta);
+  mainNormalForce+=normalForce;
   mainPressure+=q;
   if(laser)boomTorque+=cp.z*sectionF+(c.mastX-cp.x)*sectionR;
-  sections.push({height,point:cp,drive:ff,sideForce:rr,vertical:up,alpha:coeff.folded,luff:coeff.luff,stall:coeff.stall,
+  sections.push({height,pressurePa:normalForce/(mainArea*weight),point:cp,drive:ff,sideForce:rr,vertical:up,alpha:coeff.folded,luff:coeff.luff,stall:coeff.stall,
    airForward:unitF,airRight:unitR,localAirSpeed:localSpeed,apparentSpeed:air.speed,trueSpeed:air.trueSpeed,load:Math.hypot(ff,rr,up)});
   forceF+=ff;forceR+=rr;forceUp+=up;rollMoment+=m.roll;pitchMoment+=m.pitch;yawMoment+=m.yaw;cl+=mainFraction*weight*coeff.cl;cd+=mainFraction*weight*coeff.cd;alpha+=mainFraction*weight*coeff.folded;luff+=mainFraction*weight*coeff.luff;stall+=mainFraction*weight*coeff.stall;lift+=L;drag+=D;
  }
  const mainLuff=luff/mainFraction;
- const main={area:mainArea,luffScale:mainScale,chordScale,trim:s.sheet,centre:{x:c.mastX-chordArm*Math.cos(s.boom),y:c.boomY+(c.sailCPHeight-c.boomY)*mainScale,z:chordArm*Math.sin(s.boom)},angle:s.boom,drive:forceF,sideForce:forceR,vertical:forceUp,rollMoment,alpha:alpha/(mainFraction||1),luff:mainLuff,stall:stall/(mainFraction||1),load:clamp(Math.hypot(forceF,forceR,forceUp)/(190*(c.sailArea/7.06)),0,1),side,twist,camber:actualCamber,fill:s.rig?.fill??0,sections,...(laser?{boomTorque}:{})};let jib=null;
+ const main={area:mainArea,pressurePa:mainNormalForce/mainArea,luffScale:mainScale,chordScale,trim:s.sheet,centre:{x:c.mastX-chordArm*Math.cos(s.boom),y:c.boomY+(c.sailCPHeight-c.boomY)*mainScale,z:chordArm*Math.sin(s.boom)},angle:s.boom,drive:forceF,sideForce:forceR,vertical:forceUp,rollMoment,alpha:alpha/(mainFraction||1),luff:mainLuff,stall:stall/(mainFraction||1),load:clamp(Math.hypot(forceF,forceR,forceUp)/(190*(c.sailArea/7.06)),0,1),side,twist,camber:actualCamber,fill:s.rig?.fill??0,sections,...(laser?{boomTorque}:{})};let jib=null;
  // The keel yacht has a second, continuously sheeted sail. Its own resultant
  // acts at the configured CP; it does not duplicate the mainsail's area.
  if(c.jibArea){
@@ -1110,7 +1134,7 @@ function aero(s,inputEnv,overrideWind){
   const ff=along.f*sectionF+across.f*sectionR,rr=along.r*sectionF+across.r*sectionR,up=along.up*sectionF+across.up*sectionR;
   const m=forceMoment(s,p,ff,rr,up),fraction=jibArea/totalArea;
   forceF+=ff;forceR+=rr;forceUp+=up;rollMoment+=m.roll;pitchMoment+=m.pitch;yawMoment+=m.yaw;cl+=fraction*co.cl;cd+=fraction*co.cd;alpha+=fraction*co.folded;luff+=fraction*co.luff;stall+=fraction*co.stall;exposure=exposure*mainFraction+exposed*fraction;
-  jib={area:jibArea,luffScale:jibScale,chordScale:jibChordScale,nominalArea:c.jibArea,trim:jibSheet,angle:beta,alpha:co.folded,cl:co.cl,cd:co.cd,lift:L,drag:Fd,drive:ff,sideForce:rr,vertical:up,rollMoment:m.roll,localAirSpeed:js,localAwa:Math.atan2(-jr,-jf),luff:co.luff,stall:co.stall,
+  jib={area:jibArea,pressurePa:jibArea?(sectionF*Math.sin(beta)+sectionR*Math.cos(beta))/jibArea:0,luffScale:jibScale,chordScale:jibChordScale,nominalArea:c.jibArea,trim:jibSheet,angle:beta,alpha:co.folded,cl:co.cl,cd:co.cd,lift:L,drag:Fd,drive:ff,sideForce:rr,vertical:up,rollMoment:m.roll,localAirSpeed:js,localAwa:Math.atan2(-jr,-jf),luff:co.luff,stall:co.stall,
    load:clamp(Math.hypot(ff,rr)/(190*c.jibArea/7.06),0,1),point:p,camber,fill:jibArea>0?s.rig?.jibFill??0:0,side:Math.sign(beta)||side};
  }
  let spinnaker=null;
@@ -1679,6 +1703,6 @@ function recover(s,env,nowMs){const R=root.SailingRecovery;if(!R)throw Error('Op
 function instruments(s,target,env){const a=axes(s.theta),w=s.wind,speed=Math.hypot(s.vx,s.vy);
  const logSpeed=Math.hypot(s.vx-(s.waterX||0),s.vy-(s.waterY||0));
  const flow=waterVelocity(s,env?waveAt(s.x,s.y,s.time,{...env,waveCurrent:s.seaState,waveProfile:s.waveProfile},Math.max(0,-s.heave)):undefined),waterX=s.vx-flow.x,waterY=s.vy-flow.y,waterSpeed=Math.hypot(waterX,waterY);let distance=null,vmg=null,bearing=null;if(target){const dx=target.x-s.x,dy=target.y-s.y;distance=Math.hypot(dx,dy);vmg=distance>1e-8?(s.vx*dx+s.vy*dy)/distance:0;bearing=wrap360(Math.atan2(dx,dy)/DEG);}return{speed,knots:speed*1.9438444924,waterSpeed,waterKnots:waterSpeed*1.9438444924,logKnots:logSpeed*1.9438444924,heading:wrap360(90-s.theta/DEG),course:speed>.03?wrap360(Math.atan2(s.vx,s.vy)/DEG):null,leeway:waterSpeed>.03?Math.atan2(waterX*a.rx+waterY*a.ry,waterX*a.fx+waterY*a.fy):null,tws:w.tws,twd:w.twd,twa:w.twa,aws:w.aws,awa:w.awa,heel:s.heel,sheet:s.sheet,boom:s.boom,distance,vmg,bearing,boatId:s.boatId,crewPose:s.crewPose,heave:s.heave,pitch:s.pitch,vmgWind:w.tws>.01?-(waterX*w.vx+waterY*w.vy)/w.tws:null};}
-root.SailPhysics={CONFIG,DEFAULT_ENV,environment,WAVE_COMPONENTS,BASE_WAVE_DIRECTION,BASE_WAVE_PERIOD,WAVE_HEIGHT_UNIT,LONG_HEIGHT_UNIT,SHORT_HEIGHT_UNIT,CREST_BEND,SWELL_BEND,PROFILE_SECONDS,MAX_WAVE_HEIGHT,CHOP_PERIOD,CHOP_SPREAD,CHOP_HEIGHT,SWELL_SPREAD,waveHeightUnit,windWaveAt,windWaveTarget,waveProfileFor,waveBlendAt,advanceWaveProfile,advanceSea,waveExposureField,waveExposureAt,wavePathField,DEG,clamp,wrap,wrap360,configFor,createState,step,windAt,waveAt,waveHeightAt,seaTarget,aero,sailCoefficients,aftSailLoading,loadedChordArm,foil,windForState,instruments,sheetFromTrim,trimFromSheet,limitSheetTravel,advanceTrimLine,boomLimit,sheetRateFor,updateSheet,sheetTorque,integrateMass,recover,refresh,axes,windwardCrewSide,crewEpoch,bodyPoint,rudderContacts,bodyOffset,pointMotion,waterVelocity,waterContact,bowWaterContact,hydrostatics,equilibriumHeave,waterForHeaveSearch,waterForInstant,hullSamples,updateCrew,updateRig,updateBoom,sailFlutter,sailAirAt,updateHelm,steeringDiagnostic,finishSteeringDiagnostic,backingBoomTorque};
+root.SailPhysics={CONFIG,DEFAULT_ENV,environment,WAVE_COMPONENTS,BASE_WAVE_DIRECTION,BASE_WAVE_PERIOD,WAVE_HEIGHT_UNIT,LONG_HEIGHT_UNIT,SHORT_HEIGHT_UNIT,CREST_BEND,SWELL_BEND,PROFILE_SECONDS,MAX_WAVE_HEIGHT,CHOP_PERIOD,CHOP_SPREAD,CHOP_HEIGHT,SWELL_SPREAD,waveHeightUnit,windWaveAt,windWaveTarget,waveProfileFor,waveBlendAt,advanceWaveProfile,advanceSea,waveExposureField,waveExposureAt,wavePathField,DEG,clamp,wrap,wrap360,configFor,createState,step,windAt,waveAt,waveHeightAt,seaTarget,aero,sailCoefficients,aftSailLoading,loadedChordArm,foil,windForState,instruments,sheetFromTrim,trimFromSheet,limitSheetTravel,advanceTrimLine,boomLimit,sheetRateFor,updateSheet,sheetTorque,integrateMass,recover,refresh,axes,windwardCrewSide,crewEpoch,bodyPoint,rudderContacts,bodyOffset,pointMotion,waterVelocity,waterContact,bowWaterContact,hydrostatics,equilibriumHeave,waterForHeaveSearch,waterForInstant,hullSamples,updateCrew,updateRig,updateBoom,mainDraftAt,sailFlutter,sailAirAt,updateHelm,steeringDiagnostic,finishSteeringDiagnostic,backingBoomTorque};
 
 });

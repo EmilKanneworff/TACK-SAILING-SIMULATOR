@@ -126,7 +126,7 @@ function installAudit(light) {
       update: 'sceneUpdate', buildBoat: 'boatBuild', resize: 'resize',
       updateBoat: 'boatAnimation', updateEffects: 'wakeUpdate', writeFoamRibbon: 'wakeGeometry',
       updateContactFoam: 'contactFoam', updateSprayGeometry: 'spray', updateWaterSamples: 'waterSamples',
-      posePerson: 'crewPose', animatedCrewPose: 'crewMotion', updateFoilSailGrid: 'foilSailGrid',
+      posePerson: 'crewPose', animatedCrewPose: 'crewMotion', updateSailGrid: 'sailGrid',
       updateAtmosphere: 'lighting', updateRain: 'precipitation', updateSceneRange: 'terrainRange',
       buildCoastTreeSector: 'treeBuild', updateShoreFoam: 'shoreFoam',
       updateCamera: 'camera', updateWindStrokes: 'windArrows', updateMarks: 'raceMarks',

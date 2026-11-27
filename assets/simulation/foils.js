@@ -229,7 +229,8 @@ function aero(s,inputEnv,overrideWind){
   const liftScale=c.rigidWing&&name==='main'?mix(1,c.heavyAir?.wingLift??1,s.rig?.reef??0):1;
   const cl=co.cl*liftScale,cd=co.cd-c.sailInducedCD*(co.cl*co.cl-cl*cl);
   const q=.5*c.airDensity*sectionSpeed*sectionSpeed*area*exposure*clamp(s.recoveryAeroScale??1,0,1),L=q*cl,drag=q*cd,force=add(mul(unit(cross(sectionFlow,span)),L),mul(unit(air),drag)),ff=force.x*a.fx+force.y*a.fy,rr=force.x*a.rx+force.y*a.ry,m=addForce(acc,s,point,force,name),weight=area/activeArea;
-  const sail={area,luffScale:scale,chordScale:scale,trim:name==='main'?s.sheet:jibSheet,angle:beta,alpha:co.folded,cl,cd,lift:L,drag,drive:ff,sideForce:rr,rollMoment:m.roll,load:clamp(Math.hypot(ff,rr)/(area*170),0,1),luff:co.luff,stall:co.stall,exposure,side,point,force,twist,camber:clothCamber,fill:s.rig?.fill??0,localAirSpeed:sectionSpeed,localAwa:Math.atan2(-dot(air,across),-dot(air,along))};result[name]=sail;
+  const pressurePa=(dot(force,along)*Math.sin(beta)+dot(force,across)*Math.cos(beta))/area;
+  const sail={area,pressurePa,cutCamber:c.camber*jibShape,luffScale:scale,chordScale:scale,trim:name==='main'?s.sheet:jibSheet,angle:beta,alpha:co.folded,cl,cd,lift:L,drag,drive:ff,sideForce:rr,rollMoment:m.roll,load:clamp(Math.hypot(ff,rr)/(area*170),0,1),luff:co.luff,stall:co.stall,exposure,side,point,force,twist,camber:clothCamber,fill:s.rig?.fill??0,localAirSpeed:sectionSpeed,localAwa:Math.atan2(-dot(air,across),-dot(air,along))};result[name]=sail;
   result.alpha+=co.folded*weight;result.cl+=cl*weight;result.cd+=cd*weight;result.luff+=co.luff*weight;result.stall+=co.stall*weight;result.exposure+=exposure*weight;result.lift+=L;result.drag+=drag;result.qArea+=q;result.drive+=ff;result.sideForce+=rr;
  }
  const unloaded=c.rigidWing

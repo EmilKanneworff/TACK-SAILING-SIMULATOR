@@ -449,7 +449,7 @@ test('a reefed Laser can bear away in strong wind with independent rudder and sh
     assert.ok(boat.rudder * side > 15 * P.DEG && boat.forces.rudder.wet > 0);
     assert.ok(Number.isFinite(boat.sail.luff) && Number.isFinite(boat.rig.flutter));
     assert.equal(boat.sheet, sheet);
-    for (let i = 0; i < 100; i++) step(-1);
+    for (let i = 0; i < 120; i++) step(-1);
     assert.equal(boat.sheet, 0);
     assert.ok(turn() > 27);
     assert.equal(boat.forces.yawAssist, 0);
@@ -973,15 +973,21 @@ test('VMG upwind uses the velocity through the water including leeway', () => {
 test('Laser only applies blade loads at submerged points on the rendered profile', () => {
   const sim = createSimulation();
   const { physics: P } = sim;
+  const profile = sim.profiles.get('laser');
+  const transom = profile.hullSections[0][0];
+  const blade = profile.waterBlades.rudder;
+  assert.equal(blade.x, transom);
+  assert.equal(blade.root, sim.profiles.hullBottom(profile, transom, 0));
+  assert.ok(sim.profiles.laserRudderOutline(blade).every(point => blade.x + point.x <= transom + 1e-9));
   const field = { speed: 0, waveHeight: 0, chop: 0, shelter: false };
-  const initial = { x: 0, y: -13000, theta: 0, vx: 3, heave: .17, pitch: 4 * P.DEG };
+  const initial = { x: 0, y: -13000, theta: 0, vx: 3, heave: .17, pitch: -4 * P.DEG };
   const areas = [-35, 35].map(side => {
     const state = sim.createBoat('laser', { ...initial, heel: side * P.DEG, rudder: Math.sign(side) * 18 * P.DEG }, field);
     const contact = P.rudderContacts(state, field);
     assert.equal(contact.nominalArea, .105);
     assert.ok(contact.geometryArea > .10 && contact.geometryArea < .12);
     const wet = contact.sections.filter(section => section.wetArea > 0);
-    assert.ok(wet.length < contact.sections.length);
+    assert.ok(wet.length > 0 && wet.length < contact.sections.length);
     for (const section of wet) {
       assert.ok(section.contact.depth >= 0);
       assert.ok(Number.isFinite(section.moment.yaw));

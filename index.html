@@ -2929,12 +2929,15 @@ class SailingScene {
     this.sailRows=28;this.sailCols=20;const pos=[],uv=[],tri=[];
     for(let j=0;j<=this.sailRows;j++)for(let i=0;i<=this.sailCols;i++){pos.push(0,0,0);uv.push(i/this.sailCols,j/this.sailRows);if(j<this.sailRows&&i<this.sailCols){const a=j*(this.sailCols+1)+i,b=a+this.sailCols+1;tri.push(a,b,a+1,a+1,b,b+1);}}
     const sg=new T.BufferGeometry();sg.setAttribute('position',new T.Float32BufferAttribute(pos,3));sg.setAttribute('uv',new T.Float32BufferAttribute(uv,2));sg.setIndex(tri);sg.computeVertexNormals();
-    this.sailMesh=this.mesh(sg,new T.MeshPhysicalMaterial({map:this.makeSailTexture(),bumpMap:this.detailTexture('cloth'),bumpScale:.002,color:'#fffdf2',side:T.DoubleSide,roughness:.73,metalness:0,transparent:true,opacity:.97,depthWrite:true,transmission:0}),this.hull);this.sailCloth(this.sailMesh.material);this.sailMesh.castShadow=true;this.sailMesh.receiveShadow=true;this.sailMesh.frustumCulled=false;
+    this.sailMesh=this.mesh(sg,new T.MeshPhysicalMaterial({map:this.makeSailTexture(),bumpMap:this.detailTexture('cloth'),bumpScale:.002,color:'#fffdf2',side:T.DoubleSide,roughness:.73,metalness:0,transparent:true,opacity:.97,depthWrite:true,transmission:0}),this.hull);this.sailCloth(this.sailMesh.material);this.sailMesh.castShadow=true;this.sailMesh.receiveShadow=true;this.sailMesh.frustumCulled=false;this.sailMesh.userData.grid={rows:this.sailRows,cols:this.sailCols};
     this.sailEdge=this.line(Array.from({length:57},()=>[0,0,0]),'#aab6b8',this.hull,.65);this.telltales=[];for(const v of [.29,.52,.73])for(const side of [-1,1])this.telltales.push({line:this.line(Array.from({length:9},()=>[0,0,0]),side<0?'#ec7354':'#30a9a4',this.hull),v,side});
     this.sheetLine=this.line(Array.from({length:37},()=>[0,0,0]),'#d9caa7',this.hull);
     // The tiller is forward of the hinge, opposite the deflected blade.
-    this.rudder=new T.Group();this.rudder.position.set(m.rudderX,deck-.03,0);this.hull.add(this.rudder);this.mesh(new T.BoxGeometry(.12,.30,.09),metal,this.rudder).position.y=-.04;
-    const blade=m.waterBlades.rudder,rs=new T.Shape(
+    this.rudder=new T.Group();this.rudder.position.set(m.rudderX,deck-.03,0);this.hull.add(this.rudder);
+    const blade=m.waterBlades.rudder,headBottom=blade.root-this.rudder.position.y-.04,headTop=.08;
+    const head=this.mesh(new T.BoxGeometry(.14,headTop-headBottom,.09),metal,this.rudder);
+    head.position.set(-.045,(headTop+headBottom)*.5,0);
+    const rs=new T.Shape(
       global.SailingBoats.laserRudderOutline(blade).map(p=>new T.Vector2(p.x,p.y-this.rudder.position.y)));
     rs.closePath();
     const rg=new T.ExtrudeGeometry(rs,{depth:.024,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.012,bevelThickness:.006});
@@ -3052,7 +3055,7 @@ class SailingScene {
   updateCatBoat(s,env){
     const T=this.T,m=this.model,F=global.FoilingPhysics;this.boatRoot.position.set(s.x,s.heave,-s.y);this.heading.rotation.y=s.theta;this.hull.rotation.set(s.heel,0,s.pitch||0,'ZXY');
     for(const mesh of [this.wingMain,this.wingFlap]){const {rows,cols,lo,hi}=mesh.geometry.userData.wing,p=mesh.geometry.attributes.position.array;let k=0;const wingRows=Array.from({length:rows+1},(_,j)=>this.wingRow(j/rows,s));for(const skin of [-1,1])for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++){const q=this.wingPoint(lo+(hi-lo)*i/cols,j/rows,s,skin,wingRows[j]);p[k++]=q.x;p[k++]=q.y;p[k++]=q.z;}mesh.geometry.attributes.position.needsUpdate=true;mesh.geometry.computeVertexNormals();mesh.userData.angle=s.wing?.angle??s.boom;mesh.userData.flap=s.wing?.flap??0;}
-    this.updateFoilSailGrid(this.jibMesh,s,true);
+    this.updateSailGrid(this.jibMesh,s,true);
     for(const b of this.wingRibs){const p=b.line.geometry.attributes.position.array;for(let i=0;i<17;i++){const q=this.wingPoint(i/16,b.v,s,b.skin);p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z;}b.line.geometry.attributes.position.needsUpdate=true;}
     for(const [line,u] of [[this.wingHinge,1-(this.model.wingFlapFraction??.28)],[this.wingLeadingEdge,0]]){const p=line.geometry.attributes.position.array;for(let i=0;i<49;i++){const q=this.wingPoint(u,i/48,s);p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z;}line.geometry.attributes.position.needsUpdate=true;}
     for(const r of this.catRigLines)this.updateLine(r.line,[r.anchor,this.wingPoint(.03,r.head,s)]);
@@ -3309,8 +3312,8 @@ class SailingScene {
     for(let i=0;i<this.mast.length;i++){const a=deck+(this.rig.mastTop-deck)*i/this.mast.length,b=deck+(this.rig.mastTop-deck)*(i+1)/this.mast.length;this.rod(this.mast[i],this.foilerMastPoint(a,s),this.foilerMastPoint(b,s));}
     const jibUp=(s.sail?.jib?.area??m.jibArea)>.005;
     this.jibMesh.visible=this.jibEdge.visible=jibUp;
-    this.updateFoilSailGrid(this.sailMesh,s,false);
-    if(jibUp)this.updateFoilSailGrid(this.jibMesh,s,true);
+    this.updateSailGrid(this.sailMesh,s,false);
+    if(jibUp)this.updateSailGrid(this.jibMesh,s,true);
     for(const [line,jib] of [[this.sailEdge,false],[this.jibEdge,true]]){if(jib&&!jibUp)continue;const p=line.geometry.attributes.position.array,n=p.length/3,half=Math.ceil(n/2);for(let i=0;i<n;i++){const u=i<half?1:0,v=i<half?i/(half-1):(n-1-i)/(n-half-1),q=jib?this.jibFoilerPoint(u,v,s):this.mainFoilerPoint(u,v,s);p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z;}line.geometry.attributes.position.needsUpdate=true;}
     for(const b of this.mainBattens){const p=b.line.geometry.attributes.position.array;for(let i=0;i<17;i++){const q=this.mainFoilerPoint(.36+.63*i/16,b.v,s);p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z+.008;}b.line.geometry.attributes.position.needsUpdate=true;}
     const top=this.foilerMastPoint(this.rig.mastTop,s);this.updateLine(this.forestay,[this.jibFoilerPoint(0,0,s,true),this.jibFoilerPoint(0,1,s,true)]);this.updateLine(this.backstay,[this.V(m.hullSections[0][0]+.25,deck,0),top]);
@@ -3455,8 +3458,8 @@ class SailingScene {
     const area=m.mainArea??m.sailArea*.76,mean=clamp(area/(this.rig.foot*this.rig.luff),.32,.88),tip=m.racingYacht?.27:.12,exponent=clamp((1-tip)/(mean-tip)-1,.18,2.5),width=(a.chordScale??1)*this.rig.foot*(tip+(1-tip)*Math.pow(1-v,exponent));
     const height=this.rig.boomY+this.rig.luff*v*(a.luffScale??1),base=this.foilerMastPoint(height,s),edge=Math.max(0,Math.sin(Math.PI*v));
     return {base,width,cos:Math.cos(angle),sin:Math.sin(angle),
-      camber:side*(a.camber??s.sail?.camber??m.camber??.055)*width*Math.pow(edge,.35),
-      thickness:.016*width*Math.pow(edge,.3),flutter:width*(m.id==='yacht'?.48:.60)*this.P.sailFlutter(s.rig,v),flutterEdge:.10};
+      camber:(this.P.mainDraftAt(s.rig,v)??side*(a.camber??m.camber))*width*Math.pow(edge,.35),
+      thickness:.016*width*Math.pow(edge,.3),...this.clothMotion(s.rig,v,width*(m.id==='yacht'?.48:.60)),flutterEdge:.10};
   }
   updateTelltale(t,point,s,length,chord){
     const flow=(t.jib?s.sail?.jib:s.sail?.main)||s.sail||{};
@@ -3487,14 +3490,27 @@ class SailingScene {
     }
     position.needsUpdate=true;
   }
-  sailRowDepth(row,u4,span,skin){
-    return (row.camber+skin*row.thickness)*span+row.flutter*(u4+row.flutterEdge*span);
+  clothMotion(rig,v,width,jib=false){
+    const phase=(rig?.flutterPhase??0)-v*9+(jib?1.9:0);
+    const amplitude=width*((jib?rig?.jibFlutter:rig?.flutter)??0)*Math.sin(Math.PI*v);
+    return {flutter:amplitude*Math.sin(phase),fold:amplitude*Math.cos(phase)};
+  }
+  sailColumn(u){
+    // Maximum fullness at 40% chord. A loose panel can ripple behind the
+    // luff; the luff itself stays on its spar or stay.
+    const span=Math.sin(Math.PI*u),envelope=5*u*(1-u)**6;
+    return {u,profile:u*(1-u)*(1.6-u)/.288,span,edge:u**4,
+      foldCos:envelope*Math.cos(12*u),foldSin:envelope*Math.sin(12*u)};
+  }
+  sailRowDepth(row,column,skin){
+    return row.camber*column.profile+skin*row.thickness*column.span+
+      row.flutter*(column.edge+row.flutterEdge*column.span+column.foldCos)-row.fold*column.foldSin;
   }
   mainFoilerPoint(u,v,s,skin=0){
     return this.sailRowPoint(this.mainFoilerRow(v,s),u,skin);
   }
   sailRowPoint(row,u,skin){
-    const {base,width,cos,sin}=row,depth=this.sailRowDepth(row,u**4,Math.sin(Math.PI*u),skin);
+    const {base,width,cos,sin}=row,depth=this.sailRowDepth(row,this.sailColumn(u),skin);
     return this.V(base.x-cos*width*u+sin*depth,base.y,base.z+sin*width*u+cos*depth);
   }
   foilerMastPoint(y,s){const v=clamp((y-this.rig.boomY)/this.rig.luff,0,1),load=clamp(s.sail?.load||0,0,1),side=s.rig?.sideBlend??s.sail?.side??1;return this.V(this.mastX-(this.isYacht?.10:.34)*load*v*v,y,side*(this.isYacht?.055:.20)*load*v*v);}
@@ -3506,23 +3522,21 @@ class SailingScene {
     const side=this.isYacht?clamp(angle/(4*this.P.DEG),-1,1):s.rig?.sideBlend??a.side??s.sail?.side??(Math.sign(s.boom)||1);
     const sailTwist=m.racingYacht?m.baseTwist:s.sail?.twist??m.baseTwist??.035,twist=side*sailTwist*.7*(v-.33),beta=angle+twist;
     return {base,width,cos:Math.cos(beta),sin:Math.sin(beta),
-      camber:side*(a.camber??s.sail?.camber??m.camber??.065)*width*Math.sin(Math.PI*v),
-      thickness:0,flutter:width*(m.id==='yacht'?.45:.58)*this.P.sailFlutter(s.rig,v,true),flutterEdge:.15};
+      camber:(s.rig?.jibDraft??side*(a.camber??m.camber))*width*Math.sin(Math.PI*v),
+      thickness:0,...this.clothMotion(s.rig,v,width*(m.id==='yacht'?.45:.58),true),flutterEdge:.15};
   }
   jibFoilerPoint(u,v,s,fullStay=false){
     return this.sailRowPoint(this.jibFoilerRow(v,s,fullStay),u,0);
   }
-  updateFoilSailGrid(mesh,s,jib,skin=0){
+  updateSailGrid(mesh,s,jib,skin=0){
     const grid=mesh.userData.grid,{rows,cols}=grid,position=mesh.geometry.attributes.position;
-    if(grid.samples?.length!==cols+1)grid.samples=Array.from({length:cols+1},(_,i)=>{
-      const u=i/cols;return {u,u4:u**4,span:Math.sin(Math.PI*u)};
-    });
+    if(grid.samples?.length!==cols+1)grid.samples=Array.from({length:cols+1},(_,i)=>this.sailColumn(i/cols));
     let index=0;
     for(let j=0;j<=rows;j++){
-      const row=jib?this.jibFoilerRow(j/rows,s):this.mainFoilerRow(j/rows,s);
+      const v=j/rows,row=jib?this.jibFoilerRow(v,s):this.isFoiler||this.isYacht?this.mainFoilerRow(v,s):this.laserSailRow(v,s);
       const {base,width,cos,sin}=row;
-      for(const {u,u4,span} of grid.samples){
-        const depth=this.sailRowDepth(row,u4,span,skin);
+      for(const column of grid.samples){
+        const u=column.u,depth=this.sailRowDepth(row,column,skin);
         position.setXYZ(index++,base.x-cos*width*u+sin*depth,base.y,base.z+sin*width*u+cos*depth);
       }
     }
@@ -3658,7 +3672,7 @@ class SailingScene {
     this.boatRoot.position.set(s.x,s.heave,-s.y);this.heading.rotation.y=s.theta;this.hull.rotation.set(s.heel,0,s.pitch||0,'ZXY');this.boomPivot.rotation.y=s.boom??0;
     const crewStations=global.SailingBoats?.foilerCrewPositions?.(s)||m.crewStations;for(let i=0;i<this.foilingCrew.length;i++){const crew=this.foilingCrew[i],centre=crewStations[i];crew.centre={x:centre.x,y:centre.y,z:centre.z};crew.body=this.seatedCrewPose(crew.centre,(s.crewSideBlend??-1)*(.08+.12*clamp((s.crewPoseBlend??2)-1,0,2)));this.posePerson(crew.person,this.animatedCrewPose(crew.body,s,i));}
     for(let i=0;i<this.mast.length;i++){const a=m.deckY+(this.rig.mastTop-m.deckY)*i/18,b=m.deckY+(this.rig.mastTop-m.deckY)*(i+1)/18;this.rod(this.mast[i],this.foilerMastPoint(a,s),this.foilerMastPoint(b,s));}
-    this.updateFoilSailGrid(this.sailMesh,s,false,1);this.updateFoilSailGrid(this.sailSkinMesh,s,false,-1);this.updateFoilSailGrid(this.jibMesh,s,true);
+    this.updateSailGrid(this.sailMesh,s,false,1);this.updateSailGrid(this.sailSkinMesh,s,false,-1);this.updateSailGrid(this.jibMesh,s,true);
     const leech=(line,jib)=>{const a=line.geometry.attributes.position.array,n=a.length/3,half=Math.ceil(n/2);for(let i=0;i<n;i++){const p=jib?this.jibFoilerPoint(i<half?1:0,i<half?i/(half-1):(n-1-i)/(n-half-1),s):this.mainFoilerPoint(i<half?1:0,i<half?i/(half-1):(n-1-i)/(n-half-1),s,0);a[i*3]=p.x;a[i*3+1]=p.y;a[i*3+2]=p.z;}line.geometry.attributes.position.needsUpdate=true;};leech(this.sailEdge,false);leech(this.jibEdge,true);
     this.updateLine(this.forestay,[this.jibFoilerPoint(0,0,s),this.jibFoilerPoint(0,1,s,true)]);
     for(const b of this.mainBattens){const p=b.line.geometry.attributes.position.array,angle=(s.boom||0)+b.side*(s.sail?.twist||0)*b.v;for(let i=0;i<17;i++){const q=this.mainFoilerPoint(.05+.94*i/16,b.v,s,b.side);q.x+=Math.sin(angle)*b.side*.006;q.z+=Math.cos(angle)*b.side*.006;p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z;}b.line.geometry.attributes.position.needsUpdate=true;}
@@ -3684,6 +3698,9 @@ class SailingScene {
     q.lineWidth=1;q.strokeStyle='rgba(148,165,169,.24)';for(const u of [.25,.52,.78]){q.beginPath();q.moveTo(u*1024,0);q.lineTo(u*1024,1536);q.stroke();}
     q.strokeStyle='rgba(164,176,174,.63)';q.lineWidth=9;for(const v of [.29,.55,.77,.9]){q.beginPath();q.moveTo(v>.8?620:700,(1-v)*1536);q.lineTo(1015,(1-v)*1536);q.stroke();}
     if(this.model.id==='laser'){
+      // Draft stripes let the sailor read section shape from the cockpit.
+      q.fillStyle='rgba(52,82,97,.48)';
+      for(const v of [.37,.68])q.fillRect(35,(1-v)*1536,945,7);
       // Blue reinforcement panel at the clew, as on the reference jolle.
       q.fillStyle='#1766b4';q.beginPath();q.moveTo(765,1536);q.lineTo(1024,1536);q.lineTo(1024,1235);q.closePath();q.fill();
       q.strokeStyle='rgba(255,255,255,.26)';q.lineWidth=3;for(let i=0;i<5;i++){q.beginPath();q.moveTo(765+i*40,1536);q.lineTo(1024,1235+i*46);q.stroke();}
@@ -3746,8 +3763,8 @@ class SailingScene {
     p.hands=[0,1].map(i=>{const hand=this.mesh(geometry.grip,skin,this.sailor);hand.scale.x=i===0?1:-1;return hand;});
     this.sailor.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
   }
-  sailPoint(u,v,s){
-    const sail=s.sail?.main||s.sail||{},load=clamp(sail.load||0,0,1),side=s.rig?.sideBlend??s.rig?.side??(Math.sign(s.boom)||1);
+  laserSailRow(v,s){
+    const sail=s.sail?.main||s.sail||{},load=clamp(s.sail?.load||0,0,1),side=s.rig?.sideBlend??s.rig?.side??(Math.sign(s.boom)||1);
     // A modest square head gives the sports rig its stated projected area.
     // Integrating foot*(tip+(1-tip)*(1-v)^exponent) over the luff is exactly
     // sailArea; this is the same area used by the force model.
@@ -3755,12 +3772,13 @@ class SailingScene {
     const width=this.model.racingDinghy?this.rig.foot*(tip+(1-tip)*Math.pow(1-v,exponent)):this.rig.foot*(1-v)+(this.model.sailRoach??.058)*Math.sin(Math.PI*v);
     const w=width*(sail.chordScale??1),twist=(sail.twist??this.model.baseTwist*(.6+.4*(1-s.sheet)))*v*v;
     const beta=s.boom+side*twist;
-    const cx=-Math.cos(beta),cz=Math.sin(beta),nx=Math.sin(beta),nz=Math.cos(beta);
-    const edge=Math.pow(Math.sin(Math.PI*v),.65),belly=side*(sail.camber??this.P.CONFIG.camber)*w*Math.sin(Math.PI*u)*edge;
-    const flutter=w*.68*(u**4+.16*Math.sin(Math.PI*u))*this.P.sailFlutter(s.rig,v);
-    const bend=.075*load*v*v;
-    return this.V(this.mastX-bend+cx*w*u+nx*(belly+flutter),this.rig.boomY+.01+this.rig.luff*v*(sail.luffScale??1)+Math.sin(Math.PI*u)*edge*.02*load,cz*w*u+nz*(belly+flutter));
+    const height=v*(sail.luffScale??1),base=this.V(this.mastX-.075*load*height*height,this.rig.boomY+.01+this.rig.luff*height,0);
+    const draft=this.P.mainDraftAt(s.rig,v)??side*(sail.camber??this.model.camber);
+    return {base,width:w,cos:Math.cos(beta),sin:Math.sin(beta),
+      camber:draft*w*Math.pow(Math.sin(Math.PI*v),.65),thickness:0,
+      ...this.clothMotion(s.rig,v,w*.68),flutterEdge:.16};
   }
+  sailPoint(u,v,s){return this.sailRowPoint(this.laserSailRow(v,s),u,0);}
   updateBoat(s,env,dt){
     const T=this.T;
     if((s.boatId||'laser')!==this.boatId)this.buildBoat(s.boatId||'laser');
@@ -3776,9 +3794,7 @@ class SailingScene {
     const load=clamp(s.sail?.load||0,0,1),deck=m.deckY;
     for(let i=0;i<this.mast.length;i++){const a=deck+(this.rig.mastTop-deck)*i/12,b=deck+(this.rig.mastTop-deck)*(i+1)/12;
       this.rod(this.mast[i],[this.mastX-.075*load*Math.pow(clamp((a-this.rig.boomY-.01)/this.rig.luff,0,1),2),a,0],[this.mastX-.075*load*Math.pow(clamp((b-this.rig.boomY-.01)/this.rig.luff,0,1),2),b,0]);}
-    const arr=this.sailMesh.geometry.attributes.position.array;let k=0;
-    for(let j=0;j<=this.sailRows;j++)for(let i=0;i<=this.sailCols;i++){const p=this.sailPoint(i/this.sailCols,j/this.sailRows,s);arr[k++]=p.x;arr[k++]=p.y;arr[k++]=p.z;}
-    this.sailMesh.geometry.attributes.position.needsUpdate=true;this.sailMesh.geometry.computeVertexNormals();
+    this.updateSailGrid(this.sailMesh,s,false);
     for(const batten of this.sportBattens||[]){const a=batten.line.geometry.attributes.position.array;for(let i=0;i<17;i++){const p=this.sailPoint((batten.start??.035)+(1-(batten.start??.035))*.98*i/16,batten.v,s);a[i*3]=p.x;a[i*3+1]=p.y;a[i*3+2]=p.z+.003;}batten.line.geometry.attributes.position.needsUpdate=true;}
     for(const g of this.sailGrommets){g.mesh.position.copy(this.sailPoint(g.u,g.v,s));g.mesh.rotation.y=s.boom+Math.sign(s.boom||1)*(s.sail?.twist||0)*g.v*g.v;}
     const ea=this.sailEdge.geometry.attributes.position.array;for(let i=0;i<57;i++){const p=i<29?this.sailPoint(1,i/28,s):this.sailPoint(0,(56-i)/27,s);ea[i*3]=p.x;ea[i*3+1]=p.y;ea[i*3+2]=p.z;}this.sailEdge.geometry.attributes.position.needsUpdate=true;
