@@ -1,6 +1,6 @@
 const {test,expect}=require('@playwright/test');
 const {pathToFileURL}=require('node:url');const path=require('node:path');
-const {introOption}=require('../scripts/browser-setup.cjs');
+const {introOption,chooseSail}=require('../scripts/browser-setup.cjs');
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
 
 test('the dock reef setting changes the reference geometry and sail loads on all boats',async({page})=>{
@@ -51,13 +51,25 @@ test('the dock reef setting changes the reference geometry and sail loads on all
     Object.assign(sample,{heave:0,cruiserRig:state.cruiserRig,rig:{side:1,sideBlend:1,reef:state.rig?.reef,camber:model.camber,twist:0,fill:1}});
     if(model.rigidWing)sample.wing={flap:-.12*(1-.78*(state.rig.reef??0)),jibAngle:.32,twist:0};
     const loads=P.aero(sample,env,{vx:0,vy:9,speed:9});
+    const previewScale=id=>{
+     const matrix=new DOMMatrix(getComputedStyle(document.getElementById(id)).transform);
+     return [matrix.a,matrix.d];
+    };
     return {main,jib,physics:[state.sail.main.area,state.sail.jib?.area??0],
-     moment:Math.abs(loads.rollMoment),weight:state.hydro.weight,sheet:state.sheet};
+     moment:Math.abs(loads.rollMoment),weight:state.hydro.weight,sheet:state.sheet,
+     preview:{main:previewScale('reefPreviewMain'),jib:previewScale('reefPreviewJib'),
+      area:parseFloat(document.getElementById('reefArea').textContent.replace(',','.')),
+      wing:document.getElementById('reefPreview').classList.contains('reef-wing')}};
    });
    expect(row.physics[0],boat).toBeCloseTo(areas[level][0],6);
    expect(row.physics[1],boat).toBeCloseTo(areas[level][1],6);
    expect(row.main,boat).toBeCloseTo(row.physics[0],3);
    expect(row.jib,boat).toBeCloseTo(row.physics[1],3);
+   expect(row.preview.area,boat).toBeCloseTo(row.physics[0]+row.physics[1],boat==='laser'?1:0);
+   expect(row.preview.wing,boat).toBe(boat==='ac72');
+   const [[mainWidth,mainHeight],[jibWidth,jibHeight]]=[row.preview.main,row.preview.jib];
+   expect(mainWidth*mainHeight,boat).toBeCloseTo(areas[level][0]/areas[0][0],2);
+   if(areas[0][1])expect(jibWidth*jibHeight,boat).toBeCloseTo(areas[level][1]/areas[0][1],2);
    if(previous){
     if(level>0)expect(row.moment,boat).toBeLessThan(previous.moment);
     expect(row.sheet,boat).toBe(previous.sheet);
@@ -216,3 +228,44 @@ test('loaded sail cloth stays quiet and only the luffing sail develops larger ed
   }
  }
 });
+
+for(const boat of ['dinghy','ac75','ac72']){
+ test(boat+' has an independent working jib trim in the sail plan',async({page})=>{
+  await page.clock.install();
+  await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+  await (await introOption(page,'#introBoat')).selectOption(boat);
+  await page.click('#startButton');
+  await page.clock.pauseAt(await page.evaluate(()=>Date.now()+100));
+  await page.evaluate(()=>{
+   const {state,env}=SAILING_GAME;
+   Object.assign(env,{waveHeight:0,chop:0,gusts:0,shelter:false});
+   state.windClimate={speed:7,direction:220,gusts:0};
+   env.speed=7;env.direction=220;
+  });
+  await page.clock.runFor(180);
+  const initial=await page.evaluate(()=>SAILING_GAME.state.sheet);
+  await chooseSail(page,'jib');
+  expect(await page.evaluate(()=>{
+   const {state}=SAILING_GAME;
+   return state.rig?.jibSheet??state.cruiserRig?.jibSheet??null;
+  })).toBeNull();
+  const adjust=async value=>{
+   await page.locator('#sheetControl').evaluate((slider,v)=>{
+    slider.value=v;slider.dispatchEvent(new Event('input',{bubbles:true}));
+   },value);
+   await page.clock.runFor(4500);
+   return page.evaluate(()=>{
+    const {state:s}=SAILING_GAME;
+    return {jib:s.sail.jib.trim,main:s.sheet,angle:s.sail.jib.angle,area:s.sail.jib.area,drive:s.sail.jib.drive,
+      foil:s.rig?.jibSheet,soft:s.cruiserRig?.jibSheet};
+   });
+  };
+  const hauled=await adjust(100),eased=await adjust(0);
+  expect(hauled.jib).toBeCloseTo(1,4);
+  expect(eased.jib).toBeCloseTo(0,4);
+  expect(eased.main).toBeCloseTo(initial,4);
+  expect(eased.area).toBe(hauled.area);
+  expect(Math.abs(eased.angle-hauled.angle)).toBeGreaterThan(.2);
+  await expect(page.locator('#sheetValue')).toHaveText('0,0 %');
+ });
+}

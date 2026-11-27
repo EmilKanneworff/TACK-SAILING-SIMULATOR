@@ -79,7 +79,8 @@ test('going from the rail to trapeze under load flattens the boat and builds spe
   const P=SailPhysics,D=P.DEG,heading=-48*D,sheet=.88;
   const env={...P.DEFAULT_ENV,boatId:'dinghy',difficulty:'hard',speed:12.1,direction:180,waves:0,gusts:0,shelter:false,autoRecovery:false};
   const start=P.createState({x:0,y:-5000,theta:heading,sheet,vx:4.94*Math.cos(heading),vy:4.94*Math.sin(heading),
-   crewPose:2,crewPoseBlend:2,heel:-.55},env);
+   crewSide:1,crewPose:2,crewPoseBlend:2,heel:-.55},env);
+  if(start.crewSide!==P.windwardCrewSide(start.wind))throw Error('Trapezprøven skal begynde til luv');
   function step(s,crewPose){
    const steer=P.clamp(2.1*P.wrap(s.theta-heading)+1.3*s.omega,-.95,.95);
    P.step(s,{steer,steerDigital:false,crewPose},env,1/60);

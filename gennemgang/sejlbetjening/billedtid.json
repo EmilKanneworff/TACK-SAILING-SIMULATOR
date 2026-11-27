@@ -1,0 +1,226 @@
+{
+  "viewport": {
+    "width": 1120,
+    "height": 720
+  },
+  "browser": "158.0.8127.37",
+  "machine": "Apple M5",
+  "runs": [
+    {
+      "boat": "laser",
+      "phase": "foer",
+      "build": "4bb8027a16b5",
+      "quality": "high",
+      "camera": 0,
+      "resolution": [
+        1120,
+        720
+      ],
+      "gapMs": {
+        "samples": 299,
+        "median": 16.69999998807907,
+        "p95": 17
+      },
+      "renderSubmitMs": {
+        "samples": 299,
+        "median": 0.7999999970197678,
+        "p95": 0.9000000059604645
+      },
+      "size": [
+        1120,
+        720
+      ],
+      "renderer": "WebKit WebGL",
+      "errors": []
+    },
+    {
+      "boat": "laser",
+      "phase": "efter",
+      "build": "919c6440ddf4",
+      "quality": "high",
+      "camera": 0,
+      "resolution": [
+        1120,
+        720
+      ],
+      "gapMs": {
+        "samples": 299,
+        "median": 16.700000002980232,
+        "p95": 17.5
+      },
+      "renderSubmitMs": {
+        "samples": 299,
+        "median": 0.7999999970197678,
+        "p95": 0.9000000059604645
+      },
+      "size": [
+        1120,
+        720
+      ],
+      "renderer": "WebKit WebGL",
+      "errors": []
+    },
+    {
+      "boat": "laser",
+      "phase": "efter",
+      "build": "919c6440ddf4",
+      "quality": "high",
+      "camera": 0,
+      "resolution": [
+        1120,
+        720
+      ],
+      "gapMs": {
+        "samples": 300,
+        "median": 16.700000002980232,
+        "p95": 17.599999994039536
+      },
+      "renderSubmitMs": {
+        "samples": 300,
+        "median": 0.7999999970197678,
+        "p95": 0.9000000059604645
+      },
+      "size": [
+        1120,
+        720
+      ],
+      "renderer": "WebKit WebGL",
+      "errors": []
+    },
+    {
+      "boat": "laser",
+      "phase": "foer",
+      "build": "4bb8027a16b5",
+      "quality": "high",
+      "camera": 0,
+      "resolution": [
+        1120,
+        720
+      ],
+      "gapMs": {
+        "samples": 299,
+        "median": 16.700000002980232,
+        "p95": 17.599999994039536
+      },
+      "renderSubmitMs": {
+        "samples": 299,
+        "median": 0.7999999970197678,
+        "p95": 1.2000000029802322
+      },
+      "size": [
+        1120,
+        720
+      ],
+      "renderer": "WebKit WebGL",
+      "errors": []
+    },
+    {
+      "boat": "yacht",
+      "phase": "foer",
+      "build": "4bb8027a16b5",
+      "quality": "high",
+      "camera": 0,
+      "resolution": [
+        1120,
+        720
+      ],
+      "gapMs": {
+        "samples": 299,
+        "median": 16.69999998807907,
+        "p95": 17.599999994039536
+      },
+      "renderSubmitMs": {
+        "samples": 299,
+        "median": 1,
+        "p95": 1.2000000029802322
+      },
+      "size": [
+        1120,
+        720
+      ],
+      "renderer": "WebKit WebGL",
+      "errors": []
+    },
+    {
+      "boat": "yacht",
+      "phase": "efter",
+      "build": "919c6440ddf4",
+      "quality": "high",
+      "camera": 0,
+      "resolution": [
+        1120,
+        720
+      ],
+      "gapMs": {
+        "samples": 299,
+        "median": 16.600000008940697,
+        "p95": 17.700000002980232
+      },
+      "renderSubmitMs": {
+        "samples": 299,
+        "median": 1,
+        "p95": 1.199999988079071
+      },
+      "size": [
+        1120,
+        720
+      ],
+      "renderer": "WebKit WebGL",
+      "errors": []
+    },
+    {
+      "boat": "yacht",
+      "phase": "efter",
+      "build": "919c6440ddf4",
+      "quality": "high",
+      "camera": 0,
+      "resolution": [
+        1120,
+        720
+      ],
+      "gapMs": {
+        "samples": 299,
+        "median": 16.69999998807907,
+        "p95": 17.5
+      },
+      "renderSubmitMs": {
+        "samples": 299,
+        "median": 0.9000000059604645,
+        "p95": 1.1000000089406967
+      },
+      "size": [
+        1120,
+        720
+      ],
+      "renderer": "WebKit WebGL",
+      "errors": []
+    },
+    {
+      "boat": "yacht",
+      "phase": "foer",
+      "build": "4bb8027a16b5",
+      "quality": "high",
+      "camera": 0,
+      "resolution": [
+        1120,
+        720
+      ],
+      "gapMs": {
+        "samples": 299,
+        "median": 16.700000002980232,
+        "p95": 17.599999994039536
+      },
+      "renderSubmitMs": {
+        "samples": 299,
+        "median": 0.9000000059604645,
+        "p95": 1.0999999940395355
+      },
+      "size": [
+        1120,
+        720
+      ],
+      "renderer": "WebKit WebGL",
+      "errors": []
+    }
+  ]
+}

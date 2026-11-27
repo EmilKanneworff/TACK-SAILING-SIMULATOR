@@ -24,7 +24,9 @@ function windPlan(s,env){
  const P=physics(),w=P.windForState(s,env),from=w.tws>.01?Math.atan2(-w.vy,-w.vx):finite(s.theta)+PI/2;
  // Recovery ends at zero boat speed. Use TRUE wind to choose its tack:
  // inverted/drifting apparent wind can briefly reverse even in fixed wind.
- const side=w.twa!=null&&Math.abs(w.twa)>.12&&Math.abs(w.twa)<PI-.15?Math.sign(w.twa):-Math.sign(s.boom||1);
+ const selected=s.crewTarget?.side;
+ const manualSide=(s.crewDifficulty??env.difficulty)!=='easy' && (selected===1||selected===-1);
+ const side=manualSide?selected:w.twa!=null&&Math.abs(w.twa)>.12&&Math.abs(w.twa)<PI-.15?Math.sign(w.twa):-Math.sign(s.boom||1);
  return{side:side||-1,heading:wrap(from+(side||-1)*CONFIG.targetWindAngle),from};
 }
 function statePoint(s){return{x:finite(s.x),y:finite(s.y),theta:finite(s.theta),heel:finite(s.heel),pitch:finite(s.pitch),heave:finite(s.heave),vx:finite(s.vx),vy:finite(s.vy),omega:finite(s.omega),heelRate:finite(s.heelRate),pitchRate:finite(s.pitchRate),heaveVelocity:finite(s.heaveVelocity),boom:finite(s.boom),boomRate:finite(s.boomRate),sheet:clamp(finite(s.sheet,.02),0,1),crewPoseBlend:clamp(finite(s.crewPoseBlend,1),1,3),crewSideBlend:clamp(finite(s.crewSideBlend,-1),-1,1),crewSwim:clamp(finite(s.crewSwim),0,1),cockpitWet:clamp(finite(s.cockpitWet),0,1),foils:s.foils?Object.fromEntries(Object.entries(s.foils).map(([k,f])=>[k,{arm:finite(f.arm),flap:finite(f.flap),flapInner:finite(f.flapInner),flapOuter:finite(f.flapOuter)}])):null};}
@@ -45,14 +47,10 @@ function safeLocation(s,c,heading){
  for(const p of [{x:0,y:0},{x:0,y:-6000},{x:0,y:-12000}])if(clear(p.x,p.y))return{...p,relocated:true,requiredDepth};
  return{x:0,y:-20000,relocated:true,requiredDepth};
 }
-function crewReset(s,side){
- Object.assign(s,{crewPose:1,crewPoseBlend:1,crewPoseVelocity:0,crewSide:side,crewSideBlend:side,crewSideVelocity:0,crewSwim:0});
- physics().updateCrew(s,{crewPose:1},{...physics().DEFAULT_ENV,autoBalance:false,crewPose:1,boatId:s.boatId},0);
-}
 function solvedState(s,env,plan){
  const P=physics(),c=boats().get(s),where=safeLocation(s,c,plan.heading),sheet=Math.min(CONFIG.sheet,finite(s.sheet,CONFIG.sheet));
- const fresh=P.createState({boatId:s.boatId,massScale:s.massScale||1,x:where.x,y:where.y,theta:plan.heading,time:finite(s.time),vx:0,vy:0,omega:0,heel:0,heelRate:0,pitch:0,pitchRate:0,heaveVelocity:0,crewPose:1,crewPoseBlend:1,crewSide:plan.side,crewSideBlend:plan.side,crewSwim:0,cockpitWet:0,sheet,rudder:0,boom:0,boomRate:0,seaState:s.seaState}, {...env,crewPose:1});
- crewReset(fresh,plan.side);
+ const fresh=P.createState({boatId:s.boatId,massScale:s.massScale||1,x:where.x,y:where.y,theta:plan.heading,time:finite(s.time),vx:0,vy:0,omega:0,heel:0,heelRate:0,pitch:0,pitchRate:0,heaveVelocity:0,crewPose:1,crewPoseBlend:1,crewSide:plan.side,crewSideBlend:plan.side,crewSwim:0,cockpitWet:0,sheet,rudder:0,boom:0,boomRate:0,seaState:s.seaState,atmosphere:s.atmosphere,waveProfile:s.waveProfile,seaStateRate:s.seaStateRate,
+  cruiserRig:s.cruiserRig?{...s.cruiserRig,jibSheet:null,extraSheet:null}:undefined}, {...env,crewPose:1});
  if(fresh.foils)for(const f of Object.values(fresh.foils))Object.assign(f,{arm:0,armRate:0,armAcceleration:0,targetArm:0,deployment:1,flap:0,flapInner:0,flapOuter:0,flapRate:0,targetFlap:0,ventilation:0});
  if(fresh.foiling)Object.assign(fresh.foiling,{windwardSide:plan.side,leewardSide:-plan.side,raisedSide:0,overlap:c.foilOverlapSeconds||3,activeFoil:'both',commandedFoil:'both',status:'waterborne',slamSeverity:0});
  if(fresh.wing)Object.assign(fresh.wing,{flap:0,load:0,stall:0});
@@ -60,6 +58,13 @@ function solvedState(s,env,plan){
  // Free, eased boom/wing feathers along the actual apparent air direction.
  fresh.boom=-plan.side*Math.min(P.boomLimit(fresh.sheet,c),Math.abs(fresh.wind.awa||CONFIG.targetWindAngle));fresh.boomRate=0;
  if(fresh.wing)fresh.wing.angle=fresh.boom;
+ P.updateRig(fresh,c,0);
+ fresh.rig.sideBlend=fresh.rig.side;
+ if(c.kind==='foiler'&&Number.isFinite(s.rig?.reef)){
+  fresh.rig.reef=s.rig.reef;
+  fresh.rig.reefTarget=s.rig.reefTarget??s.rig.reef;
+ }
+ if(c.id==='yacht')fresh.spinnaker=null;
  P.refresh(fresh,env);
  if(c.kind==='foiler'){const F=foils(),hull=F.hullLoads(fresh,env,F.massProperties(fresh),false);fresh.hydro=hull;F.foilLoads(fresh,env,0);F.updateStatus(fresh,hull);}else fresh.hydro=P.hydrostatics(fresh,env,false);
  fresh.ground=root.SailingWorld?.contact(fresh,c,env)||{contact:false,depth:90};
@@ -71,7 +76,6 @@ function start(s,env,nowMs){
  const now=monotonicNow(nowMs),initial=statePoint(s),plan=windPlan(s,env),r={id:(s.lastRecovery?.id||s.recoveryState?.id||0)+1,active:true,startMs:now,lastMs:now,elapsed:0,phase:'unload',initial,plan,usedFallback:false,fallback:null,stableSince:null,completedAtMs:null,completedElapsedSeconds:null,deadlineMs:now+CONFIG.deadlineSeconds*1000,watchdogMs:now+CONFIG.watchdogSeconds*1000,clock:'monotonic milliseconds supplied by caller',repeatedStartCount:0};
  s.recoveryState=r;s.recovering=true;s.capsized=true;s.recovery=0;s.recoveryAeroScale=1;s.gybeTarget=0;s.crewPose=1;s.crewSide=plan.side;s.helmHoldSeconds=0;s.steerIntent=0;s.helmAssist={active:false,level:0,moment:0,backAngle:0};s.steering=null;
  if(s.foiling)s.foiling.overlap=boats().get(s).foilOverlapSeconds||3;
- if(env)env.crewPose=1;
  return{started:true,record:r};
 }
 function target(s){
@@ -107,17 +111,16 @@ function isStable(s,env){
  const wind=physics().windForState(s,env);if(wind.tws>.3&&(Math.abs(wind.twa||0)<42*D||Math.abs(wind.twa||0)>150*D||Math.sign(wind.twa||r.plan.side)!==r.plan.side))return false;
  const P=physics(),eq=P.equilibriumHeave(s,env);return Math.abs(s.heave-eq)<CONFIG.stableHeaveError&&Math.hypot(s.vx,s.vy)<1.1;
 }
+function currentRecoveryPlan(s,env){
+ const plan=s.recoveryState.plan,wind=physics().windForState(s,env);
+ if(wind.tws<=.3)return plan;
+ const from=Math.atan2(-wind.vy,-wind.vx),angle=wrap(plan.heading-from)*plan.side;
+ if(angle>=42*D&&angle<=150*D)return plan;
+ return {...plan,from,heading:wrap(from+plan.side*CONFIG.targetWindAngle)};
+}
 function beginFallback(s,env){
  const r=s.recoveryState;if(r.fallback)return;
- // Keep the already achieved recovery course. A transient apparent-wind
- // reversal must not order a last-second 150-degree tack. Only an actual
- // true-wind shift that makes the planned course unusable can retarget it;
- // then use the nearest usable course to the PRESENT bow, not a new tack.
- const w=physics().windForState(s,env),from=w.tws>.01?Math.atan2(-w.vy,-w.vx):r.plan.from,angle=wrap(r.plan.heading-from);let plan={...r.plan};
- if(w.tws>.3&&(Math.abs(angle)<42*D||Math.abs(angle)>150*D)){
-  const current=wrap(s.theta-from),side=Math.abs(current)>.01?Math.sign(current):r.plan.side;
-  plan={side,heading:wrap(from+side*clamp(Math.abs(current),50*D,145*D)),from};
- }else if(w.tws>.3)plan.side=Math.sign(angle)||plan.side;
+ const plan=currentRecoveryPlan(s,env);
  const solved=solvedState(s,env,plan);
  // Relocation to navigable water is a discontinuity, not a high-speed
  // physical trip over the seabed. Never differentiate its distance into vx/vy.
@@ -142,11 +145,12 @@ function finish(s,env,nowMs,reason){
  const r=s.recoveryState;if(!r?.active)return{completed:false};
  // A physically settled course is already usable (checked in isStable).
  // Do not rotate it instantly merely to recover the nominal 75-degree TWA.
- const now=Math.max(r.lastMs,monotonicNow(nowMs)),plan=reason==='force-settled'?{...r.plan,heading:s.theta}:r.fallback?{...r.plan,heading:r.fallback.target.theta}:windPlan(s,env),solved=solvedState(s,env,plan),elapsed=(now-r.startMs)/1000;r.plan=plan;
- const oldAtmosphere=s.atmosphere,oldWaveProfile=s.waveProfile,history={id:r.id,startMs:r.startMs,completedAtMs:now,elapsedSeconds:elapsed,deadlineSeconds:CONFIG.deadlineSeconds,reason,usedFallback:r.usedFallback,relocated:!!(solved.where.relocated||r.fallback?.safeLocation.relocated),position:{x:solved.fresh.x,y:solved.fresh.y},heading:solved.fresh.theta,sheet:solved.fresh.sheet,crewPose:1,waterline:solved.fresh.heave,clock:'monotonic wall time',lateAfterInactiveGap:elapsed>5,overdueSeconds:Math.max(0,elapsed-CONFIG.deadlineSeconds)};
- Object.assign(s,solved.fresh);if(oldAtmosphere)s.atmosphere=oldAtmosphere;if(oldWaveProfile)s.waveProfile=oldWaveProfile;
+ const now=Math.max(r.lastMs,monotonicNow(nowMs)),plan=reason==='force-settled'?{...r.plan,heading:s.theta}:r.fallback?{...r.plan,heading:r.fallback.target.theta}:currentRecoveryPlan(s,env),solved=solvedState(s,env,plan),elapsed=(now-r.startMs)/1000;r.plan=plan;
+ const crewTarget=s.crewTarget,history={id:r.id,startMs:r.startMs,completedAtMs:now,elapsedSeconds:elapsed,deadlineSeconds:CONFIG.deadlineSeconds,reason,usedFallback:r.usedFallback,relocated:!!(solved.where.relocated||r.fallback?.safeLocation.relocated),position:{x:solved.fresh.x,y:solved.fresh.y},heading:solved.fresh.theta,sheet:solved.fresh.sheet,crewPose:1,waterline:solved.fresh.heave,clock:'monotonic wall time',lateAfterInactiveGap:elapsed>5,overdueSeconds:Math.max(0,elapsed-CONFIG.deadlineSeconds)};
+ // A sailor reboards inside. A pre-capsize full hike would roll an unloaded dinghy to windward.
+ const reboardedInside=s.boatId==='laser'&&crewTarget?.pose===3&&(s.crewDifficulty??env.difficulty)!=='easy';
+ Object.assign(s,solved.fresh,{reboardedInside});if(crewTarget)s.crewTarget=crewTarget;
  Object.assign(r,{active:false,phase:'complete',lastMs:now,elapsed,completedAtMs:now,completedElapsedSeconds:elapsed,reason,stableSince:null});s.recoveryState=r;s.lastRecovery=history;s.recovering=false;s.capsized=false;s.recovery=1;s.recoveryAeroScale=1;s.helmHoldSeconds=0;s.steerIntent=0;s.helmTarget=0;s.helmAssist={active:false,level:0,moment:0};s.steering=null;s.gybeTarget=0;
- if(env)env.crewPose=1;
  return{completed:true,record:history};
 }
 function update(s,env,nowMs){

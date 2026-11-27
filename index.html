@@ -325,7 +325,6 @@ and application hashes so results can be matched to this deliverable.
 
 #flightClearanceText,.flight-compact .support-track,.flight-compact .support-caption{display:none}.flight-compact{width:auto;min-width:85px}
 .sea-presets{display:flex;gap:6px}.sea-presets button{flex:1;padding:8px 5px;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.06);color:inherit;font-size:10px}.sea-presets button[aria-pressed=true]{background:rgba(112,221,202,.2);color:var(--teal)}
-#downwindControls{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);z-index:12;display:flex;gap:8px}#downwindControls[hidden]{display:none}#downwindControls button{padding:9px 14px;white-space:nowrap;font-size:11px;line-height:1.2;border:1px solid #a7eee0;border-radius:8px;background:#15383de8;color:#fff;pointer-events:auto}
 
 .tools #settingsButton{width:auto;min-width:0;padding:0 9px}.tools .camera-choice{order:4;display:flex;align-items:center;gap:5px;padding:0 9px;border:1px solid var(--line);border-radius:10px;background:rgba(15,44,52,.9);height:38px;font-size:11px;color:var(--text)}
 .camera-choice-icon{display:none;width:13px;height:13px;flex:none}.camera-choice select{max-width:100px;border:0;outline:0;background:#183a44;color:#fff;font:inherit;padding:5px 3px;border-radius:5px}
@@ -345,7 +344,7 @@ and application hashes so results can be matched to this deliverable.
 .sailing-dock{left:calc((100% - 165px)/2);width:min(930px,calc(100% - 190px));max-width:none;bottom:12px;gap:12px;padding:9px 14px;justify-content:space-between}
 .sailing-dock .trim-card{flex:1;min-width:130px;max-width:300px}.sailing-dock .sheet-range{margin:8px 0 2px}.sailing-dock .balance-card{flex:1;min-width:155px;max-width:225px}.sailing-dock .pose-foot{margin-top:4px}
 .coach{bottom:var(--coach-bottom,120px);max-width:min(570px,calc(100vw - 180px));white-space:normal;line-height:1.35;display:flex;align-items:center;gap:8px}.coach[hidden]{display:none!important}.toast{bottom:var(--toast-bottom,170px)!important}
-#downwindControls{bottom:var(--sails-bottom,110px)!important}.telemetry-panel{bottom:var(--telemetry-bottom,130px)}
+.telemetry-panel{bottom:var(--telemetry-bottom,130px)}
 @media(max-width:850px){
  .brand{display:flex;top:12px;left:12px}.brand small{display:none}.tools{width:118px;right:8px;bottom:calc(var(--dock-height,150px) + 16px)}
  .tools .icon,.tools .icon-text,.tools #settingsButton,.tools .weather-button,.tools #cameraButton,.tools #raceButton{height:34px;min-height:34px;padding:0 8px!important;font-size:10px}
@@ -384,7 +383,6 @@ and application hashes so results can be matched to this deliverable.
 @media(pointer:coarse){.sailing-dock .balance-card[data-manual-side] .pose-foot{display:none}}
 .sailing-dock .compact-wind svg{width:48px;height:48px}
 .sailing-dock .helm-feedback .rudder-track{display:none}
-#downwindControls{bottom:var(--sails-bottom,105px)!important}
 .coach,.toast{bottom:var(--notice-bottom,147px)!important;overflow-wrap:anywhere;pointer-events:none}
 #graphicsStatus{position:fixed;inset:0;z-index:70;display:grid;place-items:center;pointer-events:none}
 #graphicsStatus[hidden]{display:none}
@@ -519,7 +517,7 @@ body.easy-crew .pose-buttons{display:none}
   <div class="toast" id="toast" role="status" hidden=""></div>
   <div class="recover glass" id="recoverPanel" hidden=""><h2 id="recoveryTitle">Båden er kæntret</h2><p id="recoveryDescription">Besætningen får hjælp til at rejse båden. Opretningen starter automatisk.</p><button id="recoverButton" hidden="" disabled="">Automatisk opretning</button><progress id="recoveryProgress" value="0" max="1" hidden=""></progress><small id="recoveryLabel" hidden="">Retter op …</small></div>
   <aside class="debug glass" id="debug" hidden=""><strong>FYSIK / FAST 60 Hz</strong><pre id="debugValues"></pre><button id="selfTest">Kør kontrolscenarier</button><div id="testResults" class="test-results" hidden=""></div></aside>
-<div id="downwindControls" role="group" aria-label="Turbådens ekstra forsejl" hidden><button id="code0Button" type="button" data-cruiser-sail="code0">Sæt Code 0</button><button id="gennakerButton" type="button" data-cruiser-sail="gennaker">Sæt gennaker</button><button id="spinnakerButton" type="button" data-cruiser-sail="spinnaker">Sæt spiler</button></div><section id="sailingDock" class="sailing-dock glass" aria-label="Sejladsens vigtigste instrumenter">
+<section id="sailingDock" class="sailing-dock glass" aria-label="Sejladsens vigtigste instrumenter">
   <div class="dock-navigation">
     <section class="speed-card" aria-label="Fart gennem vand" id="speedCard">
       <span class="dock-label" id="speedModeLabel" title="Fart gennem vand">Fart</span>
@@ -546,6 +544,23 @@ body.easy-crew .pose-buttons{display:none}
 
   <section class="trim-card" aria-label="Sejltrim og ror">
     <div class="card-heading">
+      <details id="sailPlan">
+        <summary id="sailPlanToggle"><span id="sailPlanIcon" class="sail-plan-icon" data-shape="main" aria-hidden="true"><i></i></span><span id="sailPlanName">Storsejl</span></summary>
+        <section class="sail-plan-panel" aria-label="Vælg sejl at trimme">
+          <div id="sailChoices" role="group" aria-label="Vælg aktivt skøde">
+            <button type="button" data-sail-choice="main" aria-pressed="true"><span class="sail-plan-icon" data-shape="main" aria-hidden="true"><i></i></span><b>Storsejl</b><small></small><span class="sail-area"></span></button>
+            <button type="button" data-sail-choice="jib" aria-pressed="false"><span class="sail-plan-icon" data-shape="jib" aria-hidden="true"><i></i></span><b>Fok</b><small></small><span class="sail-area"></span></button>
+            <button type="button" data-sail-choice="code0" aria-pressed="false"><span class="sail-plan-icon" data-shape="code0" aria-hidden="true"><i></i></span><b>Code 0</b><small></small><span class="sail-area"></span></button>
+            <button type="button" data-sail-choice="gennaker" aria-pressed="false"><span class="sail-plan-icon" data-shape="gennaker" aria-hidden="true"><i></i></span><b>Gennaker</b><small></small><span class="sail-area"></span></button>
+            <button type="button" data-sail-choice="spinnaker" aria-pressed="false"><span class="sail-plan-icon" data-shape="spinnaker" aria-hidden="true"><i></i></span><b>Spiler</b><small></small><span class="sail-area"></span></button>
+          </div>
+          <div id="downwindControls" role="group" aria-label="Hejs eller tag sejl ned" hidden>
+            <button id="code0Button" type="button" data-cruiser-sail="code0" hidden><span>Sæt Code 0</span></button>
+            <button id="gennakerButton" type="button" data-cruiser-sail="gennaker" hidden><span>Sæt gennaker</span></button>
+            <button id="spinnakerButton" type="button" data-cruiser-sail="spinnaker" hidden><span>Sæt spiler</span></button>
+          </div>
+        </section>
+      </details>
       <h3 class="dock-label"><span id="trimTitle">Skøde</span> <span class="keycap" id="trimInKey">↑</span> <span class="keycap" id="trimOutKey">↓</span></h3>
       <b id="sheetValue">60 %</b>
     </div>
@@ -567,7 +582,7 @@ body.easy-crew .pose-buttons{display:none}
   <div class="dock-fittings">
     <section class="balance-card" id="balanceCard" aria-label="Båd og vægtposition">
       <span class="dock-label" id="crewDockLabel">Besætning</span>
-      <button id="mobileCrewToggle" class="touch-action dock-label" type="button" aria-controls="mobileCrewPanel" aria-expanded="false">Besætning <span aria-hidden="true">⌃</span></button>
+      <button id="mobileCrewToggle" class="touch-action dock-label" type="button" aria-controls="mobileCrewPanel" aria-expanded="false"><span id="mobileCrewSide">Besætning</span> <span aria-hidden="true">⌃</span></button>
       <div class="balance-heading"><button id="boatQuickButton" title="Vælg båd (B)"><span id="boatLabel">Laserjolle</span><small>↗</small></button><b id="heelCompact">0°</b></div>
       <div class="pose-buttons" role="group" aria-label="Vælg vægtposition">
         <button id="pose1" type="button" data-pose="1" aria-pressed="false">1 – Inde</button>
@@ -579,7 +594,14 @@ body.easy-crew .pose-buttons{display:none}
     </section>
     <div class="dock-reef">
       <label class="dock-label" id="reefLabel" for="reefSetting">Reb sejl</label>
-      <select id="reefSetting" title="Mindre sejlareal giver mindre pres fra vinden."><option value="0">Fuldt sejl</option><option value="1">Ét reb</option><option value="2">To reb</option></select>
+      <div class="reef-picker">
+        <select id="reefSetting" aria-describedby="reefArea" title="Mindre sejlareal giver mindre pres fra vinden."><option value="0">Fuldt sejl</option><option value="1">Ét reb</option><option value="2">To reb</option></select>
+        <span id="reefPreview" class="reef-preview" aria-hidden="true">
+          <i class="reef-main"></i><i class="reef-jib"></i>
+          <i id="reefPreviewMain" class="reef-main reef-active"></i><i id="reefPreviewJib" class="reef-jib reef-active"></i>
+        </span>
+      </div>
+      <span id="reefArea" title="Det aktuelle areal af riggens grundsejl · ekstra forsejl vises særskilt"></span>
     </div>
     <button id="telemetryToggle" class="telemetry-toggle" type="button" aria-controls="telemetryPanel" aria-expanded="false" title="Fold instrumenter ud">
       <span class="dock-label">Detaljer</span>
@@ -588,7 +610,7 @@ body.easy-crew .pose-buttons{display:none}
   </div>
 </section>
 <section id="mobileCrewPanel" class="glass" aria-label="Besætningens placering" hidden>
-  <div class="crew-control" id="crewControl" role="group" aria-label="Besætningens side" hidden><button id="crewPort" type="button" aria-label="Vælg bagbord side">Bagbord</button><button id="crewStarboard" type="button" aria-label="Vælg styrbord side">Styrbord</button></div>
+  <div class="crew-control" id="crewControl" role="group" aria-label="Besætningens side" hidden><button id="crewPort" type="button" aria-label="Q · Vælg bagbord side">Bagbord <kbd>Q</kbd></button><button id="crewStarboard" type="button" aria-label="E · Vælg styrbord side">Styrbord <kbd>E</kbd></button></div>
   <div class="mobile-weight">
     <label for="mobileForeAft">Vægt frem og tilbage</label><output id="mobileForeAftValue" for="mobileForeAft">Midtskibs</output>
     <input type="range" id="mobileForeAft" min="-100" max="100" step="1" value="0">
@@ -600,11 +622,9 @@ body.easy-crew .pose-buttons{display:none}
   <div><span>Vind fra</span><strong id="detailWindBearing">—</strong></div>
   <div><span>Relativ vindvinkel</span><strong id="detailWindAngle">—</strong></div>
   <div><span>Sand vindvinkel</span><strong id="detailTrueAngle">—</strong></div>
-</div><canvas id="windDial" width="396" height="396" aria-label="Sand og relativ vindvinkel, hastighed og kompaskurs"></canvas><div class="legend"><span><i class="true"></i>Sand vind</span><span><i class="apparent"></i>Relativ vind</span></div><p class="wind-angle-key">Relativ vind er den vind, du mærker på båden i fart.<br>0° forfra · 90° fra siden · 180° agterfra<br>BB = bagbord · SB = styrbord</p><div class="attitude-detail"><div class="metric-line"><span>Krængning</span><b id="heel">0°</b></div><div class="heel-track"><i id="heelDot"></i></div><div class="metric-line"><span id="vmgLabel">Afdrift</span><b id="vmg">0.0°</b></div></div></section><div class="water-load-detail"><h3>Vandkontakt og balance</h3><dl><div><dt>Skrogets støtte</dt><dd id="hullLoadDetail">—</dd></div><div id="foilLoadMetric"><dt>Foilernes støtte</dt><dd id="foilLoadDetail">—</dd></div><div><dt>Skrogmodstand</dt><dd id="hullDragDetail">—</dd></div><div id="foilDragMetric"><dt>Foilmodstand</dt><dd id="foilDragDetail">—</dd></div></dl><p id="flightModelNote">Vægten virker i tyngdepunktet. Skrog og foils skaber støtte ved deres egne angrebspunkter.</p><details class="steering-details" id="rigControls" hidden><summary>Forsejl og skøde</summary>
+</div><canvas id="windDial" width="396" height="396" aria-label="Sand og relativ vindvinkel, hastighed og kompaskurs"></canvas><div class="legend"><span><i class="true"></i>Sand vind</span><span><i class="apparent"></i>Relativ vind</span></div><p class="wind-angle-key">Relativ vind er den vind, du mærker på båden i fart.<br>0° forfra · 90° fra siden · 180° agterfra<br>BB = bagbord · SB = styrbord</p><div class="attitude-detail"><div class="metric-line"><span>Krængning</span><b id="heel">0°</b></div><div class="heel-track"><i id="heelDot"></i></div><div class="metric-line"><span id="vmgLabel">Afdrift</span><b id="vmg">0.0°</b></div></div></section><div class="water-load-detail"><h3>Vandkontakt og balance</h3><dl><div><dt>Skrogets støtte</dt><dd id="hullLoadDetail">—</dd></div><div id="foilLoadMetric"><dt>Foilernes støtte</dt><dd id="foilLoadDetail">—</dd></div><div><dt>Skrogmodstand</dt><dd id="hullDragDetail">—</dd></div><div id="foilDragMetric"><dt>Foilmodstand</dt><dd id="foilDragDetail">—</dd></div></dl><p id="flightModelNote">Vægten virker i tyngdepunktet. Skrog og foils skaber støtte ved deres egne angrebspunkter.</p><details class="steering-details" id="rigControls" hidden><summary>Størrelse på fok</summary>
   <div class="rig-detail-fields">
-    <label for="trimSail">Skødet styrer</label>
-    <select id="trimSail"><option value="main">Storsejl</option><option value="jib">Fok</option><option value="extra">Ekstrasejl</option></select>
-    <label for="headsailSetting">Forsejl</label>
+    <label for="headsailSetting">Sejlareal</label>
     <select id="headsailSetting"><option value="0">Standardfok</option><option value="1">Mindre fok</option></select>
   </div>
 </details>
@@ -634,7 +654,7 @@ body.easy-crew .pose-buttons{display:none}
     <div class="intro-difficulty">
       <label for="introDifficulty">Sværhedsgrad</label>
       <select id="introDifficulty" aria-describedby="introDifficultyHelp"><option value="easy">Let</option><option value="hard" selected>Svær</option></select>
-      <small id="introDifficultyHelp">Vælg vægt til luv med 1–3. Tryk igen efter en vending.</small>
+      <small id="introDifficultyHelp">Q vælger bagbord, E vælger styrbord. 1–3 vælger stilling på den side.</small>
     </div>
     <div class="intro-actions">
       <button id="startButton" class="primary" type="button" disabled>Fri sejlads</button>
@@ -777,10 +797,10 @@ body.easy-crew .pose-buttons{display:none}
     <p id="lobbyMessage" role="status"></p>
   </div>
 </section>
-<section class="modal-layer boat-picker" id="boatPicker" role="dialog" aria-label="Bådvalg" aria-modal="true" hidden><div class="modal"><button class="close" data-close="boatPicker" aria-label="Luk bådvalg">×</button><h2>Vælg din båd</h2><div class="boat-options" role="group" aria-label="Vælg båd"><button class="boat-option" data-boat="laser" aria-pressed="false"><img loading="lazy" src="assets/model-laser.webp" alt=""><strong>Laserjolle</strong><span>Let og aktiv</span></button><button class="boat-option" data-boat="dinghy" aria-pressed="false"><img loading="lazy" src="assets/model-dinghy.webp" alt=""><strong>Racer 32</strong><span>Let racer · to i besætningen</span></button><button class="boat-option" data-boat="yacht" aria-pressed="false"><img loading="lazy" src="assets/model-yacht.webp" alt=""><strong>Turbåd 43</strong><span>Lettest at sejle</span></button><button class="boat-option" data-boat="ac75" aria-pressed="false"><img loading="lazy" src="assets/model-ac75.webp" alt=""><strong>Foilmonohull</strong><span>Præcis og krævende</span></button><button class="boat-option" data-boat="ac72" aria-pressed="false"><img loading="lazy" src="assets/model-ac72.webp" alt=""><strong>Foilkatamaran</strong><span>Hurtig foiling</span></button></div><a href="assets/sammenlign.html" target="_blank" rel="noopener">Sammenlign størrelser</a></div></section>
-<section class="modal-layer" id="help" hidden=""><div class="modal"><button class="close" data-close="help" aria-label="Luk hjælp">×</button><div class="eyebrow">LÆR BÅDEN AT KENDE</div><h2>Kurs. Trim. Balance.</h2><p>Vindpile på vandet viser, hvor den lokale vind blæser hen. Instrumenterne viser, hvor vinden kommer fra.</p><div class="foil-help" id="foilHelp" hidden=""><div class="help-grid"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Sejltrimmet bliver stående.</span><span>1 / 2 / 3</span><span>På Svær vælger 1, 2 og 3 vægt til luv. Tryk igen efter en vending. På Let flytter besætningen sig selv.</span><span>Q / E</span><span>Q vælger bagbord, og E vælger styrbord på den aktuelle hals.</span><span>Skærmknapper</span><span>Pause, genstart, kamera og bådvalg.</span></div><p><b>Byg fart først.</b> Begynd på en åben kurs med slækket sejl. Når farten stiger, trækker den relative vind frem; hal gradvist ind med korte tryk på ↑. For stramt sejl giver ikke automatisk mere fart: hold øje med den orange relative vind og sejlrådet.</p><p><b>Lad løftet vokse.</b> Foilerne overtager vægten, når strømningen kan bære båden. Højde, pitch, foilnedsænkning og kontakt med bølgerne bestemmer kræfterne. Der er ingen knap til takeoff.</p><p><b>Sejl rolige vendinger.</b> Brug korte rortryk ved høj fart. På monohullen sænker besætningen den nye foil før den gamle hæves. Katamaranen holder begge løftende sværd nede og fordeler støtten over fire foilflader som en tilgivende spilforenkling. Store rorudslag bremser og kan koste løft. For lidt sejltryk, lav fart eller en foil tæt på overfladen kan give touchdown.</p><p><b>Vingesejlet.</b> På katamaranen styrer ↑ / ↓ den samlede vingeåbning. Den stive vinge drejer sammenhængende; dens belastning og strømning vises i instrumenterne. Mere indtrimning kan også give stall og mindre fremdrift.</p><p><b>Automatisk foiltrim.</b> Flapper, rorflader og monohullens bevægelige arme justeres automatisk med begrænset hastighed og korrektion. Reguleringen tillader krængning i sving og korte reaktioner på bølger og pust. Instrumenterne viser de faktiske indstillinger.</p><p><b>Flyvehøjde:</b> Afstanden fra skrogbunden midtskibs til den lokale vandoverflade. På katamaranen vises den laveste af de to skrogbunde. Foilernes dybde vises separat. Begge hovedfoils kan være nede under acceleration og manøvrer.</p><p><b>Banen:</b> Vælg op/ned med gates eller trekant. Begge baner har seks ben og 30 sekunders nedtælling. Se rute, rundingspile og næste mål på kortet. Cup-bådene får længere baner og mere plads til runding.</p></div><div class="help-grid dinghy-only"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Skødet bliver stående.</span><span>1 · 2 · 3</span><span>På Svær vælger du Inde, Kant eller Fuld hængning til luv. Tryk igen efter en vending. På Let flytter besætningen selv vægten.</span><span>Q / E</span><span>Q vælger bagbord, og E vælger styrbord. Valget gælder, indtil du vælger igen på den nye hals.</span><span>C · Mellemrum</span><span>Skift kamera · Pause og fortsæt</span><span>R · H · V · B</span><span>Genstart · Hjælp · Vejr og vind · Vælg båd (sætter på pause)</span><span>Touch</span><span>Træk rorkontrollen til venstre. Skødeskyderen til højre bliver stående. Begge kan bruges samtidig.</span></div><p class="help-tip"><b>Ror og trim:</b> Korte tryk giver små rorudslag. Hold en pil for at dreje mere. Brug ↑ og ↓ til skødet. På Let flytter besætningen vægten, også gennem en vending. Roret skal have vandstrøm for at dreje båden.</p><div class="help-tip dinghy-only"><p><b>Vejr og vind:</b> Tryk V eller vælg Vejr øverst. Vælg mellem solskin, overskyet, regn, tåge, bygevejr og solnedgang. Vindstyrke, retning, pust, bølger, regn, skyer og tåge kan justeres hver for sig.</p><p><b>På kryds:</b> Hold vinden skråt forfra. Hal ind, til sejlet trækker uden at stalle. Skift hals ved at dreje stævnen gennem vinden med restfart.</p><p><b>Med vinden:</b> Slæk gradvist ud. På læns skubber vinden på sejlet; dragdomineret strømning er normal her.</p><p><b>Gennem banen:</b> Sejl gennem hver lysende port i pilens retning, med den orange bøje om bagbord. Sejl mellem gatebøjerne og rund en af dem udad, eller rund trekantens mærker om bagbord. Følg ruten i rækkefølge. En forkert passage bliver ved med at være aktiv, så den kan rettes.</p><p><b>Vægtplacering på Svær.</b> 2 – Kant er den tilgivende standardstilling. Brug 1 – Inde i svag vind og 3 – Hæng, når sejltrykket kræver større modvægt. Fuld hængning kan give overbalance ved et vindhul. Kroppen og det beregnede tyngdepunkt flyttes sammen. På kølbåden flytter én person kun lidt på den samlede balance.</p><p><b>Krængning:</b> Stor krængning koster fart. Slæk i et pust. Ved kæntring flyder jollen videre. Automatisk opretning starter med det samme og afleverer kontrollen senest efter fem sekunder, mens fanen er aktiv. Sejlet aflastes, og besætningen sættes ind i båden. Øvelsens rekord bortfalder.</p></div><div class="help-tip"><p><b>Små korrektioner:</b> Korte styretryk giver små kurskorrektioner. Et længere tryk øger gradvist den ønskede drejehastighed. Modsat pil begynder straks at bremse drejningen. De lysende pile viser din kommando; rorvisningen viser den faktiske vinkel. Følsomhed, kontrolhastighed, fysisk dæmpning og kamera kan justeres hver for sig i Vejr.</p><p><b>Kom ud af vindøjet:</b> Hold venstre eller højre pil, indtil stævnen peger ud på en sejlbar kurs. Roret skal have vandstrøm for at kunne dreje båden. På Let kan du selv slå sejlbakning til under Sejlhjælp. Indstillingen “Bak sejlet i vindøjet” giver desuden besætningen lov til kortvarigt at bakke sejlet. Fremdriften kræver stadig en brugbar kurs og passende trim.</p><p><b>Se, hvor vinden går hen:</b> De fine strøg på vandet driver med den sande vind. Grønne og orange pile på instrumentet viser derimod, hvor vinden kommer fra. Kyst, fyr, mole og kølvand ligger fast i verden.</p></div><button class="primary" data-close="help">Tilbage til vandet <span>→</span></button></div></section>
+<section class="modal-layer boat-picker" id="boatPicker" role="dialog" aria-label="Bådvalg" aria-modal="true" hidden><div class="modal"><button class="close" data-close="boatPicker" aria-label="Luk bådvalg">×</button><h2>Vælg din båd</h2><div class="boat-options" role="group" aria-label="Vælg båd"><button class="boat-option" data-boat="laser" aria-pressed="false"><img loading="lazy" src="assets/model-laser.webp" alt=""><strong>Laserjolle</strong><span>Let og aktiv</span></button><button class="boat-option" data-boat="dinghy" aria-pressed="false"><img loading="lazy" src="assets/model-dinghy.webp" alt=""><strong>Racer 32</strong><span>Let racer · tre i besætningen</span></button><button class="boat-option" data-boat="yacht" aria-pressed="false"><img loading="lazy" src="assets/model-yacht.webp" alt=""><strong>Turbåd 43</strong><span>Lettest at sejle</span></button><button class="boat-option" data-boat="ac75" aria-pressed="false"><img loading="lazy" src="assets/model-ac75.webp" alt=""><strong>Foilmonohull</strong><span>Præcis og krævende</span></button><button class="boat-option" data-boat="ac72" aria-pressed="false"><img loading="lazy" src="assets/model-ac72.webp" alt=""><strong>Foilkatamaran</strong><span>Hurtig foiling</span></button></div><a href="assets/sammenlign.html" target="_blank" rel="noopener">Sammenlign størrelser</a></div></section>
+<section class="modal-layer" id="help" hidden=""><div class="modal"><button class="close" data-close="help" aria-label="Luk hjælp">×</button><div class="eyebrow">LÆR BÅDEN AT KENDE</div><h2>Kurs. Trim. Balance.</h2><p>Vindpile på vandet viser, hvor den lokale vind blæser hen. Instrumenterne viser, hvor vinden kommer fra.</p><div class="foil-help" id="foilHelp" hidden=""><div class="help-grid"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Sejltrimmet bliver stående.</span><span>1 / 2 / 3</span><span>På Svær vælger 1–3 stilling på den valgte side. På Let flytter besætningen sig selv.</span><span>Q / E</span><span>Q vælger bagbord. E vælger styrbord. Valget bevares gennem vendinger.</span><span>Skærmknapper</span><span>Pause, genstart, kamera og bådvalg.</span></div><p><b>Byg fart først.</b> Begynd på en åben kurs med slækket sejl. Når farten stiger, trækker den relative vind frem; hal gradvist ind med korte tryk på ↑. For stramt sejl giver ikke automatisk mere fart: hold øje med den orange relative vind og sejlrådet.</p><p><b>Lad løftet vokse.</b> Foilerne overtager vægten, når strømningen kan bære båden. Højde, pitch, foilnedsænkning og kontakt med bølgerne bestemmer kræfterne. Der er ingen knap til takeoff.</p><p><b>Sejl rolige vendinger.</b> Brug korte rortryk ved høj fart. På monohullen sænker besætningen den nye foil før den gamle hæves. Katamaranen holder begge løftende sværd nede og fordeler støtten over fire foilflader som en tilgivende spilforenkling. Store rorudslag bremser og kan koste løft. For lidt sejltryk, lav fart eller en foil tæt på overfladen kan give touchdown.</p><p><b>Vingesejlet.</b> På katamaranen styrer ↑ / ↓ den samlede vingeåbning. Den stive vinge drejer sammenhængende; dens belastning og strømning vises i instrumenterne. Mere indtrimning kan også give stall og mindre fremdrift.</p><p><b>Automatisk foiltrim.</b> Flapper, rorflader og monohullens bevægelige arme justeres automatisk med begrænset hastighed og korrektion. Reguleringen tillader krængning i sving og korte reaktioner på bølger og pust. Instrumenterne viser de faktiske indstillinger.</p><p><b>Flyvehøjde:</b> Afstanden fra skrogbunden midtskibs til den lokale vandoverflade. På katamaranen vises den laveste af de to skrogbunde. Foilernes dybde vises separat. Begge hovedfoils kan være nede under acceleration og manøvrer.</p><p><b>Banen:</b> Vælg op/ned med gates eller trekant. Begge baner har seks ben og 30 sekunders nedtælling. Se rute, rundingspile og næste mål på kortet. Cup-bådene får længere baner og mere plads til runding.</p></div><div class="help-grid dinghy-only"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Skødet bliver stående.</span><span>1 · 2 · 3</span><span>På Svær vælger 1–3 stilling på den valgte side. På Let flytter besætningen selv vægten.</span><span>Q / E</span><span>Q vælger bagbord. E vælger styrbord. Valget bevares gennem vendinger.</span><span>C · Mellemrum</span><span>Skift kamera · Pause og fortsæt</span><span>R · H · V · B</span><span>Genstart · Hjælp · Vejr og vind · Vælg båd (sætter på pause)</span><span>Touch</span><span>Træk rorkontrollen til venstre. Skødeskyderen til højre bliver stående. Begge kan bruges samtidig.</span></div><p class="help-tip"><b>Ror og trim:</b> Korte tryk giver små rorudslag. Hold en pil for at dreje mere. Brug ↑ og ↓ til skødet. På Let flytter besætningen vægten, også gennem en vending. Roret skal have vandstrøm for at dreje båden.</p><div class="help-tip dinghy-only"><p><b>Vejr og vind:</b> Tryk V eller vælg Vejr øverst. Vælg mellem solskin, overskyet, regn, tåge, bygevejr og solnedgang. Vindstyrke, retning, pust, bølger, regn, skyer og tåge kan justeres hver for sig.</p><p><b>På kryds:</b> Hold vinden skråt forfra. Hal ind, til sejlet trækker uden at stalle. Skift hals ved at dreje stævnen gennem vinden med restfart.</p><p><b>Med vinden:</b> Slæk gradvist ud. På læns skubber vinden på sejlet; dragdomineret strømning er normal her.</p><p><b>Gennem banen:</b> Sejl gennem hver lysende port i pilens retning, med den orange bøje om bagbord. Sejl mellem gatebøjerne og rund en af dem udad, eller rund trekantens mærker om bagbord. Følg ruten i rækkefølge. En forkert passage bliver ved med at være aktiv, så den kan rettes.</p><p><b>Vægtplacering på Svær.</b> 2 – Kant er den tilgivende standardstilling. Brug 1 – Inde i svag vind og 3 – Hæng, når sejltrykket kræver større modvægt. Fuld hængning kan give overbalance ved et vindhul. Kroppen og det beregnede tyngdepunkt flyttes sammen. På kølbåden flytter én person kun lidt på den samlede balance.</p><p><b>Krængning:</b> Stor krængning koster fart. Slæk i et pust. Ved kæntring flyder jollen videre. Automatisk opretning starter med det samme og afleverer kontrollen senest efter fem sekunder, mens fanen er aktiv. Sejlet aflastes, og besætningen sættes ind i båden. Øvelsens rekord bortfalder.</p></div><div class="help-tip"><p><b>Små korrektioner:</b> Korte styretryk giver små kurskorrektioner. Et længere tryk øger gradvist den ønskede drejehastighed. Modsat pil begynder straks at bremse drejningen. De lysende pile viser din kommando; rorvisningen viser den faktiske vinkel. Følsomhed, kontrolhastighed, fysisk dæmpning og kamera kan justeres hver for sig i Vejr.</p><p><b>Kom ud af vindøjet:</b> Hold venstre eller højre pil, indtil stævnen peger ud på en sejlbar kurs. Roret skal have vandstrøm for at kunne dreje båden. På Let kan du selv slå sejlbakning til under Sejlhjælp. Indstillingen “Bak sejlet i vindøjet” giver desuden besætningen lov til kortvarigt at bakke sejlet. Fremdriften kræver stadig en brugbar kurs og passende trim.</p><p><b>Se, hvor vinden går hen:</b> De fine strøg på vandet driver med den sande vind. Grønne og orange pile på instrumentet viser derimod, hvor vinden kommer fra. Kyst, fyr, mole og kølvand ligger fast i verden.</p></div><button class="primary" data-close="help">Tilbage til vandet <span>→</span></button></div></section>
 <section class="modal-layer" id="details" hidden=""><div class="modal"><button class="close" data-close="details" aria-label="Luk instrumenter">×</button><div class="eyebrow">SAMME TILSTAND · ALLE INSTRUMENTER</div><h2>Vind &amp; bevægelse</h2><div class="detail-grid"><div><small>TWS · sand vindhastighed</small><b id="twsDetail">—</b></div><div><small>TWD · sand vind fra</small><b id="twdDetail">—</b></div><div><small>TWA · sand vindvinkel</small><b id="twaDetail">—</b></div><div><small>AWS · relativ vindhastighed</small><b id="awsDetail">—</b></div><div><small>AWA · relativ vindvinkel</small><b id="awaDetail">—</b></div><div><small>VMG mod næste mærke</small><b id="vmgDetail">—</b></div></div><p>Grøn viser sand vind. Orange viser relativ vind. Pilene viser, hvor vinden kommer <b>fra</b>. Både bådens fart og dens kurs ændrer den relative vind. Vindvinklen er ubestemt ved næsten nul vind.</p>
-  <details open=""><summary>Den fysiske model</summary><p>Fysisk funderet spilsimulation — ikke en valideret Laser-polar. Bådparametrene ligger samlet i <code>SailingBoats.CONFIGS</code> i denne fil. Mellemjollen og 40-fods kølbåden er fiktive; også Laserens kraftkoefficienter er spilværdier. Fysikken kører med fast tidsstep 1/60 s og semi-implicit Euler. Foileren bruger yderligere deltrin til hurtige kraftændringer; grafikken interpolerer mellem tilstandene.</p><table class="details-table"><tbody><tr><td>Bådmodeller</td><td>Laserjolle, Racer 32, Turbåd 43 og America’s Cup med to varianter: AC75-inspireret monohull og AC72-inspireret katamaran. Laserjollen har sværd. Racer 32 og Turbåd 43 har ballastkøl. Monohullen har bevægelige foil-arme og et T-ror. Katamaranen har to særskilte skrog, løftende sværd og to rorfoils. Laserjollen har én sejler på 75 kg, og Racer 32 har tre på 80 kg. Turbåd 43 har fire på 75 kg. Begge Cup-varianter har deres egen besætningsmasse og fordeling.</td></tr><tr><td>Vind &amp; vand</td><td>Vind er en vektor. Relativ vind = luftens hastighed − bådens hastighed. Ingen strøm. Samme bølgefunktion bruges ved skrogets opdriftspunkter og i havets grafik.</td></tr><tr><td>Sejl</td><td>Lift + drag, glatte koefficientkurver, flere højdestriber og fast twist. Læns er dragdomineret. Sejlformen følger beregnet belastning; den er ikke en stof- eller CFD-simulation.</td></tr><tr><td>Storskøde &amp; bom</td><td>Skødet sætter en maksimal åbningsvinkel. Bommen har inerti og dæmpning. En dokumenteret empirisk leech-snap-model med hysterese hjælper bomningen.</td></tr><tr><td>Skrog &amp; foiler</td><td>Empirisk skrogmodstand samt sværd-, køl- og rorkræfter. Laserjollens vandmodstand og medbevægelige vandmasse følger skrog, sværd og rors neddykning. Roret bruger lokal vandhastighed inklusive rotation. Ved bakning vender inputomsætningen med hysterese; de fysiske vandkræfter bevares. Ingen fuld planingsmodel.</td></tr><tr><td>Balance</td><td>Dynamisk rulning, hævning og pitch. Opdrift virker ved de neddykkede skrogdele; vægten virker ved bådens og kroppens tyngdepunkter. Sejl, sværd og ror bidrager med momenter. På Let vælger besætningen side og vægtplacering. På Svær vælger spilleren vægtplacering med 1, 2 og 3 og kan flytte vægten frem og tilbage med X og Z. På Svær vælger Q bagbord og E styrbord uanset vindretning.</td></tr><tr><td>Vandlinje</td><td>Fordelt opdrift og vanddæmpning styrer flydehøjden. En skrogmaske fjerner kun vandfragmenter inde i skroget; cockpittet kan overskylles, når rælingen går under.</td></tr><tr><td>Kæntring</td><td>Væltningen sker gennem fysikken. Lukkede opdriftsrum og en forenklet rigkontakt med vandet holder jollen flydende. Opretning starter automatisk. En monoton tidsmåling styrer aflastning, assisterede momenter og om nødvendigt en kontrolleret afslutning til en sikker flydeposition. Normalvarighed 3–4,4 s; watchdog ved 4,5 s. En suspenderet fane færdiggør et udløbet forløb ved første aktive opdatering. Ingen fuld væskesimulation af vand inde i cockpittet.</td></tr><tr><td>Bevægelsesmodel</td><td>Samme tilstand for kræfter, kontroller og grafik. Massefordeling, opdriftscenter og kraftangrebspunkter holdes adskilt. Momenter beregnes konsekvent om et fælles skrogreferencepunkt med diagonale, kalibrerede inertier. Fuld kobling mellem translation og rotation i en 6×6 massematrix er udeladt; dette er en reduceret spilmodel. Besætningens vægt tælles én gang.</td></tr><tr><td>Vægtbevægelse</td><td>Krop og tyngdepunkt bruger samme glatte posefunktion. Både hastighed og acceleration er begrænset. Bevægelsen ind igen er hurtigere end fuld udlægning. På Svær bevares din vægtplacering under vendingen. Et nyt tryk på 1–3 vælger luv på den nye hals. På Let vælger besætningen selv sin side og vægtplacering. Position 2 er standard; position 3 kan stadig give overbalance.</td></tr><tr><td>Fast rigtrim</td><td>Moderat vang og udhal; neutral cunningham. Fast grundbugt og twist specificeret i konfigurationen. Ingen særskilt rigtrim.</td></tr><tr><td>Foiling</td><td>Begge Cup-modeller beregner lokale vandstrømme, løft, modstand og momenter for hver foil. Nedsænkning, flap og orientering ændrer kræfterne. To flapfelter på hver hovedvinge fordeler løftet langs spændet; dette er en dokumenteret spilforenkling. Skroget aflastes gennem kraftbalancen; dets vandmodstand aftager med vandkontakten. Ventilation fra overfladen har forsinket opbygning og genopretning. Kavitation er ikke modelleret.</td></tr><tr><td>Katamaran</td><td>Opdrift, lokal vandkontakt og modstand beregnes for hvert af de to skrog. Begge løftende sværd holdes nede under normal sejlads; de og de to agterste rorfoils fordeler kræfterne over bredden. Denne firepunktsstøtte er et bevidst tilgivende spilvalg. Den stive vinges projektionsareal tælles én gang. Større stabilitet og højere topfart end monohullen er valgt i spilkalibreringen; det er ikke validerede AC72-data. Automatisk regulerede flapper og rortrim er en spilforenkling, ikke AC72-klasseregler.</td></tr><tr><td>Kontrolrespons</td><td>Holdte taster aflæses ved hvert fysiktrin. Et kort tryk gælder i mindst ét fysiktrin. Progressivt rorudslag med separat aktuatorhastighed. Ved slip går roret tilbage mod midten. Båden drejer efter den faktiske vandstrøm ved roret og sejltrykket. Kontrolvisningen opdateres hvert billede; kameraet har sin egen indstilling.</td></tr><tr><td>Foilbesætning</td><td>Automatikken betjener de samme flapper, pitchtrim og foil-arme, som skaber kræfterne. Begrænset reaktionshastighed og arbejdsområde; ingen låst flyvehøjde eller fartbonus. Spilleren bestemmer kurs og sejltrim. Tasterne 1–3 flytter kun besætningen lidt inden for cockpitpladserne.</td></tr><tr><td>Ror</td><td>Pilene styrer rorvinklen på begge niveauer. Neddykket areal og strømmen ved rorbladet bestemmer drejekraften.</td></tr><tr><td>Kystkontakt</td><td>Havbunden følger den synlige kyst. Kontakt ved skrog, køl, sværd, ror og foils giver elastisk modkraft og dæmpende friktion. Dette er en enkel spiltilnærmelse uden skader eller opmålt dybdekort.</td></tr></tbody></table><pre id="configSummary" class="code-note"></pre></details>
+  <details open=""><summary>Den fysiske model</summary><p>Fysisk funderet spilsimulation — ikke en valideret Laser-polar. Bådparametrene ligger samlet i <code>SailingBoats.CONFIGS</code> i denne fil. Racer 32 og Turbåd 43 er fiktive. Laserens kraftkoefficienter er spilværdier. Fysikken kører med fast tidsstep 1/60 s og semi-implicit Euler. Foileren bruger yderligere deltrin til hurtige kraftændringer; grafikken interpolerer mellem tilstandene.</p><table class="details-table"><tbody><tr><td>Bådmodeller</td><td>Laserjolle, Racer 32, Turbåd 43 og America’s Cup med to varianter: AC75-inspireret monohull og AC72-inspireret katamaran. Laserjollen har sværd. Racer 32 og Turbåd 43 har ballastkøl. Monohullen har bevægelige foil-arme og et T-ror. Katamaranen har to særskilte skrog, løftende sværd og to rorfoils. Laserjollen har én sejler på 75 kg, og Racer 32 har tre på 80 kg. Turbåd 43 har fire på 75 kg. Begge Cup-varianter har deres egen besætningsmasse og fordeling.</td></tr><tr><td>Vind &amp; vand</td><td>Vind er en vektor. Relativ vind = luftens hastighed − bådens hastighed. Ingen strøm. Samme bølgefunktion bruges ved skrogets opdriftspunkter og i havets grafik.</td></tr><tr><td>Sejl</td><td>Lift + drag, glatte koefficientkurver, flere højdestriber og fast twist. Læns er dragdomineret. Sejlformen følger beregnet belastning; den er ikke en stof- eller CFD-simulation.</td></tr><tr><td>Storskøde &amp; bom</td><td>Skødet sætter en maksimal åbningsvinkel. Bommen har inerti og dæmpning. En dokumenteret empirisk leech-snap-model med hysterese hjælper bomningen.</td></tr><tr><td>Skrog &amp; foiler</td><td>Empirisk skrogmodstand samt sværd-, køl- og rorkræfter. Laserjollens vandmodstand og medbevægelige vandmasse følger skrog, sværd og rors neddykning. Roret bruger lokal vandhastighed inklusive rotation. Ved bakning vender inputomsætningen med hysterese; de fysiske vandkræfter bevares. Laserjollen og Racer 32 bruger en empirisk planingsmodel med løft og modstand fra neddykkede skrogdele.</td></tr><tr><td>Balance</td><td>Dynamisk rulning, hævning og pitch. Opdrift virker ved de neddykkede skrogdele; vægten virker ved bådens og kroppens tyngdepunkter. Sejl, sværd og ror bidrager med momenter. På Let vælger besætningen side og vægtplacering. På Svær vælger spilleren stilling med 1, 2 og 3 og kan flytte vægten frem og tilbage med X og Z. Q vælger bagbord og E styrbord. 1–3 ændrer kun stillingen.</td></tr><tr><td>Vandlinje</td><td>Fordelt opdrift og vanddæmpning styrer flydehøjden. En skrogmaske fjerner kun vandfragmenter inde i skroget; cockpittet kan overskylles, når rælingen går under.</td></tr><tr><td>Kæntring</td><td>Væltningen sker gennem fysikken. Lukkede opdriftsrum og en forenklet rigkontakt med vandet holder jollen flydende. Opretning starter automatisk. En monoton tidsmåling styrer aflastning, assisterede momenter og om nødvendigt en kontrolleret afslutning til en sikker flydeposition. Normalvarighed 3–4,4 s; watchdog ved 4,5 s. En suspenderet fane færdiggør et udløbet forløb ved første aktive opdatering. Ingen fuld væskesimulation af vand inde i cockpittet.</td></tr><tr><td>Bevægelsesmodel</td><td>Integrationen forskyder kræfter og momenter fra skrogets referencepunkt til det bevægelige tyngdepunkt. Inertitensoren følger besætning og foil-arme. Tyngdekraften går lodret ned og tælles én gang. Denne model tilnærmer vandets medbevægelige masse og dæmpning.</td></tr><tr><td>Vægtbevægelse</td><td>Krop og tyngdepunkt bruger samme glatte posefunktion. Både hastighed og acceleration er begrænset. Bevægelsen ind igen er hurtigere end fuld udlægning. På Svær vælger Q eller E siden, og 1–3 ændrer stillingen. Efter opretning vender besætningen tilbage mod den valgte placering. På Let vælger besætningen selv sin side og vægtplacering. Position 2 er standard; position 3 kan stadig give overbalance.</td></tr><tr><td>Fast rigtrim</td><td>Moderat vang og udhal; neutral cunningham. Fast grundbugt og twist specificeret i konfigurationen. Ingen særskilt rigtrim.</td></tr><tr><td>Foiling</td><td>Begge Cup-modeller beregner lokale vandstrømme, løft, modstand og momenter for hver foil. Nedsænkning, flap og orientering ændrer kræfterne. To flapfelter på hver hovedvinge fordeler løftet langs spændet; dette er en dokumenteret spilforenkling. Skroget aflastes gennem kraftbalancen; dets vandmodstand aftager med vandkontakten. Ventilation fra overfladen har forsinket opbygning og genopretning. Kavitation er ikke modelleret.</td></tr><tr><td>Katamaran</td><td>Opdrift, lokal vandkontakt og modstand beregnes for hvert af de to skrog. Begge løftende sværd holdes nede under normal sejlads; de og de to agterste rorfoils fordeler kræfterne over bredden. Denne firepunktsstøtte er et bevidst tilgivende spilvalg. Den stive vinges projektionsareal tælles én gang. Større stabilitet og højere topfart end monohullen er valgt i spilkalibreringen; det er ikke validerede AC72-data. Automatisk regulerede flapper og rortrim er en spilforenkling, ikke AC72-klasseregler.</td></tr><tr><td>Kontrolrespons</td><td>Holdte taster aflæses ved hvert fysiktrin. Et kort tryk gælder i mindst ét fysiktrin. Progressivt rorudslag med separat aktuatorhastighed. Ved slip går roret tilbage mod midten. Båden drejer efter den faktiske vandstrøm ved roret og sejltrykket. Kontrolvisningen opdateres hvert billede; kameraet har sin egen indstilling.</td></tr><tr><td>Foilbesætning</td><td>Automatikken betjener de samme flapper, pitchtrim og foil-arme, som skaber kræfterne. Begrænset reaktionshastighed og arbejdsområde; ingen låst flyvehøjde eller fartbonus. Spilleren bestemmer kurs og sejltrim. Tasterne 1–3 ændrer vægtfordelingen inden for de faste cockpitpladser. Q/E vælger side for den bevægelige del af besætningen.</td></tr><tr><td>Ror</td><td>Pilene styrer rorvinklen på begge niveauer. Neddykket areal og strømmen ved rorbladet bestemmer drejekraften.</td></tr><tr><td>Kystkontakt</td><td>Havbunden følger den synlige kyst. Kontakt ved skrog, køl, sværd, ror og foils giver elastisk modkraft og dæmpende friktion. Dette er en enkel spiltilnærmelse uden skader eller opmålt dybdekort.</td></tr></tbody></table><pre id="configSummary" class="code-note"></pre></details>
   <details><summary>Vejr &amp; synlige detaljer</summary><p>De seks vejrtyper er valgte spilindstillinger. Justér grundvinden fra 0 til 12 m/s; de lokale vindpust kan komme højere op. Vindretning, pust, bølger, regn, skyer og dis kan indstilles hver for sig. Sejlkræfterne følger den faktiske relative vind, uden en særskilt fartbonus for vejrtypen.</p><p>Regn, tåge, skyer, sollys og vandfarver ændres gradvist gennem samme simulationstilstand. Havet følger langsommere efter vind og bølgeniveau. Regnen hælder med vinden, og dråber danner krusninger. Regn og tåge ændrer udsyn og lyd; de tilfører ikke vandvægt eller ændrer skrogfriktion.</p><p>Riggen har blokke, klamper, mastekrave og sejløjer. Sejldug og dæk er tekstureret i kode. Kyst, fyrtårn, mole, strand, klipper og skov er faste verdenskoordinater, fælles for alle fire både. Samme terræn styrer den synlige kyst og havbunden. Grundstødning giver eftergivelige kontaktkræfter og friktion; der er ingen skadesmodel. Fine vindspor driver med den lokale sande vind. Mørke krusningsfelter bruger samme vindpust som sejlkræfterne. Brug C til at skifte mellem følge-, oversigts-, cockpit- og sidekamera.</p></details>
   <details><summary>Koefficientkurver &amp; kontrolscenarier</summary><canvas id="coefficients" width="900" height="350"></canvas><p id="coefficientCaption">Kurverne viser modellens valgte CL og CD.</p><p>Debug åbnes med tasten <b>´ / `</b> eller knappen herunder.</p><button class="text-button" id="debugButton">Åbn debugvisning</button><button class="text-button" id="detailsTests">Kør matematiske selvtests</button><div id="detailsTestResults" class="test-results" hidden=""></div><p class="about-test" id="verifiedTests">Teststatus vises efter indbygget selvtest.</p></details>
   <details><summary>Kilder &amp; teknik</summary><p><a href="https://www.cal-sailing.org/images/official_files/Dinghy17.pdf" target="_blank" rel="noopener">Cal Sailing Club · aflastning ved opretning</a> · <a href="https://www.fossen.biz/html/marineCraftModel.html" target="_blank" rel="noopener">Fossen · marine bevægelsesmodeller</a> · <a href="https://gafferongames.com/post/fix_your_timestep/" target="_blank" rel="noopener">Fix Your Timestep · fast fysikstep</a> · <a href="https://www.cupinfo.com/downloads/ac72-class-rule-1p1-a14-052413.pdf" target="_blank" rel="noopener">AC72 Class Rule v1.1 · mål og vingesejl</a> · <a href="https://catalogs.marinersmuseum.org/object/CL30467" target="_blank" rel="noopener">Mariners’ Museum · Oracle Team USA 17, 2013</a> · <a href="https://www.americascup.com/files/m5498_AC75-Class-Rule-v20.pdf" target="_blank" rel="noopener">AC75 Class Rule v2.0 · proportioner og masse</a> · <a href="https://www.americascup.com/news/4409_INSIDE-THE-AC75-THE-LATEST-TRENDS-IN-FOIL-DESIGN" target="_blank" rel="noopener">America’s Cup · foils, flapper og ventilation</a> · <a href="https://www.laserinternational.org/wp-content/uploads/2023/05/ILCA_HANDBOOK_2023.pdf" target="_blank" rel="noopener">ILCA-håndbog 2023, side 13</a> · <a href="https://www.rya.org.uk/training/do-you-know-your-points-of-sail/" target="_blank" rel="noopener">RYA: sejlretninger</a> · <a href="https://www.northsails.com/en-us/blogs/north-sails-blog/upwind-sail-power-by-bill-gladstone" target="_blank" rel="noopener">North Sails: sejlkræfter</a> · <a href="https://www.northsails.com/en-us/blogs/north-sails-blog/puff-response-upwind-northu-bill-gladstone" target="_blank" rel="noopener">North Sails: vindpust</a> · <a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-equation/" target="_blank" rel="noopener">NASA: lift</a> · <a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/" target="_blank" rel="noopener">NASA: drag</a>.</p><p>Alle former, materialer, lyd og teksturer er skabt i kode. Three.js 0.160.1 (MIT) er indlejret i filen. Ingen netværkskald, konto, server eller installation. Kræver en browser med WebGL. Rekorder gemmes lokalt, når browseren tillader det. Licens og komplet modeldokumentation findes i filens kildekode.</p></details>
@@ -1390,6 +1410,8 @@ if(typeof module!=='undefined'&&module.exports)module.exports=SailingMap;
 <script src="assets/crew-human.glb.js"></script>
 <script src="assets/crew-rig.js"></script>
 <script src="assets/crew-motion.js"></script>
+<script src="assets/laser-detail.glb.js"></script>
+<script src="assets/laser-detail.js"></script>
 <script src="assets/sky-daylight.js"></script>
 <script src="assets/surface-textures.js"></script>
 <script src="assets/scene-resources.js"></script>
@@ -1735,10 +1757,16 @@ class SailingScene {
         // Fine capillary ripples soften reflections in moving air. Swell
         // shape and slopes come from the same fronts as mesh and buoyancy.
         vec2 windUV=p*.47-windChopDrift*1.88;
-        float mipBias=mix(.10,1.25,smoothstep(15.,145.,distanceToEye));
+        float mipBias=mix(-.45,1.25,smoothstep(12.,105.,distanceToEye));
         vec2 fine=texture2D(rippleNormals,windUV,mipBias).rg*2.-1.;
+        // Cross ripples break up the repeating highlights near the hull.
+        if(waterDetail>=.9&&distanceToEye<42.){
+          vec2 crossUV=vec2(p.y,-p.x)*.29-vec2(windChopDrift.y,-windChopDrift.x)*.87;
+          vec2 crossSlope=texture2D(rippleNormals,crossUV,mipBias).rg*2.-1.;
+          fine+=vec2(-crossSlope.y,crossSlope.x)*(.52*(1.-smoothstep(16.,42.,distanceToEye)));
+        }
         float windDetail=smoothstep(.05,7.,air.z)*(1.-smoothstep(23.,112.,distanceToEye));
-        return fine*(windDetail*(.036+.100*seaRipples));
+        return fine*(windDetail*(.057+.109*seaRipples));
       }
       float sunGlint(vec3 normal,vec3 eye,float roughness){
         vec3 halfVector=normalize(sunDir+eye);
@@ -1827,7 +1855,9 @@ class SailingScene {
         body=mix(body,vec3(.039,.105,.095),(1.-smoothstep(.7,7.,depth))*.58);
         body=mix(body,vec3(dot(body,vec3(.2126,.7152,.0722))),.14*smoothstep(7.,27.,depth));
         float skyVisible=smoothstep(-.22,.17,reflected.y);
-        vec3 incoming=mix(sky,photo*.94,photoMix*.64);
+        // Broad sky reflections stay visible between the glints. Wind
+        // roughness scatters the sharper cloud image on the facing water.
+        vec3 incoming=mix(sky,photo*.94,photoMix*mix(.64,.28,smoothstep(.12,9.,air.z)));
         vec3 reflection=mix(body*.88,incoming,skyVisible);
         if(boatReflectionEnabled>.5&&distanceToEye<112.){
           vec4 projected=boatReflectionMatrix*vec4(vWorld.x,boatReflectionHeight,vWorld.z,1.);
@@ -2455,7 +2485,8 @@ class SailingScene {
     this.rainLines.material.uniforms.strength.value=a.rain;this.rainLines.material.uniforms.fogDensity.value=this.scene.fog.density;set(this.rainLines.material.uniforms.color.value,a.skyBottom,this.clearAtmosphere.skyBottom);this.rainLines.material.uniforms.color.value.lerp(new this.T.Color('#e9f4f3'),.3);
     this.materials.white.roughness=(this.isFoiler?.29:.33)-.10*a.rain;
     this.materials.white.envMapIntensity=.18+.24*photoMix;
-    this.materials.metal.envMapIntensity=.32+.70*photoMix;if(this.deckMaterial)this.deckMaterial.roughness=(this.isFoiler?.38:.72)-.2*a.rain;
+    this.materials.metal.envMapIntensity=.32+.70*photoMix;
+    if(this.deckMaterial)this.deckMaterial.roughness=(this.isFoiler?.38:this.laserDetailed?.57:.72)-.2*a.rain;
     this.shoreWindowMaterial.emissiveIntensity=.02+.7*a.sunWarmth+.04*a.clouds;this.lighthouseLamp.material.emissiveIntensity=.22+1.5*a.sunWarmth+a.fog*(.3+.7*Math.pow(Math.max(0,Math.sin(s.time*1.6)),6));
     for(const b of this.moored){
       if(b.group.visible&&(b.x-s.x)**2+(b.z+s.y)**2<460**2)b.group.position.y=this.P.waveAt(b.x,-b.z,s.time,env).height+.1;
@@ -2788,6 +2819,8 @@ class SailingScene {
     this.crewBalance=null;this.crewBuilt=0;this.helmPerson=null;
     this.cabin=this.helmWheel=this.racerTiller=this.racerTillerExtension=null;
     this.daggerboard=this.keel=this.catHulls=this.catRudders=this.foilVisuals=this.rudderElevator=this.laserStripe=null;
+    this.laserHullSurfaces=this.hikingStrap=null;
+    this.laserDetailed=m.id==='laser'&&global.TackLaserDetail?.available(T)===true;
     this.boatRoot=new T.Group();this.scene.add(this.boatRoot);this.heading=new T.Group();this.boatRoot.add(this.heading);this.hull=new T.Group();this.heading.add(this.hull);
     this.hull.rotation.order='ZXY';
     if(!this.isRemoteActor){
@@ -2801,71 +2834,85 @@ class SailingScene {
     this.rig={mastTop:m.mastHeight??deck+5.92,boomY:m.boomY??deck+.758,boomLength:m.boomLength??2.73*Math.sqrt(m.sailArea/7.06),foot:m.sailFoot??2.67*Math.sqrt(m.sailArea/7.06)};
     this.rig.luff=m.sailLuff??this.rig.mastTop-this.rig.boomY;
     if(this.isCat){this.buildCatamaran();this.updateFoilSailDetail();this.configureWaterMask();this.cameraReady=false;this.cameraMode=-1;return;}
-    // These vertices use the identical sectional hull surface as buoyancy.
-    // Each station has a rounded bottom, sidewalls and a closed flat transom.
-    const hullSections=[];for(let i=0;i<sections.length-1;i++){const x0=sections[i][0],x1=sections[i+1][0],n=Math.ceil((x1-x0)/.15);for(let j=0;j<n;j++){const x=x0+(x1-x0)*j/n;hullSections.push([x,this.halfBeamAt(x)]);}}hullSections.push(sections[sections.length-1]);
-    const vs=[],idx=[],ringSteps=64,rows=hullSections.length;
-    for(const [x,w] of hullSections){vs.push(x,deck,-w);for(let j=0;j<=ringSteps;j++){const z=(-1+2*j/ringSteps)*w;vs.push(x,this.bottomAt(x,z),z);}vs.push(x,deck,w);}
-    const ring=ringSteps+3;
-    for(let i=0;i<rows-1;i++)for(let j=0;j<ring-1;j++){const a=i*ring+j,b=a+ring;idx.push(a,b,a+1,a+1,b,b+1);}
-    for(const end of [0,rows-1]){
-      // On the racing yacht the transom opens into the working cockpit.
-      if(end===0&&m.racingYacht){const x=hullSections[0][0],w=hullSections[0][1],h=Math.min(c.halfWidth,w*.85),zs=[-w,-h,0,h,w],base=vs.length/3;for(let k=0;k<zs.length;k++){const z=zs[k],upper=(k===0||k===4)?deck:c.floorY;vs.push(x,this.bottomAt(x,z),z,x,upper,z);}for(let k=0;k<zs.length-1;k++){const a=base+k*2;idx.push(a,a+3,a+1,a,a+2,a+3);}continue;}
-      const start=end*ring,base=vs.length/3;vs.push(hullSections[end][0],deck,0);for(let j=0;j<ring-1;j++){if(end===0)idx.push(base,start+j+1,start+j);else idx.push(base,start+j,start+j+1);}}
+    if(this.laserDetailed){
+      const detail=global.TackLaserDetail;
+      const shell=detail.create(T,'Hull'),moulding=detail.create(T,'Deck');
+      this.hull.add(shell,moulding,detail.create(T,'Fittings',{deck:this.detailTexture('deck')}));
+      this.laserHullSurfaces=shell.children;
+      this.hullMesh=this.laserHullSurfaces.find(mesh=>mesh.name==='Ivory gelcoat');
+      this.laserStripe=this.laserHullSurfaces.find(mesh=>mesh.name==='Atlantic blue');
+      this.laserStripe.name='laser-blue-gelcoat';
+      this.deckMaterial=moulding.children.find(mesh=>mesh.name==='Moulded deck').material;
+    }else{
+      // These vertices use the identical sectional hull surface as buoyancy.
+      // Each station has a rounded bottom, sidewalls and a closed flat transom.
+      const hullSections=[];for(let i=0;i<sections.length-1;i++){const x0=sections[i][0],x1=sections[i+1][0],n=Math.ceil((x1-x0)/.15);for(let j=0;j<n;j++){const x=x0+(x1-x0)*j/n;hullSections.push([x,this.halfBeamAt(x)]);}}hullSections.push(sections[sections.length-1]);
+      const vs=[],idx=[],ringSteps=64,rows=hullSections.length;
+      for(const [x,w] of hullSections){vs.push(x,deck,-w);for(let j=0;j<=ringSteps;j++){const z=(-1+2*j/ringSteps)*w;vs.push(x,this.bottomAt(x,z),z);}vs.push(x,deck,w);}
+      const ring=ringSteps+3;
+      for(let i=0;i<rows-1;i++)for(let j=0;j<ring-1;j++){const a=i*ring+j,b=a+ring;idx.push(a,b,a+1,a+1,b,b+1);}
+      for(const end of [0,rows-1]){
+        // On the racing yacht the transom opens into the working cockpit.
+        if(end===0&&m.racingYacht){const x=hullSections[0][0],w=hullSections[0][1],h=Math.min(c.halfWidth,w*.85),zs=[-w,-h,0,h,w],base=vs.length/3;for(let k=0;k<zs.length;k++){const z=zs[k],upper=(k===0||k===4)?deck:c.floorY;vs.push(x,this.bottomAt(x,z),z,x,upper,z);}for(let k=0;k<zs.length-1;k++){const a=base+k*2;idx.push(a,a+3,a+1,a,a+2,a+3);}continue;}
+        const start=end*ring,base=vs.length/3;vs.push(hullSections[end][0],deck,0);for(let j=0;j<ring-1;j++){if(end===0)idx.push(base,start+j+1,start+j);else idx.push(base,start+j,start+j+1);}}
 
-    const hg=new T.BufferGeometry();hg.setAttribute('position',new T.Float32BufferAttribute(vs,3));hg.setIndex(idx);hg.computeVertexNormals();
-    if(m.racingYacht){
-      const stern=sections[0][0],length=sections.at(-1)[0]-stern,uv=[];
-      for(let i=0;i<vs.length;i+=3)uv.push((vs[i]-stern)/length,1+(vs[i+1]-deck)/m.hullDepth);
-      hg.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
-      under.color.set('#ffffff');
-      under.map=this.racerHullTexture();
-      under.roughness=.32;
-    }
-    this.hullMesh=this.mesh(hg,under,this.hull);this.hullMesh.castShadow=this.hullMesh.receiveShadow=true;
-    if(m.id==='laser'){
-      // Coloured gelcoat follows the same hull surface as the physics.
-      const vertices=[],triangles=[];
-      for(const side of [-1,1]){
-        const offset=vertices.length/3;
-        for(const [x,w] of hullSections)for(const fraction of [.995,.64]){
-          const z=side*w*fraction;vertices.push(x,this.bottomAt(x,z)-.004,z+side*.008);
-        }
-        for(let i=0;i<hullSections.length-1;i++){const a=offset+i*2;triangles.push(a,a+1,a+2,a+1,a+3,a+2);}
+      const hg=new T.BufferGeometry();hg.setAttribute('position',new T.Float32BufferAttribute(vs,3));hg.setIndex(idx);hg.computeVertexNormals();
+      if(m.racingYacht){
+        const stern=sections[0][0],length=sections.at(-1)[0]-stern,uv=[];
+        for(let i=0;i<vs.length;i+=3)uv.push((vs[i]-stern)/length,1+(vs[i+1]-deck)/m.hullDepth);
+        hg.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
+        under.color.set('#ffffff');
+        under.map=this.racerHullTexture();
+        under.roughness=.32;
       }
-      // Wrap the gelcoat stripe around the transom as in the reference.
-      const stern=hullSections[0][0]-.008,w=hullSections[0][1]*.97,base=vertices.length/3;
-      vertices.push(stern,deck-.035,-w,stern,deck-.14,-w,stern,deck-.035,w,stern,deck-.14,w);triangles.push(base,base+1,base+2,base+1,base+3,base+2);
-      const stripeGeometry=new T.BufferGeometry();stripeGeometry.setAttribute('position',new T.Float32BufferAttribute(vertices,3));stripeGeometry.setIndex(triangles);stripeGeometry.computeVertexNormals();
-      this.laserStripe=this.mesh(stripeGeometry,this.mat('#1465b5',{roughness:.32,metalness:.04,side:T.DoubleSide}),this.hull);this.laserStripe.name='laser-blue-gelcoat';
+      this.hullMesh=this.mesh(hg,under,this.hull);this.hullMesh.castShadow=this.hullMesh.receiveShadow=true;
+      if(m.id==='laser'){
+        // Coloured gelcoat follows the same hull surface as the physics.
+        const vertices=[],triangles=[];
+        for(const side of [-1,1]){
+          const offset=vertices.length/3;
+          for(const [x,w] of hullSections)for(const fraction of [.995,.64]){
+            const z=side*w*fraction;vertices.push(x,this.bottomAt(x,z)-.004,z+side*.008);
+          }
+          for(let i=0;i<hullSections.length-1;i++){const a=offset+i*2;triangles.push(a,a+1,a+2,a+1,a+3,a+2);}
+        }
+        // Wrap the gelcoat stripe around the transom as in the reference.
+        const stern=hullSections[0][0]-.008,w=hullSections[0][1]*.97,base=vertices.length/3;
+        vertices.push(stern,deck-.035,-w,stern,deck-.14,-w,stern,deck-.035,w,stern,deck-.14,w);triangles.push(base,base+1,base+2,base+1,base+3,base+2);
+        const stripeGeometry=new T.BufferGeometry();stripeGeometry.setAttribute('position',new T.Float32BufferAttribute(vertices,3));stripeGeometry.setIndex(triangles);stripeGeometry.computeVertexNormals();
+        this.laserStripe=this.mesh(stripeGeometry,this.mat('#1465b5',{roughness:.32,metalness:.04,side:T.DoubleSide}),this.hull);this.laserStripe.name='laser-blue-gelcoat';
+      }
+      const outline=sections.map(([x,z])=>[x,z]).concat(sections.slice().reverse().map(([x,z])=>[x,-z]));
+      const shape=new T.Shape();shape.moveTo(...outline[0]);for(const p of outline.slice(1))shape.lineTo(...p);
+      if(m.racingYacht){const stern=sections[0][0],h=Math.min(c.halfWidth,sections[0][1]*.85);shape.lineTo(stern,-h);shape.lineTo(c.x1,-h);shape.lineTo(c.x1,h);shape.lineTo(stern,h);shape.closePath();}
+      else{shape.closePath();shape.holes.push(cockpitPath(c.x0,c.x1,-c.halfWidth,c.halfWidth,c.radius));}
+      const dg=new T.ShapeGeometry(shape,18);dg.rotateX(-Math.PI/2);this.deckMaterial=white.clone();this.deckMaterial.bumpMap=this.detailTexture(this.isFoiler?'carbon':'deck');this.deckMaterial.bumpScale=.002;this.deckMaterial.roughness=.72;const deckMesh=this.mesh(dg,this.deckMaterial,this.hull);deckMesh.position.y=deck;deckMesh.castShadow=deckMesh.receiveShadow=true;
+      const edgePoints=outline.map(([x,z])=>this.V(x,deck+.008,z));if(!m.racingYacht)edgePoints.push(edgePoints[0].clone());
+      const rim=new T.TubeGeometry(new T.CatmullRomCurve3(edgePoints,false,'centripetal'),128,m.racingYacht?.012:.020,5,false);
+      this.mesh(rim,m.racingYacht?dark:white,this.hull).castShadow=true;
+      if(!m.racingYacht){
+        this.line(edgePoints.map(p=>this.V(p.x,p.y-.055,p.z*1.002)),m.color||'#608b96',this.hull,.88);
+        this.line(outline.map(([x,z])=>this.V(x,deck-.038,z*.997)).concat([this.V(outline[0][0],deck-.038,outline[0][1]*.997)]),m.color||'#267a8c',this.hull,.95);
+      }
+      const hole=cockpitPath(c.x0,c.x1,-c.halfWidth,c.halfWidth,c.radius).getPoints(12),wallP=[],wallI=[],cx=(c.x0+c.x1)*.5;
+      // Floor and sloping walls share the same perimeter, so no light or water
+      // shows through a seam when the cockpit is viewed from a low angle.
+      const floorShape=new T.Shape(hole.map(p=>new T.Vector2(cx+(p.x-cx)*.90,p.y*.85)));
+      const fg=new T.ShapeGeometry(floorShape);fg.rotateX(-Math.PI/2);const floor=this.mesh(fg,this.mat(m.id==='laser'?'#e5e9e5':m.racingYacht?'#4b5052':'#b4c7c5',{roughness:.8}),this.hull);floor.position.y=c.floorY;floor.receiveShadow=true;
+      hole.forEach((p,i)=>{wallP.push(p.x,deck,-p.y,cx+(p.x-cx)*.90,c.floorY,-p.y*.85);if(i<hole.length-1){const next=hole[i+1],openAft=m.racingYacht&&p.x<c.x0+.09&&next.x<c.x0+.09;if(!openAft){const a=i*2;wallI.push(a,a+1,a+2,a+2,a+1,a+3);}}});
+      const wg=new T.BufferGeometry();wg.setAttribute('position',new T.Float32BufferAttribute(wallP,3));wg.setIndex(wallI);wg.computeVertexNormals();this.mesh(wg,this.mat('#e1e8e5',{side:T.DoubleSide}),this.hull).receiveShadow=true;
+      const coaming=(m.racingYacht?hole.filter(p=>p.x>c.x0+.09):hole).map(p=>this.V(p.x,deck+.012,-p.y));this.mesh(new T.TubeGeometry(new T.CatmullRomCurve3(coaming),72,.013,5,false),white,this.hull);
     }
-    const outline=sections.map(([x,z])=>[x,z]).concat(sections.slice().reverse().map(([x,z])=>[x,-z]));
-    const shape=new T.Shape();shape.moveTo(...outline[0]);for(const p of outline.slice(1))shape.lineTo(...p);
-    if(m.racingYacht){const stern=sections[0][0],h=Math.min(c.halfWidth,sections[0][1]*.85);shape.lineTo(stern,-h);shape.lineTo(c.x1,-h);shape.lineTo(c.x1,h);shape.lineTo(stern,h);shape.closePath();}
-    else{shape.closePath();shape.holes.push(cockpitPath(c.x0,c.x1,-c.halfWidth,c.halfWidth,c.radius));}
-    const dg=new T.ShapeGeometry(shape,18);dg.rotateX(-Math.PI/2);this.deckMaterial=white.clone();this.deckMaterial.bumpMap=this.detailTexture(this.isFoiler?'carbon':'deck');this.deckMaterial.bumpScale=.002;this.deckMaterial.roughness=.72;const deckMesh=this.mesh(dg,this.deckMaterial,this.hull);deckMesh.position.y=deck;deckMesh.castShadow=deckMesh.receiveShadow=true;
-    const edgePoints=outline.map(([x,z])=>this.V(x,deck+.008,z));if(!m.racingYacht)edgePoints.push(edgePoints[0].clone());
-    const rim=new T.TubeGeometry(new T.CatmullRomCurve3(edgePoints,false,'centripetal'),128,m.racingYacht?.012:.020,5,false);
-    this.mesh(rim,m.racingYacht?dark:white,this.hull).castShadow=true;
-    if(!m.racingYacht){
-      this.line(edgePoints.map(p=>this.V(p.x,p.y-.055,p.z*1.002)),m.color||'#608b96',this.hull,.88);
-      this.line(outline.map(([x,z])=>this.V(x,deck-.038,z*.997)).concat([this.V(outline[0][0],deck-.038,outline[0][1]*.997)]),m.color||'#267a8c',this.hull,.95);
-    }
-    const hole=cockpitPath(c.x0,c.x1,-c.halfWidth,c.halfWidth,c.radius).getPoints(12),wallP=[],wallI=[],cx=(c.x0+c.x1)*.5;
-    // Floor and sloping walls share the same perimeter, so no light or water
-    // shows through a seam when the cockpit is viewed from a low angle.
-    const floorShape=new T.Shape(hole.map(p=>new T.Vector2(cx+(p.x-cx)*.90,p.y*.85)));
-    const fg=new T.ShapeGeometry(floorShape);fg.rotateX(-Math.PI/2);const floor=this.mesh(fg,this.mat(m.id==='laser'?'#e5e9e5':m.racingYacht?'#4b5052':'#b4c7c5',{roughness:.8}),this.hull);floor.position.y=c.floorY;floor.receiveShadow=true;
-    hole.forEach((p,i)=>{wallP.push(p.x,deck,-p.y,cx+(p.x-cx)*.90,c.floorY,-p.y*.85);if(i<hole.length-1){const next=hole[i+1],openAft=m.racingYacht&&p.x<c.x0+.09&&next.x<c.x0+.09;if(!openAft){const a=i*2;wallI.push(a,a+1,a+2,a+2,a+1,a+3);}}});
-    const wg=new T.BufferGeometry();wg.setAttribute('position',new T.Float32BufferAttribute(wallP,3));wg.setIndex(wallI);wg.computeVertexNormals();this.mesh(wg,this.mat('#e1e8e5',{side:T.DoubleSide}),this.hull).receiveShadow=true;
-    const coaming=(m.racingYacht?hole.filter(p=>p.x>c.x0+.09):hole).map(p=>this.V(p.x,deck+.012,-p.y));this.mesh(new T.TubeGeometry(new T.CatmullRomCurve3(coaming),72,.013,5,false),white,this.hull);
     if(this.isFoiler){this.buildFoilerRig();this.updateFoilSailDetail();this.configureWaterMask();this.cameraReady=false;this.cameraMode=-1;return;}
     if(this.isYacht){this.buildYachtRig();this.configureWaterMask();this.cameraReady=false;this.cameraMode=-1;return;}
     // One central hiking strap: the same feet coordinates used by the crew model
     // remain beneath this flexible webbing when the sailor hangs from the side.
-    const strapX=m.crewX??-.58*sx,strapPts=[this.V(strapX-.52,c.floorY+.025,0),this.V(strapX-.24,c.floorY+.155,0),this.V(strapX+.25,c.floorY+.155,0),this.V(strapX+.49,c.floorY+.025,0)];
-    const strapGeo=new T.BufferGeometry(),sv=[],si=[];for(let j=0;j<4;j++)for(const z of [-.05,.05])sv.push(strapPts[j].x,strapPts[j].y,z);for(let j=0;j<3;j++){const a=j*2;si.push(a,a+1,a+2,a+1,a+3,a+2);}strapGeo.setAttribute('position',new T.Float32BufferAttribute(sv,3));strapGeo.setIndex(si);strapGeo.computeVertexNormals();this.hikingStrap=this.mesh(strapGeo,this.mat(m.id==='laser'?'#94442f':'#233840',{side:T.DoubleSide,roughness:.9}),this.hull);
-    for(const x of [strapX-.52,strapX+.49]){const a=this.mesh(new T.BoxGeometry(.1,.012,.13),metal,this.hull);a.position.set(x,c.floorY+.025,0);}
+    const strapX=m.crewX??-.58*sx;
+    if(!this.laserDetailed){
+      const strapPts=[this.V(strapX-.52,c.floorY+.025,0),this.V(strapX-.24,c.floorY+.155,0),this.V(strapX+.25,c.floorY+.155,0),this.V(strapX+.49,c.floorY+.025,0)];
+      const strapGeo=new T.BufferGeometry(),sv=[],si=[];for(let j=0;j<4;j++)for(const z of [-.05,.05])sv.push(strapPts[j].x,strapPts[j].y,z);for(let j=0;j<3;j++){const a=j*2;si.push(a,a+1,a+2,a+1,a+3,a+2);}strapGeo.setAttribute('position',new T.Float32BufferAttribute(sv,3));strapGeo.setIndex(si);strapGeo.computeVertexNormals();this.hikingStrap=this.mesh(strapGeo,this.mat(m.id==='laser'?'#94442f':'#233840',{side:T.DoubleSide,roughness:.9}),this.hull);
+      for(const x of [strapX-.52,strapX+.49]){const a=this.mesh(new T.BoxGeometry(.1,.012,.13),metal,this.hull);a.position.set(x,c.floorY+.025,0);}
+    }
     const boardDepth=m.daggerDepth??.9,boardChord=m.daggerChord??m.daggerArea/boardDepth;
     let board;if(m.id==='laser'){const profile=new T.Shape();profile.moveTo(-boardChord*.5,.08);profile.lineTo(boardChord*.5,.08);profile.lineTo(boardChord*.39,-boardDepth+.10);profile.quadraticCurveTo(boardChord*.30,-boardDepth,-boardChord*.33,-boardDepth);profile.quadraticCurveTo(-boardChord*.43,-boardDepth+.03,-boardChord*.44,-boardDepth+.12);profile.closePath();board=this.mesh(new T.ExtrudeGeometry(profile,{depth:.028,bevelEnabled:true,bevelSize:.008,bevelThickness:.006,bevelSegments:2}),white,this.hull);board.position.set(m.daggerX,0,-.014);}
     else{board=this.mesh(new T.BoxGeometry(boardChord,boardDepth,.035),white,this.hull);board.position.set(m.daggerX,-boardDepth*.5,0);}board.name='centreboard';this.daggerboard=board;
@@ -3011,7 +3058,9 @@ class SailingScene {
     for(const r of this.catRigLines)this.updateLine(r.line,[r.anchor,this.wingPoint(.03,r.head,s)]);
     const positions=global.SailingBoats?.foilerCrewPositions?.(s)||m.crewStations;for(let i=0;i<this.foilingCrew.length;i++){const crew=this.foilingCrew[i],p=positions[i];crew.centre={x:p.x,y:p.y,z:p.z};crew.body=this.seatedCrewPose(crew.centre,(s.crewSideBlend??-1)*(.08+.12*clamp((s.crewPoseBlend??2)-1,0,2)));this.posePerson(crew.person,this.animatedCrewPose(crew.body,s,i));}for(const wheel of this.acHelmWheels)wheel.rotation.x=-(s.rudder||0)*4;
     for(const [key,visual] of Object.entries(this.foilVisuals)){const pose=F?.foilPose?.(s,key);if(!pose)continue;visual.pose=pose;const p=pose.wingCentre||pose.centre,n0=pose.wingNormal||pose.normal,z0=pose.spanDirection||pose.spanVector,n=this.V(n0.x,n0.y,n0.z).normalize(),z=this.V(z0.x,z0.y,z0.z).normalize(),x=n.clone().cross(z).normalize();visual.wing.position.set(p.x,p.y,p.z);visual.wing.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(x,n,z));this.setFoilFlap(visual.flap,s.foils?.[key]?.flap??pose.flap??0);visual.strut.position.set(p.x,p.y,p.z);visual.strut.rotation.y=visual.isRudder?(s.rudder||0):0;visual.strut.userData.retraction=s.foils?.[key]?.arm??0;}
-    for(const t of this.telltales){const p=t.line.geometry.attributes.position.array,base=this.wingPoint(.92,t.v,s,t.side),flow=s.sail?.main||s.sail||{},angle=s.wing?.angle??s.boom??0,unsteady=clamp((flow.stall||0)*.8+(flow.luff||0)*.65,0,1);for(let i=0;i<9;i++){const f=i/8;p[i*3]=base.x-Math.cos(angle)*f*.75;p[i*3+1]=base.y+Math.sin(s.time*13+i+t.v*33)*f*.15*unsteady;p[i*3+2]=base.z+Math.sin(angle)*f*.75+t.side*.025+Math.sin(s.time*17+i)*f*.12*unsteady;}t.line.geometry.attributes.position.needsUpdate=true;}
+    for(const t of this.telltales){
+      this.updateTelltale(t,this.wingPoint(.92,t.v,s,t.side),s,.75);
+    }
     this.updateWaterMask(s,env);
   }
   detailTexture(kind){
@@ -3034,17 +3083,23 @@ class SailingScene {
     const collar=this.mesh(new T.TorusGeometry(.061,.012,7,18),m.black,this.hull);collar.position.set(this.mastX,deck+.023,0);collar.rotation.x=Math.PI/2;
     const bolts=[[this.mastX-.08,deck+.018,-.07],[this.mastX+.08,deck+.018,.07],[cfg.daggerX-.16,deck+.06,-.045],[cfg.daggerX+.16,deck+.06,.045],[this.travelerX,deck+.018,-this.travelerHalfWidth],[this.travelerX,deck+.018,this.travelerHalfWidth],[c.x0+.13,deck+.018,-c.halfWidth-.06],[c.x0+.13,deck+.018,c.halfWidth+.06],[c.x1-.07,deck+.018,-c.halfWidth-.06],[c.x1-.07,deck+.018,c.halfWidth+.06]];
     const screws=new T.InstancedMesh(new T.CylinderGeometry(.014,.014,.006,8),m.metal,bolts.length),matrix=new T.Matrix4();for(let i=0;i<bolts.length;i++){matrix.makeTranslation(...bolts[i]);screws.setMatrixAt(i,matrix);}this.hull.add(screws);
-    const nonslip=this.mat('#d9e1dc',{roughness:.85,bumpMap:this.detailTexture('deck'),bumpScale:.002}),padWidth=Math.max(.09,(cfg.beam*.5-c.halfWidth)*.44),padZ=c.halfWidth+padWidth*.8;
-    for(const z of [-padZ,padZ]){const pad=this.mesh(new T.BoxGeometry((c.x1-c.x0)*.82,.004,padWidth),nonslip,this.hull);pad.position.set((c.x0+c.x1)*.5,deck+.008,z);}
+    if(!this.laserDetailed){
+      const nonslip=this.mat('#d9e1dc',{roughness:.85,bumpMap:this.detailTexture('deck'),bumpScale:.002}),padWidth=Math.max(.09,(cfg.beam*.5-c.halfWidth)*.44),padZ=c.halfWidth+padWidth*.8;
+      for(const z of [-padZ,padZ]){const pad=this.mesh(new T.BoxGeometry((c.x1-c.x0)*.82,.004,padWidth),nonslip,this.hull);pad.position.set((c.x0+c.x1)*.5,deck+.008,z);}
+    }
     const pulley=(parent,x,y,z,r=.047)=>{const group=new T.Group();group.position.set(x,y,z);parent.add(group);this.mesh(new T.TorusGeometry(r,.014,6,16),m.black,group);this.cylinder([0,0,-.018],[0,0,.018],r*.40,m.metal,group);return group;};
-    pulley(this.boomPivot,-foot*.955,-.038,0);pulley(this.boomPivot,-foot*.525,-.038,0);pulley(this.boomPivot,-foot*.35,-.06,0,.036);pulley(this.hull,c.x1-.57,deck+.058,0,.053);
+    this.sheetBlocks=[pulley(this.boomPivot,-foot*.955,-.038,0),pulley(this.boomPivot,-foot*.525,-.038,0)];
+    pulley(this.boomPivot,-foot*.35,-.06,0,.036);
+    this.sheetLead=pulley(this.hull,c.x1-.57,deck+.058,0,.053);
     this.travelerBlock=pulley(this.hull,this.travelerX,deck+.088,0,.041);
     this.line([[-.12,.025,.035],[-foot,.025,.035]],'#d6af69',this.boomPivot);
     const clewStrap=this.mesh(new T.TorusGeometry(.035,.009,5,12),m.black,this.boomPivot);clewStrap.position.set(-foot,0,0);clewStrap.rotation.y=Math.PI/2;
     for(const z of [-.07,.07]){const cleat=this.mesh(new T.BoxGeometry(.11,.035,.035),m.black,this.hull);cleat.position.set(this.mastX-.18,deck+.038,z);}
     this.sailGrommets=[];for(const [u,v] of [[0,0],[1,0],[0,.997]]){const ring=this.mesh(new T.TorusGeometry(.023,.006,5,12),m.metal,this.hull);this.sailGrommets.push({u,v,mesh:ring});}
-    this.line([[.201,-.38,0],[.201,.38,0]],'#233c46',this.person.torso,.9);
-    for(const z of [-.09,.09]){const strip=this.mesh(new T.BoxGeometry(.012,.075,.065),this.mat('#eceacb'),this.person.torso);strip.position.set(.18,.28,z);}
+    if(!this.laserDetailed){
+      this.line([[.201,-.38,0],[.201,.38,0]],'#233c46',this.person.torso,.9);
+      for(const z of [-.09,.09]){const strip=this.mesh(new T.BoxGeometry(.012,.075,.065),this.mat('#eceacb'),this.person.torso);strip.position.set(.18,.28,z);}
+    }
   }
   addSportDinghyDetails(){
     // The open cockpit and broad stern follow the very same 5.25m hull used
@@ -3252,13 +3307,25 @@ class SailingScene {
     if(this.racerTiller)this.racerTiller.rotation.y=s.rudder;
     else this.helmWheel.rotation.x=-s.rudder*3.3;
     for(let i=0;i<this.mast.length;i++){const a=deck+(this.rig.mastTop-deck)*i/this.mast.length,b=deck+(this.rig.mastTop-deck)*(i+1)/this.mast.length;this.rod(this.mast[i],this.foilerMastPoint(a,s),this.foilerMastPoint(b,s));}
-    this.updateFoilSailGrid(this.sailMesh,s,false);this.updateFoilSailGrid(this.jibMesh,s,true);
-    for(const [line,jib] of [[this.sailEdge,false],[this.jibEdge,true]]){const p=line.geometry.attributes.position.array,n=p.length/3,half=Math.ceil(n/2);for(let i=0;i<n;i++){const u=i<half?1:0,v=i<half?i/(half-1):(n-1-i)/(n-half-1),q=jib?this.jibFoilerPoint(u,v,s):this.mainFoilerPoint(u,v,s);p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z;}line.geometry.attributes.position.needsUpdate=true;}
+    const jibUp=(s.sail?.jib?.area??m.jibArea)>.005;
+    this.jibMesh.visible=this.jibEdge.visible=jibUp;
+    this.updateFoilSailGrid(this.sailMesh,s,false);
+    if(jibUp)this.updateFoilSailGrid(this.jibMesh,s,true);
+    for(const [line,jib] of [[this.sailEdge,false],[this.jibEdge,true]]){if(jib&&!jibUp)continue;const p=line.geometry.attributes.position.array,n=p.length/3,half=Math.ceil(n/2);for(let i=0;i<n;i++){const u=i<half?1:0,v=i<half?i/(half-1):(n-1-i)/(n-half-1),q=jib?this.jibFoilerPoint(u,v,s):this.mainFoilerPoint(u,v,s);p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z;}line.geometry.attributes.position.needsUpdate=true;}
     for(const b of this.mainBattens){const p=b.line.geometry.attributes.position.array;for(let i=0;i<17;i++){const q=this.mainFoilerPoint(.36+.63*i/16,b.v,s);p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z+.008;}b.line.geometry.attributes.position.needsUpdate=true;}
     const top=this.foilerMastPoint(this.rig.mastTop,s);this.updateLine(this.forestay,[this.jibFoilerPoint(0,0,s,true),this.jibFoilerPoint(0,1,s,true)]);this.updateLine(this.backstay,[this.V(m.hullSections[0][0]+.25,deck,0),top]);
     for(let i=0;i<2;i++){const side=i?1:-1;this.updateLine(this.shrouds[i],[this.V(this.mastX-.60,deck,side*m.beam*.43),this.foilerMastPoint(this.rig.mastTop*.53,s).add(this.V(-.18,0,side*m.beam*.36)),top]);}
-    const clew=this.mainFoilerPoint(1,0,s),jclew=this.jibFoilerPoint(1,0,s);this.updateLine(this.mainSheet,[clew,this.V(c.x1-.40,deck+.06,0)]);this.updateLine(this.vang,[this.V(this.mastX,deck+.10,0),this.V(this.mastX-Math.cos(s.boom)*1.6,this.rig.boomY,Math.sin(s.boom)*1.6)]);for(let i=0;i<2;i++)this.jibSheets[i].geometry.setFromPoints([jclew,this.V(c.x1-.35,deck+.20,(i?1:-1)*(c.halfWidth+.16))]);
-    for(const t of this.telltales){const q=t.jib?this.jibFoilerPoint(.26,t.v,s):this.mainFoilerPoint(.26,t.v,s),a=t.line.geometry.attributes.position.array,flow=(t.jib?s.sail?.jib:s.sail?.main)||s.sail||{},beta=t.jib?(flow.angle??s.jibAngle??s.boom*.7):s.boom,flutter=(flow.flow==='running'?.18:clamp(.06+(flow.luff||0)*.8+(flow.stall||0)*.65,.06,1))*clamp((s.wind?.aws??0)/1.5,0,1);for(let i=0;i<9;i++){const u=i/8;a[i*3]=q.x-Math.cos(beta)*u*.40;a[i*3+1]=q.y+Math.sin(s.time*16+t.v*31+i)*u*.10*flutter;a[i*3+2]=q.z+Math.sin(beta)*u*.40+t.side*.025+Math.sin(s.time*21+i*.8)*u*.08*flutter;}t.line.geometry.attributes.position.needsUpdate=true;}
+    const clew=this.mainFoilerPoint(1,0,s);this.updateLine(this.mainSheet,[clew,this.V(c.x1-.40,deck+.06,0)]);this.updateLine(this.vang,[this.V(this.mastX,deck+.10,0),this.V(this.mastX-Math.cos(s.boom)*1.6,this.rig.boomY,Math.sin(s.boom)*1.6)]);for(const sheet of this.jibSheets)sheet.visible=jibUp;
+    if(jibUp){
+      const jibClew=this.jibFoilerPoint(1,0,s);
+      for(let i=0;i<2;i++)this.updateLine(this.jibSheets[i],[jibClew,this.V(c.x1-.35,deck+.20,(i?1:-1)*(c.halfWidth+.16))]);
+    }
+    for(const t of this.telltales){
+      t.line.visible=!t.jib||jibUp;
+      if(!t.line.visible)continue;
+      const point=t.jib?this.jibFoilerPoint(.26,t.v,s):this.mainFoilerPoint(.26,t.v,s);
+      this.updateTelltale(t,point,s,.40);
+    }
     if(m.id==='yacht')this.updateCruiserSailCloth(s);
     const crewJoints=s.crewJoints;
     const body=crewJoints?.members?.length===m.crewOffsets.length?crewJoints:global.SailingBoats.crewPoseAt(s);
@@ -3267,7 +3334,7 @@ class SailingScene {
     for(let i=0;i<this.trapezeLines.length;i++){
       const line=this.trapezeLines[i],harness=(i?this.racingCrew[i-1].person:this.person).harness;
       const amount=clamp(((s.crewPoseBlend??2)-2)/.35,0,1);
-      line.visible=amount>.02&&Math.abs(s.crewSideBlend??s.crewSide??0)>.2;
+      line.visible=!s.capsized&&!s.recovering&&amount>.02&&Math.abs(s.crewSideBlend??s.crewSide??0)>.2;
       line.material.opacity=.85*amount;
       this.updateLine(line,[this.foilerMastPoint(this.rig.mastTop*(.66+i*.021),s),harness.position]);
     }
@@ -3384,12 +3451,41 @@ class SailingScene {
     material.normalScale.set(.065,.065);
   }
   mainFoilerRow(v,s){
-    const m=this.model,a=s.sail?.main||s.sail||{},side=s.rig?.sideBlend??a.side??s.sail?.side??(Math.sign(s.boom)||1),angle=(s.boom??a.angle??0)+side*(a.twist??s.sail?.twist??m.baseTwist??.08)*(m.racingYacht?v*v:v);
+    const m=this.model,a=s.sail?.main||s.sail||{},side=s.rig?.sideBlend??a.side??s.sail?.side??(Math.sign(s.boom)||1),angle=(s.boom??a.angle??0)+side*(a.twist??s.sail?.twist??m.baseTwist??.08)*(this.isFoiler?v:v*v);
     const area=m.mainArea??m.sailArea*.76,mean=clamp(area/(this.rig.foot*this.rig.luff),.32,.88),tip=m.racingYacht?.27:.12,exponent=clamp((1-tip)/(mean-tip)-1,.18,2.5),width=(a.chordScale??1)*this.rig.foot*(tip+(1-tip)*Math.pow(1-v,exponent));
     const height=this.rig.boomY+this.rig.luff*v*(a.luffScale??1),base=this.foilerMastPoint(height,s),edge=Math.max(0,Math.sin(Math.PI*v));
     return {base,width,cos:Math.cos(angle),sin:Math.sin(angle),
       camber:side*(a.camber??s.sail?.camber??m.camber??.055)*width*Math.pow(edge,.35),
       thickness:.016*width*Math.pow(edge,.3),flutter:width*(m.id==='yacht'?.48:.60)*this.P.sailFlutter(s.rig,v),flutterEdge:.10};
+  }
+  updateTelltale(t,point,s,length,chord){
+    const flow=(t.jib?s.sail?.jib:s.sail?.main)||s.sail||{};
+    const section=flow.sections?.reduce((best,item)=>!best||Math.abs(item.height-t.v)<Math.abs(best.height-t.v)?item:best,null);
+    const airAngle=flow.localAwa??s.wind?.awa??0;
+    const speed=section?.localAirSpeed??flow.localAirSpeed??s.wind?.aws??0;
+    const stream=clamp(speed/1.5,0,1);
+    const unsteady=clamp(.06+.82*(section?.luff??flow.luff??0)+.65*(section?.stall??flow.stall??0),.06,1)*stream;
+    const along=section?.airForward??-Math.cos(airAngle),across=section?.airRight??-Math.sin(airAngle);
+    let dx=along,dz=across,nx=0,nz=1;
+    if(chord){
+      // Attached flow follows the sail surface. A separated thread can lift
+      // into the local stream, on its own side of the cloth.
+      nx=chord.z;nz=-chord.x;
+      const chordwise=along*chord.x+across*chord.z;
+      const outwards=Math.max(0,t.side*(along*nx+across*nz))*unsteady*t.side;
+      dx=chordwise*chord.x+outwards*nx;
+      dz=chordwise*chord.z+outwards*nz;
+    }
+    const position=t.line.geometry.attributes.position;
+    for(let i=0;i<position.count;i++){
+      const u=i/(position.count-1),phase=s.time*17+t.v*29+i*.72+(chord?t.side*1.2:0);
+      const flutter=Math.sin(phase*1.17)*u*length*.22*unsteady;
+      const offset=t.side*.018+(chord?t.side*Math.abs(flutter):flutter);
+      position.setXYZ(i,point.x+dx*u*length*stream+nx*offset,
+        point.y+u*length*(Math.sin(phase)*unsteady*.28-.56*(1-stream)-.05),
+        point.z+dz*u*length*stream+nz*offset);
+    }
+    position.needsUpdate=true;
   }
   sailRowDepth(row,u4,span,skin){
     return (row.camber+skin*row.thickness)*span+row.flutter*(u4+row.flutterEdge*span);
@@ -3403,10 +3499,11 @@ class SailingScene {
   }
   foilerMastPoint(y,s){const v=clamp((y-this.rig.boomY)/this.rig.luff,0,1),load=clamp(s.sail?.load||0,0,1),side=s.rig?.sideBlend??s.sail?.side??1;return this.V(this.mastX-(this.isYacht?.10:.34)*load*v*v,y,side*(this.isYacht?.055:.20)*load*v*v);}
   jibFoilerRow(v,s,fullStay=false){
-    const m=this.model,a=s.sail?.jib||s.sail||{},side=s.rig?.sideBlend??a.side??s.sail?.side??(Math.sign(s.boom)||1);
+    const m=this.model,a=s.sail?.jib||s.sail||{};
     const jib=m.jib||{},jt=m.jibTack||jib.tack||{},jh=m.jibHead||jib.head||{},tack=this.V(jt.x??jib.tackX??m.jibTackX??9.3,jt.y??jib.tackY??m.jibTackY??m.deckY+.16,jt.z??0),headY=jh.y??jib.headY??m.jibHeadY??23,head=this.foilerMastPoint(headY,s);head.x+=(jh.x??jib.headX??m.jibHeadX??this.mastX)-this.mastX;
     const luffScale=fullStay?1:(a.luffScale??1),chordScale=fullStay?1:(a.chordScale??1);
     const width=chordScale*m.jibFoot*(1-v),base=tack.lerp(head,v*luffScale),angle=a.angle??s.foiling?.jibAngle??(s.boom||0)*.68;
+    const side=this.isYacht?clamp(angle/(4*this.P.DEG),-1,1):s.rig?.sideBlend??a.side??s.sail?.side??(Math.sign(s.boom)||1);
     const sailTwist=m.racingYacht?m.baseTwist:s.sail?.twist??m.baseTwist??.035,twist=side*sailTwist*.7*(v-.33),beta=angle+twist;
     return {base,width,cos:Math.cos(beta),sin:Math.sin(beta),
       camber:side*(a.camber??s.sail?.camber??m.camber??.065)*width*Math.sin(Math.PI*v),
@@ -3491,7 +3588,14 @@ class SailingScene {
     person.head.rotateX(body.lookDown??0);
     person.head.userData.model='MakeHuman';
     person.glasses.visible=detailed;
-    for(const part of person.vestDetails)part.visible=detailed;
+    for(const part of person.vestDetails)part.visible=detailed&&!person.detailedVest;
+    if(person.detailedVest){
+      // The vest faces inboard as the sailor sits out, then towards the bow
+      // at midships. The rig retains its own shoulder and hip axes.
+      person.detailedVest.rotation.y=Math.PI/2+(body.side??0)*Math.PI/2;
+      person.detailedVest.visible=detailed;
+      person.fallbackVest.visible=!detailed;
+    }
     for(const [part,offset] of [[person.cap,[0,.091,-.007]],[person.brim,[0,.087,.072]],[person.glasses,[0,.002,.102]]]){
       part.quaternion.copy(person.head.quaternion);
       part.position.copy(head).add(this.V(...offset).applyQuaternion(part.quaternion));
@@ -3499,7 +3603,8 @@ class SailingScene {
     for(let i=0;i<2;i++){
       person.feet[i].position.copy(v(body.feet[i]));
       person.feet[i].position.y-=.043;
-      person.feet[i].rotation.y=this.isYacht||this.isFoiler?0:(body.side??0)*.78;
+      person.feet[i].rotation.y=body.bootYaw?.[i]??(this.isYacht||this.isFoiler?0:(body.side??0)*.78);
+      person.feet[i].rotation.z=body.bootPitch?.[i]??0;
       const hand=person.hands[i],direction=v(body.hands[i]).sub(v(body.elbows[i])).normalize();
       hand.position.copy(v(body.hands[i]));hand.geometry=detailed?geometry.grip:geometry.gripFar;
       hand.quaternion.setFromUnitVectors(this.V(0,1,0),direction);
@@ -3559,8 +3664,10 @@ class SailingScene {
     for(const b of this.mainBattens){const p=b.line.geometry.attributes.position.array,angle=(s.boom||0)+b.side*(s.sail?.twist||0)*b.v;for(let i=0;i<17;i++){const q=this.mainFoilerPoint(.05+.94*i/16,b.v,s,b.side);q.x+=Math.sin(angle)*b.side*.006;q.z+=Math.cos(angle)*b.side*.006;p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z;}b.line.geometry.attributes.position.needsUpdate=true;}
     for(let i=0;i<2;i++){const side=i?1:-1;this.updateLine(this.shrouds[i],[this.V(this.mastX-.5,m.deckY,side*2),this.foilerMastPoint(14,s).add(this.V(0,0,side*1.2)),this.foilerMastPoint(23,s)]);}
     this.updateLine(this.mainSheet,[this.mainFoilerPoint(1,0,s,0),this.V(-7.8,m.deckY+.03,0)]);for(const wheel of this.acHelmWheels)wheel.rotation.x=-(s.rudder||0)*4;
-    for(const t of this.telltales){const a=t.line.geometry.attributes.position.array,base=t.jib?this.jibFoilerPoint(.26,t.v,s):this.mainFoilerPoint(.26,t.v,s,t.side),flow=(t.jib?s.sail?.jib:s.sail?.main)||s.sail||{},flutter=(s.sail?.flow==='running'?.16:clamp(.06+(flow.luff||0)*.8+(flow.stall||0)*.48,.06,1))*clamp((s.wind?.aws??0)/2,0,1),beta=flow.angle??s.boom??0;
-      for(let i=0;i<9;i++){const u=i/8;a[i*3]=base.x-Math.cos(beta)*u*.62;a[i*3+1]=base.y+Math.sin(s.time*16+t.v*31+i)*u*.12*flutter;a[i*3+2]=base.z+Math.sin(beta)*u*.62+t.side*.035+Math.sin(s.time*21+i*.8)*u*.10*flutter;}t.line.geometry.attributes.position.needsUpdate=true;}
+    for(const t of this.telltales){
+      const point=t.jib?this.jibFoilerPoint(.26,t.v,s):this.mainFoilerPoint(.26,t.v,s,t.side);
+      this.updateTelltale(t,point,s,.62);
+    }
     for(const [key,visual] of Object.entries(this.foilVisuals)){
       const pose=F?.foilPose?.(s,visual.side);if(!pose)continue;visual.pose=pose;visual.hinge.position.set(pose.hinge.x,pose.hinge.y,pose.hinge.z);const aa=this.V(pose.hinge.x-.28,pose.hinge.y+.24,visual.side*1.4),bb=this.V(pose.elbow.x,pose.elbow.y,pose.elbow.z).lerp(this.V(pose.hinge.x,pose.hinge.y,pose.hinge.z),.40),mm=aa.clone().lerp(bb,.52);this.rod(visual.actuator,aa,mm);this.rod(visual.ram,mm,bb);this.updateFoilArm(visual.arm,pose);visual.wing.position.set(pose.wingCentre.x,pose.wingCentre.y,pose.wingCentre.z);
       const n=this.V(pose.wingNormal.x,pose.wingNormal.y,pose.wingNormal.z).normalize(),span=this.V(pose.spanDirection.x,pose.spanDirection.y,pose.spanDirection.z).normalize(),x=n.clone().cross(span).normalize();visual.wing.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(x,n,span));const foil=s.foils?.[key]||{};this.setFoilFlap(visual.flapInner,foil.flapInner??pose.flap??0);this.setFoilFlap(visual.flapOuter,foil.flapOuter??pose.flap??0);visual.flap.userData.flapAngle=((foil.flapInner??pose.flap??0)+(foil.flapOuter??pose.flap??0))*.5;
@@ -3610,7 +3717,13 @@ class SailingScene {
     });
     const boot=this.mat('#26383b',{roughness:.92,vertexColors:true});
     const darkCloth=this.mat('#293741',{roughness:.96});
-    p.torso=this.mesh(geometry.vest,vest,this.sailor);p.torso.name='crew-torso';
+    if(this.laserDetailed){
+      p.torso=new T.Group();this.sailor.add(p.torso);
+      p.fallbackVest=this.mesh(geometry.vest,vest,p.torso);
+      p.detailedVest=global.TackLaserDetail.create(T,'Vest',{fabric});
+      p.torso.add(p.detailedVest);
+    }else p.torso=this.mesh(geometry.vest,vest,this.sailor);
+    p.torso.name='crew-torso';
     const trim=[{at:[0,.015,.135],size:[.010,.55,.010]}],panels=[];
     for(const side of [-1,1]){
       panels.push({at:[side*.096,.25,.122],size:[.062,.076,.007],turn:side*.35});
@@ -3669,12 +3782,10 @@ class SailingScene {
     for(const batten of this.sportBattens||[]){const a=batten.line.geometry.attributes.position.array;for(let i=0;i<17;i++){const p=this.sailPoint((batten.start??.035)+(1-(batten.start??.035))*.98*i/16,batten.v,s);a[i*3]=p.x;a[i*3+1]=p.y;a[i*3+2]=p.z+.003;}batten.line.geometry.attributes.position.needsUpdate=true;}
     for(const g of this.sailGrommets){g.mesh.position.copy(this.sailPoint(g.u,g.v,s));g.mesh.rotation.y=s.boom+Math.sign(s.boom||1)*(s.sail?.twist||0)*g.v*g.v;}
     const ea=this.sailEdge.geometry.attributes.position.array;for(let i=0;i<57;i++){const p=i<29?this.sailPoint(1,i/28,s):this.sailPoint(0,(56-i)/27,s);ea[i*3]=p.x;ea[i*3+1]=p.y;ea[i*3+2]=p.z;}this.sailEdge.geometry.attributes.position.needsUpdate=true;
-    for(const t of this.telltales){const base=this.sailPoint(.28,t.v,s),a=t.line.geometry.attributes.position.array;
-      const section=s.sail?.main?.sections?.reduce((best,v)=>!best||Math.abs(v.height-t.v)<Math.abs(best.height-t.v)?v:best,null),side=t.side,flap=clamp(.06+(section?.luff||0)*.8+(section?.stall||0)*.7,.06,1)*clamp((section?.localAirSpeed??0)/1.5,0,1),along=section?.airForward??-Math.cos(s.boom),across=section?.airRight??Math.sin(s.boom);
-      for(let i=0;i<9;i++){const u=i/8;
-        a[i*3]=base.x+along*u*.27;a[i*3+1]=base.y+u*flap*.075*Math.sin(s.time*15+t.v*24+i*.6)-u*.015;
-        a[i*3+2]=base.z+across*u*.27+side*.018+u*flap*.05*Math.sin(s.time*21+i*.9+side);}
-      t.line.geometry.attributes.position.needsUpdate=true;
+    for(const t of this.telltales){
+      const point=this.sailPoint(.28,t.v,s);
+      const chord=this.sailPoint(.30,t.v,s).sub(point);chord.y=0;chord.normalize();
+      this.updateTelltale(t,point,s,.27,chord);
     }
     const foot=this.rig.foot,by=this.rig.boomY,clew=this.V(this.mastX-Math.cos(s.boom)*foot*.955,by,Math.sin(s.boom)*foot*.955),middle=this.V(this.mastX-Math.cos(s.boom)*foot*.525,by,Math.sin(s.boom)*foot*.525),traveler=this.V(this.travelerX,deck+.058,clamp(clew.z*.28,-this.travelerHalfWidth*.90,this.travelerHalfWidth*.90));
     this.travelerBlock.position.copy(traveler).add(this.V(0,.025,0));
@@ -3689,7 +3800,12 @@ class SailingScene {
     const tillerTip=this.V(m.rudderX+Math.cos(s.rudder)*this.tillerLength,deck+.09,-Math.sin(s.rudder)*this.tillerLength);
     const restingGrip=this.V(tillerTip.x+.74,deck+.13,tillerTip.z-s.rudder*.48);
     this.rod(this.extension,tillerTip,hands[0].clone().lerp(restingGrip,body?.helmRelease||0));
-    const anchors=[traveler,clew,middle,this.V(c.x1-.57,deck+.023,0),hands[1]],sa=this.sheetLine.geometry.attributes.position.array;
+    // Each segment follows the pulley that actually moves with the boom.
+    const laserLead=this.laserDetailed?this.sheetLead.position:this.V(c.x1-.57,deck+.023,0);
+    const laserBlocks=this.laserDetailed?this.sheetBlocks.map(block=>block.position.clone()
+      .applyQuaternion(this.boomPivot.quaternion).add(this.boomPivot.position)):[clew,middle];
+    const anchors=[this.laserDetailed?this.travelerBlock.position:traveler,...laserBlocks,laserLead,hands[1]];
+    const sa=this.sheetLine.geometry.attributes.position.array;
     let n=0;for(let seg=0;seg<4;seg++)for(let j=0;j<9;j++){const u=j/9,v=anchors[seg].clone().lerp(anchors[seg+1],u);v.y-=Math.sin(Math.PI*u)*(.018+(1-s.sheet)*.035);sa[n++]=v.x;sa[n++]=v.y;sa[n++]=v.z;}const end=anchors[4];sa[n++]=end.x;sa[n++]=end.y;sa[n++]=end.z;this.sheetLine.geometry.attributes.position.needsUpdate=true;
     this.updateWaterMask(s,env);
   }
@@ -3718,17 +3834,25 @@ class SailingScene {
       for(let i=0;i<length;i++){
         const point=i<prepend?head:track[i-prepend],age=Math.max(0,time-point.t),speed=point.speed;
         const pulse=.88+.12*Math.sin(point.t*9.4+side*2.7);
-        const spread=foil||point.segment!=null?0:sign*((point.beam||1.37)*.23+age*.12*Math.min(speed,6));
-        const width=point.segment!=null?(point.width+age*(foil?.022:.17))*pulse:foil?point.width+age*.019:weight*(.10+Math.min(speed,8)*.028+age*.025)*pulse;
+        const fromCorner=point.wakeSide!=null;
+        // Turbulence spreads fastest just after separation at the transom.
+        const spread=fromCorner?point.wakeSide*3*(-Math.expm1(-age/3))*clamp(speed*.12,0,.72)
+          :foil||point.segment!=null?0:sign*((point.beam||1.37)*.23+age*.12*Math.min(speed,6));
+        const width=point.segment!=null?(point.width+age*(foil?.022:fromCorner?.068:.17))*pulse
+          :foil?point.width+age*.019:weight*(.10+Math.min(speed,8)*.028+age*.025)*pulse;
         const strength=point.segment!=null?point.strength*(foil?.65:1)*Math.pow(Math.max(0,1-age/point.life),1.72):
           point.strength*(foil?.73:clamp(speed*.22,0,.81))*Math.pow(Math.max(0,1-age/life),1.9);
         const churn=clamp((point.wakeHeight??0)*4.3,0,1)*Math.exp(-age*.82);
         const sin=point.dirY??Math.sin(point.theta),cos=point.dirX??Math.cos(point.theta);
+        const omega=point.period>0?2*Math.PI/point.period:0;
+        const orbitalTime=omega?Math.sin(omega*age)/omega:0;
+        const driftX=(point.driftX||0)*age+(point.orbitalX||0)*orbitalTime;
+        const driftY=(point.driftY||0)*age+(point.orbitalY||0)*orbitalTime;
         const start=(side*n+i)*rails;
         for(let edge=0;edge<rails;edge++){
           const j=start+edge,offset=spread+(edge*2/(rails-1)-1)*width;
           const baseX=point.x+sin*offset,baseY=point.y-cos*offset;
-          const x=baseX+(point.driftX||0)*age,y=baseY+(point.driftY||0)*age;
+          const x=baseX+driftX,y=baseY+driftY;
           uv[j*2]=baseX;uv[j*2+1]=-baseY;
           pa[j*3]=x;pa[j*3+1]=point.segment==null?this.P.waveAt(x,y,time,env).height+.022:.033;pa[j*3+2]=-y;
           aa[j]=strength*(i+1===length?.45:1);
@@ -3862,16 +3986,17 @@ class SailingScene {
     if(this.fleetWakeMesh.visible){
       const nearby=[...sea.actors.values()].filter(a=>!a.local&&time-a.time<.35&&time-a.time>-.5)
         .sort((a,b)=>Math.hypot(a.x-s.x,a.y-s.y)-Math.hypot(b.x-s.x,b.y-s.y));
-      const visible=nearby.slice(0,this.quality==='low'?1:2);
-      const tracks=visible.flatMap(a=>[a.tracks.h0||[],a.tracks.h1||[]]);
-      const heads=visible.flatMap(a=>[a.previous.h0,a.previous.h1]);
-      if(tracks.length)this.writeFoamRibbon(this.fleetWakeMesh.geometry,tracks,s,env,false,heads);
+      const paths=nearby.slice(0,this.quality==='low'?1:2).flatMap(a=>sea.foamPaths(a));
+      if(paths.length)this.writeFoamRibbon(this.fleetWakeMesh.geometry,paths.map(p=>p.track),s,env,false,paths.map(p=>p.head));
       else this.fleetWakeMesh.geometry.setDrawRange(0,0);
     }
     this.contactFoam.visible=!sea.layers.has('kontakt');
     this.foilWakeMesh.visible=this.isFoiler&&!sea.layers.has('foilspor');
     this.foamPoints.visible=this.graphicsProfile.id!=='minimum'&&!sea.layers.has('sproejt');
-    if(this.wakeMesh.visible)this.writeFoamRibbon(this.wakeGeometry,[this.wakes,fx.tracks.h1||[]],s,env,false,[fx.previous.h0,fx.previous.h1]);
+    if(this.wakeMesh.visible){
+      const paths=sea.foamPaths(fx);
+      this.writeFoamRibbon(this.wakeGeometry,paths.map(p=>p.track),s,env,false,paths.map(p=>p.head));
+    }
     if(this.foilWakeMesh.visible)this.writeFoamRibbon(this.foilWakeMesh.geometry,Object.entries(fx.tracks).filter(([key])=>key.startsWith('f')).map(([,track])=>track),s,env,true);
     if(!s.recovering&&!s.capsized&&this.foamPoints.visible){
       fx.emitted??={};
@@ -3879,7 +4004,7 @@ class SailingScene {
       for(const h of fx.contacts){
         const elapsed=time-(fx.emitted[h.id]??-Infinity);
         const hit=h.impact>.095&&(h.kind!=='appendage'||h.piercing),side=h.side;
-        const running=h.kind==='bow'?h.strength*.56:h.kind==='side'?h.strength*clamp(.14+Math.abs(h.outward)*.43,0,.83):h.kind==='stern'?h.strength*.39:h.piercing?h.strength*.22:0;
+        const running=h.kind==='bow'?h.strength*.56:h.kind==='side'?h.strength*clamp(.14+Math.max(0,h.outward)*.43,0,.83):h.kind==='stern'?h.strength*.39:h.piercing?h.strength*.22:0;
         if(elapsed<(hit?.13:.080)||(!hit&&running<.38))continue;
         fx.emitted[h.id]=time;
         const energy=clamp(h.impact*1.65+running*.55,0,2),speed=Math.min(9,h.speed);
@@ -4153,7 +4278,12 @@ class SailingScene {
     const view=this.camera.view,touchLandscape=aspect>1&&view?.enabled;
     const dockFit=touchLandscape?1+1.65*view.offsetY/view.fullHeight:1;
     const distance=cameraDistance*fit*dockFit*(m.racingYacht?1.09:1),f=this.V(Math.cos(s.theta),0,-Math.sin(s.theta)),r=this.V(Math.sin(s.theta),0,Math.cos(s.theta));
-    const side=(.34-.275*narrow)*distance,eyeHeight=distance*.33,base=this.V(s.x,0,-s.y),pos=base.clone().addScaledVector(f,-distance).addScaledVector(r,side).add(this.V(0,eyeHeight,0)),direction=f.clone().addScaledVector(r,-.105*(1-narrow*.5)).normalize(),pitch=Math.atan(.32*Math.tan(50*Math.PI/360)),target=pos.clone().addScaledVector(direction,distance*2.1);target.y-=Math.tan(pitch)*distance*2.1;
+    const laser=m.id==='laser',side=(laser?.235-.18*narrow:.34-.275*narrow)*distance;
+    const eyeHeight=distance*(laser?.276:.33),base=this.V(s.x,0,-s.y);
+    const pos=base.clone().addScaledVector(f,-distance).addScaledVector(r,side).add(this.V(0,eyeHeight,0));
+    const direction=f.clone().addScaledVector(r,(laser?-.15:-.105)*(1-narrow*.5)).normalize();
+    const pitch=Math.atan(.32*Math.tan(50*Math.PI/360)),target=pos.clone().addScaledVector(direction,distance*2.1);
+    target.y-=Math.tan(pitch)*distance*2.1;
     this.navigationFraming={horizonFraction:.34,pitchRadians:pitch,distance,eyeHeight,fov:50,anchor:'world mean water level'};
     return {pos,target};
   }
@@ -4545,12 +4675,12 @@ const isYacht=(s=state)=>B.get(s?.boatId||env.boatId).kind==='keelboat';
 const assisted=()=>!!state?.helmAssist?.active;
 const FOIL_STATUS={waterborne:'I vandet',displacement:'Accelererer',accelerating:'Accelererer',lifting:'Løfter',takeoff:'Løfter',foiling:'Foiler',lowLift:'Lavt løft','low-lift':'Lavt løft',touchdown:'Vandkontakt',capsized:'Kæntret',recovering:'Opretning'};
 const emptyRigCommand=()=>({reef:0,headsail:0});
-let trimSail='main',rigCommand=emptyRigCommand(),foreAftTarget=0,lastNetworkCorrection=null;
+let trimSail='main',rigCommand=emptyRigCommand(),lastNetworkCorrection=null;
 const keys=new Set(),pendingTaps=new Set();
 const continuousKeys=new Set(['KeyA','KeyD','KeyW','KeyS','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyZ','KeyX']);
 const heldButtons=new Map();
-let touchSteer=0,pendingTouchSteer=null,crewSideCommand=0,helmPointer=null,sheetPointer=null,spinCommand=false,spinType='spinnaker',sheetTarget=.62,track=[],lastTrack=-1,lastRenderAt=0,crashed=false;
-let crewSideOverrideTack=null,crewSideRequestUntil=null;
+let touchSteer=0,pendingTouchSteer=null,helmPointer=null,sheetPointer=null,spinCommand=false,spinType='spinnaker',sheetTarget=.62,track=[],lastTrack=-1,lastRenderAt=0,crashed=false;
+let crewRequest=null,crewOrder=-1;
 let graphicsUnavailable=false;
 const copyAtmosphere=a=>a?Object.fromEntries(Object.entries(a).map(([k,v])=>[k,Array.isArray(v)?v.slice():v])):a;
 const copyTree=v=>Array.isArray(v)?v.map(copyTree):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,n])=>[k,copyTree(n)])):v;
@@ -4628,8 +4758,7 @@ class SeaAudio{
 const audio=new SeaAudio();
 function toast(message,seconds=4){$('toast').textContent=message;$('toast').hidden=false;toastTime=performance.now()+seconds*1000;}
 function clearInput(){
-  globalThis.FriVindLobby?.release();keys.clear();pendingTaps.clear();
-  crewSideRequestUntil=null;
+  crewRequest=null;globalThis.FriVindLobby?.release();keys.clear();pendingTaps.clear();
   for(const [button,id] of heldButtons)if(button.hasPointerCapture(id))button.releasePointerCapture(id);
   heldButtons.clear();
   pendingTouchSteer=null;touchSteer=0;helmPointer=null;sheetPointer=null;
@@ -4645,8 +4774,13 @@ function setPause(value,reason='Pause',source='user'){
   syncPause();
 }
 function resetRigControls(){
-  trimSail='main';rigCommand=emptyRigCommand();setForeAftTarget(0);
-  $('trimSail').value='main';$('reefSetting').value='0';$('headsailSetting').value='0';
+  trimSail='main';rigCommand=emptyRigCommand();
+  $('sailPlan').open=false;$('reefSetting').value='0';$('headsailSetting').value='0';
+}
+function releaseRigControls(){
+  trimSail='main';spinCommand=false;
+  delete rigCommand.jibSheet;delete rigCommand.extraSheet;
+  $('sailPlan').open=false;
 }
 function discardTrimInput(){for(const code of ['ArrowUp','ArrowDown','KeyW','KeyS','TrimHaul','TrimEase']){keys.delete(code);pendingTaps.delete(code);}sheetPointer=null;sheetTarget=state.sheet;}
 function cancelRecoveryWatchdog(){if(recoveryWatchdog!==null)clearTimeout(recoveryWatchdog);recoveryWatchdog=null;}
@@ -4661,8 +4795,7 @@ function synchronizeRecovery(now=performance.now()){
   if(!record)return;
   const raceClock=paused||modalPaused?undefined:now;
   if(R.active(state)&&recoveryNotice!==record){
-    recoveryNotice=record;discardTrimInput();resetRigControls();
-    resetCrewSideInput();
+    recoveryNotice=record;discardTrimInput();releaseRigControls();crewRequest=null;
     course.recoveries++;course.invalidate('Automatisk opretning efter kæntring');
     course.noteDiscontinuity?.(state,raceClock);track.push({x:state.x,y:state.y,t:state.time,time:state.time,break:true});
     if(focusPaused)resumeRecoveryOnFocus=true;
@@ -4681,7 +4814,7 @@ function synchronizeRecovery(now=performance.now()){
     previous=snapshot(state);acc=0;$('recoverPanel').hidden=true;
     syncSettings();updateUI();
     const elapsed=state.lastRecovery.elapsedSeconds;
-    toast((state.lastRecovery.relocated?'Båden er flyttet til dybere vand. ':elapsed>5?'Båden er klar efter faneskift. ':'Klar igen efter '+fmt(elapsed,2).replace('.',',')+' s. ')+'Trim forsigtigt ind med ↑.',4);
+    toast((state.lastRecovery.relocated?'Båden er flyttet til dybere vand. ':elapsed>5?'Båden er klar efter faneskift. ':'Klar igen efter '+fmt(elapsed,2).replace('.',',')+' s. ')+(state.reboardedInside?'Du sidder inde. Hal ind, og vælg kant eller hæng, når sejlet trækker.':'Trim forsigtigt ind med ↑.'),4);
   }
 }
 function pauseForFocus(reason){
@@ -4854,7 +4987,7 @@ function drawStartLocationMarker(map){
   ctx.restore();
 }
 function reset(which=mode,preparedCourse){
-  cancelRecoveryWatchdog();lastNetworkCorrection=null;networkView.x=networkView.y=networkView.theta=0;spinCommand=false;resetCrewSideInput();resetRigControls();recoveryNotice=null;focusPaused=false;resumeRecoveryOnFocus=false;toggleTelemetry(false);
+  cancelRecoveryWatchdog();lastNetworkCorrection=null;networkView.x=networkView.y=networkView.theta=0;spinCommand=false;crewRequest=null;resetRigControls();recoveryNotice=null;focusPaused=false;resumeRecoveryOnFocus=false;toggleTelemetry(false);
   toggleMobileCrew(false);
   speedReadout=null;
   const fleet=globalThis.FriVindLobby?.fleet;
@@ -5001,29 +5134,38 @@ function openSettings(view,opener){
   }else openPanel('settings',opener);
   if(!personal&&!$('settings').hidden){syncWeatherFields();updateWeatherWind();}
 }
-function setPose(value){
-  if(state.capsized||state.recovering||env.difficulty==='easy')return;
-  const pose=clamp(Math.round(value),1,3);
-  env.crewPose=pose;
-  if(started&&state.wind?.tws>.6)crewSideRequestUntil=state.time+2.5;
-  if(!started){state=Sim.createBoat(env.boatId,{crewPose:env.crewPose},env);previous=snapshot(state);sheetTarget=state.sheet;}
-  updateUI();if(started){audio.start();$('sea').focus({preventScroll:true});}
+function pendingCrew(){
+  return crewRequest?.epoch===P.crewEpoch(state)?crewRequest:null;
 }
-function resetCrewSideInput(){
-  crewSideCommand=0;crewSideOverrideTack=crewSideRequestUntil=null;
+function selectedCrew(){
+  const target=state.crewTarget;
+  const pending=pendingCrew();
+  if(pending&&pending.order>target.order)return pending;
+  return state.reboardedInside?{...target,pose:1}:target;
+}
+function requestCrew(change){
+  if(!started||paused||modalPaused||document.hidden||graphicsUnavailable||
+     env.difficulty==='easy'||state.recovering||state.capsized)return false;
+  const current=selectedCrew();
+  if(Object.keys(change).every(key=>current[key]===change[key]))return false;
+  crewOrder=Math.max(crewOrder,current.order)+1;
+  crewRequest={side:current.side,pose:current.pose,foreAft:current.foreAft,...change,
+    order:crewOrder,epoch:P.crewEpoch(state)};
+  return true;
+}
+function setPose(value){
+  if(requestCrew({pose:clamp(Math.round(value),1,3)})){
+    updateUI();audio.start();$('sea').focus({preventScroll:true});
+  }
 }
 function setCrewSide(side){
-  if(env.difficulty==='easy'||state.recovering||state.capsized)return;
-  crewSideRequestUntil=null;
-  crewSideOverrideTack=P.windwardCrewSide(state.wind);
-  crewSideCommand=side;
+  if(requestCrew({side}))updateUI();
 }
 function setDifficulty(value){
   const difficulty=value==='easy'?'easy':'hard';
   if(env.difficulty===difficulty)return;
-  resetCrewSideInput();
+  crewRequest=null;
   env.difficulty=personal.difficulty=difficulty;
-  if(difficulty==='easy'){trimSail='main';$('trimSail').value='main';delete rigCommand.jibSheet;delete rigCommand.extraSheet;}
   savePreferences();
   settingChanged();
 }
@@ -5031,7 +5173,7 @@ function chooseBoat(id){
   if(!B.CONFIGS[id])return;
   if(globalThis.FriVindLobby?.boatChanged(id)===false){syncSettings();return;}
   if(id===env.boatId){if(!$('boatPicker').hidden)closePanel('boatPicker');return;}
-  resetCrewSideInput();resetRigControls();speedReadout=null;
+  crewRequest=null;resetRigControls();speedReadout=null;
   if(globalThis.FriVindLobby?.fleet?.inWorld){closePanel('boatPicker');return;}
   env.boatId=id;env.crewPose=2;reset();
   if(started&&mode==='free')toast(B.get(id).name,2);
@@ -5155,7 +5297,7 @@ function syncSettings(){
   const easy=env.difficulty==='easy';
   document.body.classList.toggle('easy-crew',easy);
   $('introDifficulty').value=$('difficulty').value=env.difficulty;
-  $('introDifficultyHelp').textContent=easy?'Du styrer ror og skøde. Besætningen flytter vægten.':'Vælg vægt til luv med 1–3. Tryk igen efter en vending, eller vælg siden med Q/E.';
+  $('introDifficultyHelp').textContent=easy?'Du styrer ror og skøde. Besætningen flytter vægten.':'Q vælger bagbord, E vælger styrbord. 1–3 vælger stilling på den side.';
   $('foilHelp').hidden=!foiler;
   syncWeatherFields();
   updateWeatherWind();
@@ -5324,11 +5466,10 @@ function bind(){
   const layoutHud=()=>{
     layoutFrame=0;
     const dock=$('sailingDock').getBoundingClientRect();
-    const sails=$('downwindControls').getBoundingClientRect();
     const footer=dock.height?Math.max(0,Math.ceil(innerHeight-dock.top)):0;
-    const noticeBottom=footer+sails.height+(sails.height?18:8);
+    const noticeBottom=footer+8;
     const vars=document.documentElement.style;
-    const values=[['--footer-height',footer],['--sails-bottom',footer+8],['--notice-bottom',noticeBottom]];
+    const values=[['--footer-height',footer],['--notice-bottom',noticeBottom]];
     for(const [name,size] of values){
       const pixels=Math.ceil(size)+'px';
       if(vars.getPropertyValue(name)!==pixels)vars.setProperty(name,pixels);
@@ -5354,7 +5495,7 @@ function bind(){
   const scheduleLayout=()=>{if(!layoutFrame)layoutFrame=requestAnimationFrame(layoutHud);};
   if(globalThis.ResizeObserver){
     const observer=new ResizeObserver(scheduleLayout);
-    for(const id of ['sailingDock','downwindControls'])observer.observe($(id));
+    observer.observe($('sailingDock'));
     observer.observe(rail);
   }
   window.addEventListener('resize',scheduleLayout);
@@ -5377,28 +5518,35 @@ function bind(){
   $('windArrows').onchange=()=>{personal.windArrows=$('windArrows').value==='on';savePreferences();};
   // A slider sets the desired sheet length. Physical sheeting speed stays finite,
   // so even a quick touch drag cannot teleport the boom through its sheet stop.
+  for(const button of document.querySelectorAll('[data-sail-choice]'))button.onclick=()=>{
+    trimSail=button.dataset.sailChoice;
+    if(!B.cruiserSails[trimSail]){$('sailPlan').open=false;$('sea').focus({preventScroll:true});}
+    updateUI();
+  };
   for(const button of document.querySelectorAll('[data-cruiser-sail]'))button.onclick=()=>{
     const type=button.dataset.cruiserSail;
-    spinCommand=!(spinCommand&&spinType===type);spinType=type;
+    if(type!==spinType)delete rigCommand.extraSheet;
+    spinCommand=!(spinCommand&&spinType===type);spinType=type;trimSail=type;
+    $('sailPlan').open=false;
     updateUI();$('sea').focus({preventScroll:true});
   };
+  $('sailPlan').ontoggle=()=>{if($('sailPlan').open)updateSailPlan(P.configFor(state));};
+  document.addEventListener('pointerdown',event=>{
+    if(!$('sailPlan').contains(event.target))$('sailPlan').open=false;
+  });
   $('sheetControl').oninput=()=>{
-    if(R.active(state))return;
+    if(R.active(state)||!canTrimSelectedSail())return;
     const value=clamp(+$('sheetControl').value/100,0,1);
-    if(trimSail==='main')sheetTarget=P.sheetFromTrim(value,state);
-    else if(trimSail==='jib')rigCommand.jibSheet=P.sheetFromTrim(value,state);
+    const selected=selectedTrimLine();
+    if(selected==='main')sheetTarget=P.sheetFromTrim(value,state);
+    else if(selected==='jib')rigCommand.jibSheet=P.sheetFromTrim(value,state);
     else rigCommand.extraSheet=value;
     audio.start();
-  };
-  $('trimSail').onchange=()=>{
-    trimSail=$('trimSail').value;
-    const key=trimSail==='jib'?'jibSheet':'extraSheet';
-    if(trimSail!=='main'&&!Number.isFinite(rigCommand[key]))rigCommand[key]=state.cruiserRig?.[key]??state.sheet;
-    updateLiveControls();$('sea').focus({preventScroll:true});
   };
   $('reefSetting').onchange=event=>{
     const selector=event.currentTarget;
     rigCommand.reef=+selector.value;
+    updateReefPreview(P.configFor(state));
     if(started)$('sea').focus({preventScroll:true});
   };
   $('headsailSetting').onchange=()=>{rigCommand.headsail=+$('headsailSetting').value;};
@@ -5445,12 +5593,13 @@ function bind(){
     };
   }
   const controlKeys=new Set([...continuousKeys,'KeyQ','KeyE','Space','KeyC','KeyR','KeyH','KeyV','KeyB','Digit1','Digit2','Digit3','Numpad1','Numpad2','Numpad3','Backquote']);
-  const sailingFields=new Set(['sheetControl','reefSetting','foreAftSetting','mobileForeAft','trimSail','headsailSetting']);
+  const sailingFields=new Set(['sheetControl','reefSetting','foreAftSetting','mobileForeAft','headsailSetting']);
   const sailingLetters=new Set(['KeyA','KeyD','KeyW','KeyS','KeyZ','KeyX','KeyQ','KeyE']);
   window.addEventListener('keydown',e=>{
     if(e.code==='Escape'){
       const panel=gamePanels.find(id=>!$(id).hidden);
       if(panel){e.preventDefault();closePanel(panel);return;}
+      if($('sailPlan').open){e.preventDefault();$('sailPlan').open=false;$('sea').focus({preventScroll:true});return;}
       if(!$('telemetryPanel').hidden){e.preventDefault();toggleTelemetry(false);$('telemetryToggle').focus();return;}
       if(started&&(document.activeElement===mapView||document.activeElement===$('sheetControl')||document.activeElement===$('reefSetting'))){e.preventDefault();$('sea').focus({preventScroll:true});return;}
     }
@@ -5490,7 +5639,12 @@ function bind(){
     // A down/up pair can arrive between rendered frames. Consume it at the next physics step.
     if(continuousKeys.has(e.code)&&!paused&&!modalPaused&&!document.hidden&&!graphicsUnavailable)pendingTaps.add(e.code);
     state.lastInputMs=performance.now();state.lastInputCode=e.code;
-  });window.addEventListener('keyup',e=>{keys.delete(e.code);if(state){state.lastInputMs=performance.now();state.lastInputCode=e.code+' released';}});
+  });window.addEventListener('keyup',e=>{
+    keys.delete(e.code);
+    if(!state)return;
+    if(e.code==='KeyX'||e.code==='KeyZ')syncForeAft(selectedCrew().foreAft);
+    state.lastInputMs=performance.now();state.lastInputCode=e.code+' released';
+  });
   document.addEventListener('focusin',e=>{
     if(!e.target.matches('input, select, textarea, [contenteditable=true]'))return;
     // Clicking a sailing control mid-turn should keep the helm engaged.
@@ -5537,8 +5691,10 @@ function steeringInput(touch=helmPointer===null?pendingTouchSteer:touchSteer){
   return clamp(Number(right)-Number(left)+(touch??0),-1,1);
 }
 function setForeAftTarget(value){
-  foreAftTarget=clamp(value,-1,1);
-  const percentage=String(Math.round(foreAftTarget*100));
+  requestCrew({foreAft:clamp(value,-1,1)});
+}
+function syncForeAft(target){
+  const percentage=String(Math.round(target*100));
   for(const id of ['foreAftSetting','mobileForeAft'])if($(id).value!==percentage)$(id).value=percentage;
 }
 function toggleMobileCrew(open){
@@ -5550,30 +5706,15 @@ function toggleMobileCrew(open){
     if($('courseCard').classList.contains('chart-expanded'))$('expandChart').click();
   }
 }
-function crewSideInput(steer){
-  const wind=state.wind,side=P.windwardCrewSide(wind);
-  if(side&&crewSideOverrideTack===0)crewSideOverrideTack=side;
-  if(crewSideRequestUntil===null)return crewSideCommand;
-  if(state.time>=crewSideRequestUntil||state.capsized){crewSideRequestUntil=null;return crewSideCommand;}
-  const angle=wind.twa;
-  // Wait through the wind eye if the bow is still turning towards it.
-  // Once it falls onto a tack, one press selects a side and then holds it.
-  const approachingBow=Math.abs(angle)<12*DEG&&(angle*steer>0||angle*state.omega<0&&Math.abs(state.omega)>.12);
-  if(side&&!approachingBow){
-    if(crewSideOverrideTack!==side){crewSideCommand=side;crewSideOverrideTack=null;}
-    crewSideRequestUntil=null;
-  }
-  return crewSideCommand;
-}
 function input(){
   const difficulty=env.difficulty;
-  if(R.active(state))return{steer:0,steerDigital:true,trim:0,crew:0,crewPose:1,difficulty};
-  const trimKeys=Number(haulPressed())-Number(easePressed()),cfg=P.configFor(state);
-  const selected=state.boatId==='yacht'&&difficulty==='hard'?trimSail:'main';
+  if(R.active(state))return{steer:0,steerDigital:true,trim:0,crewInput:null,crewPose:1,difficulty};
+  const trimKeys=canTrimSelectedSail()?Number(haulPressed())-Number(easePressed()):0,cfg=P.configFor(state);
+  const selected=selectedTrimLine();
   const time=clamp(env.controlRate??1,.35,2)*Sim.fixedDt;
   if(selected!=='main'&&trimKeys){
     const key=selected==='jib'?'jibSheet':'extraSheet';
-    const sheet=rigCommand[key]??state.cruiserRig?.[key]??state.sheet;
+    const sheet=rigCommand[key]??appliedTrimLine(selected);
     rigCommand[key]=sheet+P.limitSheetTravel(sheet,cfg,trimKeys*.5*time,time,selected==='extra');
   }
   const trimKey=selected==='main'?trimKeys:0,difference=sheetTarget-state.sheet;
@@ -5582,17 +5723,16 @@ function input(){
   const travelLimit=trimRate*time;
   const travel=P.limitSheetTravel(state.sheet,cfg,trimKey?trimKey*travelLimit:difference,time);
   const touch=helmPointer===null?pendingTouchSteer:touchSteer,steer=steeringInput(touch);
-  const crew=difficulty==='easy'?0:crewSideInput(steer);
   const shift=Number(controlPressed('KeyX'))-Number(controlPressed('KeyZ'));
   if(difficulty==='hard'&&shift&&!state.capsized){
     const tap=pendingTaps.has(shift>0?'KeyX':'KeyZ');
-    setForeAftTarget(foreAftTarget+shift*(tap?.5:.9*Sim.fixedDt));
+    setForeAftTarget(selectedCrew().foreAft+shift*(tap?.5:.9*Sim.fixedDt));
   }
-  const foreAft=difficulty==='hard'?foreAftTarget:0;
+  const target=selectedCrew();
   return {steer,controlRate:env.controlRate,
     controlSensitivity:env.controlSensitivity,motionDamping:env.motionDamping,steerDigital:touch===null,trimFast,trimKey,
-    trim:clamp(travel/travelLimit,-1,1),sheetTarget:trimKey>0?1:trimKey<0?0:sheetTarget,crew,foreAft,crewPose:env.crewPose,difficulty,
-    rig:state.boatId==='yacht'?{...rigCommand}:{reef:rigCommand.reef},
+    trim:clamp(travel/travelLimit,-1,1),sheetTarget:trimKey>0?1:trimKey<0?0:sheetTarget,crewInput:pendingCrew(),crewPose:target.pose,difficulty,
+    rig:state.boatId==='yacht'?{...rigCommand}:{reef:rigCommand.reef,jibSheet:rigCommand.jibSheet},
     spinnaker:spinCommand,downwindType:spinType,ironsHelp:!!env.ironsHelp};
 }
 function fixedStep(stepNowMs=performance.now()){
@@ -5724,6 +5864,16 @@ function setText(element,value){
   const text=String(value);
   if(element.textContent!==text)element.textContent=text;
 }
+function selectedTrimLine(){return B.cruiserSails[trimSail]?'extra':trimSail;}
+function appliedTrimLine(line){
+  if(line==='main')return state.sheet;
+  if(line==='jib'&&isFoiler())return state.rig?.jibSheet??state.sheet;
+  return state.cruiserRig?.[line==='jib'?'jibSheet':'extraSheet']??state.sheet;
+}
+function canTrimSelectedSail(){
+  const line=selectedTrimLine();
+  return line==='main'||(line==='jib'?state.sail?.jib?.area>.001:state.spinnaker?.type===trimSail&&state.spinnaker.hoist>.001);
+}
 function updateLiveControls(){
   if(!state)return;
   const demand=steeringInput(touchSteer),left=demand<-.02,right=demand>.02;
@@ -5733,41 +5883,44 @@ function updateLiveControls(){
   const r=state.rudder/DEG,c=P.configFor(state);
   setText($('rudderValue'),(r<-.005?'−':r>.005?'+':'')+fmt(Math.abs(r)).replace('.',',')+'°');
   $('rudderDot').style.left=(50+clamp(state.rudder/Math.max(c.rudderMax,state.helmMaximum||0),-1,1)*48).toFixed(2)+'%';
-  const selected=state.boatId==='yacht'&&env.difficulty==='hard'?trimSail:'main',key=selected==='jib'?'jibSheet':'extraSheet';
-  const activeSheet=selected==='main'?state.sheet:state.cruiserRig?.[key]??state.sheet;
+  const selected=selectedTrimLine(),canTrim=canTrimSelectedSail()&&!state.recovering&&!state.capsized;
+  const activeSheet=appliedTrimLine(selected);
   const appliedPercent=100*(selected==='extra'?activeSheet:P.trimFromSheet(activeSheet,c));
-  const label=selected==='jib'?'Fokkeskøde':selected==='extra'?'Ekstrasejl':c.rigidWing?'Vingetrim':'Skøde';
+  const wing=selected==='main'&&c.rigidWing;
+  const label=wing?'Vingetrim':'Skøde';
   const sail=activeTrimSail(selected);
-  const load=c.rigidWing?state.sail:sail,area=c.rigidWing?c.sailArea:sail?.area;
+  const load=sail,area=sail?.area;
   const loaded=area>0&&load&&Math.hypot(load.drive,load.sideForce,load.fz??load.vertical??0)>area*.1;
   setText($('trimTitle'),label);
-  setText($('sheetValue'),fmt(appliedPercent).replace('.',',')+' %');
-  const min=c.rigidWing?'Vinge fri':'Helt slækket',max=c.rigidWing?'Vinge ind':'Helt indhalet';
+  setText($('sheetValue'),canTrim?fmt(appliedPercent).replace('.',',')+' %':'—');
+  const min=wing?'Vinge fri':'Helt slækket',max=wing?'Vinge ind':'Helt indhalet';
   setText($('sheetMinLabel'),min);setText($('sheetMaxLabel'),max);
   setText($('sheetLine'),selected==='main'&&!c.rigidWing&&state.sheetLoad&&!state.recovering
     ?state.sheetLoad.taut?'Skøde belastet':'Skøde slapt':'');
   const rigReleased=c.rigidWing&&activeSheet<.0005;
   let feedback='';
-  if(c.rigidWing){
-    const feathered=load?.flow==='luff';
-    if(rigReleased)feedback=feathered?'Vinge og fok aflastet':'Vinge fri · vindtryk på riggen';
-    else if(loaded)feedback=load.drive < -area*.15?'Riggen bremser':feathered?'Riggen aflaster':'Riggen trækker';
+  if(wing){
+    const feathered=(load?.luff??1)>.55;
+    if(rigReleased)feedback=feathered?'Vingen aflastet':'Vinge fri · vindtryk på vingen';
+    else if(loaded)feedback=load.drive < -area*.15?'Vingen bremser':feathered?'Vingen aflaster':'Vingen trækker';
   }else if(loaded)feedback=sail.luff>.55?'Sejl luffer':'Sejl trækker';
-  setText($('sheetFlow'),state.recovering?'':feedback);
-  $('sheetControl').setAttribute('aria-label',label+' · 0 % '+min.toLowerCase()+', 100 % '+max.toLowerCase());
+  setText($('sheetFlow'),state.recovering?'':canTrim?feedback:extraSailStatus(trimSail)||'Fok rullet ind');
+  const slider=$('sheetControl');
+  slider.disabled=$('touchHaul').disabled=$('touchEase').disabled=!canTrim;
+  slider.setAttribute('aria-label',(selected==='jib'?'Fokkeskøde':selected==='extra'?cruiserSailName(trimSail)+' · skøde':label)+' · 0 % '+min.toLowerCase()+', 100 % '+max.toLowerCase());
   if(sheetPointer===null){
-    const slider=$('sheetControl'),value=String(Math.round(appliedPercent*10)/10);
+    const value=String(Math.round(appliedPercent*10)/10);
     if(slider.value!==value)slider.value=value;
   }
 }
 function activeTrimSail(selected){
   const sail=state.sail;
-  return selected==='jib'?sail?.jib:selected==='extra'?sail?.spinnaker:sail?.main;
+  return selected==='jib'?sail?.jib:selected==='extra'?(sail?.spinnaker?.type===trimSail?sail.spinnaker:null):sail?.main;
 }
 function sheetDiagnostics(){
-  const c=P.configFor(state),selected=state.boatId==='yacht'&&env.difficulty==='hard'?trimSail:'main';
+  const c=P.configFor(state),selected=selectedTrimLine();
   const key=selected==='jib'?'jibSheet':'extraSheet',main=selected==='main',sail=activeTrimSail(selected);
-  const applied=main?state.sheet:state.cruiserRig?.[key]??state.sheet;
+  const applied=appliedTrimLine(selected);
   const target=main?sheetTarget:rigCommand[key]??applied;
   const toPercent=sheet=>100*(selected==='extra'?sheet:P.trimFromSheet(sheet,c));
   const wind=state.sail?.wind,section=sail?.sections?.[1];
@@ -5789,8 +5942,91 @@ function cruiserSailName(type){
   return type==='code0'?name:name.toLowerCase();
 }
 function cruiserSailDownLabel(type){return 'Tag '+cruiserSailName(type)+' ned';}
+function extraSailStatus(type){
+  if(!B.cruiserSails[type])return '';
+  const sail=state.spinnaker;
+  if(sail?.type===type&&sail.hoist>0){
+    return sail.phase==='lowering'?'Tages ned':sail.phase==='up'?'Sat':'Hejses';
+  }
+  if(spinCommand&&spinType===type){
+    return sail?.phase==='waiting'?'Afventer':sail?.type!==type?'Afventer skift':'Hejses';
+  }
+  return 'Nede';
+}
+function setSailIcon(icon,sail,relativeHoist=1){
+  const chord=Math.round(1000*(sail?.chordScale??1))/1000;
+  const luff=Math.round(1000*(sail?.luffScale??relativeHoist))/1000;
+  const transform='scale('+chord+','+luff+')',style=icon.style;
+  if(style.transform!==transform)style.transform=transform;
+}
+function updateSailPlan(model){
+  const wing=!!model.rigidWing,mainName=wing?'Vinge':'Storsejl';
+  const line=selectedTrimLine();
+  setText($('sailPlanName'),line==='main'?mainName:line==='jib'?'Fok':B.cruiserSails[trimSail].name);
+  const selectedIcon=$('sailPlanIcon');
+  const shape=line==='main'&&wing?'wing':trimSail;
+  if(selectedIcon.dataset.shape!==shape)selectedIcon.dataset.shape=shape;
+  const active=activeTrimSail(line);
+  setSailIcon(selectedIcon.firstElementChild,active,line==='extra'?(active?.area??0)/model[B.cruiserSails[trimSail].area]:1);
+  const controls=$('downwindControls');
+  controls.hidden=model.id!=='yacht'||line!=='extra';
+  if(!controls.hidden){
+    const sail=state.spinnaker;
+    for(const button of controls.querySelectorAll('[data-cruiser-sail]')){
+      const type=button.dataset.cruiserSail,selected=spinCommand&&spinType===type;
+      const waiting=selected&&(sail?.phase==='waiting'||sail?.type!==type);
+      button.hidden=type!==trimSail;
+      button.disabled=!!(state.recovering||state.capsized);
+      button.setAttribute('aria-pressed',String(selected));
+      setText(button.firstElementChild,selected?(waiting?'Annullér '+cruiserSailName(type):cruiserSailDownLabel(type)):'Sæt '+cruiserSailName(type));
+      button.title=waiting&&sail?.waitingFor?cruiserSailHint(sail.waitingFor,type):B.cruiserSails[type].hint;
+    }
+  }
+  if(!$('sailPlan').open)return;
+  const reef=model.kind==='foiler'?2*(state.rig?.reef??0):state.cruiserRig?.reef??0;
+  const changingReef=Math.abs(+$('reefSetting').value-reef)>.016;
+  for(const button of $('sailChoices').children){
+    const type=button.dataset.sailChoice,profile=B.cruiserSails[type];
+    button.hidden=type==='jib'?!model.jibArea:!!profile&&model.id!=='yacht';
+    if(button.hidden)continue;
+    const sail=profile?(state.sail?.spinnaker?.type===type?state.sail.spinnaker:null):state.sail?.[type];
+    const area=sail?.area??0;
+    const name=type==='main'?mainName:type==='jib'?'Fok':profile.name;
+    const status=profile?extraSailStatus(type):type==='jib'
+      ?area<.005?'Rullet ind':changingReef&&model.kind==='foiler'?'Ændres':area<model.jibArea-.005?'Reduceret':'Sat'
+      :changingReef?'Ændres':wing?['Fuld kraft','Dæmpet','Lav kraft'][Math.round(reef)]:['Fuldt sejl','Ét reb','To reb'][Math.round(reef)];
+    const icon=button.firstElementChild;
+    icon.dataset.shape=type==='main'&&wing?'wing':type;
+    setSailIcon(icon.firstElementChild,sail,profile?area/model[profile.area]:1);
+    button.setAttribute('aria-pressed',String(type===trimSail));
+    setText(button.querySelector('b'),name);
+    const line=profile?'extra':type;
+    const applied=area>.005?appliedTrimLine(line):null;
+    const percentage=applied==null?'':Math.round(100*(profile?applied:P.trimFromSheet(applied,model)))+' %';
+    setText(button.querySelector('small'),status);
+    const nominal=profile&&area<.005?' / '+model[profile.area]:'';
+    const areaText=fmt(area,area>0&&area<10?1:0).replace('.',',')+nominal+' m²';
+    setText(button.querySelector('.sail-area'),percentage?percentage+' · '+areaText:areaText);
+  }
+}
+function updateReefPreview(model){
+  const main=state.sail?.main,jib=state.sail?.jib,preview=$('reefPreview');
+  const mainArea=model.mainArea??model.sailArea,jibArea=model.jibArea??0;
+  preview.classList.toggle('reef-has-jib',jibArea>0);
+  preview.classList.toggle('reef-wing',!!model.rigidWing);
+  const draw=(id,sail)=>{
+    const shape='scale('+Math.round(1000*(sail?.chordScale??1))/1000+','+Math.round(1000*(sail?.luffScale??1))/1000+')';
+    const style=$(id).style;
+    if(style.transform!==shape)style.transform=shape;
+  };
+  draw('reefPreviewMain',main);
+  draw('reefPreviewJib',jib);
+  const applied=model.kind==='foiler'?2*(state.rig?.reef??0):state.cruiserRig?.reef??0;
+  preview.classList.toggle('reef-moving',Math.abs(+$('reefSetting').value-applied)>.016);
+  setText($('reefArea'),fmt((main?.area??mainArea)+(jib?.area??jibArea),mainArea<10?1:0).replace('.',',')+' m²');
+}
 function updateRigControls(){
-  const controls=$('downwindControls'),cruiser=state.boatId==='yacht',model=P.configFor(state);
+  const cruiser=state.boatId==='yacht',model=P.configFor(state);
   const wing=model.rigidWing,select=$('reefSetting');
   $('rigControls').hidden=!cruiser;
   setText($('reefLabel'),wing?'Vinge og fok':model.kind==='foiler'?'Reb begge sejl':'Reb storsejl');
@@ -5800,8 +6036,14 @@ function updateRigControls(){
   select.title=wing?'Aflast den stive vinge, og gør fokken mindre.':model.kind==='foiler'
     ?'Reb både storsejl og fok for at reducere sejltrykket.'
     :'Reb storsejlet for at reducere sejltrykket.';
-  $('trimSail').disabled=env.difficulty==='easy'||state.recovering;
   select.disabled=$('headsailSetting').disabled=!!state.recovering;
+  if(cruiser){
+    const options=$('headsailSetting').options;
+    setText(options[0],'Standardfok · '+fmt(model.jibArea,0)+' m²');
+    setText(options[1],'Mindre fok · '+fmt(model.jibArea*B.headsailScale(1)**2,1).replace('.',',')+' m²');
+  }
+  updateReefPreview(model);
+  updateSailPlan(model);
   $('foreAftControls').hidden=env.difficulty==='easy';
   const cm=Math.round((state.crewForeAft??0)*model.crewForeAftRange*100);
   const crewPosition=cm?Math.abs(cm)+' cm '+(cm<0?'agter':'frem'):'Midtskibs';
@@ -5812,16 +6054,6 @@ function updateRigControls(){
   setText($('dockForeAft'),env.difficulty==='easy'?'Automatisk balance':crewPosition);
   $('dockForeAft').classList.toggle('shifted',env.difficulty!=='easy'&&cm!==0);
   setText($('foreAftRange'),'Tryk Z for agter eller X for frem. Hold tasten nede for at flytte længere. Placeringen bevares, når du slipper. Vandring på denne båd er op til '+Math.round(model.crewForeAftRange*100)+' cm hver vej.');
-  controls.hidden=!started||state.boatId!=='yacht';
-  const sail=state.spinnaker;
-  if(!controls.hidden)for(const button of controls.querySelectorAll('[data-cruiser-sail]')){
-    const type=button.dataset.cruiserSail,profile=B.cruiserSails[type],name=cruiserSailName(type);
-    const selected=spinCommand&&spinType===type;
-    const waiting=selected&&sail?.selected===type&&(sail.phase==='waiting'||sail.type!==type);
-    setText(button,selected?(waiting?'Annullér '+name:cruiserSailDownLabel(type)):'Sæt '+name);
-    button.title=waiting&&sail.waitingFor?cruiserSailHint(sail.waitingFor,type):profile.hint;
-    button.setAttribute('aria-pressed',String(selected));
-  }
   setText($('boomValue'),fmt(Math.abs(state.boom)/DEG,1).replace('.',',')+'° · '+(Math.abs(state.boom)<DEG?'midt':state.boom>0?'styrbord':'bagbord'));
   updateSteeringDetails();
 }
@@ -5871,8 +6103,22 @@ function coachText(instruments){
   if(assisted())return ['Hjælp i vindøjet','Hold ← eller → · besætningen hjælper stævnen ud af vinden',false];
   if(state.wind.tws<.15&&state.speed<.15)return ['Vindstille','Åbn Vejr (V) for at ændre vinden',false];
   const windward=P.windwardCrewSide(state.wind);
-  if(state.wind.tws>.6&&Math.abs(state.wind.twa)<32*DEG&&(s.flow==='luff'||instruments.waterSpeed<.8)){
+  const crewSide=Math.sign(state.crewCG?.z||state.crew||0),towardCrew=state.heel*crewSide;
+  if(env.difficulty==='hard'&&windward&&state.crewSide===crewSide&&crewSide!==windward&&
+     Math.abs(state.crewCG?.z??0)>.15*P.configFor(state).beam&&towardCrew>10*DEG){
+    const side=windward<0?'bagbord':'styrbord';
+    const key=windward<0?'Q':'E';
+    return ['Vægt på læsiden',touchLayout.matches?'Vælg '+side+' under Besætning':'Tryk '+key+' for '+side,true];
+  }
+  const way=state.steering?.meanForward??instruments.waterSpeed;
+  const tightLaser=state.boatId==='laser'&&P.trimFromSheet(state.sheet,state)>.75;
+  if(state.wind.tws>.6&&Math.abs(state.wind.twa)<32*DEG&&(s.flow==='luff'||instruments.waterSpeed<.8||tightLaser&&Math.abs(way)<.9)){
     const turn=windward<0?'→':windward>0?'←':'← eller →';
+    if(state.boatId==='laser'){
+      if(tightLaser)return ['For tæt på vinden','Slæk med ↓, og hold '+turn+' for at falde af',true];
+      if(way<-.15)return ['For tæt på vinden','Jollen bakker · hold '+turn+' for at falde af',true];
+      if(way<.25)return ['For tæt på vinden','Hold '+turn+', mens jollen får bakfart',true];
+    }
     return ['For tæt på vinden',instruments.waterSpeed<.40?'Lad båden bakke lidt, og styr med '+turn:'Fald af med '+turn+', til sejlet fylder',true];
   }
   const rudder=state.forces?.rudder,steer=state.steerIntent||0;
@@ -5896,26 +6142,20 @@ function coachText(instruments){
     if((flight.liftFraction||0)>.45)return ['Foilerne aflaster skroget','Hold en rolig kurs og trim i små trin',false];
     return ['Byg fart til løftet','Find en åben kurs; mere indhaling er ikke altid bedre',false];
   }
-  const crewSide=Math.sign(state.crewCG?.z||state.crew||0),towardCrew=state.heel*crewSide;
-  if(env.difficulty==='hard'&&windward&&state.crewSide!==windward&&towardCrew>10*DEG){
-    const key=windward<0?'Q til bagbord':'E til styrbord';
-    return ['Vægt på læsiden',crewSideOverrideTack===windward?'Tryk '+key:'Tryk 1, 2 eller 3 for at flytte til luv',true];
-  }
   if(state.boatId==='laser'){
     const heelAhead=state.heel+.34*state.heelRate;
-    if(env.difficulty==='easy'&&Math.abs(heelAhead)>23*DEG&&heelAhead*s.rollMoment>0)
+    if(env.difficulty!=='easy'&&crewSide===windward&&heelAhead*crewSide>12*DEG&&state.crewPoseBlend>1.45&&Math.sign(state.heelRate)===crewSide)
+      return ['Jollen falder mod din side',selectedCrew().pose===3?'Vælg 2 – Kant, eller 1 – Inde hvis sejlet blafrer':'Vælg 1 – Inde for at få vægten ind',true];
+    if(heelAhead*windward < -23*DEG&&heelAhead*s.rollMoment>0&&heelAhead*state.heelRate>=0)
       return ['Jollen falder mod læ','Slæk storskødet med ↓',true];
-    if(env.difficulty!=='easy'&&heelAhead*crewSide>12*DEG&&state.crewPoseBlend>1.45&&Math.sign(state.heelRate)===crewSide)
-      return ['Jollen falder mod din side',env.crewPose===3?'Vælg 2 – Kant, eller 1 – Inde hvis sejlet blafrer':'Vælg 1 – Inde for at få vægten ind',true];
-    if(env.difficulty!=='easy'&&Math.abs(heelAhead)>23*DEG&&heelAhead*s.rollMoment>0)
-      return ['Jollen falder mod læ',env.crewPose<3?'Slæk med ↓, og vælg 3 – Hæng':'Slæk storskødet med ↓',true];
   }
   if(env.difficulty!=='easy'&&!isYacht()&&towardCrew>10*DEG&&state.crewPoseBlend>2.1)return ['For meget hængning','Vælg 2 – Kant eller 1 – Inde, når sejltrykket aftager',true];
   if(env.difficulty==='hard'&&state.boatId==='dinghy'&&Math.abs(state.heel)>15*DEG&&state.heel*s.rollMoment>0){
-    if(env.crewPose<3)return ['Mere modvægt','Tryk 3 for at gå ud i trapez',true];
+    if(selectedCrew().pose<3)return ['Mere modvægt','Tryk 3 for at gå ud i trapez',true];
   }
-  if(Math.abs(state.heel)>32*DEG)return ['Slæk sejlet','Stor krængning · mindre sejltryk giver ro',true];
-  if(env.difficulty!=='easy'&&!isYacht()&&state.heel*Math.sign(s.sideForce)>15*DEG&&env.crewPose<3)return ['Mere modvægt','Prøv '+(env.crewPose+1)+' – '+(env.crewPose===1?'Kant':'Hæng')+', eller slæk sejlet',true];
+  const sailHeelingToLee=state.boatId!=='laser'||(state.heel*windward<0&&state.heel*s.rollMoment>0);
+  if(sailHeelingToLee&&Math.abs(state.heel)>32*DEG)return ['Slæk sejlet','Stor krængning · mindre sejltryk giver ro',true];
+  if(sailHeelingToLee&&env.difficulty!=='easy'&&!isYacht()&&state.heel*Math.sign(s.sideForce)>15*DEG&&selectedCrew().pose<3)return ['Mere modvægt','Prøv '+(selectedCrew().pose+1)+' – '+(selectedCrew().pose===1?'Kant':'Hæng')+', eller slæk sejlet',true];
   if(state.boatId==='laser'&&Math.abs(instruments.leeway)>27*DEG&&instruments.waterSpeed*Math.abs(Math.sin(instruments.leeway))>.32)
     return ['Jollen skrider sidelæns','Hold roret roligt, og byg fart fremad',true];
   if(downwind&&a>135*DEG&&state.sheet>.45)return ['Slæk på læns','Giv bommen plads til at åbne med ↓',false];
@@ -5943,7 +6183,8 @@ function updateFoilUI(){
   setText($('rudderTrimValue'),isCat()?n((parts.rudderPort?.flap||0)/DEG)+'° / '+n((parts.rudderStarboard?.flap||0)/DEG)+'°':n((parts.rudder?.flap||0)/DEG)+'°');
   $('rudderTrimValue').title=isCat()?'Rorfoils BB / SB: '+n(parts.rudderPort?.submergence,2)+' / '+n(parts.rudderStarboard?.submergence,2)+' m under vand':'Rorfladens dybde: '+n(parts.rudder?.submergence,2)+' m';setText($('foilLiftPercent'),n((f.liftFraction||0)*100,0)+' %');
  setText($('foilCrewStatus'),f.swapping?'FOILTRIM · klargør ny støtte før den gamle aflaster':isCat()?'FOILTRIM · to løftende sværd og to rorfoils':'FOILTRIM · automatisk korrektion af flapper og rorflade');
-  setText($('foilCrewPose'),env.difficulty==='easy'?'Automatisk vægtplacering':'Besætning '+env.crewPose+' · '+['','tættere på midten','normal placering','længst ude'][env.crewPose]);
+  const pose=selectedCrew().pose;
+  setText($('foilCrewPose'),env.difficulty==='easy'?'Automatisk vægtplacering':'Besætning '+pose+' · '+['','tættere på midten','normal placering','længst ude'][pose]);
 }
 function updateSpeedReadout(instruments,now){
   const knots=instruments.logKnots;
@@ -5984,7 +6225,10 @@ function updateUI(now=performance.now()){if(!state||!course)return;
   const cfg=P.configFor(state),foiler=isFoiler(),heelText=fmt(Math.abs(state.heel)/DEG,0)+'° '+(state.heel>=0?'SB':'BB');
   $('balanceCard').hidden=false;$('foilHud').hidden=!foiler;$('flightCompact').hidden=!foiler;if(foiler)updateFoilUI();updateCompactUI(i);
   setText($('boatLabel'),cfg.name||'Laser / ILCA 7');setText($('heelCompact'),heelText);
-  setText($('crewPoseLabel'),(isYacht()?['','Inde i cockpittet','På cockpitkanten',state.boatId==='dinghy'?'I trapez':'På sidedækket'][env.crewPose]:POSES[env.crewPose])+(Math.abs((state.crewPoseBlend||env.crewPose)-env.crewPose)>.08?' …':''));
+  const crewTarget=selectedCrew(),selectedPose=crewTarget.pose;
+  syncForeAft(crewTarget.foreAft);
+  for(const id of ['foreAftSetting','mobileForeAft'])$(id).disabled=state.recovering||state.capsized;
+  setText($('crewPoseLabel'),(isYacht()?['','Inde i cockpittet','På cockpitkanten',state.boatId==='dinghy'?'I trapez':'På sidedækket'][selectedPose]:POSES[selectedPose])+(Math.abs((state.crewPoseBlend||selectedPose)-selectedPose)>.08?' …':''));
   const small=innerWidth<=850;
   const poses=['Inde','Kant',state.boatId==='dinghy'?'Trapez':isYacht()?'Dæk':'Hæng'];
   for(let p=1;p<=3;p++){
@@ -5992,17 +6236,19 @@ function updateUI(now=performance.now()){if(!state||!course)return;
     setText(button,small||foiler?String(p):p+' – '+label);
     button.setAttribute('aria-label',p+' · '+label);
   }
-  if(foiler)setText($('crewPoseLabel'),'Besætning '+env.crewPose+' · '+['','midten','normal','ude'][env.crewPose]);
+  if(foiler)setText($('crewPoseLabel'),'Besætning '+selectedPose+' · '+['','midten','normal','ude'][selectedPose]);
   const easy=env.difficulty==='easy';
   if(easy)setText($('crewPoseLabel'),'Automatisk balance');
   $('assistBadge').hidden=!started||(!assisted()&&!state.ground?.contact);setText($('assistBadge'),state.ground?.contact?'Kontakt med havbunden':'Hjælp i vindøjet');
   const manualSide=!easy;
-  const crewSide=manualSide?state.crewSide:state.crewCG?.z??state.crew,sideMotion=Math.abs((state.crewSideBlend??0)-(state.crewSide??0))>.2;
-  const sideLabel=$('crewSideLabel'),sideName=sideMotion?'Skifter side':Math.abs(crewSide)<.05?'Nær midten':crewSide>0?'Styrbord':'Bagbord';
+  const selectedSide=crewTarget.side;
+  const crewSide=manualSide?selectedSide:state.crewCG?.z??state.crew;
+  const sideMotion=!state.recovering&&!state.capsized&&Math.abs((state.crewSideBlend??0)-crewSide)>.2;
+  const sideLabel=$('crewSideLabel'),sideName=sideMotion?(crewSide>0?'Til styrbord':'Til bagbord'):Math.abs(crewSide)<.05?'Nær midten':crewSide>0?'Styrbord':'Bagbord';
   $('balanceCard').toggleAttribute('data-manual-side',manualSide);
   setText(sideLabel,sideName+(manualSide&&!sideMotion?' · Q/E':''));
-  sideLabel.title=manualSide?'Tryk 1–3 for at flytte vægten til luv efter en vending. Q/E vælger side på den aktuelle hals.':'';
-  document.querySelectorAll('[data-pose]').forEach(b=>{b.setAttribute('aria-pressed',String(+b.dataset.pose===env.crewPose));b.disabled=state.capsized||state.recovering;});
+  sideLabel.title=manualSide?'Q vælger bagbord, E vælger styrbord. 1–3 ændrer stilling på den valgte side.':'';
+  document.querySelectorAll('[data-pose]').forEach(b=>{b.setAttribute('aria-pressed',String(+b.dataset.pose===selectedPose));b.disabled=state.capsized||state.recovering;});
   $('recoverPanel').hidden=!started||physicalCapsize||(!state.capsized&&!state.recovering);$('recoverButton').disabled=true;$('recoverButton').hidden=true;$('sheetControl').disabled=!!state.recovering;
   const rescue=state.recoveryState,phase=rescue?.phase;
   setText($('recoveryTitle'),phase==='stabilize'?'Finder en stabil vandlinje':'Båden rettes automatisk op');
@@ -6012,12 +6258,14 @@ function updateUI(now=performance.now()){if(!state||!course)return;
   setText($('heel'),fmt(Math.abs(state.heel)/DEG,0)+'° '+(state.heel>=0?'SB':'BB'));$('heelDot').style.left=(50+clamp(state.heel/DEG,-45,45)/45*48)+'%';$('heelDot').style.background=Math.abs(state.heel)>25*DEG?'var(--orange)':'var(--teal)';
   updateRigControls();$('crewControl').hidden=!manualSide||!started;
   $('mobileCrewToggle').hidden=easy;
-  setText($('crewDockLabel'),easy&&touchLayout.matches?'Automatisk vægt':'Besætning');
+  const crewLabel=manualSide?'Besætning · '+sideName:'Besætning';
+  setText($('crewDockLabel'),easy&&touchLayout.matches?'Automatisk vægt':crewLabel);
+  setText($('mobileCrewSide'),crewLabel);
   if(easy&&!$('mobileCrewPanel').hidden)toggleMobileCrew(false);
   if(!$('mobileCrewPanel').hidden)setText($('mobileForeAftValue'),$('foreAftValue').textContent);
   for(const [id,side] of [['crewPort',-1],['crewStarboard',1]]){
     $(id).disabled=state.recovering||state.capsized;
-    $(id).setAttribute('aria-pressed',String(state.crewSide===side));
+    $(id).setAttribute('aria-pressed',String(selectedSide===side));
   }
   setText($('vmgLabel'),m?'VMG mod mærke':'Afdrift');setText($('vmg'),m?fmt(i.vmg*1.943844)+' kn':ang(i.leeway));
   updateRaceUI();
@@ -6028,7 +6276,17 @@ function updateUI(now=performance.now()){if(!state||!course)return;
   if(m&&world&&started&&env.helpers&&!paused&&!modalPaused){const p=new THREE.Vector3(m.x,foiler?8:3.7,-m.y).project(world.camera);$('markLabel').hidden=p.z>1||p.z< -1||Math.abs(p.x)>.8||Math.abs(p.y)>.75;if(!$('markLabel').hidden){$('markLabel').style.left=((p.x+1)*innerWidth/2)+'px';$('markLabel').style.top=((1-p.y)*innerHeight/2)+'px';setText($('markLabel'),(m.label||'Næste mærke')+' · '+fmt(i.distance,0)+' m');}}else $('markLabel').hidden=true;
   if(debug){const f=state.forces||{},s=state.sail,w=state.wind;
     $('debugValues').textContent='render '+fmt(fps,0)+' fps · '+effectiveQuality+'\nposition E/N '+fmt(state.x,2)+' / '+fmt(state.y,2)+' m\nvelocity E/N '+fmt(state.vx,2)+' / '+fmt(state.vy,2)+' m/s\ntrue air E/N '+fmt(w.vx,2)+' / '+fmt(w.vy,2)+' m/s\napparent E/N '+fmt(w.avx,2)+' / '+fmt(w.avy,2)+' m/s\nα '+fmt(s.alpha/DEG)+'° · CL '+fmt(s.cl,3)+' · CD '+fmt(s.cd,3)+'\nboom '+fmt(state.boom/DEG)+'° / limit '+fmt(P.boomLimit(state.sheet,state)/DEG)+'°\nω boom '+fmt(state.boomRate/DEG)+'°/s · rudder '+fmt(state.rudder/DEG)+'°\ncrew '+fmt(state.crew,2)+' m · heel '+fmt(state.heel/DEG)+'°\nsail drive '+fmt(s.drive)+' N · side '+fmt(s.sideForce)+' N\nnet forward '+fmt(f.forward)+' N · net side '+fmt(f.side)+' N\nyaw '+fmt(f.yaw)+' Nm · roll '+fmt(f.roll)+' Nm\nflow '+s.flow+' · luff '+fmt(s.luff,2)+' · stall '+fmt(s.stall,2)+'\nVMG wind '+fmt(i.vmgWind)+' m/s\nTack '+state.tackCount+' · gybe '+state.gybeCount;
-    $('debugValues').textContent+='\nhelm target '+fmt((state.helmTarget||0)/DEG,2)+'° · held '+fmt(state.helmHoldSeconds||0,3)+' s\nhelm flow '+(state.helmFlowSign||state.steeringFlowSign||'—')+' · requested '+fmt(state.steerIntent??state.helmIntent??0,2)+'\nirons help '+(assisted()?'ON':'off')+' · moment '+fmt(state.helmAssist?.moment||0)+' Nm\nseabed depth '+fmt(state.ground?.depth,1)+' m · contact '+(state.ground?.contact?'yes':'no');
+    const steering=f.steering;
+    const yawKeys=[['sail','Sejl'],['mastWindage','Mastens vindmodstand'],['rudder','Ror'],['hull','Skrog'],['board','Sværd/køl'],['foils','Foils'],['wave','Bølger'],['assist','Hjælp']];
+    $('debugValues').textContent+='\nRorinput '+fmt(steering?.received??state.steerIntent??0,2)
+      +' · mål '+fmt((state.helmTarget||0)/DEG,1)+'° → faktisk '+fmt(state.rudder/DEG,1)+'°'
+      +(steering?.rudderRate==null?'':' · bladet drejer '+fmt(steering.rudderRate/DEG,1)+'°/s')
+      +'\nStævnen drejer '+fmt(-(steering?.verticalOmegaAfter??state.omega)/DEG,1)+'°/s'
+      +' · manøvrehjælp '+(assisted()?'til':'fra')
+      +'\nDybde '+fmt(state.ground?.depth,1)+' m · grundkontakt '+(state.ground?.contact?'ja':'nej');
+    if(steering)$('debugValues').textContent+='\nDrejemomenter om tyngdepunkt (Nm)'
+      +'\n'+yawKeys.filter(([key])=>key in steering.yawMoments).map(([key,name])=>name+' '+fmt(steering.yawMoments[key],1)).join(' · ')
+      +'\nSamlet '+fmt(steering.yawTotal,1)+' Nm · heraf medbevæget vand '+fmt(steering.yawWater,1)+' Nm';
     const trim=sheetDiagnostics(),hydro=state.hydro||{},frame=P.axes(state.theta);
     const relativeSide=(state.vx-(state.waterX||0))*frame.rx+(state.vy-(state.waterY||0))*frame.ry;
     const bladeRows=foiler?Object.values(state.foils||{}).filter(a=>a.rudderBlade).map(a=>a.rudderBlade):f.rudder?.parts||[];
@@ -6051,8 +6309,9 @@ function updateUI(now=performance.now()){if(!state||!course)return;
     if(f.balance){
       const strip=s.main?.sections?.[1];
       $('debugValues').textContent+='\n\nBALANCE OM TYNGDEPUNKTET\n'
-        +'Vægtposition '+(easy?state.crewPose:env.crewPose)+' → '+fmt(state.crewPoseBlend,2)
-        +' · side '+(state.crewSide<0?'bagbord':'styrbord')+' → '+fmt(state.crewSideBlend,2)+'\n'
+        +'Stilling '+(easy?state.crewPose:crewTarget.pose)+' → '+fmt(state.crewPoseBlend,2)
+        +' · '+((easy?state.crewSide:crewTarget.side)<0?'bagbord':'styrbord')+' → '+fmt(state.crewSideBlend,2)
+        +' · længdetrim '+fmt((easy?0:crewTarget.foreAft)*100,0)+' → '+fmt(state.crewForeAft*100,0)+' %\n'
         +'Sejlets midte: lokal vind '+fmt(strip?.trueSpeed)+' m/s · relativ vind '+fmt(strip?.apparentSpeed)
         +' m/s · i sejlprofilet '+fmt(strip?.localAirSpeed)+' m/s\n'
         +'Krængningshastighed '+fmt(state.heelRate/DEG)+'°/s\n'
@@ -6306,12 +6565,17 @@ try{
       if(boatChanged)env.boatId=s.boatId;
       state=s;
       if(launch){
-        sheetTarget=s.sheet;resetRigControls();resetCrewSideInput();clearInput();speedReadout=null;
+        sheetTarget=s.sheet;resetRigControls();clearInput();speedReadout=null;
+        rigCommand.reef=Math.round(B.get(s).kind==='foiler'?2*(s.rig?.reefTarget??s.rig?.reef??0):(s.cruiserRig?.reefTarget??s.cruiserRig?.reef??0));
+        rigCommand.headsail=Math.round(s.cruiserRig?.headsailTarget??s.cruiserRig?.headsail??0);
+        $('reefSetting').value=String(rigCommand.reef);
+        $('headsailSetting').value=String(rigCommand.headsail);
         track=[];lastTrack=-1;world.lastTime=-1;
         if(boatChanged)syncSettings();
       }
-      if(s.recovering&&!old.recovering){sheetTarget=s.sheet;resetCrewSideInput();toast('Automatisk opretning · sejlet aflastes',2);}
-      if(!s.recovering&&old.recovering){sheetTarget=s.sheet;toast('Båden er klar igen',2);}
+      if(s.recovering&&!old.recovering){discardTrimInput();releaseRigControls();crewRequest=null;toast('Automatisk opretning · sejlet aflastes',2);}
+      const recovered=!launch&&!s.recovering&&(old.recovering||s.lastRecovery?.id>(old.lastRecovery?.id??0));
+      if(recovered){discardTrimInput();releaseRigControls();toast(s.reboardedInside?'Båden er klar. Vælg kant eller hæng, når sejlet trækker.':'Båden er klar igen',3);}
       for(const p of pending)Sim.stepBoat(state,p.control,env,p.dt,{waitForWind:false});
       const dx=shown.x-state.x,dy=shown.y-state.y;
       lastNetworkCorrection={time:state.time,headingDelta:P.wrap(state.theta-shown.theta),distance:Math.hypot(dx,dy),pending:pending.length,launch};

@@ -1,0 +1,55 @@
+{
+  "health": {
+    "status": "ok",
+    "protocol": 3,
+    "build": "a445477ce395",
+    "world": "faaborg-quarter-1",
+    "authority": "browser",
+    "capacity": 2,
+    "rooms": 1
+  },
+  "trace": [
+    {
+      "key": "KeyE",
+      "pose": 1,
+      "observed": {
+        "accepted": {
+          "side": 1,
+          "pose": 1,
+          "foreAft": 0,
+          "order": 1
+        },
+        "physical": 0.937011765130302,
+        "rendered": 0.9115412782328427
+      }
+    },
+    {
+      "key": "KeyQ",
+      "pose": 3,
+      "observed": {
+        "accepted": {
+          "side": -1,
+          "pose": 3,
+          "foreAft": 0,
+          "order": 3
+        },
+        "physical": -0.9412112217610779,
+        "rendered": -0.9273108128956153
+      }
+    },
+    {
+      "key": "KeyE",
+      "pose": 2,
+      "observed": {
+        "accepted": {
+          "side": 1,
+          "pose": 2,
+          "foreAft": 0,
+          "order": 5
+        },
+        "physical": 0.9329051263915068,
+        "rendered": 0.9252255762278236
+      }
+    }
+  ]
+}

@@ -206,7 +206,11 @@ function updateReef(s,c,requested,dt){
 function wingRelease(sheet){return 1-smooth(0,.32,sheet);}
 function aero(s,inputEnv,overrideWind){
  const c=cfg(s),env={...envFor(inputEnv),waveCurrent:s.seaState,waveCurrentRate:s.seaStateRate||0,waveProfile:s.waveProfile},wind=P.windForState(s,env,overrideWind),a=P.axes(s.theta),aws=wind.aws;
- const side=s.rig?.side??(Math.abs(s.boom)>.005?Math.sign(s.boom):-1),twist=c.rigidWing?(s.wing?.twist||0):(s.rig?.twist??c.baseTwist*(1.2-.6*s.sheet)),jibAngle=c.rigidWing?(s.wing?.jibAngle??s.boom*.78):s.boom*.78+1.2*D*Math.tanh(s.boom/(2*D)),acc=accumulator();
+ const side=s.rig?.side??(Math.abs(s.boom)>.005?Math.sign(s.boom):-1),twist=c.rigidWing?(s.wing?.twist||0):(s.rig?.twist??c.baseTwist*(1.2-.6*s.sheet)),acc=accumulator();
+ const jibSheet=s.rig?.jibSheet??s.sheet;
+ const coupled=s.boom*.78+1.2*D*Math.tanh(s.boom/(2*D));
+ const jibAngle=c.rigidWing?(s.wing?.jibAngle??s.boom*.78)
+  :s.rig?.jibSheet==null?coupled:manualJibAngle(s,c,wind.awa,jibSheet);
  const scaleMain=B.foilerSailScale(c,'main',s.rig?.reef),scaleJib=B.foilerSailScale(c,'jib',s.rig?.reef);
  const areaMain=c.mainArea*scaleMain**2,areaJib=c.jibArea*scaleJib**2,activeArea=areaMain+areaJib;
  const result={wind,fx:0,fy:0,drive:0,sideForce:0,rollMoment:0,pitchMoment:0,yawMoment:0,alpha:0,cl:0,cd:0,lift:0,drag:0,luff:0,stall:0,exposure:0,qArea:0,twist,camber:c.camber,side};
@@ -216,7 +220,7 @@ function aero(s,inputEnv,overrideWind){
  for(const [name,area,scale,beta,px,py]of [['main',areaMain,scaleMain,s.boom+(s.rig?.sideBlend??side)*twist*.35+(c.rigidWing?0:flutter*.48),c.mainCPX,c.mainCPHeight],['jib',areaJib,scaleJib,jibAngle+P.sailFlutter(s.rig,.58,true)*.36,c.jibCPX,c.jibCPHeight]]){
   if(!area)continue;
   const foot=name==='main'?c.boomY:c.jibTackY;
-  const jibShape=c.rigidWing&&name==='jib'?1-.8*wingRelease(s.sheet):1;
+  const jibShape=c.rigidWing&&name==='jib'?1-.8*wingRelease(jibSheet):1;
   const clothCamber=jibShape*(s.rig?.camber??c.camber)*(.55+.45*(s.rig?.fill??1));
   const camber=c.rigidWing?c.camber*jibShape:clothCamber*Math.abs(s.rig?.sideBlend??1);
   const point=V(name==='main'?c.mastX-chordArm*scale*Math.cos(beta):mix(c.jibTackX,px,scale),mix(foot,py,scale),(name==='main'?chordArm:1.8)*scale*Math.sin(beta)),wp=bodyPoint(s,point),water=P.waveHeightAt(wp.x,wp.y,s.time,env),exposure=smooth(-.1,.5,wp.z-water);
@@ -225,7 +229,7 @@ function aero(s,inputEnv,overrideWind){
   const liftScale=c.rigidWing&&name==='main'?mix(1,c.heavyAir?.wingLift??1,s.rig?.reef??0):1;
   const cl=co.cl*liftScale,cd=co.cd-c.sailInducedCD*(co.cl*co.cl-cl*cl);
   const q=.5*c.airDensity*sectionSpeed*sectionSpeed*area*exposure*clamp(s.recoveryAeroScale??1,0,1),L=q*cl,drag=q*cd,force=add(mul(unit(cross(sectionFlow,span)),L),mul(unit(air),drag)),ff=force.x*a.fx+force.y*a.fy,rr=force.x*a.rx+force.y*a.ry,m=addForce(acc,s,point,force,name),weight=area/activeArea;
-  const sail={area,luffScale:scale,chordScale:scale,trim:s.sheet,angle:beta,alpha:co.folded,cl,cd,lift:L,drag,drive:ff,sideForce:rr,rollMoment:m.roll,load:clamp(Math.hypot(ff,rr)/(area*170),0,1),luff:co.luff,stall:co.stall,exposure,side,point,force,twist,camber:clothCamber,fill:s.rig?.fill??0,localAirSpeed:sectionSpeed,localAwa:Math.atan2(-dot(air,across),-dot(air,along))};result[name]=sail;
+  const sail={area,luffScale:scale,chordScale:scale,trim:name==='main'?s.sheet:jibSheet,angle:beta,alpha:co.folded,cl,cd,lift:L,drag,drive:ff,sideForce:rr,rollMoment:m.roll,load:clamp(Math.hypot(ff,rr)/(area*170),0,1),luff:co.luff,stall:co.stall,exposure,side,point,force,twist,camber:clothCamber,fill:s.rig?.fill??0,localAirSpeed:sectionSpeed,localAwa:Math.atan2(-dot(air,across),-dot(air,along))};result[name]=sail;
   result.alpha+=co.folded*weight;result.cl+=cl*weight;result.cd+=cd*weight;result.luff+=co.luff*weight;result.stall+=co.stall*weight;result.exposure+=exposure*weight;result.lift+=L;result.drag+=drag;result.qArea+=q;result.drive+=ff;result.sideForce+=rr;
  }
  const unloaded=c.rigidWing
@@ -602,6 +606,11 @@ function updateStatus(s,hull){
 }
 function refresh(s,env){s.sail=aero(s,env);s.wind=s.sail.wind;s.speed=Math.hypot(s.vx,s.vy);if(cfg(s).rigidWing){s.wing=s.wing||{flap:0};s.wing.angle=s.boom;s.wing.load=s.sail.load;s.wing.stall=s.sail.stall;}return s;}
 function loads(s,env){const m=massProperties(s),hull=hullLoads(s,env,m),sail=aero(s,env),water=foilLoads(s,env),air=airHullLoads(s,env),total=accumulator();combine(total,hull);combine(total,sail.accumulator);combine(total,water);combine(total,air);return{...total,mass:m,hull,sail,foils:water,air};}
+function manualJibAngle(s,c,awa,sheet){
+ const reach=Math.abs(awa??0),stop=Math.min(c.boomMax,(76-69*sheet)*D);
+ const side=reach<150*D&&reach>5*D?-Math.sign(awa):Math.sign(s.boom)||-1;
+ return side*Math.min(reach,stop);
+}
 function updateRigidWing(s,c,dt,rescuing){
  const wing=s.wing||(s.wing={angle:s.boom,flap:0});
  const side=Math.sign(s.boom||s.foiling.leewardSide);
@@ -612,7 +621,8 @@ function updateRigidWing(s,c,dt,rescuing){
  // apparent wind at its own height and position, within the rig's travel.
  const coupled=s.boom*.78+1.2*D*Math.tanh(s.boom/(2*D));
  const jib=s.sail?.jib,feather=jib?.localAirSpeed>.1?clamp(-jib.localAwa,-c.boomMax,c.boomMax):coupled;
- const jibTarget=mix(coupled,feather,release);
+ const jibTarget=s.rig?.jibSheet==null||rescuing?mix(coupled,feather,release)
+  :manualJibAngle(s,c,jib?.localAwa??s.wind?.awa,s.rig.jibSheet);
  wing.jibAngle=move(wing.jibAngle??coupled,jibTarget,30*D*dt);
  const twist=(1-release)*(1-s.sheet)*5*D;
  wing.twist=move(wing.twist??0,twist,5*D*dt);
@@ -624,6 +634,9 @@ function advance(s,controls,env,h){
  const before=movingMassPoints(s),oldBoomRate=s.boomRate;
  P.updateCrew(s,ctrl,env,h);
  updateReef(s,c,ctrl.rig?.reef,h);
+ if(Number.isFinite(ctrl.rig?.jibSheet)){
+  s.rig.jibSheet=P.advanceTrimLine(s.rig.jibSheet??s.sheet,ctrl.rig.jibSheet,c,env,h);
+ }
  if(c.rigidWing)updateRigidWing(s,c,h,rescueActive);
  const easy=(ctrl.difficulty??env.difficulty)==='easy',lively=!easy&&!rescueActive&&!s.capsized;
  P.updateRig(s,c,h,lively);

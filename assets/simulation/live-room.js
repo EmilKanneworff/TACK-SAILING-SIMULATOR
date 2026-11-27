@@ -20,7 +20,9 @@ function makeWorld(env) {
 }
 
 function neutral(control = {}) {
-  return { ...control, steer: 0, trim: 0, sheetTarget: undefined, crew: 0, foreAft: control.foreAft ?? 0, crewPose: control.crewPose ?? 2 };
+  return { ...control, steer: 0, trim: 0, sheetTarget: undefined, crew: 0,
+    crewInput: control.crewInput === undefined ? undefined : null,
+    foreAft: control.foreAft ?? 0, crewPose: control.crewPose ?? 2 };
 }
 
 function roomWeather(patch, current = Settings.defaults) {

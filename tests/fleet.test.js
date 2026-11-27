@@ -14,6 +14,19 @@ test('two browser clients enter the same world and exchange independent steering
   }finally{await helm.keyboard.up(key);}
   expect(Math.abs((await observed(observer)).own-before.own)).toBeLessThan(.25);
  }
+ await host.keyboard.press('KeyQ');
+ await host.keyboard.press('Digit1');
+ await guest.waitForFunction(()=>[...FriVindLobby.fleet.boats.values()][0]?.crewTarget?.side===-1&&
+   [...FriVindLobby.fleet.boats.values()][0].crewTarget.pose===1);
+ await host.keyboard.press('KeyE');
+ await guest.waitForFunction(()=>[...FriVindLobby.fleet.boats.values()][0]?.crewTarget?.side===1);
+ await host.keyboard.press('KeyQ');
+ await host.keyboard.press('Digit3');
+ await guest.waitForFunction(()=>{
+   const remote=[...FriVindLobby.fleet.boats.values()][0];
+   const actor=[...FriVindLobby.fleet.actors.values()][0];
+   return remote?.crewTarget.side===-1&&remote.crewTarget.pose===3&&remote.crewSideBlend<-.9&&actor?.visibleCrewPose?.side<-.9;
+ });
  await host.click('#settingsButton');await host.locator('#windDirection').fill('92');await host.locator('#windGusts').fill('.48');await host.keyboard.press('Escape');
  await guest.waitForFunction(()=>SAILING_GAME.env.direction===92&&SAILING_GAME.env.gusts===.48);
  const sharedWind=()=>SailPhysics.windAt(345,-155,12,SAILING_GAME.env,2);

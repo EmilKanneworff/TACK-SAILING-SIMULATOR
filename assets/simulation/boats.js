@@ -72,6 +72,7 @@
   // the hull. These are GAME righting parameters, not measured ILCA data.
   laser:make('laser','Laserjolle','4,23 meter. Let skrog, stort sejl og aktiv balance.',{
    length:4.23,referenceWaterline:3.81,beam:1.37,hullDepth:.385,deckY:.245,rocker:.09,chinePower:6.0,planing:true,planingAreaFraction:.12,planingLiftSlope:1.2,planingMaxWeightFraction:.70,
+   planingStrips:[[-.60,.28],[0,.44],[.60,.28]],
    crewHikingInset:.11,crewHikingLean:1.05,crewForeAftRange:.43,
    crewPoseRate:4.2,crewPoseAcceleration:30,crewPoseResponse:.10,
    crewPoseReturnRate:4.8,crewPoseReturnAcceleration:38.4,crewPoseReturnResponse:.095,
@@ -79,7 +80,7 @@
    helmInitialFraction:.45,helmGrowthSeconds:.27,
    shape:[[-.485,.745],[-.390,.876],[-.248,.972],[-.059,1],[.118,.949],[.272,.745],[.390,.438],[.515,.018]],
    hullMass:56,rigMass:10,equipmentMass:2,hullCGX:-.02,hullCGY:-.035,rigCGY:1.65,
-   sailArea:7.06,mastX:1.02,mastTop:6.18,boomY:.98,boomLength:2.73,sailLuff:5.15,sailCPChord:1.04,sailCPHeight:2.66,
+   sailArea:7.06,mastX:1.02,mastTop:6.18,mastDragArea:.31,boomY:.98,boomLength:2.73,sailLuff:5.15,sailCPChord:1.04,sailCPHeight:2.66,
    daggerArea:.245,daggerDepth:1.02,daggerChord:.30,daggerX:.05,rudderArea:.105,rudderDepth:.66,rudderChord:.205,rudderX:-1.95,
    rudderOffset:.03,rudderRake:.10,
    yawInertia:182,rollInertia:57,pitchInertia:220,boomInertia:4.8,boomDamping:10,
@@ -214,7 +215,9 @@
    foilStallStart:15*D,foilStallEnd:27*D,foilStrutArea:.72,foilStrutCD:.003,
    foilVentDepth:.17,foilVentLoss:.84,foilVentOnset:.5,foilVentRecovery:2.5,
    rudderX:-9.5,rudderY:-3.00,rudderSpan:1.75,rudderWingArea:.45,rudderArea:.37,rudderDepth:4.65,rudderChord:.24,
-   rudderMax:22*D,flightRudderMax:13*D,waterborneRudderMax:7*D,waterborneSlowRudderMax:22*D,easySlowRudderMax:22*D,rudderRate:100*D,rudderCenterRate:96*D,helmInitialFraction:.27,helmGrowthSeconds:.34,helmSpeedReference:8,helmMinimumFraction:.65,
+   // A full turn under foil needs more travel than a small course correction.
+   rudderMax:28*D,helmFlightFineTravel:13*D,waterborneRudderMax:7*D,waterborneSlowRudderMax:22*D,easySlowRudderMax:22*D,
+   rudderRate:100*D,rudderCenterRate:96*D,helmInitialFraction:.27,helmGrowthSeconds:.34,helmSpeedReference:8,helmMinimumFraction:.65,
    rudderFlapMin:-12*D,rudderFlapMax:17*D,rudderFlapRate:32*D,daggerArea:0,daggerDepth:0,daggerChord:0,daggerX:.8,
    rollInertia:24000,pitchInertia:160000,yawInertia:155000,
    heaveDamping:30000,rollDamping:2800,pitchDamping:7000,
@@ -285,7 +288,13 @@
   return Math.hypot(x-fx*along,p.z-fz*along,horizontal?0:p.y-model.boomY);
  }
  function crewPose(model,degree,side,swim=0,offset=0,single=false,motion=null,advanceDuck){
-  const p=get(model),d=clamp(degree,1,3),sg=clamp(side,-1,1),k=clamp(swim,0,1);
+  const p=get(model),requested=clamp(degree,1,3),sg=clamp(side,-1,1),k=clamp(swim,0,1);
+  const smooth=a=>{const q=clamp(a,0,1);return q*q*(3-2*q);};
+  // Cross the Laser cockpit from a low, inboard stance. The same joints
+  // carry the body mass and drive the visible sailor during the transfer.
+  const inboard=p.id==='laser'&&motion&&!motion.recovering&&!motion.capsized
+   ?smooth((1-Math.abs(sg))/.57)*smooth((Math.abs(motion.crewSideVelocity??0)-.08)/.45):0;
+  const d=mix(requested,Math.min(requested,1.2),inboard);
   const lo=Math.min(1,Math.floor(d-1)),u=d-1-lo,t=u*u*u*(u*(u*6-15)+10);
   const x=p.crewX+offset+(motion?.crewForeAft??0)*p.crewForeAftRange;
   const cruiser=p.id==='yacht';
@@ -312,7 +321,6 @@
   // merely because its seat/torso interpolation changes segment.
   const A=seat[lo],B=seat[lo+1],r=mix(mix(A.r,B.r,t),edge+.08,k*.55),y=mix(mix(A.y,B.y,t),p.deckY+.18,k),lean=mix(mix(A.lean,B.lean,t),.28,k)*sg;
   const torso=.49,laserMotion=p.id==='laser'&&motion;
-  const smooth=a=>{const q=clamp(a,0,1);return q*q*(3-2*q);};
   let duck=laserMotion?clamp(motion.crewDuck??0,0,1):0;
   if(laserMotion&&advanceDuck){
    let target=0;
@@ -342,7 +350,10 @@
    const swing=Math.sin(Math.PI*progress)**2*clamp(Math.abs(motion?.crewSideVelocity||0),0,1);
    const reach=laserMotion?.075*swing:0;
    const foot=p.kind==='keelboat'?mix(A.foot,trapezeFeet&&lo===1?trapezeFeet[i]:B.foot,t):.045;
-   return point(x+(i===0?.27:-.27)+reach,footY+k*.12+reach,
+   // Step along the cockpit with the boots spaced fore and aft. Bringing
+   // the aft boot under the crouched hip can flip a folded knee and jerk
+   // the crew's physical centre of mass as the boat changes tack.
+   return point(x+(i===0?1:-1)*(.27+reach),footY+k*.12+reach,
     sg*(foot+k*.23)+stepDirection*.115*swing);
   });
   const stepping=laserMotion?smooth((Math.abs(motion.crewSideVelocity||0)-.1)/.8):0;
@@ -361,6 +372,8 @@
    hands[0]=blendPoint(hands[0],point(x-.32,p.deckY+.19,chest.z*.58-(motion.rudder||0)*.24),.53+.27*duck);
    const sheet=clamp(motion.sheet??.45,0,1);
    hands[1].x+=.10-.18*sheet;hands[1].y+=.06*duck+.045*sheet;hands[1].z-=sg*.045;
+   const brace=inboard*duck*.76;
+   hands[1]=blendPoint(hands[1],point(x+.35,p.deckY+.052,sg*(p.cockpit.halfWidth+.035)),brace);
   }
   const elbows=shoulders.map((shoulder,i)=>{
    const hand=hands[i];
@@ -395,6 +408,7 @@
  function softSailReefScale(model,reef=0){
   return 1-(model.id==='laser'?.16:.22)*reef;
  }
+ function headsailScale(setting=0){return Math.sqrt(1-.42*setting);}
  function foilerSailScale(model,name,reef=0){
   return Math.sqrt(mix(1,model.heavyAir?.[name]??1,reef));
  }
@@ -403,6 +417,6 @@
   gennaker:{name:'Gennaker',area:'gennakerArea',open:68,close:61,full:87,shadow:139,shadowLoss:.48,maxWind:17,sheet:.48,drag:.70,lift:.46,hint:'Til slør'},
   spinnaker:{name:'Spiler',area:'spinnakerArea',open:82,close:70,full:100,shadow:151,shadowLoss:.16,maxWind:19,sheet:.42,drag:1,lift:.28,hint:'Til dybt slør og læns'}
  });
- root.SailingBoats={CONFIGS,cruiserSails,LIST:Object.values(CONFIGS),get,halfBeamAt,hullBottom,rudderPoint,laserRudderOutline,insideCockpit,crewPose,crewPoseAt,boomDistance,foilerCrewPositions,softSailReefScale,foilerSailScale,jointBetween,addPointInertia};
+ root.SailingBoats={CONFIGS,cruiserSails,LIST:Object.values(CONFIGS),get,halfBeamAt,hullBottom,rudderPoint,laserRudderOutline,insideCockpit,crewPose,crewPoseAt,boomDistance,foilerCrewPositions,softSailReefScale,headsailScale,foilerSailScale,jointBetween,addPointInertia};
 
 });

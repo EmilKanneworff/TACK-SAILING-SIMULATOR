@@ -2,6 +2,13 @@ export type BoatId = 'laser' | 'dinghy' | 'yacht' | 'ac75' | 'ac72';
 export type Difficulty = 'easy' | 'hard';
 export type CrewPose = 1 | 2 | 3;
 
+export interface CrewTarget {
+  side: -1 | 1;
+  pose: CrewPose;
+  foreAft: number;
+  order: number;
+}
+
 export interface ControlInput {
   steer?: number;
   steerDigital?: boolean;
@@ -10,6 +17,8 @@ export interface ControlInput {
   sheetTarget?: number;
   trimFast?: boolean;
   crewPose?: CrewPose;
+  /** Absolute crew command. Null means hold the last accepted target. */
+  crewInput?: (CrewTarget & { epoch: number }) | null;
   /** On Hard, signed values choose a side independently of wind. Zero holds the current side. */
   crew?: number;
   foreAft?: number;
@@ -83,13 +92,15 @@ export interface BoatState extends BoatPose {
   boom: number;
   /** Angular limits in radians and estimated reaction at the boom in Nm. */
   sheetLoad?: { limit: number; stop: number; taut: boolean; momentNm: number; mechanicalStop: boolean };
-  /** Ordered stance and side, then the smooth physical actuator positions. */
+  /** Last accepted manual choice, including while automatic balance or recovery is active. */
+  crewTarget: CrewTarget;
+  /** Hard Laser just reboarded with the sail released. The next crew command resumes manual hiking. */
+  reboardedInside?: boolean;
+  /** Active actuator targets and their current physical positions. */
   crewPose: CrewPose;
   crewSide: number;
   crewPoseBlend: number;
   crewSideBlend: number;
-  /** The last established windward side outside the head-to-wind sector. */
-  crewTackFrom: number;
   windClimate?: Pick<FieldInputs, 'speed' | 'direction' | 'gusts'>;
   waveProfile?: object;
   atmosphere?: object;

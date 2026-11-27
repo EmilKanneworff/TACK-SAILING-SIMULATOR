@@ -83,7 +83,7 @@ test('flat calm water has no horizontal energy source',async({page})=>{
  const results=await page.evaluate(()=>{
   const P=SailPhysics;
   return ['laser','dinghy','yacht','ac75','ac72'].map(boatId=>{
-   const env={...SAILING_GAME.env,boatId,waves:0,speed:0,gusts:0};
+   const env={...SAILING_GAME.env,boatId,waveHeight:0,chop:0,speed:0,gusts:0};
    const state=P.createState({x:0,y:-5000,vx:0,vy:0},env),control={steer:0,trim:0,crewPose:2};
    // Hold the horizontal position while the launched hull settles in pitch
    // and heel. Release it before measuring any translation.
@@ -216,9 +216,14 @@ test('crew shifts alter centre of gravity without changing total mass',async({pa
 test('one regular component matches the GPU and produces a bow-to-stern response',async({page})=>{
  test.setTimeout(60000);await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
  const r=await page.evaluate(()=>{const P=SailPhysics,scene=SAILING_GAME.scene,T=THREE,renderer=scene.renderer,e={boatId:'laser',speed:5,waves:.85,shelter:false,waveComponent:0,swellDirection:P.BASE_WAVE_DIRECTION},s=P.createState({boatId:'laser',x:0,y:-5000,theta:Math.atan2(.105,.075)+Math.PI},e),profile=s.waveProfile.to,uniforms={time:{value:0},sea:{value:s.seaState},waveFrom:{value:new T.Vector3(profile.angle,profile.period,profile.short)},waveTo:{value:new T.Vector3(profile.angle,profile.period,profile.short)},waveBlend:{value:1},coord:{value:new T.Vector2()}},material=new T.ShaderMaterial({uniforms,vertexShader:'void main(){gl_Position=vec4(position,1.0);}',fragmentShader:`uniform float time;uniform float sea;uniform vec2 coord;${scene.waveShaderTemplate.replace('WAVE_TERMS',scene.waveTermStrings[0])} void main(){gl_FragColor=vec4(.5+.4*wave(coord).x,0.,0.,1.);}`}),testScene=new T.Scene(),mesh=new T.Mesh(new T.PlaneGeometry(2,2),material),camera=new T.OrthographicCamera(-1,1,1,-1,0,1),target=new T.WebGLRenderTarget(1,1),old=renderer.getRenderTarget(),pix=new Uint8Array(4),checks=[],pitch=[],difference=[];testScene.add(mesh);
- for(let i=0;i<900;i++){P.step(s,{steer:0,trim:0,crewPose:2},e,1/60);if(i%60===0){const f=P.axes(s.theta),len=SailingBoats.get(s).length,ev={...e,waveCurrent:s.seaState,waveProfile:s.waveProfile},bow=P.waveAt(s.x+f.fx*len*.4,s.y+f.fy*len*.4,s.time,ev),stern=P.waveAt(s.x-f.fx*len*.4,s.y-f.fy*len*.4,s.time,ev);pitch.push(s.pitch);difference.push(bow.height-stern.height);uniforms.time.value=s.time;uniforms.sea.value=s.seaState;uniforms.coord.value.set(s.x,-s.y);renderer.setRenderTarget(target);renderer.render(testScene,camera);renderer.readRenderTargetPixels(target,0,0,1,1,pix);checks.push({gpu:(pix[0]/255-.5)/.4,cpu:P.waveAt(s.x,s.y,s.time,ev).height});}}
+ for(let i=0;i<900;i++){P.step(s,{steer:0,trim:0,crewPose:2},e,1/60);if(i%60===0){const f=P.axes(s.theta),len=SailingBoats.get(s).length,ev={...e,waveCurrent:s.seaState,waveProfile:s.waveProfile},bow=P.waveAt(s.x+f.fx*len*.4,s.y+f.fy*len*.4,s.time,ev),stern=P.waveAt(s.x-f.fx*len*.4,s.y-f.fy*len*.4,s.time,ev);pitch.push(s.pitch);difference.push(bow.height-stern.height);uniforms.time.value=s.time;uniforms.sea.value=s.seaState;renderer.setRenderTarget(target);
+ for(const position of [-.4,0,.4]){
+  const x=s.x+f.fx*len*position,y=s.y+f.fy*len*position;
+  uniforms.coord.value.set(x,-y);renderer.render(testScene,camera);renderer.readRenderTargetPixels(target,0,0,1,1,pix);
+  checks.push({time:s.time,position,gpu:(pix[0]/255-.5)/.4,cpu:P.waveAt(x,y,s.time,ev).height});
+ }}}
  renderer.setRenderTarget(old);target.dispose();material.dispose();mesh.geometry.dispose();return {checks,pitch,difference,finite:[s.x,s.y,s.heave,s.pitch].every(Number.isFinite)};});
- expect(r.finite).toBe(true);for(const x of r.checks)expect(Math.abs(x.gpu-x.cpu)).toBeLessThan(.015);expect(Math.max(...r.pitch)-Math.min(...r.pitch)).toBeGreaterThan(.01);expect(Math.max(...r.difference)-Math.min(...r.difference)).toBeGreaterThan(.1);
+ console.log('Kontaktpunkter på én bølge',JSON.stringify({checks:r.checks.length,maxError:Math.max(...r.checks.map(p=>Math.abs(p.cpu-p.gpu))),pitchRange:Math.max(...r.pitch)-Math.min(...r.pitch)}));expect(r.finite).toBe(true);for(const x of r.checks)expect(Math.abs(x.gpu-x.cpu)).toBeLessThan(.015);expect(Math.max(...r.pitch)-Math.min(...r.pitch)).toBeGreaterThan(.01);expect(Math.max(...r.difference)-Math.min(...r.difference)).toBeGreaterThan(.1);
 });
 test('foil support status avoids rapid flicker while water contact and lift vary',async({page})=>{
  test.setTimeout(90000);

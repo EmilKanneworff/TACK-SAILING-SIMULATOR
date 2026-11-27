@@ -1,0 +1,257 @@
+--- a/index.html
++++ b/index.html
+@@ -582,7 +582,7 @@
+   <div class="dock-fittings">
+     <section class="balance-card" id="balanceCard" aria-label="Båd og vægtposition">
+       <span class="dock-label" id="crewDockLabel">Besætning</span>
+-      <button id="mobileCrewToggle" class="touch-action dock-label" type="button" aria-controls="mobileCrewPanel" aria-expanded="false"><span id="mobileCrewSide">Besætning</span> <span aria-hidden="true">⌃</span></button>
++      <button id="mobileCrewToggle" class="touch-action dock-label" type="button" aria-controls="mobileCrewPanel" aria-expanded="false">Besætning <span aria-hidden="true">⌃</span></button>
+       <div class="balance-heading"><button id="boatQuickButton" title="Vælg båd (B)"><span id="boatLabel">Laserjolle</span><small>↗</small></button><b id="heelCompact">0°</b></div>
+       <div class="pose-buttons" role="group" aria-label="Vælg vægtposition">
+         <button id="pose1" type="button" data-pose="1" aria-pressed="false">1 – Inde</button>
+@@ -654,7 +654,7 @@
+     <div class="intro-difficulty">
+       <label for="introDifficulty">Sværhedsgrad</label>
+       <select id="introDifficulty" aria-describedby="introDifficultyHelp"><option value="easy">Let</option><option value="hard" selected>Svær</option></select>
+-      <small id="introDifficultyHelp">Vælg stilling med 1–3 og side med Q/E.</small>
++      <small id="introDifficultyHelp">Vælg vægt til luv med 1–3. Tryk igen efter en vending.</small>
+     </div>
+     <div class="intro-actions">
+       <button id="startButton" class="primary" type="button" disabled>Fri sejlads</button>
+@@ -798,9 +798,9 @@
+   </div>
+ </section>
+ <section class="modal-layer boat-picker" id="boatPicker" role="dialog" aria-label="Bådvalg" aria-modal="true" hidden><div class="modal"><button class="close" data-close="boatPicker" aria-label="Luk bådvalg">×</button><h2>Vælg din båd</h2><div class="boat-options" role="group" aria-label="Vælg båd"><button class="boat-option" data-boat="laser" aria-pressed="false"><img loading="lazy" src="assets/model-laser.webp" alt=""><strong>Laserjolle</strong><span>Let og aktiv</span></button><button class="boat-option" data-boat="dinghy" aria-pressed="false"><img loading="lazy" src="assets/model-dinghy.webp" alt=""><strong>Racer 32</strong><span>Let racer · tre i besætningen</span></button><button class="boat-option" data-boat="yacht" aria-pressed="false"><img loading="lazy" src="assets/model-yacht.webp" alt=""><strong>Turbåd 43</strong><span>Lettest at sejle</span></button><button class="boat-option" data-boat="ac75" aria-pressed="false"><img loading="lazy" src="assets/model-ac75.webp" alt=""><strong>Foilmonohull</strong><span>Præcis og krævende</span></button><button class="boat-option" data-boat="ac72" aria-pressed="false"><img loading="lazy" src="assets/model-ac72.webp" alt=""><strong>Foilkatamaran</strong><span>Hurtig foiling</span></button></div><a href="assets/sammenlign.html" target="_blank" rel="noopener">Sammenlign størrelser</a></div></section>
+-<section class="modal-layer" id="help" hidden=""><div class="modal"><button class="close" data-close="help" aria-label="Luk hjælp">×</button><div class="eyebrow">LÆR BÅDEN AT KENDE</div><h2>Kurs. Trim. Balance.</h2><p>Vindpile på vandet viser, hvor den lokale vind blæser hen. Instrumenterne viser, hvor vinden kommer fra.</p><div class="foil-help" id="foilHelp" hidden=""><div class="help-grid"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Sejltrimmet bliver stående.</span><span>1 / 2 / 3</span><span>På Svær vælger 1, 2 og 3 stilling. På Let flytter besætningen sig selv.</span><span>Q / E</span><span>Q vælger bagbord, og E vælger styrbord. Valget gælder også gennem en vending.</span><span>Skærmknapper</span><span>Pause, genstart, kamera og bådvalg.</span></div><p><b>Byg fart først.</b> Begynd på en åben kurs med slækket sejl. Når farten stiger, trækker den relative vind frem; hal gradvist ind med korte tryk på ↑. For stramt sejl giver ikke automatisk mere fart: hold øje med den orange relative vind og sejlrådet.</p><p><b>Lad løftet vokse.</b> Foilerne overtager vægten, når strømningen kan bære båden. Højde, pitch, foilnedsænkning og kontakt med bølgerne bestemmer kræfterne. Der er ingen knap til takeoff.</p><p><b>Sejl rolige vendinger.</b> Brug korte rortryk ved høj fart. På monohullen sænker besætningen den nye foil før den gamle hæves. Katamaranen holder begge løftende sværd nede og fordeler støtten over fire foilflader som en tilgivende spilforenkling. Store rorudslag bremser og kan koste løft. For lidt sejltryk, lav fart eller en foil tæt på overfladen kan give touchdown.</p><p><b>Vingesejlet.</b> På katamaranen styrer ↑ / ↓ den samlede vingeåbning. Den stive vinge drejer sammenhængende; dens belastning og strømning vises i instrumenterne. Mere indtrimning kan også give stall og mindre fremdrift.</p><p><b>Automatisk foiltrim.</b> Flapper, rorflader og monohullens bevægelige arme justeres automatisk med begrænset hastighed og korrektion. Reguleringen tillader krængning i sving og korte reaktioner på bølger og pust. Instrumenterne viser de faktiske indstillinger.</p><p><b>Flyvehøjde:</b> Afstanden fra skrogbunden midtskibs til den lokale vandoverflade. På katamaranen vises den laveste af de to skrogbunde. Foilernes dybde vises separat. Begge hovedfoils kan være nede under acceleration og manøvrer.</p><p><b>Banen:</b> Vælg op/ned med gates eller trekant. Begge baner har seks ben og 30 sekunders nedtælling. Se rute, rundingspile og næste mål på kortet. Cup-bådene får længere baner og mere plads til runding.</p></div><div class="help-grid dinghy-only"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Skødet bliver stående.</span><span>1 · 2 · 3</span><span>På Svær vælger du Inde, Kant eller Fuld hængning. På Let flytter besætningen selv vægten.</span><span>Q / E</span><span>Q vælger bagbord, og E vælger styrbord. Valget gælder, indtil du selv skifter side.</span><span>C · Mellemrum</span><span>Skift kamera · Pause og fortsæt</span><span>R · H · V · B</span><span>Genstart · Hjælp · Vejr og vind · Vælg båd (sætter på pause)</span><span>Touch</span><span>Træk rorkontrollen til venstre. Skødeskyderen til højre bliver stående. Begge kan bruges samtidig.</span></div><p class="help-tip"><b>Ror og trim:</b> Korte tryk giver små rorudslag. Hold en pil for at dreje mere. Brug ↑ og ↓ til skødet. På Let flytter besætningen vægten, også gennem en vending. Roret skal have vandstrøm for at dreje båden.</p><div class="help-tip dinghy-only"><p><b>Vejr og vind:</b> Tryk V eller vælg Vejr øverst. Vælg mellem solskin, overskyet, regn, tåge, bygevejr og solnedgang. Vindstyrke, retning, pust, bølger, regn, skyer og tåge kan justeres hver for sig.</p><p><b>På kryds:</b> Hold vinden skråt forfra. Hal ind, til sejlet trækker uden at stalle. Skift hals ved at dreje stævnen gennem vinden med restfart.</p><p><b>Med vinden:</b> Slæk gradvist ud. På læns skubber vinden på sejlet; dragdomineret strømning er normal her.</p><p><b>Gennem banen:</b> Sejl gennem hver lysende port i pilens retning, med den orange bøje om bagbord. Sejl mellem gatebøjerne og rund en af dem udad, eller rund trekantens mærker om bagbord. Følg ruten i rækkefølge. En forkert passage bliver ved med at være aktiv, så den kan rettes.</p><p><b>Vægtplacering på Svær.</b> 2 – Kant er den tilgivende standardstilling. Brug 1 – Inde i svag vind og 3 – Hæng, når sejltrykket kræver større modvægt. Fuld hængning kan give overbalance ved et vindhul. Kroppen og det beregnede tyngdepunkt flyttes sammen. På kølbåden flytter én person kun lidt på den samlede balance.</p><p><b>Krængning:</b> Stor krængning koster fart. Slæk i et pust. Ved kæntring flyder jollen videre. Automatisk opretning starter med det samme og afleverer kontrollen senest efter fem sekunder, mens fanen er aktiv. Sejlet aflastes, og besætningen sættes ind i båden. Øvelsens rekord bortfalder.</p></div><div class="help-tip"><p><b>Små korrektioner:</b> Korte styretryk giver små kurskorrektioner. Et længere tryk øger gradvist den ønskede drejehastighed. Modsat pil begynder straks at bremse drejningen. De lysende pile viser din kommando; rorvisningen viser den faktiske vinkel. Følsomhed, kontrolhastighed, fysisk dæmpning og kamera kan justeres hver for sig i Vejr.</p><p><b>Kom ud af vindøjet:</b> Hold venstre eller højre pil, indtil stævnen peger ud på en sejlbar kurs. Roret skal have vandstrøm for at kunne dreje båden. På Let kan du selv slå sejlbakning til under Sejlhjælp. Indstillingen “Bak sejlet i vindøjet” giver desuden besætningen lov til kortvarigt at bakke sejlet. Fremdriften kræver stadig en brugbar kurs og passende trim.</p><p><b>Se, hvor vinden går hen:</b> De fine strøg på vandet driver med den sande vind. Grønne og orange pile på instrumentet viser derimod, hvor vinden kommer fra. Kyst, fyr, mole og kølvand ligger fast i verden.</p></div><button class="primary" data-close="help">Tilbage til vandet <span>→</span></button></div></section>
++<section class="modal-layer" id="help" hidden=""><div class="modal"><button class="close" data-close="help" aria-label="Luk hjælp">×</button><div class="eyebrow">LÆR BÅDEN AT KENDE</div><h2>Kurs. Trim. Balance.</h2><p>Vindpile på vandet viser, hvor den lokale vind blæser hen. Instrumenterne viser, hvor vinden kommer fra.</p><div class="foil-help" id="foilHelp" hidden=""><div class="help-grid"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Sejltrimmet bliver stående.</span><span>1 / 2 / 3</span><span>På Svær vælger 1, 2 og 3 vægt til luv. Tryk igen efter en vending. På Let flytter besætningen sig selv.</span><span>Q / E</span><span>Q vælger bagbord, og E vælger styrbord på den aktuelle hals.</span><span>Skærmknapper</span><span>Pause, genstart, kamera og bådvalg.</span></div><p><b>Byg fart først.</b> Begynd på en åben kurs med slækket sejl. Når farten stiger, trækker den relative vind frem; hal gradvist ind med korte tryk på ↑. For stramt sejl giver ikke automatisk mere fart: hold øje med den orange relative vind og sejlrådet.</p><p><b>Lad løftet vokse.</b> Foilerne overtager vægten, når strømningen kan bære båden. Højde, pitch, foilnedsænkning og kontakt med bølgerne bestemmer kræfterne. Der er ingen knap til takeoff.</p><p><b>Sejl rolige vendinger.</b> Brug korte rortryk ved høj fart. På monohullen sænker besætningen den nye foil før den gamle hæves. Katamaranen holder begge løftende sværd nede og fordeler støtten over fire foilflader som en tilgivende spilforenkling. Store rorudslag bremser og kan koste løft. For lidt sejltryk, lav fart eller en foil tæt på overfladen kan give touchdown.</p><p><b>Vingesejlet.</b> På katamaranen styrer ↑ / ↓ den samlede vingeåbning. Den stive vinge drejer sammenhængende; dens belastning og strømning vises i instrumenterne. Mere indtrimning kan også give stall og mindre fremdrift.</p><p><b>Automatisk foiltrim.</b> Flapper, rorflader og monohullens bevægelige arme justeres automatisk med begrænset hastighed og korrektion. Reguleringen tillader krængning i sving og korte reaktioner på bølger og pust. Instrumenterne viser de faktiske indstillinger.</p><p><b>Flyvehøjde:</b> Afstanden fra skrogbunden midtskibs til den lokale vandoverflade. På katamaranen vises den laveste af de to skrogbunde. Foilernes dybde vises separat. Begge hovedfoils kan være nede under acceleration og manøvrer.</p><p><b>Banen:</b> Vælg op/ned med gates eller trekant. Begge baner har seks ben og 30 sekunders nedtælling. Se rute, rundingspile og næste mål på kortet. Cup-bådene får længere baner og mere plads til runding.</p></div><div class="help-grid dinghy-only"><span>← / →</span><span>Vælg drejning mod bagbord / styrbord, også ved bakning. Hold for et skarpere sving; slip for at afvikle drejningen.</span><span>↑ / ↓</span><span>Hal ind / slæk ud. Skødet bliver stående.</span><span>1 · 2 · 3</span><span>På Svær vælger du Inde, Kant eller Fuld hængning til luv. Tryk igen efter en vending. På Let flytter besætningen selv vægten.</span><span>Q / E</span><span>Q vælger bagbord, og E vælger styrbord. Valget gælder, indtil du vælger igen på den nye hals.</span><span>C · Mellemrum</span><span>Skift kamera · Pause og fortsæt</span><span>R · H · V · B</span><span>Genstart · Hjælp · Vejr og vind · Vælg båd (sætter på pause)</span><span>Touch</span><span>Træk rorkontrollen til venstre. Skødeskyderen til højre bliver stående. Begge kan bruges samtidig.</span></div><p class="help-tip"><b>Ror og trim:</b> Korte tryk giver små rorudslag. Hold en pil for at dreje mere. Brug ↑ og ↓ til skødet. På Let flytter besætningen vægten, også gennem en vending. Roret skal have vandstrøm for at dreje båden.</p><div class="help-tip dinghy-only"><p><b>Vejr og vind:</b> Tryk V eller vælg Vejr øverst. Vælg mellem solskin, overskyet, regn, tåge, bygevejr og solnedgang. Vindstyrke, retning, pust, bølger, regn, skyer og tåge kan justeres hver for sig.</p><p><b>På kryds:</b> Hold vinden skråt forfra. Hal ind, til sejlet trækker uden at stalle. Skift hals ved at dreje stævnen gennem vinden med restfart.</p><p><b>Med vinden:</b> Slæk gradvist ud. På læns skubber vinden på sejlet; dragdomineret strømning er normal her.</p><p><b>Gennem banen:</b> Sejl gennem hver lysende port i pilens retning, med den orange bøje om bagbord. Sejl mellem gatebøjerne og rund en af dem udad, eller rund trekantens mærker om bagbord. Følg ruten i rækkefølge. En forkert passage bliver ved med at være aktiv, så den kan rettes.</p><p><b>Vægtplacering på Svær.</b> 2 – Kant er den tilgivende standardstilling. Brug 1 – Inde i svag vind og 3 – Hæng, når sejltrykket kræver større modvægt. Fuld hængning kan give overbalance ved et vindhul. Kroppen og det beregnede tyngdepunkt flyttes sammen. På kølbåden flytter én person kun lidt på den samlede balance.</p><p><b>Krængning:</b> Stor krængning koster fart. Slæk i et pust. Ved kæntring flyder jollen videre. Automatisk opretning starter med det samme og afleverer kontrollen senest efter fem sekunder, mens fanen er aktiv. Sejlet aflastes, og besætningen sættes ind i båden. Øvelsens rekord bortfalder.</p></div><div class="help-tip"><p><b>Små korrektioner:</b> Korte styretryk giver små kurskorrektioner. Et længere tryk øger gradvist den ønskede drejehastighed. Modsat pil begynder straks at bremse drejningen. De lysende pile viser din kommando; rorvisningen viser den faktiske vinkel. Følsomhed, kontrolhastighed, fysisk dæmpning og kamera kan justeres hver for sig i Vejr.</p><p><b>Kom ud af vindøjet:</b> Hold venstre eller højre pil, indtil stævnen peger ud på en sejlbar kurs. Roret skal have vandstrøm for at kunne dreje båden. På Let kan du selv slå sejlbakning til under Sejlhjælp. Indstillingen “Bak sejlet i vindøjet” giver desuden besætningen lov til kortvarigt at bakke sejlet. Fremdriften kræver stadig en brugbar kurs og passende trim.</p><p><b>Se, hvor vinden går hen:</b> De fine strøg på vandet driver med den sande vind. Grønne og orange pile på instrumentet viser derimod, hvor vinden kommer fra. Kyst, fyr, mole og kølvand ligger fast i verden.</p></div><button class="primary" data-close="help">Tilbage til vandet <span>→</span></button></div></section>
+ <section class="modal-layer" id="details" hidden=""><div class="modal"><button class="close" data-close="details" aria-label="Luk instrumenter">×</button><div class="eyebrow">SAMME TILSTAND · ALLE INSTRUMENTER</div><h2>Vind &amp; bevægelse</h2><div class="detail-grid"><div><small>TWS · sand vindhastighed</small><b id="twsDetail">—</b></div><div><small>TWD · sand vind fra</small><b id="twdDetail">—</b></div><div><small>TWA · sand vindvinkel</small><b id="twaDetail">—</b></div><div><small>AWS · relativ vindhastighed</small><b id="awsDetail">—</b></div><div><small>AWA · relativ vindvinkel</small><b id="awaDetail">—</b></div><div><small>VMG mod næste mærke</small><b id="vmgDetail">—</b></div></div><p>Grøn viser sand vind. Orange viser relativ vind. Pilene viser, hvor vinden kommer <b>fra</b>. Både bådens fart og dens kurs ændrer den relative vind. Vindvinklen er ubestemt ved næsten nul vind.</p>
+-  <details open=""><summary>Den fysiske model</summary><p>Fysisk funderet spilsimulation — ikke en valideret Laser-polar. Bådparametrene ligger samlet i <code>SailingBoats.CONFIGS</code> i denne fil. Mellemjollen og 40-fods kølbåden er fiktive; også Laserens kraftkoefficienter er spilværdier. Fysikken kører med fast tidsstep 1/60 s og semi-implicit Euler. Foileren bruger yderligere deltrin til hurtige kraftændringer; grafikken interpolerer mellem tilstandene.</p><table class="details-table"><tbody><tr><td>Bådmodeller</td><td>Laserjolle, Racer 32, Turbåd 43 og America’s Cup med to varianter: AC75-inspireret monohull og AC72-inspireret katamaran. Laserjollen har sværd. Racer 32 og Turbåd 43 har ballastkøl. Monohullen har bevægelige foil-arme og et T-ror. Katamaranen har to særskilte skrog, løftende sværd og to rorfoils. Laserjollen har én sejler på 75 kg, og Racer 32 har tre på 80 kg. Turbåd 43 har fire på 75 kg. Begge Cup-varianter har deres egen besætningsmasse og fordeling.</td></tr><tr><td>Vind &amp; vand</td><td>Vind er en vektor. Relativ vind = luftens hastighed − bådens hastighed. Ingen strøm. Samme bølgefunktion bruges ved skrogets opdriftspunkter og i havets grafik.</td></tr><tr><td>Sejl</td><td>Lift + drag, glatte koefficientkurver, flere højdestriber og fast twist. Læns er dragdomineret. Sejlformen følger beregnet belastning; den er ikke en stof- eller CFD-simulation.</td></tr><tr><td>Storskøde &amp; bom</td><td>Skødet sætter en maksimal åbningsvinkel. Bommen har inerti og dæmpning. En dokumenteret empirisk leech-snap-model med hysterese hjælper bomningen.</td></tr><tr><td>Skrog &amp; foiler</td><td>Empirisk skrogmodstand samt sværd-, køl- og rorkræfter. Laserjollens vandmodstand og medbevægelige vandmasse følger skrog, sværd og rors neddykning. Roret bruger lokal vandhastighed inklusive rotation. Ved bakning vender inputomsætningen med hysterese; de fysiske vandkræfter bevares. Ingen fuld planingsmodel.</td></tr><tr><td>Balance</td><td>Dynamisk rulning, hævning og pitch. Opdrift virker ved de neddykkede skrogdele; vægten virker ved bådens og kroppens tyngdepunkter. Sejl, sværd og ror bidrager med momenter. På Let vælger besætningen side og vægtplacering. På Svær vælger spilleren vægtplacering med 1, 2 og 3 og kan flytte vægten frem og tilbage med X og Z. På Svær vælger Q bagbord og E styrbord uanset vindretning.</td></tr><tr><td>Vandlinje</td><td>Fordelt opdrift og vanddæmpning styrer flydehøjden. En skrogmaske fjerner kun vandfragmenter inde i skroget; cockpittet kan overskylles, når rælingen går under.</td></tr><tr><td>Kæntring</td><td>Væltningen sker gennem fysikken. Lukkede opdriftsrum og en forenklet rigkontakt med vandet holder jollen flydende. Opretning starter automatisk. En monoton tidsmåling styrer aflastning, assisterede momenter og om nødvendigt en kontrolleret afslutning til en sikker flydeposition. Normalvarighed 3–4,4 s; watchdog ved 4,5 s. En suspenderet fane færdiggør et udløbet forløb ved første aktive opdatering. Ingen fuld væskesimulation af vand inde i cockpittet.</td></tr><tr><td>Bevægelsesmodel</td><td>Samme tilstand for kræfter, kontroller og grafik. Massefordeling, opdriftscenter og kraftangrebspunkter holdes adskilt. Momenter beregnes konsekvent om et fælles skrogreferencepunkt med diagonale, kalibrerede inertier. Fuld kobling mellem translation og rotation i en 6×6 massematrix er udeladt; dette er en reduceret spilmodel. Besætningens vægt tælles én gang.</td></tr><tr><td>Vægtbevægelse</td><td>Krop og tyngdepunkt bruger samme glatte posefunktion. Både hastighed og acceleration er begrænset. Bevægelsen ind igen er hurtigere end fuld udlægning. På Svær bevares din vægtplacering under vendingen. Vælg side med Q eller E efter behov; 1–3 ændrer stillingen. På Let vælger besætningen selv sin side og vægtplacering. Position 2 er standard; position 3 kan stadig give overbalance.</td></tr><tr><td>Fast rigtrim</td><td>Moderat vang og udhal; neutral cunningham. Fast grundbugt og twist specificeret i konfigurationen. Ingen særskilt rigtrim.</td></tr><tr><td>Foiling</td><td>Begge Cup-modeller beregner lokale vandstrømme, løft, modstand og momenter for hver foil. Nedsænkning, flap og orientering ændrer kræfterne. To flapfelter på hver hovedvinge fordeler løftet langs spændet; dette er en dokumenteret spilforenkling. Skroget aflastes gennem kraftbalancen; dets vandmodstand aftager med vandkontakten. Ventilation fra overfladen har forsinket opbygning og genopretning. Kavitation er ikke modelleret.</td></tr><tr><td>Katamaran</td><td>Opdrift, lokal vandkontakt og modstand beregnes for hvert af de to skrog. Begge løftende sværd holdes nede under normal sejlads; de og de to agterste rorfoils fordeler kræfterne over bredden. Denne firepunktsstøtte er et bevidst tilgivende spilvalg. Den stive vinges projektionsareal tælles én gang. Større stabilitet og højere topfart end monohullen er valgt i spilkalibreringen; det er ikke validerede AC72-data. Automatisk regulerede flapper og rortrim er en spilforenkling, ikke AC72-klasseregler.</td></tr><tr><td>Kontrolrespons</td><td>Holdte taster aflæses ved hvert fysiktrin. Et kort tryk gælder i mindst ét fysiktrin. Progressivt rorudslag med separat aktuatorhastighed. Ved slip går roret tilbage mod midten. Båden drejer efter den faktiske vandstrøm ved roret og sejltrykket. Kontrolvisningen opdateres hvert billede; kameraet har sin egen indstilling.</td></tr><tr><td>Foilbesætning</td><td>Automatikken betjener de samme flapper, pitchtrim og foil-arme, som skaber kræfterne. Begrænset reaktionshastighed og arbejdsområde; ingen låst flyvehøjde eller fartbonus. Spilleren bestemmer kurs og sejltrim. Tasterne 1–3 flytter kun besætningen lidt inden for cockpitpladserne.</td></tr><tr><td>Ror</td><td>Pilene styrer rorvinklen på begge niveauer. Neddykket areal og strømmen ved rorbladet bestemmer drejekraften.</td></tr><tr><td>Kystkontakt</td><td>Havbunden følger den synlige kyst. Kontakt ved skrog, køl, sværd, ror og foils giver elastisk modkraft og dæmpende friktion. Dette er en enkel spiltilnærmelse uden skader eller opmålt dybdekort.</td></tr></tbody></table><pre id="configSummary" class="code-note"></pre></details>
++  <details open=""><summary>Den fysiske model</summary><p>Fysisk funderet spilsimulation — ikke en valideret Laser-polar. Bådparametrene ligger samlet i <code>SailingBoats.CONFIGS</code> i denne fil. Mellemjollen og 40-fods kølbåden er fiktive; også Laserens kraftkoefficienter er spilværdier. Fysikken kører med fast tidsstep 1/60 s og semi-implicit Euler. Foileren bruger yderligere deltrin til hurtige kraftændringer; grafikken interpolerer mellem tilstandene.</p><table class="details-table"><tbody><tr><td>Bådmodeller</td><td>Laserjolle, Racer 32, Turbåd 43 og America’s Cup med to varianter: AC75-inspireret monohull og AC72-inspireret katamaran. Laserjollen har sværd. Racer 32 og Turbåd 43 har ballastkøl. Monohullen har bevægelige foil-arme og et T-ror. Katamaranen har to særskilte skrog, løftende sværd og to rorfoils. Laserjollen har én sejler på 75 kg, og Racer 32 har tre på 80 kg. Turbåd 43 har fire på 75 kg. Begge Cup-varianter har deres egen besætningsmasse og fordeling.</td></tr><tr><td>Vind &amp; vand</td><td>Vind er en vektor. Relativ vind = luftens hastighed − bådens hastighed. Ingen strøm. Samme bølgefunktion bruges ved skrogets opdriftspunkter og i havets grafik.</td></tr><tr><td>Sejl</td><td>Lift + drag, glatte koefficientkurver, flere højdestriber og fast twist. Læns er dragdomineret. Sejlformen følger beregnet belastning; den er ikke en stof- eller CFD-simulation.</td></tr><tr><td>Storskøde &amp; bom</td><td>Skødet sætter en maksimal åbningsvinkel. Bommen har inerti og dæmpning. En dokumenteret empirisk leech-snap-model med hysterese hjælper bomningen.</td></tr><tr><td>Skrog &amp; foiler</td><td>Empirisk skrogmodstand samt sværd-, køl- og rorkræfter. Laserjollens vandmodstand og medbevægelige vandmasse følger skrog, sværd og rors neddykning. Roret bruger lokal vandhastighed inklusive rotation. Ved bakning vender inputomsætningen med hysterese; de fysiske vandkræfter bevares. Ingen fuld planingsmodel.</td></tr><tr><td>Balance</td><td>Dynamisk rulning, hævning og pitch. Opdrift virker ved de neddykkede skrogdele; vægten virker ved bådens og kroppens tyngdepunkter. Sejl, sværd og ror bidrager med momenter. På Let vælger besætningen side og vægtplacering. På Svær vælger spilleren vægtplacering med 1, 2 og 3 og kan flytte vægten frem og tilbage med X og Z. På Svær vælger Q bagbord og E styrbord uanset vindretning.</td></tr><tr><td>Vandlinje</td><td>Fordelt opdrift og vanddæmpning styrer flydehøjden. En skrogmaske fjerner kun vandfragmenter inde i skroget; cockpittet kan overskylles, når rælingen går under.</td></tr><tr><td>Kæntring</td><td>Væltningen sker gennem fysikken. Lukkede opdriftsrum og en forenklet rigkontakt med vandet holder jollen flydende. Opretning starter automatisk. En monoton tidsmåling styrer aflastning, assisterede momenter og om nødvendigt en kontrolleret afslutning til en sikker flydeposition. Normalvarighed 3–4,4 s; watchdog ved 4,5 s. En suspenderet fane færdiggør et udløbet forløb ved første aktive opdatering. Ingen fuld væskesimulation af vand inde i cockpittet.</td></tr><tr><td>Bevægelsesmodel</td><td>Samme tilstand for kræfter, kontroller og grafik. Massefordeling, opdriftscenter og kraftangrebspunkter holdes adskilt. Momenter beregnes konsekvent om et fælles skrogreferencepunkt med diagonale, kalibrerede inertier. Fuld kobling mellem translation og rotation i en 6×6 massematrix er udeladt; dette er en reduceret spilmodel. Besætningens vægt tælles én gang.</td></tr><tr><td>Vægtbevægelse</td><td>Krop og tyngdepunkt bruger samme glatte posefunktion. Både hastighed og acceleration er begrænset. Bevægelsen ind igen er hurtigere end fuld udlægning. På Svær bevares din vægtplacering under vendingen. Et nyt tryk på 1–3 vælger luv på den nye hals. På Let vælger besætningen selv sin side og vægtplacering. Position 2 er standard; position 3 kan stadig give overbalance.</td></tr><tr><td>Fast rigtrim</td><td>Moderat vang og udhal; neutral cunningham. Fast grundbugt og twist specificeret i konfigurationen. Ingen særskilt rigtrim.</td></tr><tr><td>Foiling</td><td>Begge Cup-modeller beregner lokale vandstrømme, løft, modstand og momenter for hver foil. Nedsænkning, flap og orientering ændrer kræfterne. To flapfelter på hver hovedvinge fordeler løftet langs spændet; dette er en dokumenteret spilforenkling. Skroget aflastes gennem kraftbalancen; dets vandmodstand aftager med vandkontakten. Ventilation fra overfladen har forsinket opbygning og genopretning. Kavitation er ikke modelleret.</td></tr><tr><td>Katamaran</td><td>Opdrift, lokal vandkontakt og modstand beregnes for hvert af de to skrog. Begge løftende sværd holdes nede under normal sejlads; de og de to agterste rorfoils fordeler kræfterne over bredden. Denne firepunktsstøtte er et bevidst tilgivende spilvalg. Den stive vinges projektionsareal tælles én gang. Større stabilitet og højere topfart end monohullen er valgt i spilkalibreringen; det er ikke validerede AC72-data. Automatisk regulerede flapper og rortrim er en spilforenkling, ikke AC72-klasseregler.</td></tr><tr><td>Kontrolrespons</td><td>Holdte taster aflæses ved hvert fysiktrin. Et kort tryk gælder i mindst ét fysiktrin. Progressivt rorudslag med separat aktuatorhastighed. Ved slip går roret tilbage mod midten. Båden drejer efter den faktiske vandstrøm ved roret og sejltrykket. Kontrolvisningen opdateres hvert billede; kameraet har sin egen indstilling.</td></tr><tr><td>Foilbesætning</td><td>Automatikken betjener de samme flapper, pitchtrim og foil-arme, som skaber kræfterne. Begrænset reaktionshastighed og arbejdsområde; ingen låst flyvehøjde eller fartbonus. Spilleren bestemmer kurs og sejltrim. Tasterne 1–3 flytter kun besætningen lidt inden for cockpitpladserne.</td></tr><tr><td>Ror</td><td>Pilene styrer rorvinklen på begge niveauer. Neddykket areal og strømmen ved rorbladet bestemmer drejekraften.</td></tr><tr><td>Kystkontakt</td><td>Havbunden følger den synlige kyst. Kontakt ved skrog, køl, sværd, ror og foils giver elastisk modkraft og dæmpende friktion. Dette er en enkel spiltilnærmelse uden skader eller opmålt dybdekort.</td></tr></tbody></table><pre id="configSummary" class="code-note"></pre></details>
+   <details><summary>Vejr &amp; synlige detaljer</summary><p>De seks vejrtyper er valgte spilindstillinger. Justér grundvinden fra 0 til 12 m/s; de lokale vindpust kan komme højere op. Vindretning, pust, bølger, regn, skyer og dis kan indstilles hver for sig. Sejlkræfterne følger den faktiske relative vind, uden en særskilt fartbonus for vejrtypen.</p><p>Regn, tåge, skyer, sollys og vandfarver ændres gradvist gennem samme simulationstilstand. Havet følger langsommere efter vind og bølgeniveau. Regnen hælder med vinden, og dråber danner krusninger. Regn og tåge ændrer udsyn og lyd; de tilfører ikke vandvægt eller ændrer skrogfriktion.</p><p>Riggen har blokke, klamper, mastekrave og sejløjer. Sejldug og dæk er tekstureret i kode. Kyst, fyrtårn, mole, strand, klipper og skov er faste verdenskoordinater, fælles for alle fire både. Samme terræn styrer den synlige kyst og havbunden. Grundstødning giver eftergivelige kontaktkræfter og friktion; der er ingen skadesmodel. Fine vindspor driver med den lokale sande vind. Mørke krusningsfelter bruger samme vindpust som sejlkræfterne. Brug C til at skifte mellem følge-, oversigts-, cockpit- og sidekamera.</p></details>
+   <details><summary>Koefficientkurver &amp; kontrolscenarier</summary><canvas id="coefficients" width="900" height="350"></canvas><p id="coefficientCaption">Kurverne viser modellens valgte CL og CD.</p><p>Debug åbnes med tasten <b>´ / `</b> eller knappen herunder.</p><button class="text-button" id="debugButton">Åbn debugvisning</button><button class="text-button" id="detailsTests">Kør matematiske selvtests</button><div id="detailsTestResults" class="test-results" hidden=""></div><p class="about-test" id="verifiedTests">Teststatus vises efter indbygget selvtest.</p></details>
+   <details><summary>Kilder &amp; teknik</summary><p><a href="https://www.cal-sailing.org/images/official_files/Dinghy17.pdf" target="_blank" rel="noopener">Cal Sailing Club · aflastning ved opretning</a> · <a href="https://www.fossen.biz/html/marineCraftModel.html" target="_blank" rel="noopener">Fossen · marine bevægelsesmodeller</a> · <a href="https://gafferongames.com/post/fix_your_timestep/" target="_blank" rel="noopener">Fix Your Timestep · fast fysikstep</a> · <a href="https://www.cupinfo.com/downloads/ac72-class-rule-1p1-a14-052413.pdf" target="_blank" rel="noopener">AC72 Class Rule v1.1 · mål og vingesejl</a> · <a href="https://catalogs.marinersmuseum.org/object/CL30467" target="_blank" rel="noopener">Mariners’ Museum · Oracle Team USA 17, 2013</a> · <a href="https://www.americascup.com/files/m5498_AC75-Class-Rule-v20.pdf" target="_blank" rel="noopener">AC75 Class Rule v2.0 · proportioner og masse</a> · <a href="https://www.americascup.com/news/4409_INSIDE-THE-AC75-THE-LATEST-TRENDS-IN-FOIL-DESIGN" target="_blank" rel="noopener">America’s Cup · foils, flapper og ventilation</a> · <a href="https://www.laserinternational.org/wp-content/uploads/2023/05/ILCA_HANDBOOK_2023.pdf" target="_blank" rel="noopener">ILCA-håndbog 2023, side 13</a> · <a href="https://www.rya.org.uk/training/do-you-know-your-points-of-sail/" target="_blank" rel="noopener">RYA: sejlretninger</a> · <a href="https://www.northsails.com/en-us/blogs/north-sails-blog/upwind-sail-power-by-bill-gladstone" target="_blank" rel="noopener">North Sails: sejlkræfter</a> · <a href="https://www.northsails.com/en-us/blogs/north-sails-blog/puff-response-upwind-northu-bill-gladstone" target="_blank" rel="noopener">North Sails: vindpust</a> · <a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-equation/" target="_blank" rel="noopener">NASA: lift</a> · <a href="https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/drag-equation/" target="_blank" rel="noopener">NASA: drag</a>.</p><p>Alle former, materialer, lyd og teksturer er skabt i kode. Three.js 0.160.1 (MIT) er indlejret i filen. Ingen netværkskald, konto, server eller installation. Kræver en browser med WebGL. Rekorder gemmes lokalt, når browseren tillader det. Licens og komplet modeldokumentation findes i filens kildekode.</p></details>
+@@ -3276,22 +3276,13 @@
+     if(this.racerTiller)this.racerTiller.rotation.y=s.rudder;
+     else this.helmWheel.rotation.x=-s.rudder*3.3;
+     for(let i=0;i<this.mast.length;i++){const a=deck+(this.rig.mastTop-deck)*i/this.mast.length,b=deck+(this.rig.mastTop-deck)*(i+1)/this.mast.length;this.rod(this.mast[i],this.foilerMastPoint(a,s),this.foilerMastPoint(b,s));}
+-    const jibUp=(s.sail?.jib?.area??m.jibArea)>.005;
+-    this.jibMesh.visible=this.jibEdge.visible=jibUp;
+-    this.updateFoilSailGrid(this.sailMesh,s,false);
+-    if(jibUp)this.updateFoilSailGrid(this.jibMesh,s,true);
+-    for(const [line,jib] of [[this.sailEdge,false],[this.jibEdge,true]]){if(jib&&!jibUp)continue;const p=line.geometry.attributes.position.array,n=p.length/3,half=Math.ceil(n/2);for(let i=0;i<n;i++){const u=i<half?1:0,v=i<half?i/(half-1):(n-1-i)/(n-half-1),q=jib?this.jibFoilerPoint(u,v,s):this.mainFoilerPoint(u,v,s);p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z;}line.geometry.attributes.position.needsUpdate=true;}
++    this.updateFoilSailGrid(this.sailMesh,s,false);this.updateFoilSailGrid(this.jibMesh,s,true);
++    for(const [line,jib] of [[this.sailEdge,false],[this.jibEdge,true]]){const p=line.geometry.attributes.position.array,n=p.length/3,half=Math.ceil(n/2);for(let i=0;i<n;i++){const u=i<half?1:0,v=i<half?i/(half-1):(n-1-i)/(n-half-1),q=jib?this.jibFoilerPoint(u,v,s):this.mainFoilerPoint(u,v,s);p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z;}line.geometry.attributes.position.needsUpdate=true;}
+     for(const b of this.mainBattens){const p=b.line.geometry.attributes.position.array;for(let i=0;i<17;i++){const q=this.mainFoilerPoint(.36+.63*i/16,b.v,s);p[i*3]=q.x;p[i*3+1]=q.y;p[i*3+2]=q.z+.008;}b.line.geometry.attributes.position.needsUpdate=true;}
+     const top=this.foilerMastPoint(this.rig.mastTop,s);this.updateLine(this.forestay,[this.jibFoilerPoint(0,0,s,true),this.jibFoilerPoint(0,1,s,true)]);this.updateLine(this.backstay,[this.V(m.hullSections[0][0]+.25,deck,0),top]);
+     for(let i=0;i<2;i++){const side=i?1:-1;this.updateLine(this.shrouds[i],[this.V(this.mastX-.60,deck,side*m.beam*.43),this.foilerMastPoint(this.rig.mastTop*.53,s).add(this.V(-.18,0,side*m.beam*.36)),top]);}
+-    const clew=this.mainFoilerPoint(1,0,s);this.updateLine(this.mainSheet,[clew,this.V(c.x1-.40,deck+.06,0)]);this.updateLine(this.vang,[this.V(this.mastX,deck+.10,0),this.V(this.mastX-Math.cos(s.boom)*1.6,this.rig.boomY,Math.sin(s.boom)*1.6)]);for(const sheet of this.jibSheets)sheet.visible=jibUp;
+-    if(jibUp){
+-      const jibClew=this.jibFoilerPoint(1,0,s);
+-      for(let i=0;i<2;i++)this.updateLine(this.jibSheets[i],[jibClew,this.V(c.x1-.35,deck+.20,(i?1:-1)*(c.halfWidth+.16))]);
+-    }
++    const clew=this.mainFoilerPoint(1,0,s),jclew=this.jibFoilerPoint(1,0,s);this.updateLine(this.mainSheet,[clew,this.V(c.x1-.40,deck+.06,0)]);this.updateLine(this.vang,[this.V(this.mastX,deck+.10,0),this.V(this.mastX-Math.cos(s.boom)*1.6,this.rig.boomY,Math.sin(s.boom)*1.6)]);for(let i=0;i<2;i++)this.jibSheets[i].geometry.setFromPoints([jclew,this.V(c.x1-.35,deck+.20,(i?1:-1)*(c.halfWidth+.16))]);
+     for(const t of this.telltales){
+-      t.line.visible=!t.jib||jibUp;
+-      if(!t.line.visible)continue;
+       const point=t.jib?this.jibFoilerPoint(.26,t.v,s):this.mainFoilerPoint(.26,t.v,s);
+       this.updateTelltale(t,point,s,.40);
+     }
+@@ -3303,7 +3294,7 @@
+     for(let i=0;i<this.trapezeLines.length;i++){
+       const line=this.trapezeLines[i],harness=(i?this.racingCrew[i-1].person:this.person).harness;
+       const amount=clamp(((s.crewPoseBlend??2)-2)/.35,0,1);
+-      line.visible=!s.capsized&&!s.recovering&&amount>.02&&Math.abs(s.crewSideBlend??s.crewSide??0)>.2;
++      line.visible=amount>.02&&Math.abs(s.crewSideBlend??s.crewSide??0)>.2;
+       line.material.opacity=.85*amount;
+       this.updateLine(line,[this.foilerMastPoint(this.rig.mastTop*(.66+i*.021),s),harness.position]);
+     }
+@@ -3468,11 +3459,10 @@
+   }
+   foilerMastPoint(y,s){const v=clamp((y-this.rig.boomY)/this.rig.luff,0,1),load=clamp(s.sail?.load||0,0,1),side=s.rig?.sideBlend??s.sail?.side??1;return this.V(this.mastX-(this.isYacht?.10:.34)*load*v*v,y,side*(this.isYacht?.055:.20)*load*v*v);}
+   jibFoilerRow(v,s,fullStay=false){
+-    const m=this.model,a=s.sail?.jib||s.sail||{};
++    const m=this.model,a=s.sail?.jib||s.sail||{},side=s.rig?.sideBlend??a.side??s.sail?.side??(Math.sign(s.boom)||1);
+     const jib=m.jib||{},jt=m.jibTack||jib.tack||{},jh=m.jibHead||jib.head||{},tack=this.V(jt.x??jib.tackX??m.jibTackX??9.3,jt.y??jib.tackY??m.jibTackY??m.deckY+.16,jt.z??0),headY=jh.y??jib.headY??m.jibHeadY??23,head=this.foilerMastPoint(headY,s);head.x+=(jh.x??jib.headX??m.jibHeadX??this.mastX)-this.mastX;
+     const luffScale=fullStay?1:(a.luffScale??1),chordScale=fullStay?1:(a.chordScale??1);
+     const width=chordScale*m.jibFoot*(1-v),base=tack.lerp(head,v*luffScale),angle=a.angle??s.foiling?.jibAngle??(s.boom||0)*.68;
+-    const side=this.isYacht?clamp(angle/(4*this.P.DEG),-1,1):s.rig?.sideBlend??a.side??s.sail?.side??(Math.sign(s.boom)||1);
+     const sailTwist=m.racingYacht?m.baseTwist:s.sail?.twist??m.baseTwist??.035,twist=side*sailTwist*.7*(v-.33),beta=angle+twist;
+     return {base,width,cos:Math.cos(beta),sin:Math.sin(beta),
+       camber:side*(a.camber??s.sail?.camber??m.camber??.065)*width*Math.sin(Math.PI*v),
+@@ -4625,6 +4615,7 @@
+ const continuousKeys=new Set(['KeyA','KeyD','KeyW','KeyS','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyZ','KeyX']);
+ const heldButtons=new Map();
+ let touchSteer=0,pendingTouchSteer=null,crewSideCommand=0,helmPointer=null,sheetPointer=null,spinCommand=false,spinType='spinnaker',sheetTarget=.62,track=[],lastTrack=-1,lastRenderAt=0,crashed=false;
++let crewSideOverrideTack=null,crewSideRequestUntil=null;
+ let graphicsUnavailable=false;
+ const copyAtmosphere=a=>a?Object.fromEntries(Object.entries(a).map(([k,v])=>[k,Array.isArray(v)?v.slice():v])):a;
+ const copyTree=v=>Array.isArray(v)?v.map(copyTree):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,n])=>[k,copyTree(n)])):v;
+@@ -4703,6 +4694,7 @@
+ function toast(message,seconds=4){$('toast').textContent=message;$('toast').hidden=false;toastTime=performance.now()+seconds*1000;}
+ function clearInput(){
+   globalThis.FriVindLobby?.release();keys.clear();pendingTaps.clear();
++  crewSideRequestUntil=null;
+   for(const [button,id] of heldButtons)if(button.hasPointerCapture(id))button.releasePointerCapture(id);
+   heldButtons.clear();
+   pendingTouchSteer=null;touchSteer=0;helmPointer=null;sheetPointer=null;
+@@ -4718,7 +4710,7 @@
+   syncPause();
+ }
+ function resetRigControls(){
+-  trimSail='main';rigCommand=emptyRigCommand();
++  trimSail='main';rigCommand=emptyRigCommand();setForeAftTarget(0);
+   $('sailPlan').open=false;$('reefSetting').value='0';$('headsailSetting').value='0';
+ }
+ function discardTrimInput(){for(const code of ['ArrowUp','ArrowDown','KeyW','KeyS','TrimHaul','TrimEase']){keys.delete(code);pendingTaps.delete(code);}sheetPointer=null;sheetTarget=state.sheet;}
+@@ -4735,6 +4727,7 @@
+   const raceClock=paused||modalPaused?undefined:now;
+   if(R.active(state)&&recoveryNotice!==record){
+     recoveryNotice=record;discardTrimInput();resetRigControls();
++    resetCrewSideInput();
+     course.recoveries++;course.invalidate('Automatisk opretning efter kæntring');
+     course.noteDiscontinuity?.(state,raceClock);track.push({x:state.x,y:state.y,t:state.time,time:state.time,break:true});
+     if(focusPaused)resumeRecoveryOnFocus=true;
+@@ -4926,7 +4919,7 @@
+   ctx.restore();
+ }
+ function reset(which=mode,preparedCourse){
+-  cancelRecoveryWatchdog();lastNetworkCorrection=null;networkView.x=networkView.y=networkView.theta=0;spinCommand=false;resetCrewSideInput();resetRigControls();setForeAftTarget(0);recoveryNotice=null;focusPaused=false;resumeRecoveryOnFocus=false;toggleTelemetry(false);
++  cancelRecoveryWatchdog();lastNetworkCorrection=null;networkView.x=networkView.y=networkView.theta=0;spinCommand=false;resetCrewSideInput();resetRigControls();recoveryNotice=null;focusPaused=false;resumeRecoveryOnFocus=false;toggleTelemetry(false);
+   toggleMobileCrew(false);
+   speedReadout=null;
+   const fleet=globalThis.FriVindLobby?.fleet;
+@@ -5077,14 +5070,17 @@
+   if(state.capsized||state.recovering||env.difficulty==='easy')return;
+   const pose=clamp(Math.round(value),1,3);
+   env.crewPose=pose;
++  if(started&&state.wind?.tws>.6)crewSideRequestUntil=state.time+2.5;
+   if(!started){state=Sim.createBoat(env.boatId,{crewPose:env.crewPose},env);previous=snapshot(state);sheetTarget=state.sheet;}
+   updateUI();if(started){audio.start();$('sea').focus({preventScroll:true});}
+ }
+ function resetCrewSideInput(){
+-  crewSideCommand=0;
++  crewSideCommand=0;crewSideOverrideTack=crewSideRequestUntil=null;
+ }
+ function setCrewSide(side){
+   if(env.difficulty==='easy'||state.recovering||state.capsized)return;
++  crewSideRequestUntil=null;
++  crewSideOverrideTack=P.windwardCrewSide(state.wind);
+   crewSideCommand=side;
+ }
+ function setDifficulty(value){
+@@ -5099,7 +5095,7 @@
+   if(!B.CONFIGS[id])return;
+   if(globalThis.FriVindLobby?.boatChanged(id)===false){syncSettings();return;}
+   if(id===env.boatId){if(!$('boatPicker').hidden)closePanel('boatPicker');return;}
+-  resetCrewSideInput();resetRigControls();setForeAftTarget(0);speedReadout=null;
++  resetCrewSideInput();resetRigControls();speedReadout=null;
+   if(globalThis.FriVindLobby?.fleet?.inWorld){closePanel('boatPicker');return;}
+   env.boatId=id;env.crewPose=2;reset();
+   if(started&&mode==='free')toast(B.get(id).name,2);
+@@ -5223,7 +5219,7 @@
+   const easy=env.difficulty==='easy';
+   document.body.classList.toggle('easy-crew',easy);
+   $('introDifficulty').value=$('difficulty').value=env.difficulty;
+-  $('introDifficultyHelp').textContent=easy?'Du styrer ror og skøde. Besætningen flytter vægten.':'Vælg stilling med 1–3 og side med Q/E.';
++  $('introDifficultyHelp').textContent=easy?'Du styrer ror og skøde. Besætningen flytter vægten.':'Vælg vægt til luv med 1–3. Tryk igen efter en vending, eller vælg siden med Q/E.';
+   $('foilHelp').hidden=!foiler;
+   syncWeatherFields();
+   updateWeatherWind();
+@@ -5625,6 +5621,21 @@
+     if($('courseCard').classList.contains('chart-expanded'))$('expandChart').click();
+   }
+ }
++function crewSideInput(steer){
++  const wind=state.wind,side=P.windwardCrewSide(wind);
++  if(side&&crewSideOverrideTack===0)crewSideOverrideTack=side;
++  if(crewSideRequestUntil===null)return crewSideCommand;
++  if(state.time>=crewSideRequestUntil||state.capsized){crewSideRequestUntil=null;return crewSideCommand;}
++  const angle=wind.twa;
++  // Wait through the wind eye if the bow is still turning towards it.
++  // Once it falls onto a tack, one press selects a side and then holds it.
++  const approachingBow=Math.abs(angle)<12*DEG&&(angle*steer>0||angle*state.omega<0&&Math.abs(state.omega)>.12);
++  if(side&&!approachingBow){
++    if(crewSideOverrideTack!==side){crewSideCommand=side;crewSideOverrideTack=null;}
++    crewSideRequestUntil=null;
++  }
++  return crewSideCommand;
++}
+ function input(){
+   const difficulty=env.difficulty;
+   if(R.active(state))return{steer:0,steerDigital:true,trim:0,crew:0,crewPose:1,difficulty};
+@@ -5642,7 +5653,7 @@
+   const travelLimit=trimRate*time;
+   const travel=P.limitSheetTravel(state.sheet,cfg,trimKey?trimKey*travelLimit:difference,time);
+   const touch=helmPointer===null?pendingTouchSteer:touchSteer,steer=steeringInput(touch);
+-  const crew=difficulty==='easy'?0:crewSideCommand;
++  const crew=difficulty==='easy'?0:crewSideInput(steer);
+   const shift=Number(controlPressed('KeyX'))-Number(controlPressed('KeyZ'));
+   if(difficulty==='hard'&&shift&&!state.capsized){
+     const tap=pendingTaps.has(shift>0?'KeyX':'KeyZ');
+@@ -6051,7 +6062,7 @@
+   const crewSide=Math.sign(state.crewCG?.z||state.crew||0),towardCrew=state.heel*crewSide;
+   if(env.difficulty==='hard'&&windward&&state.crewSide!==windward&&towardCrew>10*DEG){
+     const key=windward<0?'Q til bagbord':'E til styrbord';
+-    return ['Vægt på læsiden',touchLayout.matches?'Vælg '+(windward<0?'bagbord':'styrbord')+' under Besætning':'Tryk '+key,true];
++    return ['Vægt på læsiden',crewSideOverrideTack===windward?'Tryk '+key:'Tryk 1, 2 eller 3 for at flytte til luv',true];
+   }
+   if(state.boatId==='laser'){
+     const heelAhead=state.heel+.34*state.heelRate;
+@@ -6149,13 +6160,11 @@
+   if(easy)setText($('crewPoseLabel'),'Automatisk balance');
+   $('assistBadge').hidden=!started||(!assisted()&&!state.ground?.contact);setText($('assistBadge'),state.ground?.contact?'Kontakt med havbunden':'Hjælp i vindøjet');
+   const manualSide=!easy;
+-  const selectedSide=crewSideCommand||state.crewSide;
+-  const crewSide=manualSide?selectedSide:state.crewCG?.z??state.crew;
+-  const sideMotion=!state.recovering&&!state.capsized&&Math.abs((state.crewSideBlend??0)-crewSide)>.2;
++  const crewSide=manualSide?state.crewSide:state.crewCG?.z??state.crew,sideMotion=Math.abs((state.crewSideBlend??0)-(state.crewSide??0))>.2;
+   const sideLabel=$('crewSideLabel'),sideName=sideMotion?'Skifter side':Math.abs(crewSide)<.05?'Nær midten':crewSide>0?'Styrbord':'Bagbord';
+   $('balanceCard').toggleAttribute('data-manual-side',manualSide);
+   setText(sideLabel,sideName+(manualSide&&!sideMotion?' · Q/E':''));
+-  sideLabel.title=manualSide?'1–3 vælger stilling. Q vælger bagbord, E vælger styrbord.':'';
++  sideLabel.title=manualSide?'Tryk 1–3 for at flytte vægten til luv efter en vending. Q/E vælger side på den aktuelle hals.':'';
+   document.querySelectorAll('[data-pose]').forEach(b=>{b.setAttribute('aria-pressed',String(+b.dataset.pose===env.crewPose));b.disabled=state.capsized||state.recovering;});
+   $('recoverPanel').hidden=!started||physicalCapsize||(!state.capsized&&!state.recovering);$('recoverButton').disabled=true;$('recoverButton').hidden=true;$('sheetControl').disabled=!!state.recovering;
+   const rescue=state.recoveryState,phase=rescue?.phase;
+@@ -6166,14 +6175,12 @@
+   setText($('heel'),fmt(Math.abs(state.heel)/DEG,0)+'° '+(state.heel>=0?'SB':'BB'));$('heelDot').style.left=(50+clamp(state.heel/DEG,-45,45)/45*48)+'%';$('heelDot').style.background=Math.abs(state.heel)>25*DEG?'var(--orange)':'var(--teal)';
+   updateRigControls();$('crewControl').hidden=!manualSide||!started;
+   $('mobileCrewToggle').hidden=easy;
+-  const crewLabel=manualSide?'Besætning · '+sideName:'Besætning';
+-  setText($('crewDockLabel'),easy&&touchLayout.matches?'Automatisk vægt':crewLabel);
+-  setText($('mobileCrewSide'),crewLabel);
++  setText($('crewDockLabel'),easy&&touchLayout.matches?'Automatisk vægt':'Besætning');
+   if(easy&&!$('mobileCrewPanel').hidden)toggleMobileCrew(false);
+   if(!$('mobileCrewPanel').hidden)setText($('mobileForeAftValue'),$('foreAftValue').textContent);
+   for(const [id,side] of [['crewPort',-1],['crewStarboard',1]]){
+     $(id).disabled=state.recovering||state.capsized;
+-    $(id).setAttribute('aria-pressed',String(selectedSide===side));
++    $(id).setAttribute('aria-pressed',String(state.crewSide===side));
+   }
+   setText($('vmgLabel'),m?'VMG mod mærke':'Afdrift');setText($('vmg'),m?fmt(i.vmg*1.943844)+' kn':ang(i.leeway));
+   updateRaceUI();
+@@ -6472,11 +6479,11 @@
+       if(boatChanged)env.boatId=s.boatId;
+       state=s;
+       if(launch){
+-        sheetTarget=s.sheet;resetRigControls();setForeAftTarget(0);resetCrewSideInput();clearInput();speedReadout=null;
++        sheetTarget=s.sheet;resetRigControls();resetCrewSideInput();clearInput();speedReadout=null;
+         track=[];lastTrack=-1;world.lastTime=-1;
+         if(boatChanged)syncSettings();
+       }
+-      if(s.recovering&&!old.recovering){sheetTarget=s.sheet;toast('Automatisk opretning · sejlet aflastes',2);}
++      if(s.recovering&&!old.recovering){sheetTarget=s.sheet;resetCrewSideInput();toast('Automatisk opretning · sejlet aflastes',2);}
+       if(!s.recovering&&old.recovering){sheetTarget=s.sheet;toast('Båden er klar igen',2);}
+       for(const p of pending)Sim.stepBoat(state,p.control,env,p.dt,{waitForWind:false});
+       const dx=shown.x-state.x,dy=shown.y-state.y;
+--- a/assets/interface.css
++++ b/assets/interface.css
+@@ -582,7 +582,7 @@
+  #sailingDock #crewDockLabel{display:none}
+  #sailingDock #mobileCrewToggle{display:block;justify-self:stretch;padding:0 3px;margin:-6px 0;min-height:30px;border:none;background:transparent}
+  #mobileCrewToggle[aria-expanded=true]{color:#91e7d6}
+- #mobileCrewToggle[aria-expanded=true] [aria-hidden=true]{display:inline-block;transform:rotate(180deg)}
++ #mobileCrewToggle[aria-expanded=true] span{display:inline-block;transform:rotate(180deg)}
+  body.easy-crew #sailingDock #crewDockLabel{display:block}
+  #mobileCrewPanel{
+   position:fixed;z-index:12;left:max(8px,env(safe-area-inset-left));bottom:var(--notice-bottom,188px);

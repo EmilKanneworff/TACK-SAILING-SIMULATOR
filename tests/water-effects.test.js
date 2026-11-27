@@ -32,6 +32,32 @@ test('only occupied wake sections are drawn and each vertex follows the wave sur
  expect(result.ages[0]).toBeGreaterThan(result.ages[1]);
 });
 
+test('wake foam oscillates with a passing wave while current transports it over several periods',async({page})=>{
+ await page.goto(game);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const positions=await page.evaluate(()=>{
+  const {scene,env}=SAILING_GAME;
+  const geometry=scene.foamRibbonGeometry(3,1,3);
+  const point={x:0,y:0,t:0,period:4,segment:1,orbitalX:1,orbitalY:-.6,
+   driftX:.28,driftY:.12,dirX:1,dirY:0,speed:3,width:.1,strength:.8,life:19};
+  const track=[point,{...point,x:-1}];
+  const samples=[0,1,3,8].map(time=>{
+   scene.writeFoamRibbon(geometry,[track],{time},env);
+   const position=geometry.attributes.position;
+   return [position.getX(1),-position.getZ(1)];
+  });
+  geometry.dispose();
+  return samples;
+ });
+ const quarterPeriodDisplacement=2/Math.PI;
+ const expected=[[0,0],[.28+quarterPeriodDisplacement,.12-.6*quarterPeriodDisplacement],
+  [.84-quarterPeriodDisplacement,.36+.6*quarterPeriodDisplacement],[2.24,.96]];
+ for(let i=0;i<expected.length;i++){
+  expect(positions[i][0]).toBeCloseTo(expected[i][0],5);
+  expect(positions[i][1]).toBeCloseTo(expected[i][1],5);
+ }
+});
+
 test('breaking foam leaves a fading patch and calm water supplies no new patches',async({page})=>{
  await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
@@ -78,6 +104,38 @@ test('hull contact includes angular motion and chooses the wet side',async({page
  expect(result.wetSides[0]).toBeGreaterThan(result.wetSides[1]+.20);
  expect(result.error).toBeLessThan(.0001);
  expect(result.closing).toBeGreaterThan(0.9);
+});
+
+test('the Laser leaves a separate wake at each wet stern corner',async({page})=>{
+ await page.goto(game);
+ await page.waitForFunction(()=>window.SAILING_GAME);
+ const results=await page.evaluate(()=>{
+  const P=SailPhysics,scene=SAILING_GAME.scene,water=scene.hullWater;
+  const env={...SAILING_GAME.env,speed:0,waveHeight:0,chop:0,waveCurrent:0,shelter:false};
+  return [0,.52,-.52].map(heel=>{
+   const s=P.createState({boatId:'laser',x:0,y:-5000,theta:0,heel,vx:4,heave:0,time:1},env);
+   const fx=water.sample('local',scene,s,env,{reset:true,local:true});
+   const advance=(frames,stop=false)=>{
+    for(let i=0;i<frames;i++){
+     s.time+=1/60;
+     if(stop)s.vx=0;
+     s.x+=s.vx/60;
+     water.sample('local',scene,s,env,{local:true});
+    }
+   };
+   advance(45);
+   const before=water.foamPaths(fx).map(({track,head})=>({count:track.length,first:track[0],head}));
+   advance(30,true);
+   return {before,after:water.foamPaths(fx).map(({track,head},i)=>({head,retained:track.includes(before[i].first)}))};
+  });
+ });
+ const [flat,starboard,port]=results;
+ expect(flat.before[0].count).toBeGreaterThan(3);
+ expect(flat.before[1].count).toBe(flat.before[0].count);
+ expect(flat.before[0].head.y-flat.before[1].head.y).toBeGreaterThan(.40);
+ expect(flat.after.every(side=>side.retained&&side.head===null)).toBe(true);
+ expect(starboard.before[1].head.strength).toBeGreaterThan(starboard.before[0].head?.strength??0);
+ expect(port.before[0].head.strength).toBeGreaterThan(port.before[1].head?.strength??0);
 });
 
 test('wake samples are spaced by distance, advect and never join across dry gaps or teleports',async({page})=>{
@@ -186,31 +244,34 @@ test('the stern wave displaces the visible water and responds to hull loading an
  expect(result.ambient).toBe(0);
 });
 
-test('foil hull wake stops in flight and resumes at the rounded belly on touchdown',async({page})=>{
+for(const boat of ['ac75','ac72'])test(`${boat} hull wake stops in flight and resumes on touchdown`,async({page})=>{
  await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);
- const result=await page.evaluate(()=>{
-  const P=SailPhysics,game=SAILING_GAME,scene=game.scene,boatId='ac75';
+ const result=await page.evaluate(boatId=>{
+  const P=SailPhysics,game=SAILING_GAME,scene=game.scene;
   const env={...game.env,boatId,speed:12,direction:225,swellDirection:225,waves:.12,gusts:0,shelter:false};
   const theta=.95,s=P.createState({boatId,x:0,y:-1400,theta,vx:12*Math.cos(theta),vy:12*Math.sin(theta),sheet:.56},env);
   SailingWeather.initialize(s,env);scene.buildBoat(boatId);
-  const stages={onWater:false,flying:false,landing:false};
+  const stages={onWater:false,flying:false,landing:false,appendageTrail:false};
   let leftHullWake=false;
-  for(let i=0;i<720;i++){
+  for(let i=0;i<(boatId==='ac72'?1200:720);i++){
    if(i===300)env.speed=0;
    P.step(s,{steer:i>=300&&i<480?.38:0,steerDigital:true,trim:i>=300?-1:0,crewPose:2},env,1/60);
    if(i%4)continue;
    const data=scene.hullWater.sample('local',scene,s,{...env,waveCurrent:s.seaState,waveProfile:s.waveProfile},{local:true});
-   if(i<85&&s.foiling.hullWetFraction>.10&&data.tracks.h0?.length>2)stages.onWater=true;
-   if(i>120&&i<270&&s.foiling.hullWetFraction<.006&&!data.previous.h0){
+   const hullTracks=Object.keys(data.tracks).filter(key=>key.startsWith('h'));
+   if(i<85&&s.foiling.hullWetFraction>.10&&hullTracks.some(key=>data.tracks[key].length>2))stages.onWater=true;
+   if(i>120&&i<270&&s.foiling.hullWetFraction<.006&&hullTracks.every(key=>!data.previous[key])){
     stages.flying=true;
-    if(data.tracks.h0?.length)leftHullWake=true;
+    if(hullTracks.some(key=>data.tracks[key].length))leftHullWake=true;
+    if(Object.keys(data.previous).some(key=>key.startsWith('f')&&data.previous[key]))stages.appendageTrail=true;
    }
-   if(i>390&&s.foiling.hullWetFraction>.11&&data.previous.h0&&data.tracks.h0[0].t>s.time-.30)stages.landing=true;
+   if(i>390&&s.foiling.hullWetFraction>.11&&hullTracks.some(key=>data.previous[key]&&data.tracks[key][0].t>s.time-.30))stages.landing=true;
+   if(stages.landing)break;
   }
   return {...stages,leftHullWake};
- });
- expect(result).toEqual({onWater:true,flying:true,landing:true,leftHullWake:true});
+ },boat);
+ expect(result).toEqual({onWater:true,flying:true,landing:true,appendageTrail:true,leftHullWake:true});
 });
 
 test('hull film follows the curved surface and returned spray meets the same waterline',async({page})=>{
