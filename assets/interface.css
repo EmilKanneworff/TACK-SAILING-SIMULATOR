@@ -324,9 +324,50 @@ body.clear-view #hud .course-card{display:none}
 #editorImport{max-width:100%}
 @media(max-width:440px){.editor-fields{grid-template-columns:1fr}#courseEditor .modal{padding:13px}}
 
-#downwindControls{max-width:calc(100% - 2 * var(--edge));gap:6px}
-#downwindControls button{min-width:0;min-height:36px;padding:6px 9px;white-space:normal;line-height:1.15}
-#downwindControls button[aria-pressed=true]{background:#32696c}
+#sailPlan{min-width:0;margin:0}
+#sailPlanToggle{
+ display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;
+ min-height:28px;padding:2px 7px;cursor:pointer;list-style:none;
+ border:1px solid var(--line);border-radius:8px;background:var(--dock-control-bg);
+ font-size:11px;color:var(--cream);white-space:nowrap;
+}
+#sailPlanToggle::-webkit-details-marker{display:none}
+#sailPlanToggle::after{content:"";width:7px;height:6px;background:var(--select-caret) center / contain no-repeat}
+#sailPlan[open] #sailPlanToggle{border-color:#75c5b6}
+#sailPlan[open] #sailPlanToggle::after{transform:rotate(180deg)}
+.sail-plan-panel{
+ position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);z-index:2;
+ width:min(430px,calc(100vw - 28px));padding:8px;border:1px solid #54777e;
+ border-radius:13px;background:#112f3b;box-shadow:0 10px 25px #0019235e;
+}
+#sailChoices{display:flex;gap:4px}
+#sailChoices button{
+ flex:1;min-width:0;padding:6px 1px;display:grid;justify-items:center;gap:3px;
+ color:var(--cream);background:#1a3943;border:1px solid #506c73;border-radius:8px;
+ font-size:10px;line-height:1.15;white-space:nowrap;
+}
+#sailChoices button[aria-pressed=true]{background:#285552;border-color:var(--teal);color:#c4fff3}
+#sailChoices button small{color:#c1d2d4;font-size:9px}
+.sail-area{max-width:100%;color:#c2dcd9;font-variant-numeric:tabular-nums;white-space:normal;text-align:center}
+#downwindControls{display:grid;margin-top:6px}
+#downwindControls button{min-height:38px;border:1px solid #659489;background:#24534e;color:var(--cream);font-size:12px}
+#sailChoices [hidden],#downwindControls[hidden],#downwindControls [hidden]{display:none}
+.sail-plan-icon{
+ --sail-outline:polygon(92% 0,100% 0,100% 100%,0 100%,31% 66%,65% 23%);
+ display:block;position:relative;width:26px;height:29px;color:#9ce7d6;
+}
+.sail-plan-icon::before,.sail-plan-icon i{
+ content:"";position:absolute;inset:0;background:currentColor;clip-path:var(--sail-outline);
+ transform-origin:right bottom;
+}
+.sail-plan-icon::before{opacity:.25}
+.sail-plan-icon[data-shape=wing]{--sail-outline:polygon(43% 0,100% 0,100% 100%,0 100%,10% 72%,24% 30%)}
+.sail-plan-icon[data-shape=jib]{--sail-outline:polygon(17% 0,56% 43%,100% 95%,0 100%);width:19px}
+.sail-plan-icon[data-shape=jib] i{transform-origin:left bottom}
+.sail-plan-icon[data-shape=code0]{--sail-outline:polygon(28% 2%,52% 26%,72% 58%,94% 91%,5% 98%,13% 60%)}
+.sail-plan-icon[data-shape=gennaker]{--sail-outline:polygon(27% 2%,60% 17%,83% 48%,94% 87%,61% 95%,6% 90%,20% 62%,24% 29%)}
+.sail-plan-icon[data-shape=spinnaker]{--sail-outline:polygon(50% 2%,76% 18%,93% 51%,99% 88%,70% 96%,30% 96%,1% 88%,7% 51%,24% 18%)}
+#sailPlanToggle .sail-plan-icon{width:14px;height:17px;flex:none}
 
 /* Sailing dock */
 #sailingDock{
@@ -388,7 +429,7 @@ body.clear-view #hud .course-card{display:none}
 
 #sailingDock .dock-fittings{
  display:grid;align-content:center;align-items:start;gap:7px;
- grid-template-columns:minmax(0,1.45fr) minmax(88px,1fr) 52px;
+ grid-template-columns:minmax(0,1.45fr) minmax(103px,1fr) 52px;
 }
 #sailingDock .balance-card{grid-area:1 / 1}
 #sailingDock .dock-reef{grid-area:1 / 2}
@@ -407,11 +448,22 @@ body.easy-crew #sailingDock .pose-buttons{display:none}
 #sailingDock .pose-buttons button[aria-pressed=true]{background:#7ae4cf24;color:#b8fff0;border-color:#7ae4cf70}
 #sailingDock .pose-buttons button:hover,#reefSetting:hover,#sailingDock .telemetry-toggle:hover .dock-detail-icon{border-color:#73a5a7}
 #reefSetting{
- appearance:none;width:100%;min-width:0;padding:0 16px;
- background:var(--select-caret) right 5px center / 8px 6px no-repeat var(--dock-control-bg);
- text-align:center;text-align-last:center;font-size:12px;text-overflow:ellipsis;color-scheme:dark;
+ appearance:none;width:100%;min-width:0;padding:0 15px 0 31px;
+ background:var(--select-caret) right 7px center / 8px 6px no-repeat var(--dock-control-bg);
+ text-align:start;font-size:12px;text-overflow:ellipsis;color-scheme:dark;
 }
 #reefSetting:disabled{opacity:.55}
+.reef-picker{position:relative;min-width:0}
+.reef-preview{position:absolute;inset-inline-start:7px;top:50%;transform:translateY(-50%);width:20px;height:25px;pointer-events:none;color:var(--teal)}
+.reef-preview i{position:absolute;bottom:2px;height:21px;background:currentColor;opacity:.23}
+.reef-preview .reef-main{left:1px;width:15px;transform-origin:right bottom;clip-path:polygon(90% 0,100% 0,100% 100%,0 100%,32% 66%,67% 22%)}
+.reef-preview .reef-jib{display:none;left:14px;width:7px;height:15px;transform-origin:left bottom;clip-path:polygon(7% 0,100% 100%,0 100%)}
+.reef-has-jib .reef-main{width:12px}
+.reef-has-jib .reef-jib{display:block}
+.reef-wing .reef-main{clip-path:polygon(47% 0,100% 0,100% 100%,0 100%,9% 73%,22% 31%)}
+.reef-preview .reef-active{opacity:1}
+.reef-preview.reef-moving .reef-active{color:var(--cream)}
+#reefArea{color:var(--muted);font-size:10px;line-height:14px;font-variant-numeric:tabular-nums}
 #sailingDock .dock-detail-icon{display:grid;place-items:center}
 #sailingDock .telemetry-toggle[aria-expanded=true] .dock-detail-icon{color:var(--teal);border-color:#7ae4cf70}
 #sailingDock .telemetry-toggle .dock-label{font-size:10px}
@@ -424,6 +476,7 @@ body.easy-crew #dockForeAft{display:grid;place-items:center;min-height:var(--doc
 @media(max-width:1240px){
  #sailingDock{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:7px}
  #sailingDock .dock-navigation{grid-column:1 / -1;padding-bottom:7px;border-bottom:1px solid var(--line)}
+ #sailingDock .wind-compass{width:52px}
  #sailingDock .dock-navigation:has(#flightCompact:not([hidden])){padding-bottom:17px}
  #sailingDock > .trim-card{grid-area:2 / 1;border-inline-start:0}
  #sailingDock .dock-fittings{grid-area:2 / 2}
@@ -444,7 +497,10 @@ body.easy-crew #dockForeAft{display:grid;place-items:center;min-height:var(--doc
  #sailingDock{--dock-control-height:44px}
  #sailingDock .helm-feedback button.keycap{min-width:44px;height:36px}
 }
-@media(forced-colors:active){#reefSetting{appearance:auto;background-image:none;padding-inline:4px}}
+@media(forced-colors:active){
+ #reefSetting{appearance:auto;background-image:none;padding-inline:4px}
+ .reef-preview{display:none}
+}
 
 .touch-action,#sailingDock #mobileCrewToggle,#sailingDock .helm-feedback .touch-sail{display:none}
 
@@ -496,9 +552,13 @@ body.easy-crew #dockForeAft{display:grid;place-items:center;min-height:var(--doc
  #sailingDock .dock-navigation:has(#flightCompact:not([hidden])){padding-bottom:13px}
  #sailingDock .wind-compass{width:45px}
  #sailingDock .compact-wind{min-height:44px}
- #sailingDock > .trim-card{grid-area:3 / 1;gap:4px;position:relative;padding-top:19px}
- #sailingDock .trim-card :is(.sheet-range,.range-labels,.sheet-feedback,.card-heading .keycap){display:none}
- #sailingDock .trim-card .card-heading{position:absolute;top:0;left:calc(50% + 5px);right:0;line-height:1}
+ #sailingDock > .trim-card{grid-area:3 / 1;gap:4px}
+ #sailingDock .trim-card :is(.range-labels,.sheet-feedback,.card-heading .keycap){display:none}
+ #sailingDock .trim-card:has(#sheetControl:disabled) .sheet-feedback{display:flex}
+ #sailingDock .trim-card .card-heading{line-height:1}
+ #sailingDock .trim-card .sheet-range{margin:3px 0;min-height:26px;touch-action:none}
+ #sailPlanToggle{min-height:35px;padding-inline:10px}
+ #downwindControls button{min-height:44px}
  #sailingDock .trim-card .card-heading :is(h3,b){font-size:13px}
  #sailingDock .helm-feedback{margin:0}
  #sailingDock .helm-feedback > div:first-child{
@@ -522,7 +582,7 @@ body.easy-crew #dockForeAft{display:grid;place-items:center;min-height:var(--doc
  #sailingDock #crewDockLabel{display:none}
  #sailingDock #mobileCrewToggle{display:block;justify-self:stretch;padding:0 3px;margin:-6px 0;min-height:30px;border:none;background:transparent}
  #mobileCrewToggle[aria-expanded=true]{color:#91e7d6}
- #mobileCrewToggle[aria-expanded=true] span{display:inline-block;transform:rotate(180deg)}
+ #mobileCrewToggle[aria-expanded=true] [aria-hidden=true]{display:inline-block;transform:rotate(180deg)}
  body.easy-crew #sailingDock #crewDockLabel{display:block}
  #mobileCrewPanel{
   position:fixed;z-index:12;left:max(8px,env(safe-area-inset-left));bottom:var(--notice-bottom,188px);

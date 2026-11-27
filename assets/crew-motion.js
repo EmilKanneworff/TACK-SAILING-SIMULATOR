@@ -7,6 +7,65 @@
   const advance=(p,x,y,z)=>{p.x+=x;p.y+=y;p.z+=z;};
   const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
   const blendPoint=(p,target,weight)=>advance(p,(target.x-p.x)*weight,(target.y-p.y)*weight,(target.z-p.z)*weight);
+  // Chest offset and line of sight from cockpit, coaming and full hiking.
+  // The physical pelvis, feet and the two control grips anchor every pose.
+  const laserStances=[
+    {reach:.048,rise:-.032,out:.012,look:.12},
+    {reach:.013,rise:.006,out:.010,look:.025},
+    {reach:-.035,rise:-.028,out:.034,look:.085}
+  ];
+  const laserTransfer=[
+    {at:0,reach:0,rise:0,look:0},
+    {at:.23,reach:.048,rise:-.037,look:.13},
+    {at:.50,reach:.084,rise:-.074,look:.27},
+    {at:.76,reach:.048,rise:-.041,look:.17},
+    {at:1,reach:0,rise:0,look:0}
+  ];
+
+  function interpolatePose(a,b,t){
+    const mix=(x,y)=>x+(y-x)*smooth(t);
+    return {reach:mix(a.reach,b.reach),rise:mix(a.rise,b.rise),
+      out:mix(a.out??0,b.out??0),look:mix(a.look,b.look)};
+  }
+  function laserPose(scene,out,body,s,balance,transfer,crossing,side,direction,poseBlend){
+    const index=clamp(Math.floor(poseBlend)-1,0,1);
+    const stance=interpolatePose(laserStances[index],laserStances[index+1],poseBlend-index-1);
+    const upper=laserTransfer.findIndex(frame=>frame.at>=transfer&&frame.at>0);
+    const from=laserTransfer[upper-1],to=laserTransfer[upper];
+    const move=interpolatePose(from,to,(transfer-from.at)/(to.at-from.at));
+    const duck=body.duck||0,free=1-.80*duck;
+    const breathing=Math.sin(s.time*1.63)*.009;
+    const rise=(stance.rise+balance.compression+breathing-balance.brace*.111)*free+move.rise*crossing;
+    const fore=(stance.reach+balance.fore+.049*balance.brace)*free+move.reach*crossing;
+    const lean=(stance.out*side+balance.side)*free;
+    advance(out.chest,fore,rise,lean);
+    advance(out.head,fore*1.17,rise+clamp((s.pitchRate||0)*.018,-.022,.022),lean*.80);
+
+    // Leave space for the cap while the actual boom sweeps by. The cap
+    // centre is about 7 cm above the physical head reference after rigging.
+    const angle=s.boom||0;
+    const x=out.head.x-scene.mastX,z=out.head.z;
+    const along=clamp(-x*Math.cos(angle)+z*Math.sin(angle),0,scene.rig.boomLength);
+    const offset=Math.hypot(x+along*Math.cos(angle),z-along*Math.sin(angle));
+    const clearance=(1-smooth((offset-.115)/.16))*smooth((out.head.y-scene.rig.boomY+.27)/.18);
+    const sink=Math.max(0,out.head.y-scene.rig.boomY+.135)*clearance;
+    advance(out.head,0,-sink,0);
+    advance(out.chest,0,-.69*sink,0);
+    for(let i=0;i<2;i++){
+      advance(out.shoulders[i],fore,rise-.69*sink,lean);
+      out.elbows[i]=solve(out.shoulders[i],out.hands[i],body.shoulders[i],body.elbows[i],body.hands[i],true);
+    }
+    const turn=clamp((s.omega||0)*.34-(s.rudder||0)*.56,-.35,.35);
+    out.lookYaw=Math.PI/2+turn*free+direction*move.look*crossing+.20*balance.trim*side;
+    out.lookDown=(body.lookDown??.05)+stance.look*free+move.look*.4*crossing+
+      .13*balance.brace+.17*balance.trim*free-clamp((s.pitchRate||0)*.21,-.13,.13);
+    out.bootYaw=out.feet.map((_,i)=>side*(.26+.66*smooth((poseBlend-1)/2))+(i===0?.07:-.07));
+    out.bootPitch=out.feet.map((_,i)=>{
+      const swing=clamp((transfer-(i===0?.08:.51))/.40,0,1);
+      return .22*Math.sin(Math.PI*2*swing)*crossing;
+    });
+    return out;
+  }
 
   function balance(previous,s,dt,bow){
     const speed=s.vx*Math.cos(s.theta)+s.vy*Math.sin(s.theta),rise=s.heaveVelocity||0;
@@ -53,6 +112,7 @@
     const duck=crossing*Math.pow(clamp(1-Math.abs(side),0,1),1.25);
     const direction=Math.sign(sideRate)||1,transfer=clamp((side*direction+1)*.5,0,1);
     const balance=scene.crewBalance||{fore:0,side:clamp(-.11*(s.heelRate||0),-.08,.08),compression:0,brace:0,trim:0};
+    if(body.sharedMotion&&scene.laserDetailed)return laserPose(scene,out,body,s,balance,transfer,crossing,side,direction,poseBlend);
     const professional=scene.isFoiler?.50:scene.isYacht?.68:1;
     const breath=Math.sin((s.time||0)*(1.77+index*.023)+index*1.37)*.007;
     const toward=clamp((s.crewPose??poseBlend)-poseBlend,-1,1);
@@ -71,8 +131,13 @@
         advance(out.shoulders[i],fore,rise,lean);
         out.elbows[i]=solve(out.shoulders[i],out.hands[i],body.shoulders[i],body.elbows[i],body.hands[i],true);
       }
-      out.lookYaw=(body.lookYaw??Math.PI/2)+.15*balance.trim*side;
-      out.lookDown=(body.lookDown??.05)+.13*balance.brace+.075*balance.trim-clamp((s.pitchRate||0)*.21,-.13,.13);
+      const duck=body.duck||0;
+      // The helm looks into the ongoing turn and checks the sheet when
+      // hauling. During a transfer the head stays aligned with the crouch.
+      const turn=clamp((s.omega||0)*.34-(s.rudder||0)*.56,-.35,.35);
+      const transferLook=(body.lookYaw??Math.PI/2)-Math.PI/2;
+      out.lookYaw=Math.PI/2+turn*free+transferLook*duck+.16*balance.trim*side;
+      out.lookDown=(body.lookDown??.05)+.13*balance.brace+.17*balance.trim*free-clamp((s.pitchRate||0)*.21,-.13,.13);
       return out;
     }
     advance(out.chest,reach,settle,lean);
@@ -117,7 +182,9 @@
       const angle=-.90+scene.helmWheel.rotation.x,radius=.43;
       hold(1,{x:wheel.x,y:wheel.y+Math.cos(angle)*radius,z:wheel.z+Math.sin(angle)*radius},1-duck);
     }else if(scene.isYacht){
-      const trim=clamp(s.sheet??.45,0,1),hoist=s.spinnaker?.hoist||0;
+      const hoist=s.spinnaker?.hoist||0;
+      const sail=index===1?s.sail?.jib:index===2&&hoist>0?s.sail?.spinnaker:s.sail?.main;
+      const trim=clamp(sail?.trim??s.sheet??.45,0,1);
       const loading=4*hoist*(1-hoist),work=index===1?.16:index===2?.095:.034;
       advance(out.hands[1],work*(1-trim*1.7)+loading*.14,loading*(index===1?.12:.045)-.045,-side*.07);
       if(cockpit)hold(0,{x:out.pelvis.x-.22,y:scene.model.deckY+.16,z:side*(cockpit.halfWidth+.04)},.6+loading*.28);

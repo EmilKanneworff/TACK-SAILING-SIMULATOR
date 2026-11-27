@@ -94,7 +94,7 @@ class HullWater {
     const T=this.T,wet={plane:{value:new T.Vector4()},film:{value:new T.Vector4()},active:{value:0},
       bounds:{value:new T.Vector4()},basis:{value:new T.Vector2(1,0)},datum:{value:0},sampled:{value:0},surface:{value:null}};
     actor.hullWetUniforms=wet;
-    const surface=[actor.hullMesh,actor.laserStripe,...(actor.catHulls||[]).map(h=>h.shell)];
+    const surface=actor.laserHullSurfaces||[actor.hullMesh,actor.laserStripe,...(actor.catHulls||[]).map(h=>h.shell)];
     const optical=[...surface,actor.daggerboard,actor.keel];
     for(const part of [actor.rudder,...Object.values(actor.catRudders||{}),actor.rudderElevator,...Object.values(actor.foilVisuals||{}).flatMap(v=>[v.arm,v.group,v.root,v.wing,v.strut])]){
       part?.traverse?.(node=>{if(node.isMesh)optical.push(node);});
@@ -207,7 +207,7 @@ class HullWater {
     to.serial=from.serial;
     while(offset<=distance&&track.length<224){
       const t=offset/distance,point={...to};
-      for(const key of ['x','y','t','strength','width','speed','dirX','dirY','driftX','driftY'])point[key]=mix(from[key],to[key],t);
+      for(const key of ['x','y','t','strength','width','speed','dirX','dirY','driftX','driftY','orbitalX','orbitalY','period'])point[key]=mix(from[key]??0,to[key]??0,t);
       if(to.wakeHeight!=null)point.wakeHeight=mix(from.wakeHeight??to.wakeHeight,to.wakeHeight,t);
       point.serial=++to.serial;
       track.unshift(point);offset+=spacing;
@@ -237,13 +237,22 @@ class HullWater {
     for(let i=0;i<fx.films.length;i++)fx.films[i]*=drain;
     const P=this.scene.P,{fx:forwardX,fy:forwardY,rx,ry}=P.axes(s.theta);
     const density=P.configFor(s).waterDensity;
+    const way=Math.hypot(s.vx-(s.waterX||0),s.vy-(s.waterY||0));
+    const makingWake=way>.34&&!recovering&&!s.capsized;
     const offsets=actor.isCat?model.hullOffsets:[0],beam=model.hullBeam??model.beam;
     const planing=limit((s.forces?.planingLift||0)/(model.mass*9.81));
     const probe=(x,z,y,joint)=>P.waterContact(s,{x,y,z},env,joint);
+    // Resolve the initial orbital motion on the time scale of the dominant sea.
+    // Only the background current can transport detached foam indefinitely.
+    const band=s.waveProfile?.to??P.waveProfileFor(env);
+    const windSea=P.windWaveAt(s.time,s.waveProfile,env).scale*(band.managed?1:s.seaState);
+    const period=s.seaState*P.LONG_HEIGHT_UNIT>=windSea*band.short*P.SHORT_HEIGHT_UNIT
+      ?band.period*P.BASE_WAVE_PERIOD:2*Math.PI*band.shortPeriod/P.WAVE_COMPONENTS.find(w=>w.windSea).omega;
     const flow=contact=>{
       const {relativeX,relativeY}=contact,speed=Math.hypot(relativeX,relativeY);
       return {speed,dirX:speed>.025?relativeX/speed:forwardX,dirY:speed>.025?relativeY/speed:forwardY,
-        driftX:mix(s.waterX||0,contact.waterX,.42),driftY:mix(s.waterY||0,contact.waterY,.42)};
+        driftX:s.waterX||0,driftY:s.waterY||0,period,
+        orbitalX:contact.waterX-(s.waterX||0),orbitalY:contact.waterY-(s.waterY||0)};
     };
     const append=(id,kind,hit,side,depthScale,support=1)=>{
       const current=flow(hit),wet=smooth(-.045,depthScale,hit.depth)*support;
@@ -258,7 +267,8 @@ class HullWater {
     };
     for(const [index,offset] of offsets.entries()){
       const wetHull=actor.isFoiler?limit((s.foiling?.hulls?.[index]?.wetFraction??s.foiling?.hullWetFraction??s.hydro?.hullWetFraction??1)*4.6):1;
-      const sternX=model.length*-.465,bowX=model.length*.37;
+      const sternX=model.id==='laser'?model.hullSections[0][0]+.02:model.length*-.465;
+      const bowX=model.length*.37;
       const span=actor.halfBeamAt(sternX)*.63;
       const sternProbes=[0,-span,span].map(z=>probe(sternX,offset+z,actor.bottomAt(sternX,z)));
       const weights=sternProbes.map(hit=>smooth(-.045,.13,hit.depth));
@@ -295,16 +305,48 @@ class HullWater {
       const displacement=limit(Math.cbrt(Math.max(0,displaced)/.16),0,2.65);
       const discharge=smooth(.50,3.1,trackContact.speed)*trackContact.wet;
       const wakeHeight=limit(profile.wave*(.58+.45*displacement)*(activity*2.60+discharge*.32+stern.impact*.20),0,.36);
-      this.track(fx,'h'+index,wetHull>.022&&!recovering&&!s.capsized&&trackContact.speed>.36&&activity>.018?trackContact:null,
+      this.track(fx,'h'+index,makingWake&&wetHull>.022&&trackContact.speed>.36&&activity>.018?trackContact:null,
         {spacing:profile.spacing,width,life:profile.life,strength:limit(activity*(1.10+.14*displacement)+stern.impact*.13),wakeHeight},s);
+      if(!actor.isCat)for(const side of [-1,1]){
+        const corner=sternProbes[side<0?1:2],shoulder=shoulders[side<0?1:3];
+        const forwardMix=(1-smooth(-.08,.045,corner.depth))*shoulder.wet*.82;
+        const current=flow({
+          relativeX:mix(corner.relativeX,shoulder.relativeX,forwardMix),relativeY:mix(corner.relativeY,shoulder.relativeY,forwardMix),
+          waterX:mix(corner.waterX,shoulder.waterX,forwardMix),waterY:mix(corner.waterY,shoulder.waterY,forwardMix)
+        });
+        const immersion=Math.max(smooth(-.035,.07,corner.depth)*wetHull,.87*shoulder.wet);
+        const pressure=smooth(.46,3.35,current.speed)*immersion;
+        const impact=smooth(.35,1.55,corner.closing)*corner.entry*immersion;
+        const key=side<0?'sternPort':'sternStarboard';
+        const previous=fx.strengths[key]??0;
+        const strength=mix(previous,limit((pressure+.27*impact)*(.91+.15*displacement)),1-Math.exp(-dt/profile.response));
+        fx.strengths[key]=strength;
+        // As the corner emerges, follow the water releasing from the wet
+        // quarter ahead of it. The detached trace keeps its world position.
+        const contact=makingWake&&immersion>.025&&current.speed>.48&&strength>.020
+          ?{x:mix(corner.x,shoulder.x,forwardMix),y:mix(corner.y,shoulder.y,forwardMix),...current}:null;
+        this.track(fx,key,contact,{
+          spacing:profile.spacing,width:width*(.37+.25*pressure),life:profile.life,strength,
+          wakeHeight:wakeHeight*immersion,wakeSide:side
+        },s);
+      }
       if(!recovering){
         const fore=shoulders.filter((_,i)=>i%2===0).reduce((a,b)=>a.depth>=b.depth?a:b);
         const root=bow.depth>-.055?bow:belly&&fore.depth<-.055?belly:fore;
         const core=profile.wave*Math.max(bow.strength*.97,fore.strength*.59,bow.impact*.66,(belly?.strength??0)*.52,root.impact*.59);
         if(core>.004)fx.packets.push({...root,amplitude:core,len:Math.max(1.44,model.length*.27),width:Math.max(1.02,beam*.98),phase:0});
         for(const h of shoulders.filter((_,i)=>i%2===0)){
-          const power=h.strength*profile.wave*.49;
-          if(power>.004)fx.packets.push({...h,amplitude:power,len:Math.max(1.15,model.length*.245),width:Math.max(.79,beam*.64),phase:.72});
+          const power=profile.wave*(h.strength*.79+h.impact*.24);
+          if(power<=.004)continue;
+          const rail=P.bodyPoint(s,{x:h.point.x,y:model.deckY,z:offset+h.side*actor.halfBeamAt(h.point.x)});
+          // Intersect the wet section with the local wave tangent toward the rail.
+          const rise=rail.z-h.z-h.dx*(rail.x-h.x)-h.dy*(rail.y-h.y);
+          const fraction=rise>.001?limit(h.depth/rise):0;
+          const sideX=h.dirY*h.side,sideY=-h.dirX*h.side;
+          fx.packets.push({...h,x:mix(h.x,rail.x,fraction)+sideX*beam*.05,
+            y:mix(h.y,rail.y,fraction)+sideY*beam*.05,
+            dirX:.47*h.dirX+.883*sideX,dirY:.47*h.dirY+.883*sideY,
+            amplitude:power,len:Math.max(.72,beam*.82),width:Math.max(1.28,model.length*.41),phase:0});
         }
       }
     }
@@ -319,7 +361,7 @@ class HullWater {
         fx.windows.push({x:tip.x,y:tip.y,radius:Math.max(.29,beam*.30),strength:.43*Math.exp(-tip.depth*1.65)});
         if(piercing)fx.windows.push({x:surface.x,y:surface.y,radius:Math.max(.25,beam*.17),strength:.31});
       }
-      if(actor.isFoiler)this.track(fx,'f'+key,!recovering&&piercing&&contact.speed>2.6&&contact.strength>.023?contact:null,
+      if(actor.isFoiler)this.track(fx,'f'+key,makingWake&&piercing&&contact.speed>2.6&&contact.strength>.023?contact:null,
         {spacing:.59,width:.065+.081*support,life:9,strength:contact.strength*(.19+.35*support)},s);
     };
     if(actor.isFoiler)for(const key of actor.foilKeys(s)){
@@ -344,6 +386,12 @@ class HullWater {
     film.basis.value.set(forwardX,-forwardY);film.sampled.value=0;
     film.film.value.set(...fx.films);film.active.value=this.layers.has('materiale')?0:1;
     return fx;
+  }
+
+  foamPaths(fx){
+    return (fx.actor.isCat?['h0','h1']:['sternPort','sternStarboard']).map(key=>({
+      track:fx.tracks[key]||[],head:fx.previous[key]
+    }));
   }
 
   remote(id,actor,s,env,near){
@@ -389,7 +437,7 @@ class HullWater {
       const shift=age===0?len*.57:0;
       const fade=age===0?1:smooth(.12,.69,age)*(1-smooth(2.15,4.10,age))*Math.exp(-age*.39)*.72;
       if(p.wakeHeight*fade<.003)return false;
-      push({x:p.x-p.dirX*shift,y:p.y-p.dirY*shift,dirX:p.dirX,dirY:p.dirY,
+      push({x:p.x+(p.driftX||0)*age-p.dirX*shift,y:p.y+(p.driftY||0)*age-p.dirY*shift,dirX:p.dirX,dirY:p.dirY,
         amplitude:p.wakeHeight*fade,len,width:Math.max(1,p.width*2.10)+spread*age,phase:age*2.18},1);
       return true;
     };
@@ -397,7 +445,7 @@ class HullWater {
       if(!fx.local&&Math.hypot(fx.x-camera.position.x,fx.y+camera.position.z)>36)continue;
       const hullTracks=Object.entries(fx.tracks).filter(([key])=>key.startsWith('h'));
       for(const [key] of hullTracks)if(fx.previous[key])sternPacket(fx.previous[key],0,fx.actor.model);
-      for(const p of fx.packets.slice(0,fx.local?4:1))push(p);
+      for(const p of fx.packets.slice(0,fx.local?(fx.actor.isCat?6:4):1))push(p);
       for(const p of fx.windows){
         if(windows===MAX_WINDOWS||camera.position.y>=47)break;
         contactWindows.value[windows++].set(p.x,-p.y,p.radius,p.strength);

@@ -19,4 +19,16 @@ async function dragMap(page, widthDelta, heightDelta) {
   await page.mouse.up();
 }
 
-module.exports = { introOption, dragMap };
+async function chooseSail(page, name) {
+  const closed = page.locator('#sailPlan:not([open]) > summary');
+  if (await closed.count()) await closed.click();
+  await page.locator('[data-sail-choice="'+name+'"]').click();
+}
+
+async function operateExtraSail(page, selector) {
+  const name = selector.replace(/^#/, '').replace(/Button$/, '');
+  await chooseSail(page, name);
+  await page.locator(selector).click();
+}
+
+module.exports = { introOption, dragMap, chooseSail, operateExtraSail };

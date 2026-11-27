@@ -24,6 +24,45 @@ test('both foilers have more direct rudder travel in flight than on the water',a
  }
 });
 
+test('AC72 in the reported downwind position accepts helm in both directions',async({page})=>{
+ await page.clock.install();
+ await page.goto(game);
+ await (await introOption(page,'#introBoat')).selectOption('ac72');
+ await page.selectOption('#introDifficulty','hard');
+ await page.click('#startButton');
+ await page.clock.pauseAt(await page.evaluate(()=>Date.now()+500));
+ await page.keyboard.press('Backquote');
+ for(const steer of [-1,1]){
+  await page.evaluate(()=>{
+   const {state,env}=SAILING_GAME,P=SailPhysics,theta=-P.DEG,way=5.8/1.9438444924;
+   Object.assign(env,{speed:9.7,direction:270,gusts:0,waveHeight:0,chop:0,shelter:true,crewPose:3});
+   Object.assign(state,TackSimulation.createBoat('ac72',{x:575,y:-1190,time:0,theta,
+    vx:way*Math.cos(theta),vy:way*Math.sin(theta),sheet:P.sheetFromTrim(.674,'ac72'),crewPose:3},env));
+   const slider=document.getElementById('sheetControl');
+   slider.value='67.4';slider.dispatchEvent(new Event('input',{bubbles:true}));
+   document.getElementById('sea').focus({preventScroll:true});
+  });
+  const key=steer<0?'ArrowLeft':'ArrowRight';
+  await page.keyboard.down(key);
+  await page.clock.runFor(5950);
+  const result=await page.evaluate(()=>{
+   const {state:s,env}=SAILING_GAME,P=SailPhysics;
+   return {heading:P.instruments(s,null,env).heading,rudder:s.rudder/P.DEG,target:s.helmTarget/P.DEG,
+    blades:s.forces.steering.blades.map(blade=>blade.wetArea),yaw:s.forces.steering.yawMoments,
+    capsized:s.capsized,ground:s.ground?.contact,trim:P.trimFromSheet(s.sheet,s)};
+  });
+  await page.keyboard.up(key);
+  expect(result,JSON.stringify(result)).toMatchObject({capsized:false,ground:false});
+  expect(result.target*steer).toBeGreaterThan(15);
+  expect(result.rudder).toBeCloseTo(result.target,1);
+  expect((result.heading-91)*steer).toBeGreaterThan(3);
+  expect(result.blades).toHaveLength(2);
+  for(const wetArea of result.blades)expect(wetArea).toBeGreaterThan(.05);
+  expect(result.yaw.assist).toBe(0);
+  expect(result.trim).toBeCloseTo(.674,3);
+ }
+});
+
 test('both foilers turn promptly and reverse the turn using keys or partial rudder',async({page})=>{
  await page.goto(game);
  await page.waitForFunction(()=>window.SAILING_GAME);

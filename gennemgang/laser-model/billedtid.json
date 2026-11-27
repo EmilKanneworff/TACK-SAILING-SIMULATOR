@@ -1,0 +1,485 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "chrome": "158.0.8127.37",
+  "timings": [
+    {
+      "tier": "high",
+      "build": "9c0e490548f0",
+      "stats": {
+        "raf": {
+          "frames": 240,
+          "p50": 16.699999999999818,
+          "p95": 16.700000000000728
+        },
+        "render": {
+          "frames": 241,
+          "p50": 16.700000002980232,
+          "p95": 18
+        },
+        "responses": [
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 9,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 3.7000000029802322,
+            "registered": true
+          },
+          {
+            "key": "ArrowRight",
+            "milliseconds": 15.5,
+            "registered": true
+          },
+          {
+            "key": "ArrowUp",
+            "milliseconds": 10.700000002980232,
+            "registered": true
+          },
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 6.299999997019768,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 18.099999994039536,
+            "registered": true
+          }
+        ],
+        "maxDebtSeconds": 0.016600000000000215,
+        "calls": 165,
+        "triangles": 133647,
+        "resolution": [
+          1280,
+          800
+        ],
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+        "elapsedSeconds": 4.02920000000298,
+        "simulatedSeconds": 4.033333333333319
+      },
+      "errors": []
+    },
+    {
+      "tier": "high",
+      "build": "db4d91cd2700",
+      "stats": {
+        "raf": {
+          "frames": 240,
+          "p50": 16.699999999999818,
+          "p95": 16.700000000000728
+        },
+        "render": {
+          "frames": 240,
+          "p50": 16.799999997019768,
+          "p95": 18.5
+        },
+        "responses": [
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 30.399999991059303,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 9.5,
+            "registered": true
+          },
+          {
+            "key": "ArrowRight",
+            "milliseconds": 12.400000005960464,
+            "registered": true
+          },
+          {
+            "key": "ArrowUp",
+            "milliseconds": 5.600000008940697,
+            "registered": true
+          },
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 16,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 8,
+            "registered": true
+          }
+        ],
+        "maxDebtSeconds": 0.016633333333333406,
+        "calls": 161,
+        "triangles": 133729,
+        "assetTransfer": 117896,
+        "resolution": [
+          1280,
+          800
+        ],
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+        "elapsedSeconds": 4.015199999988079,
+        "simulatedSeconds": 3.9999999999999862
+      },
+      "errors": []
+    },
+    {
+      "tier": "high",
+      "build": "db4d91cd2700",
+      "stats": {
+        "raf": {
+          "frames": 240,
+          "p50": 16.699999999999818,
+          "p95": 16.700000000000728
+        },
+        "render": {
+          "frames": 240,
+          "p50": 16.600000008940697,
+          "p95": 18.5
+        },
+        "responses": [
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 14.5,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 28.200000002980232,
+            "registered": true
+          },
+          {
+            "key": "ArrowRight",
+            "milliseconds": 22.900000005960464,
+            "registered": true
+          },
+          {
+            "key": "ArrowUp",
+            "milliseconds": 16.899999991059303,
+            "registered": true
+          },
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 8.299999997019768,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 2.5,
+            "registered": true
+          }
+        ],
+        "maxDebtSeconds": 0.016633333333333524,
+        "calls": 161,
+        "triangles": 133729,
+        "assetTransfer": 117896,
+        "resolution": [
+          1280,
+          800
+        ],
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+        "elapsedSeconds": 4.01670000000298,
+        "simulatedSeconds": 4.016666666666653
+      },
+      "errors": []
+    },
+    {
+      "tier": "high",
+      "build": "9c0e490548f0",
+      "stats": {
+        "raf": {
+          "frames": 240,
+          "p50": 16.699999999999818,
+          "p95": 16.700000000000728
+        },
+        "render": {
+          "frames": 240,
+          "p50": 16.700000002980232,
+          "p95": 18.299999997019768
+        },
+        "responses": [
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 18.700000002980232,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 12.700000002980232,
+            "registered": true
+          },
+          {
+            "key": "ArrowRight",
+            "milliseconds": 5.9000000059604645,
+            "registered": true
+          },
+          {
+            "key": "ArrowUp",
+            "milliseconds": 15.100000008940697,
+            "registered": true
+          },
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 10.100000008940697,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 3.4000000059604645,
+            "registered": true
+          }
+        ],
+        "maxDebtSeconds": 0.016633333333333538,
+        "calls": 163,
+        "triangles": 133165,
+        "resolution": [
+          1280,
+          800
+        ],
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+        "elapsedSeconds": 4.01910000000894,
+        "simulatedSeconds": 4.016666666666653
+      },
+      "errors": []
+    },
+    {
+      "tier": "low",
+      "build": "9c0e490548f0",
+      "stats": {
+        "raf": {
+          "frames": 240,
+          "p50": 16.699999999999818,
+          "p95": 16.799999999999272
+        },
+        "render": {
+          "frames": 241,
+          "p50": 16.69999998807907,
+          "p95": 18.599999994039536
+        },
+        "responses": [
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 9.100000008940697,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 15.899999991059303,
+            "registered": true
+          },
+          {
+            "key": "ArrowRight",
+            "milliseconds": 7.799999997019768,
+            "registered": true
+          },
+          {
+            "key": "ArrowUp",
+            "milliseconds": 33.5,
+            "registered": true
+          },
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 29.69999998807907,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 3.7000000029802322,
+            "registered": true
+          }
+        ],
+        "maxDebtSeconds": 0.01663333333333358,
+        "calls": 160,
+        "triangles": 113137,
+        "resolution": [
+          789,
+          493
+        ],
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+        "elapsedSeconds": 4.0245,
+        "simulatedSeconds": 4.016666666666653
+      },
+      "errors": []
+    },
+    {
+      "tier": "low",
+      "build": "db4d91cd2700",
+      "stats": {
+        "raf": {
+          "frames": 240,
+          "p50": 16.699999999999818,
+          "p95": 16.700000000000728
+        },
+        "render": {
+          "frames": 241,
+          "p50": 16.69999998807907,
+          "p95": 18.200000002980232
+        },
+        "responses": [
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 5.4000000059604645,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 17.200000002980232,
+            "registered": true
+          },
+          {
+            "key": "ArrowRight",
+            "milliseconds": 10.099999994039536,
+            "registered": true
+          },
+          {
+            "key": "ArrowUp",
+            "milliseconds": 4.5,
+            "registered": true
+          },
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 14.700000002980232,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 9.799999997019768,
+            "registered": true
+          }
+        ],
+        "maxDebtSeconds": 0.016633333333333288,
+        "calls": 156,
+        "triangles": 113219,
+        "assetTransfer": 117896,
+        "resolution": [
+          789,
+          493
+        ],
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+        "elapsedSeconds": 4.021100000008941,
+        "simulatedSeconds": 4.033333333333319
+      },
+      "errors": []
+    },
+    {
+      "tier": "low",
+      "build": "db4d91cd2700",
+      "stats": {
+        "raf": {
+          "frames": 240,
+          "p50": 16.699999999999818,
+          "p95": 16.700000000000728
+        },
+        "render": {
+          "frames": 241,
+          "p50": 16.700000002980232,
+          "p95": 18.200000002980232
+        },
+        "responses": [
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 9.599999994039536,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 17.900000005960464,
+            "registered": true
+          },
+          {
+            "key": "ArrowRight",
+            "milliseconds": 13.300000011920929,
+            "registered": true
+          },
+          {
+            "key": "ArrowUp",
+            "milliseconds": 7.299999997019768,
+            "registered": true
+          },
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 18.399999991059303,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 12.5,
+            "registered": true
+          }
+        ],
+        "maxDebtSeconds": 0.016633333333333524,
+        "calls": 156,
+        "triangles": 113231,
+        "assetTransfer": 117896,
+        "resolution": [
+          789,
+          493
+        ],
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+        "elapsedSeconds": 4.0287000000029805,
+        "simulatedSeconds": 4.033333333333319
+      },
+      "errors": []
+    },
+    {
+      "tier": "low",
+      "build": "9c0e490548f0",
+      "stats": {
+        "raf": {
+          "frames": 240,
+          "p50": 16.699999999999818,
+          "p95": 16.700000000000273
+        },
+        "render": {
+          "frames": 241,
+          "p50": 16.600000008940697,
+          "p95": 18.69999998807907
+        },
+        "responses": [
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 8,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 32.79999999701977,
+            "registered": true
+          },
+          {
+            "key": "ArrowRight",
+            "milliseconds": 9.700000002980232,
+            "registered": true
+          },
+          {
+            "key": "ArrowUp",
+            "milliseconds": 4.299999997019768,
+            "registered": true
+          },
+          {
+            "key": "ArrowLeft",
+            "milliseconds": 13.399999991059303,
+            "registered": true
+          },
+          {
+            "key": "ArrowDown",
+            "milliseconds": 10.299999997019768,
+            "registered": true
+          }
+        ],
+        "maxDebtSeconds": 0.016633333333333306,
+        "calls": 160,
+        "triangles": 113161,
+        "resolution": [
+          789,
+          493
+        ],
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+        "elapsedSeconds": 4.024099999994039,
+        "simulatedSeconds": 4.033333333333319
+      },
+      "errors": []
+    }
+  ]
+}

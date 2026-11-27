@@ -212,13 +212,21 @@ function readControl(m,boat) {
     difficulty:m.difficulty??'hard',ironsHelp:m.ironsHelp??false,spinnaker:m.spinnaker??false,
     downwindType:m.downwindType??'spinnaker',trimFast:m.trimFast??true,steerDigital:m.steerDigital??true,
     controlRate:m.controlRate??1,controlSensitivity:m.controlSensitivity??1,motionDamping:m.motionDamping??1 };
+  if(m.crewInput!==undefined){
+    const input=m.crewInput;
+    if(input!==null&&(!input||typeof input!=='object'||Array.isArray(input)||
+      !Number.isSafeInteger(input.order)||input.order<0||!Number.isSafeInteger(input.epoch)||input.epoch<0||
+      ![-1,1].includes(input.side)||![1,2,3].includes(input.pose)||!Number.isFinite(input.foreAft)||!validUnit(input.foreAft)))return null;
+    control.crewInput=input&&{order:input.order,epoch:input.epoch,side:input.side,pose:input.pose,foreAft:input.foreAft};
+  }
   if (m.rig===undefined) return control;
   const rig=m.rig;
   const sheet=value=>value===undefined||Number.isFinite(value)&&value>=0&&value<=1;
   if (!rig||typeof rig!=='object'||Array.isArray(rig)||
       (rig.reef!==undefined&&![0,1,2].includes(rig.reef))||(rig.headsail!==undefined&&![0,1].includes(rig.headsail))||
       !sheet(rig.jibSheet)||!sheet(rig.extraSheet)||
-      (boat!=='yacht'&&[rig.headsail,rig.jibSheet,rig.extraSheet].some(value=>value!==undefined))) return null;
+      (boat!=='yacht'&&[rig.headsail,rig.extraSheet].some(value=>value!==undefined))||
+      (boat==='laser'&&rig.jibSheet!==undefined)) return null;
   control.rig={reef:rig.reef,headsail:rig.headsail,jibSheet:rig.jibSheet,extraSheet:rig.extraSheet};
   return control;
 }

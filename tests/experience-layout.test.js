@@ -399,10 +399,16 @@ test('right rail and map remain usable through live resizing and enlarged text',
     await expect(page.locator('#settingsButton')).toBeFocused();
     await dragMap(page,110,95);
     const bounds=await page.evaluate(()=>({map:document.getElementById('courseCard').getBoundingClientRect().bottom,
-      sails:document.getElementById('downwindControls').getBoundingClientRect().top}));
-    expect(bounds.map).toBeLessThan(bounds.sails);
+      dock:document.getElementById('sailingDock').getBoundingClientRect().top}));
+    expect(bounds.map).toBeLessThan(bounds.dock);
     const railTop=await page.locator('.tools').evaluate(element=>element.getBoundingClientRect().top);
     expect(bounds.map).toBeLessThanOrEqual(railTop);
+    await page.click('#sailPlanToggle');
+    const plan=await page.locator('.sail-plan-panel').boundingBox();
+    expect(plan.x).toBeGreaterThanOrEqual(0);
+    expect(plan.x+plan.width).toBeLessThanOrEqual(width+.5);
+    expect(plan.y+plan.height).toBeLessThanOrEqual(bounds.dock);
+    await page.keyboard.press('Escape');
   }
 });
 
@@ -498,6 +504,10 @@ test('every boat loads the photographic environment and has skinned crew at phys
   for(const [boat,count] of [['laser',1],['dinghy',3],['yacht',4],['ac75',8],['ac72',11]]){
     await sail(page,boat);
     await page.waitForFunction(()=>SAILING_GAME.scene.skyPhotoLoaded);
+    await page.locator('#boatMenuButton').click();
+    await page.waitForFunction(()=>[...document.querySelectorAll('.boat-option img')]
+      .every(img=>img.complete&&img.naturalWidth>0));
+    await page.locator('#boatPicker [data-close="boatPicker"]').click();
     const result=await page.evaluate(()=>{
       const {scene,state}=SAILING_GAME;
       const people=scene.isFoiler?scene.foilingCrew.map(crew=>crew.person):[scene.person,...(scene.racingCrew||[]).map(crew=>crew.person)];

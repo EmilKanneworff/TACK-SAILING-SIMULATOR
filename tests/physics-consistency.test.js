@@ -165,7 +165,7 @@ test('Laser hull still resists sideways movement when only the low side is immer
  expect(rows.port.sideSpeed).toBeCloseTo(rows.starboard.sideSpeed,4);
 });
 
-test('Laser water inertia resists the initial wind-driven turn while the hull and blades are wet',async({page})=>{
+test('Laser water inertia resists the initial turn including the boom reaction',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
  const results=await page.evaluate(()=>{
   const P=SailPhysics,D=P.DEG,env={...P.DEFAULT_ENV,boatId:'laser',speed:8.5,direction:0,
@@ -175,12 +175,14 @@ test('Laser water inertia resists the initial wind-driven turn while the hull an
     vx:0,vy:0,crewPose:2,crewSide:-side,...(dry?{heave:3}:{})},env);
    const dt=1/6000;
    P.step(state,{crewPose:2,steer:0},env,dt);
-   const f=state.forces;
-   const axis=P.axes((90-side*153)*D),r=P.bodyOffset({heel:0,pitch:0},state.hydro.cg);
-   const forward=f.world.x*axis.fx+f.world.y*axis.fy;
-   const across=f.world.x*axis.rx+f.world.y*axis.ry;
+   const f=state.forces,torque=f.balance.torqueAboutCG,internal=state.massMotion.internalMomentum;
+   const axis=P.axes((90-side*153)*D);
    const {roll,pitch,yaw,xy,xz,yz}=state.massMotion.inertia;
-   const tx=f.roll-r.up*across+r.r*f.world.z,ty=f.yaw-r.r*forward+r.f*across,tz=f.pitch+r.up*forward-r.f*f.world.z;
+   // Upright initial body axes: forward, vertical, starboard. At rest the
+   // change in crew/boom momentum is equal and opposite on the hull.
+   const tx=torque.x*axis.fx+torque.y*axis.fy-internal.x/dt;
+   const ty=torque.z-internal.y/dt;
+   const tz=torque.x*axis.rx+torque.y*axis.ry-internal.z/dt;
    // Eliminate the roll and pitch accelerations from I * angularAcceleration = torque.
    const det=roll*pitch-xz*xz;
    const effectiveYaw=yaw-(xy*xy*pitch+yz*yz*roll-2*xy*yz*xz)/det;

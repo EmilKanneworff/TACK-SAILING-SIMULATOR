@@ -18,7 +18,7 @@ async function setUpLaserTack(page,side,{speed=9,difficulty='hard'}={}){
   Object.assign(env,{speed,direction:0,waveHeight:.35,gusts:0,shelter:false});
   const theta=(90+49*side)*P.DEG;
   Object.assign(state,P.createState({boatId:'laser',x:0,y:-1475,theta,sheet:.73,
-   vx:3*Math.cos(theta),vy:3*Math.sin(theta),crew:side,crewPose:3},env));
+   vx:3*Math.cos(theta),vy:3*Math.sin(theta),crew:side,crewPose:speed===0?2:3},env));
   if(speed===0)state.windClimate={speed,direction:0,gusts:0};
   SailingWeather.initialize(state,env);
   const sheet=document.getElementById('sheetControl');
@@ -53,7 +53,7 @@ test('Z and X keep the selected fore-and-aft weight after release',async({page})
  await expect(target).toHaveValue(String(Math.round(selected*100)));
 });
 
-test('at 285 degrees with 9.7 m/s from west, the Laser suggests bearing away and 2 moves to port',async({page})=>{
+test('at 285 degrees with 9.7 m/s from west, the Laser suggests bearing away and 2 preserves the selected side',async({page})=>{
  await setUpLaserTack(page,1,{speed:9.7});
  await page.evaluate(()=>{
   const {state,env}=SAILING_GAME,P=SailPhysics,theta=(90-285)*P.DEG,speed=1.9/1.9438444924;
@@ -69,6 +69,7 @@ test('at 285 degrees with 9.7 m/s from west, the Laser suggests bearing away and
  await expect(page.locator('#coachText')).toHaveText('For tæt på vinden');
  await expect(page.locator('#coachSub')).toContainText('→');
  expect(await page.evaluate(()=>SAILING_GAME.state.crewSide)).toBe(1);
+ await page.keyboard.press('KeyE');
  await page.locator('#reefSetting').focus();
  await page.keyboard.press('2');
  await page.clock.runFor(980);
@@ -77,10 +78,119 @@ test('at 285 degrees with 9.7 m/s from west, the Laser suggests bearing away and
   return {side:state.crewSide,pose:state.crewPose,cg:state.crewCG.z,visible:scene.visibleCrewPose.side,
    rudder:state.rudder,sheet:state.sheet};
  });
- expect(actual).toMatchObject({side:-1,pose:2,rudder:0,sheet:1});
- expect(actual.cg).toBeLessThan(-.2);
- expect(actual.visible).toBeLessThan(-.9);
+ expect(actual).toMatchObject({side:1,pose:2,rudder:0,sheet:1});
+ expect(actual.cg).toBeGreaterThan(.2);
+ expect(actual.visible).toBeGreaterThan(.9);
+ await expect(page.locator('#crewDockLabel')).toHaveText('Besætning · Styrbord');
+ await page.keyboard.press('KeyQ');
+ await page.clock.runFor(120);
+ expect(await page.evaluate(()=>SAILING_GAME.state.crewSide)).toBe(-1);
 });
+
+test('pressing the already selected 2 keeps the chosen side at 330 degrees in 8.5 m/s',async({page})=>{
+ await setUpLaserTack(page,-1,{speed:8.5});
+ await page.evaluate(()=>{
+  const {state,env}=SAILING_GAME,P=SailPhysics,theta=(90-330)*P.DEG,way=2.6/1.9438444924;
+  Object.assign(env,{crewPose:2,waveHeight:.35,chop:.16});
+  Object.assign(state,TackSimulation.createBoat('laser',{
+   x:0,y:-1475,theta,vx:way*Math.cos(theta),vy:way*Math.sin(theta),heel:-18*P.DEG,sheet:1,crewPose:2,crewSide:-1
+  },env));
+  SailingWeather.initialize(state,env);
+  const sheet=document.getElementById('sheetControl');
+  sheet.value='100';sheet.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ await page.clock.runFor(120);
+ await expect(page.locator('#pose2')).toHaveAttribute('aria-pressed','true');
+ await expect(page.locator('#coachSub')).toHaveText('Tryk E for styrbord');
+ expect(await page.evaluate(()=>SAILING_GAME.state.crewSide)).toBe(-1);
+ await page.keyboard.press('2');
+ await page.clock.runFor(900);
+ const {side,cg,visible,windward,capsized}=await page.evaluate(()=>{
+  const {state,scene}=SAILING_GAME;
+  return {side:state.crewSide,cg:state.crewCG.z,visible:scene.visibleCrewPose?.side,
+   windward:SailPhysics.windwardCrewSide(state.wind),capsized:state.capsized};
+ });
+ expect({side,windward,capsized}).toEqual({side:-1,windward:1,capsized:false});
+ expect(cg).toBeLessThan(-.2);
+ expect(visible).toBeLessThan(-.9);
+});
+
+for(const scenario of [
+ {wind:11,angle:25,trim:48.6,way:-.14,heel:0,side:1},
+ {wind:9.5,angle:26,trim:96.5,way:.58,heel:28,side:-1}
+]){
+ test(`Laser escapes the reported near-wind stall in ${scenario.wind} m/s on Hard`,async({page})=>{
+  const {wind,angle,trim,way,heel,side}=scenario;
+  await setUpLaserTack(page,side,{speed:wind});
+  await page.evaluate(({wind,angle,trim,way,heel,side})=>{
+   const {env,state}=SAILING_GAME,P=SailPhysics;
+   Object.assign(env,{speed:wind,direction:0,gusts:0,waveHeight:0,chop:0,
+    shelter:false,ironsHelp:false,autoRecovery:false,crewPose:1});
+   const theta=(90+side*angle)*P.DEG;
+   Object.assign(state,TackSimulation.createBoat('laser',{x:0,y:-5000,time:0,theta,
+    vx:way*Math.cos(theta),vy:way*Math.sin(theta),heel:-side*heel*P.DEG,crewSide:side,
+    crewPose:1,sheet:P.sheetFromTrim(trim/100,'laser')},env));
+   const slider=document.getElementById('sheetControl');
+   slider.value=String(trim);slider.dispatchEvent(new Event('input',{bubbles:true}));
+  },scenario);
+  const slider=page.locator('#sheetControl');
+  const read=()=>page.evaluate(side=>{
+   const {state:s}=SAILING_GAME,P=SailPhysics,a=P.axes(s.theta);
+   const mast=s.forces.ledger?.mastWindage?.force;
+   const way=(s.vx-s.waterX)*a.fx+(s.vy-s.waterY)*a.fy;
+   return {t:s.time,angle:side*s.wind.twa/P.DEG,yaw:side*s.omega/P.DEG,way,
+    rudder:s.rudder,requested:s.steerIntent,sheet:P.trimFromSheet(s.sheet,s),
+    wet:s.forces.rudder?.wet,drive:s.sail.drive,assist:s.forces.yawAssist,
+    mast:mast?mast.x*a.fx+mast.y*a.fy:0,pose:s.crewPose,side:s.crewSide,
+    ground:s.ground?.contact,capsized:s.capsized};
+  },side);
+  await page.keyboard.press('Backquote');
+  // Match the reported starting trim, then use the normal slider to ease the tight sail.
+  if(trim>75){
+   await page.clock.runFor(240);
+   await expect(page.locator('#coachSub')).toContainText('Slæk med ↓');
+  }
+  await slider.fill('46');
+  await page.locator('#sea').focus();
+  const fallOff=side>0?'ArrowLeft':'ArrowRight',headUp=side>0?'ArrowRight':'ArrowLeft';
+  await page.keyboard.down(fallOff);
+  let sample=await read(),mastThrust=0,steered=false;
+  while(sample.angle<40&&sample.t<5.2&&!sample.capsized){
+   await page.clock.runFor(80);
+   sample=await read();
+   mastThrust=Math.min(mastThrust,sample.mast);
+   steered||=sample.requested===-side&&Math.abs(sample.rudder)>.1&&sample.wet>.2;
+  }
+  await page.keyboard.up(fallOff);
+  expect(sample.angle,JSON.stringify(sample)).toBeGreaterThanOrEqual(40);
+  expect(steered).toBe(true);
+  expect(mastThrust).toBeLessThan(-8);
+  const openTime=sample.t;
+
+  await page.keyboard.press('Digit3');
+  await slider.fill('60');
+  await page.locator('#sea').focus();
+  let key=null,steady=0;
+  while(sample.t<13&&steady<1&&!sample.capsized){
+   const correction=.12*(50-sample.angle)-.08*sample.yaw;
+   const next=correction>.42?fallOff:correction<-.42?headUp:null;
+   if(next!==key){
+    if(key)await page.keyboard.up(key);
+    if(next)await page.keyboard.down(next);
+    key=next;
+   }
+   await page.clock.runFor(80);
+   sample=await read();
+   steady=sample.angle>36&&sample.way>.9&&sample.drive>20?steady+.08:0;
+  }
+  if(key)await page.keyboard.up(key);
+  expect(sample).toMatchObject({capsized:false,ground:false,side,pose:3,assist:0});
+  expect(sample.sheet).toBeCloseTo(.6,2);
+  expect(steady,JSON.stringify(sample)).toBeGreaterThanOrEqual(1);
+  console.log('Laser',wind,'m/s · fra vindøjet',openTime.toFixed(2),'s · fremdrift',
+   sample.t.toFixed(2),'s · kursvinkel',sample.angle.toFixed(1),'° · fart fremad',sample.way.toFixed(2),'m/s');
+ });
+}
 
 test('difficulty is remembered and switching to hard restores the manual weight controls',async({page})=>{
  await page.setViewportSize({width:390,height:744});
@@ -94,7 +204,7 @@ test('difficulty is remembered and switching to hard restores the manual weight 
  await expect(page.locator('#pose3')).toBeHidden();
  await expect(page.locator('#crewPoseLabel')).toHaveText('Automatisk balance');
  await page.keyboard.press('3');
- expect(await page.evaluate(()=>SAILING_GAME.env.crewPose)).toBe(2);
+ expect(await page.evaluate(()=>SAILING_GAME.state.crewTarget.pose)).toBe(2);
  await page.click('#preferencesButton');
  await expect(page.locator('#difficulty')).toHaveValue('easy');
  await page.selectOption('#difficulty','hard');
@@ -147,6 +257,38 @@ test('Laser on hard keeps the manually selected side in calm water when 1–3 ch
   expect(state.pose).toBeCloseTo(position,2);
   expect(state.side).toBeGreaterThan(.98);
  }
+});
+
+test('camera, repeated Q and pause do not replay superseded crew actions',async({page})=>{
+ await setUpLaserTack(page,-1,{speed:0});
+ const read=()=>page.evaluate(()=>{
+  const {state:s}=SAILING_GAME;
+  return {choice:{...s.crewTarget},actual:s.crewSideBlend,velocity:s.crewSideVelocity};
+ });
+ await page.keyboard.press('Digit1');
+ await page.keyboard.press('KeyE');
+ await page.clock.runFor(260);
+ const moving=await read();
+ expect(moving.choice.side).toBe(1);
+ expect(moving.actual).toBeGreaterThan(-1);
+ expect(moving.actual).toBeLessThan(1);
+ await page.keyboard.press('KeyC');
+ await page.keyboard.press('KeyQ');
+ await page.clock.runFor(35);
+ const reversed=await read();
+ expect(reversed.choice.side).toBe(-1);
+ expect(Math.abs(reversed.actual-moving.actual)).toBeLessThan(.2);
+ await page.keyboard.press('KeyQ');
+ await page.clock.runFor(40);
+ expect((await read()).choice.order).toBe(reversed.choice.order);
+ await page.keyboard.press('KeyE');
+ await page.keyboard.press('Space');
+ await page.clock.runFor(120);
+ await page.keyboard.press('Space');
+ await page.clock.runFor(1150);
+ const result=await read();
+ expect(result.choice).toEqual(reversed.choice);
+ expect(result.actual).toBeLessThan(-.98);
 });
 
 test('Laser in free sailing reports its live balance while manual trim and stance remain in control',async({page})=>{
@@ -212,7 +354,7 @@ for(const from of [-1,1]){
 }
 
 for(const from of [-1,1]){
- test(`2 requests the new windward side through the wind eye from ${from<0?'port':'starboard'}`,async({page})=>{
+ test(`2 keeps the chosen side through the wind eye from ${from<0?'port':'starboard'}`,async({page})=>{
   await setUpLaserTack(page,from,{speed:7.5});
   const read=()=>page.evaluate(()=>{
    const {state,scene}=SAILING_GAME;
@@ -233,6 +375,8 @@ for(const from of [-1,1]){
   expect(sample.angle*from).toBeLessThanOrEqual(4);
   expect(sample).toMatchObject({side:from,pose:1,capsized:false});
   await page.keyboard.press('2');
+  await page.clock.runFor(40);
+  expect((await read()).side).toBe(from);
   for(let n=0;n<75&&sample.angle*-from<40;n++){
    await page.clock.runFor(60);
    sample=await read();
@@ -241,10 +385,10 @@ for(const from of [-1,1]){
   expect(sample.angle*-from).toBeGreaterThanOrEqual(40);
   await page.clock.runFor(650);
   const after=await read();
-  expect(after).toMatchObject({side:-from,pose:2,capsized:false});
-  expect(after.blend*-from).toBeGreaterThan(.95);
-  expect(after.visible*-from).toBeGreaterThan(.9);
-  expect(after.cg*-from).toBeGreaterThan(.2);
+  expect(after).toMatchObject({side:from,pose:2,capsized:false});
+  expect(after.blend*from).toBeGreaterThan(.95);
+  expect(after.visible*from).toBeGreaterThan(.9);
+  expect(after.cg*from).toBeGreaterThan(.2);
  });
 }
 

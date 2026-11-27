@@ -1,5 +1,5 @@
 'use strict';
-const { introOption } = require('../scripts/browser-setup.cjs');
+const { introOption, chooseSail, operateExtraSail } = require('../scripts/browser-setup.cjs');
 const {test,expect}=require('@playwright/test');const {pathToFileURL}=require('node:url');const {spawn}=require('node:child_process');const path=require('node:path');
 test.use({launchOptions:{executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--enable-unsafe-swiftshader']}});
 test('four crew move the actual mass and all three sails produce different downwind forces',async({page})=>{
@@ -34,7 +34,7 @@ test('switching sails lowers the old sail before showing the new one',async({pag
   return {state:state.spinnaker,shown:[scene.spinnakerMesh,scene.code0Mesh,scene.gennakerMesh].map(mesh=>mesh.visible),
    crew:1+scene.racingCrew.length};
  });
- await page.click('#spinnakerButton');
+ await operateExtraSail(page,'#spinnakerButton');
  await page.clock.runFor(4500);
  const first=await sail();
  expect(first.state.type).toBe('spinnaker');
@@ -45,7 +45,7 @@ test('switching sails lowers the old sail before showing the new one',async({pag
   ['spinnaker','code0','#code0Button',[false,true,false]],
   ['code0','gennaker','#gennakerButton',[false,false,true]]
  ]){
-  await page.click(button);
+  await operateExtraSail(page,button);
   await page.clock.runFor(1000);
   const lowering=await sail();
   expect(lowering.state.type).toBe(from);
@@ -56,9 +56,41 @@ test('switching sails lowers the old sail before showing the new one',async({pag
   expect(await sail()).toMatchObject({state:{type,phase:'up',hoist:1},shown});
  }
  await expect(page.locator('#gennakerButton')).toHaveText('Tag gennaker ned');
- await page.click('#gennakerButton');
+ await operateExtraSail(page,'#gennakerButton');
  await page.clock.runFor(4500);
  expect(await sail()).toMatchObject({state:{phase:'down',hoist:0},shown:[false,false,false]});
+});
+
+test('the working jib has its own camber and disappears from the rig when furled',async({page})=>{
+ await page.clock.install();
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+ await (await introOption(page,'#introBoat')).selectOption('yacht');
+ await page.click('#startButton');
+ const data=await page.evaluate(()=>{
+  const {scene,env}=SAILING_GAME,P=SailPhysics;
+  const field={...env,speed:8,direction:0,gusts:0,shelter:false,waveHeight:0,chop:0};
+  const s=TackSimulation.createBoat('yacht',{x:0,y:-5000,theta:10*P.DEG,
+   boom:-28*P.DEG,cruiserRig:{jibSheet:.38}},field);
+  s.rig={...s.rig,sideBlend:-1};
+  P.refresh(s,field);
+  const standing={angle:s.sail.jib.angle,camber:scene.jibFoilerRow(.52,s).camber,mainSide:s.rig.sideBlend};
+  s.spinnaker={...s.spinnaker,type:'gennaker',hoist:1,fill:.85};
+  P.refresh(s,field);
+  scene.updateYachtBoat(s,field);
+  const lines=[scene.jibEdge,...scene.jibSheets,...scene.telltales.filter(t=>t.jib).map(t=>t.line)];
+  const furled={area:s.sail.jib.area,drive:s.sail.jib.drive,mesh:scene.jibMesh.visible,
+   lines:lines.map(line=>line.visible),stay:scene.forestay.visible,extra:scene.gennakerMesh.visible};
+  s.spinnaker.hoist=s.spinnaker.fill=0;
+  P.refresh(s,field);
+  scene.updateYachtBoat(s,field);
+  return {standing,furled,restored:scene.jibMesh.visible&&lines.every(line=>line.visible)};
+ });
+ expect(data.standing.mainSide).toBe(-1);
+ expect(data.standing.angle).toBeGreaterThan(.12);
+ expect(data.standing.camber).toBeGreaterThan(0);
+ expect(data.furled).toMatchObject({area:0,drive:0,mesh:false,stay:true,extra:true});
+ expect(data.furled.lines).not.toContain(true);
+ expect(data.restored).toBe(true);
 });
 for(const {type,button,waiting,bearing} of [
  {type:'code0',button:'#code0Button',waiting:'Code 0 afventer en åbnere kurs',bearing:'270'},
@@ -89,7 +121,7 @@ for(const {type,button,waiting,bearing} of [
   });
   const before=await sail();
   expect(before.sp).toMatchObject({phase:'down',unsafe:0,hoist:0});
-  await page.click(button);
+  await operateExtraSail(page,button);
   await page.clock.runFor(170);
   const queued=await sail();
   expect(queued.sp).toMatchObject({phase:'waiting',selected:type,waitingFor:'course',unsafe:0,hoist:0});
@@ -108,7 +140,7 @@ for(const {type,button,waiting,bearing} of [
   expect(filled.drive).toBeGreaterThan(250);
   expect(Math.abs(filled.jib)).toBeLessThan(.01);
   expect(filled.visible).toEqual(['spinnaker','code0','gennaker'].map(name=>name===type));
-  await page.click(button);
+  await operateExtraSail(page,button);
   await page.clock.runFor(4400);
   const lowered=await sail();
   expect(lowered.sp).toMatchObject({phase:'down',hoist:0,fill:0,selected:null});
@@ -134,7 +166,7 @@ test('hard-mode luff advice names the deployed sail and its actual lowering butt
    SailingWeather.initialize(state,env);
   },heading);
   await page.clock.runFor(400);
-  await page.click(button);
+  await operateExtraSail(page,button);
   await page.clock.runFor(7200);
   expect(await page.evaluate(()=>SAILING_GAME.state.spinnaker)).toMatchObject({type,phase:'up',hoist:1});
   await page.evaluate(()=>{
@@ -147,7 +179,7 @@ test('hard-mode luff advice names the deployed sail and its actual lowering butt
   await expect(page.locator(button)).toHaveText(action);
   await expect(page.locator('#coachText')).toHaveText(label+' blafrer');
   await expect(page.locator('#coachSub')).toHaveText('Fald af, eller tryk ”'+action+'”. Fokken kommer automatisk tilbage.');
-  await page.click(button);
+  await operateExtraSail(page,button);
   await page.clock.runFor(4800);
   const after=await page.evaluate(()=>({phase:SAILING_GAME.state.spinnaker.phase,
    hoist:SAILING_GAME.state.spinnaker.hoist,jib:SAILING_GAME.state.sail.jib?.area}));
@@ -157,7 +189,7 @@ test('hard-mode luff advice names the deployed sail and its actual lowering butt
 test('Gennaker and four crew are synchronised between two live browser clients',async({browser})=>{
  test.setTimeout(60000);const services=[spawn(process.execPath,['server/index.js'],{env:{...process.env,PORT:'33122'},stdio:['ignore','pipe','inherit']}),spawn(process.execPath,['server/static.js'],{env:{...process.env,FRONTEND_PORT:'34122'},stdio:['ignore','pipe','inherit']})];await Promise.all(services.map(p=>new Promise((resolve,reject)=>{p.stdout.once('data',resolve);p.once('error',reject)})));const cs=[],errors=[];
  try{for(let i=0;i<2;i++){const c=await browser.newContext();cs.push(c);const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));await p.addInitScript(()=>window.FRI_VIND_REALTIME_URL='ws://127.0.0.1:33122');await p.goto(process.env.TACK_URL||'http://127.0.0.1:34122');await p.waitForFunction(()=>window.SAILING_GAME);if(i)await (await introOption(p, '#introBoat')).selectOption('yacht');await (await introOption(p, '#introLobby')).click();await p.fill('#lobbyName',i?'Gæst':'Vært');if(i){await p.fill('#lobbyCodeInput',await cs[0].pages()[0].locator('#lobbyCode').innerText());await p.click('#lobbyJoin')}else await p.click('#lobbyCreate');await expect(p.locator('#lobbyRoom')).toBeVisible();}const h=cs[0].pages()[0],g=cs[1].pages()[0];await h.click('#lobbySail');await g.waitForFunction(()=>FriVindLobby.fleet.synced);const id=await g.evaluate(()=>FriVindLobby.fleet.id);
- await g.click('#gennakerButton');
+ await operateExtraSail(g,'#gennakerButton');
  await g.keyboard.press('3');
  await expect.poll(()=>h.evaluate(id=>{
   const fleet=FriVindLobby.fleet,state=fleet.boats.get(id),actor=fleet.actors.get(id);
@@ -175,12 +207,14 @@ test('Gennaker and four crew are synchronised between two live browser clients',
    Math.hypot(person.head.position.x-members[i].head.x,person.head.position.z-members[i].head.z));
  },id);
  expect(sync.every(v=>v<.08)).toBe(true);
- await g.click('#gennakerButton');
+ await operateExtraSail(g,'#gennakerButton');
  await g.click('#telemetryToggle');
  await g.locator('#rigControls summary').click();
  await g.selectOption('#reefSetting','2');
  await g.selectOption('#headsailSetting','1');
- await g.selectOption('#trimSail','jib');
+ await g.waitForFunction(()=>SAILING_GAME.state.spinnaker?.hoist===0);
+ await g.keyboard.press('Escape');
+ await chooseSail(g,'jib');
  await g.evaluate(()=>{
   const sheet=document.getElementById('sheetControl');
   sheet.value='22';sheet.dispatchEvent(new Event('input',{bubbles:true}));

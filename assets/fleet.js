@@ -79,7 +79,8 @@ class Fleet {
   const old=this.lastControl;
   // Send small analogue changes on the network cadence, and key changes
   // immediately so a quick tap can reach an authority tick.
-  const changed=!old||['steer','steerDigital','trimKey','sheetTarget','crewPose','crew','spinnaker','downwindType'].some(key=>old[key]!==control[key]);
+  const changed=!old||old.crewInput?.order!==control.crewInput?.order||old.crewInput?.epoch!==control.crewInput?.epoch||
+   ['steer','steerDigital','trimKey','sheetTarget','crewPose','crew','spinnaker','downwindType'].some(key=>old[key]!==control[key]);
   if(changed||now-this.lastInput>=50){
    this.lastInput=now;
    this.lastControl=control;
@@ -91,7 +92,9 @@ class Fleet {
   if(!this.inWorld||!this.lastControl)return;
   const control=this.lastControl;
   this.lastControl=null;
-  this.send({...control,type:'input',seq:this.inputSeq++,steer:0,trim:0,sheetTarget:undefined,crew:0});
+  // Focus loss cancels any unacknowledged crew requests in prediction.
+  for(const p of this.pending)p.control.crewInput=null;
+  this.send({...control,type:'input',seq:this.inputSeq++,steer:0,trim:0,sheetTarget:undefined,crew:0,crewInput:null});
  }
  startFree(){
   if(this.host)this.send({type:'start',settings:{mode:'free',courseType:'gates',courseVariant:'short'}});
