@@ -1590,7 +1590,7 @@ class SailingScene {
     const sky=this.sky.material.uniforms;
     this.waterUniforms={...this.hullWater.uniforms,skyPhoto:sky.skyPhoto,skyOvercast:sky.skyOvercast,overcastMix:sky.overcastMix,photoMix:sky.photoMix,skyBlue:sky.top,skyCloud:sky.cloudColor,cloudCover:sky.cover,windFieldFrom:{value:null},windFieldTo:{value:null},windFieldBlend:{value:0},windFieldEnabled:{value:0},windSeedPhase:{value:0},waveShelterEnabled:{value:0},waveExposureFrom:{value:null},waveExposureTo:{value:null},waveFrom:{value:new T.Vector3(0,1,1)},waveTo:{value:new T.Vector3(0,1,1)},waveBlend:{value:1},waveWindAngles:{value:new T.Vector2()},waveSpread:{value:new T.Vector2(1,1)},seaRipples:{value:1},waveCoupled:{value:new T.Vector2()},windWaveScale:{value:1},waveFlow:{value:new T.Vector2(0,1)},rippleNormals:{value:this.buildRippleNormals()},bathymetryMap:{value:bathymetryMap},waterView:{value:0},time:{value:0},sea:{value:.4},windSpeed:{value:5},windDirection:{value:0},gustStrength:{value:.2},rain:{value:0},fogDensity:{value:.0018},sunStrength:{value:1},sunTint:{value:new T.Color('#fff0d6')},
       sunDir:{value:this.V(-.45,.72,-.52).normalize()},nearColor:{value:new T.Color('#138c96')},deepColor:{value:new T.Color('#277b98')},horizonColor:{value:new T.Color('#c1e1e6')},hullInverse:{value:new T.Matrix4()},hullBounds:{value:new T.Vector4(-2.1,2.2,.685,.222)},hullShape:{value:new T.Vector4(.34,.08,1.7,.04)},hullStations:{value:Array.from({length:16},()=>new T.Vector2(0,0))},hullStationCount:{value:0},hullCount:{value:1},hullOffsets:{value:new T.Vector2(0,0)},cockpitBox:{value:new T.Vector4(-1.25,.32,.35,.015)},cockpitWet:{value:0},cockpitRadius:{value:.12},cockpitTaper:{value:1}};
-    Object.assign(this.waterUniforms,{windChopDrift:{value:new T.Vector2()},
+    Object.assign(this.waterUniforms,{windChopDrift:{value:new T.Vector4()},
       waterDetail:{value:1},waterFade:{value:new T.Vector2()},waterOptics:{value:new T.Vector2()},waveManaged:{value:new T.Vector2()},waveSeed:{value:new T.Vector2()},wavePathFrom:{value:null},wavePathTo:{value:null},
       waveShape:{value:new T.Vector4(this.P.CHOP_PERIOD,this.P.SWELL_BEND,this.P.CHOP_PERIOD,this.P.SWELL_BEND)}});
     const wc=this.P.WAVE_COMPONENTS,n=x=>'('+Number(x).toFixed(9)+')';
@@ -1724,7 +1724,8 @@ class SailingScene {
       ${depth.shader}
       ${global.SailingWind.shader}
       uniform float seaRipples,waterDetail;
-      uniform vec2 windChopDrift,waterOptics;
+      uniform vec4 windChopDrift;
+      uniform vec2 waterOptics;
       uniform mat4 hullInverse;uniform vec4 hullBounds;uniform vec4 hullShape;uniform vec2 hullStations[16];uniform int hullStationCount;uniform int hullCount;uniform vec2 hullOffsets;uniform vec4 cockpitBox;uniform float cockpitWet;uniform float cockpitRadius;uniform float cockpitTaper;
       uniform sampler2D boatReflection;uniform mat4 boatReflectionMatrix;uniform float boatReflectionEnabled,boatReflectionHeight;
       uniform int contactWindowCount;uniform vec4 contactWindows[12],contactWindowBounds;
@@ -1756,17 +1757,19 @@ class SailingScene {
         if(air.z<=.05||distanceToEye>=112.)return vec2(0.);
         // Fine capillary ripples soften reflections in moving air. Swell
         // shape and slopes come from the same fronts as mesh and buoyancy.
-        vec2 windUV=p*.47-windChopDrift*1.88;
+        vec2 windUV=p*.47-windChopDrift.xy;
+        windUV+=.045*sin(p.yx*vec2(.36,.22)+p*.18);
         float mipBias=mix(-.45,1.25,smoothstep(12.,105.,distanceToEye));
         vec2 fine=texture2D(rippleNormals,windUV,mipBias).rg*2.-1.;
         // Cross ripples break up the repeating highlights near the hull.
         if(waterDetail>=.9&&distanceToEye<42.){
-          vec2 crossUV=vec2(p.y,-p.x)*.29-vec2(windChopDrift.y,-windChopDrift.x)*.87;
+          vec2 crossUV=vec2(p.y,-p.x)*.29-windChopDrift.zw;
           vec2 crossSlope=texture2D(rippleNormals,crossUV,mipBias).rg*2.-1.;
           fine+=vec2(-crossSlope.y,crossSlope.x)*(.52*(1.-smoothstep(16.,42.,distanceToEye)));
         }
         float windDetail=smoothstep(.05,7.,air.z)*(1.-smoothstep(23.,112.,distanceToEye));
-        return fine*(windDetail*(.057+.109*seaRipples));
+        vec2 alongWind=air.xy*dot(fine,air.xy);
+        return (.69*fine+.46*alongWind)*(windDetail*(.057+.109*seaRipples));
       }
       float sunGlint(vec3 normal,vec3 eye,float roughness){
         vec3 halfVector=normalize(sunDir+eye);
@@ -1818,6 +1821,8 @@ class SailingScene {
           small=chopSlope(vWorld.xz,air,distanceToEye)
             *(waterDetail>=1.?1.:1.-smoothstep(125.*waterDetail,185.*waterDetail,distanceToEye));
         }
+        float disturbed=smoothstep(.006,.095,abs(vWake));
+        small*=1.+.45*disturbed;
         vec2 slope=vSlope*(1.-.24*smoothstep(95.,400.,distanceToEye));
         vec3 surfaceNormal=normalize(vec3(-slope.x,1.,-slope.y));
         vec3 optical=normalize(vec3(-slope.x-small.x,1.,-slope.y-small.y));
@@ -1863,7 +1868,7 @@ class SailingScene {
           vec4 projected=boatReflectionMatrix*vec4(vWorld.x,boatReflectionHeight,vWorld.z,1.);
           vec2 reflectedUV=projected.xy/max(.01,projected.w)*.5+.5+(slope+small*.75)*vec2(.11,-.11);
           if(projected.w>0.&&min(reflectedUV.x,reflectedUV.y)>0.&&max(reflectedUV.x,reflectedUV.y)<1.){
-            float blur=.12+1.8*smoothstep(.035,.34,length(small)+length(slope)*.28);
+            float blur=.12+.8*disturbed+1.8*smoothstep(.035,.34,length(small)+length(slope)*.28);
             vec4 boat=texture2D(boatReflection,reflectedUV,blur);
             float scatter=1.-.67*smoothstep(.035,.48,length(slope+small));
             reflection=mix(reflection,boat.rgb/max(.16,boat.a),clamp(boat.a*scatter*.77,0.,.77));
@@ -1876,7 +1881,7 @@ class SailingScene {
         float crestTone=.065*smoothstep(.006,.052,vCurvature)*(1.-smoothstep(95.,245.,distanceToEye));
         float wakeCrest=smoothstep(.014,.12,vWake),wakeTrough=smoothstep(.012,.13,-vWake);
         body*=light*(.94+relief+crestTone+.29*wakeCrest-.19*wakeTrough);
-        float roughness=.106+.068*smoothstep(2.,15.,air.z)+.048*smoothstep(35.,140.,distanceToEye);
+        float roughness=.106+.024*disturbed+.068*smoothstep(2.,15.,air.z)+.048*smoothstep(35.,140.,distanceToEye);
         vec3 glint=sunTint*sunGlint(optical,eye,roughness)*sunStrength*(1.-smoothstep(170.,650.,distanceToEye));
         vec3 color=mix(body,reflection,reflectance*.80)*waveLight+glint;
         color=mix(mix(color,farColor,simplified),horizonColor,fog);
@@ -1959,6 +1964,7 @@ class SailingScene {
     const contour=island.points.map(p=>new T.Vector2(p.x,p.y));
     const faces=T.ShapeUtils.triangulateShape(contour,[]);
     const positions=[],colors=[],indices=[],vertices=new Map(),tiles=new Map(),point=new T.Vector3();
+    const meadow=new T.Color(0xb6a770),wetSand=new T.Color(0x8b856b);
     const heightAt=(x,y)=>Math.max(0,W.islandSample(island,x,y).height);
     const vertex=(p,height)=>{
       const {x,y}=p,key=x+':'+y;
@@ -1966,8 +1972,10 @@ class SailingScene {
       if(known!==undefined)return known;
       const h=height??heightAt(x,y);
       const shade=.5+.5*Math.sin(x*.031+y*.022)*Math.cos(x*.015-y*.026);
-      const color=sand.clone().lerp(grass,clamp(h/(1.9+1.15*shade),0,1));
-      color.lerp(h<2.6?stone:darkGrass,shade*(h<2.6?.23:.34));
+      const field=.5+.5*Math.sin(x*.011-y*.019+1.6*Math.sin(y*.033));
+      const beach=wetSand.clone().lerp(sand,clamp(h/.75,0,1));
+      const pasture=grass.clone().lerp(meadow,field*(.18+.33*shade)).lerp(darkGrass,(1-field)*.35);
+      const color=beach.lerp(pasture,clamp(h/(1.9+1.15*shade),0,1));
       const index=positions.length/3;
       positions.push(x,h,-y);colors.push(color.r,color.g,color.b);
       vertices.set(key,index);
@@ -2013,6 +2021,12 @@ class SailingScene {
     surface.setAttribute('color',new T.Float32BufferAttribute(colors,3));
     surface.setIndex(indices);
     surface.computeVertexNormals();
+    const normals=surface.attributes.normal,tint=surface.attributes.color,cliff=new T.Color();
+    for(let i=0;i<normals.count;i++){
+      const slope=1-Math.abs(normals.getY(i));
+      cliff.fromBufferAttribute(tint,i).lerp(stone,clamp((slope-.08)*1.8,0,.72));
+      tint.setXYZ(i,cliff.r,cliff.g,cliff.b);
+    }
     const makeLand=(indices,bounds,landMaterial)=>{
       const geometry=new T.BufferGeometry();
       for(const [name,attribute] of Object.entries(surface.attributes))geometry.setAttribute(name,attribute);
@@ -2816,7 +2830,7 @@ class SailingScene {
     // The incoming boat can retain shared shader programs through its first
     // draw. Only the detached boat's resources survive until that draw.
     this.disposeBoat(!this.isRemoteActor);
-    this.crewBalance=null;this.crewBuilt=0;this.helmPerson=null;
+    this.axisFore ||= this.V(1,0,0);this.crewBalance=null;this.crewBuilt=0;this.helmPerson=null;
     this.cabin=this.helmWheel=this.racerTiller=this.racerTillerExtension=null;
     this.daggerboard=this.keel=this.catHulls=this.catRudders=this.foilVisuals=this.rudderElevator=this.laserStripe=null;
     this.laserHullSurfaces=this.hikingStrap=null;
@@ -2857,14 +2871,7 @@ class SailingScene {
         const start=end*ring,base=vs.length/3;vs.push(hullSections[end][0],deck,0);for(let j=0;j<ring-1;j++){if(end===0)idx.push(base,start+j+1,start+j);else idx.push(base,start+j,start+j+1);}}
 
       const hg=new T.BufferGeometry();hg.setAttribute('position',new T.Float32BufferAttribute(vs,3));hg.setIndex(idx);hg.computeVertexNormals();
-      if(m.racingYacht){
-        const stern=sections[0][0],length=sections.at(-1)[0]-stern,uv=[];
-        for(let i=0;i<vs.length;i+=3)uv.push((vs[i]-stern)/length,1+(vs[i+1]-deck)/m.hullDepth);
-        hg.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
-        under.color.set('#ffffff');
-        under.map=this.racerHullTexture();
-        under.roughness=.32;
-      }
+      if(m.id!=='laser')this.finishTopsides(hg,under);
       this.hullMesh=this.mesh(hg,under,this.hull);this.hullMesh.castShadow=this.hullMesh.receiveShadow=true;
       if(m.id==='laser'){
         // Coloured gelcoat follows the same hull surface as the physics.
@@ -2983,10 +2990,12 @@ class SailingScene {
     for(const end of [0,stations.length-1]){const base=vertices.length/3,start=end*ring;vertices.push(stations[end][0],deck,0);for(let j=0;j<ring-1;j++)indices.push(...(end?[base,start+j,start+j+1]:[base,start+j+1,start+j]));}
     const hullGeometry=new T.BufferGeometry();hullGeometry.setAttribute('position',new T.Float32BufferAttribute(vertices,3));hullGeometry.setIndex(indices);hullGeometry.computeVertexNormals();
     const c=this.cockpitFor(),outline=m.hullSections.map(([x,w])=>[x,w]).concat(m.hullSections.slice().reverse().map(([x,w])=>[x,-w])),deckShape=new T.Shape();deckShape.moveTo(...outline[0]);for(const p of outline.slice(1))deckShape.lineTo(...p);deckShape.closePath();deckShape.holes.push(this.roundedPath(c.x0,c.x1,-c.halfWidth,c.halfWidth,c.radius));const dg=new T.ShapeGeometry(deckShape,16);dg.rotateX(-Math.PI/2);
+    const shellFinish=carbon.clone();
+    this.finishTopsides(hullGeometry,shellFinish);
     const tagCanvas=document.createElement('canvas');tagCanvas.width=1024;tagCanvas.height=160;const tagCtx=tagCanvas.getContext('2d');tagCtx.fillStyle='#f0f0e9';tagCtx.font='700 108px Arial';tagCtx.fillText('TACK  /  72',20,122,984);const tagTexture=new T.CanvasTexture(tagCanvas);tagTexture.colorSpace=T.SRGBColorSpace;
     for(const [i,offset] of m.hullOffsets.entries()){
       const group=new T.Group();group.name=i?'hull_starboard':'hull_port';group.position.z=offset;group.userData.hullOffset=offset;this.hull.add(group);
-      const shell=this.mesh(hullGeometry,carbon,group);shell.name=group.name+'_shell';shell.castShadow=shell.receiveShadow=true;
+      const shell=this.mesh(hullGeometry,shellFinish,group);shell.name=group.name+'_shell';shell.castShadow=shell.receiveShadow=true;
       const top=this.mesh(dg,carbon,group);top.position.y=deck;top.castShadow=top.receiveShadow=true;
       const cockpitFloor=c.floorY,floor=this.mesh(new T.BoxGeometry(c.x1-c.x0,.06,c.halfWidth*1.92),this.mat('#26383e',{roughness:.9}),group);floor.position.set((c.x0+c.x1)*.5,cockpitFloor-.03,0);for(const z of [-c.halfWidth,c.halfWidth]){const wall=this.mesh(new T.BoxGeometry(c.x1-c.x0,deck-cockpitFloor,.045),carbon,group);wall.position.set((c.x0+c.x1)*.5,(deck+cockpitFloor)*.5,z);}
       const edge=outline.map(([x,z])=>this.V(x,deck+.012,z));edge.push(edge[0].clone());this.line(edge,'#df4938',group,.95);this.line(edge.map(p=>this.V(p.x,p.y-.28,p.z*.985)),'#f2ede1',group,.8);
@@ -3014,7 +3023,7 @@ class SailingScene {
     this.wingHinge=this.line(Array.from({length:49},()=>[0,0,0]),'#e9523b',this.hull,.95);this.wingLeadingEdge=this.line(Array.from({length:49},()=>[0,0,0]),'#e9eee4',this.hull,.8);
     this.catRigLines=[];for(const side of [-1,1])for(const x of [crossbeams[0],crossbeams[1]])this.catRigLines.push({anchor:this.V(x,deck+.2,side*half),head:.80,line:this.line([[x,deck+.2,side*half],[m.mastX,m.mastTop*.80,0]],'#b4bfc1',this.hull,.75)});this.catRigLines.push({anchor:this.V(front+1.6,deck+.22,0),head:.91,line:this.line([[front+1.6,deck+.22,0],[m.mastX,m.mastTop*.91,0]],'#bbc6c4',this.hull,.85)});
     this.telltales=[];for(const v of [.22,.43,.65,.85])for(const side of [-1,1])this.telltales.push({v,side,line:this.line(Array.from({length:9},()=>[0,0,0]),side<0?'#ec7354':'#5bdebc',this.hull)});
-    const stationsCrew=m.crewStations||[],seats=[];for(let i=0;i<stationsCrew.length;i++){const p=stationsCrew[i].position||stationsCrew[i],centre={x:p.x,y:p.y,z:p.z};this.buildSailor();const body=this.seatedCrewPose(centre);this.posePerson(this.person,body);this.person.torso.material.color.set('#c74035');this.person.cap.material=this.mat('#f1f1e8',{roughness:.30});this.foilingCrew.push({group:this.sailor,person:this.person,centre,body});seats.push({at:[body.pelvis.x,body.pelvis.y-.09,body.pelvis.z]});if(i===0||i===Math.floor(stationsCrew.length/2)){this.helmPerson??=this.person;const wheel=new T.Group();wheel.position.set(body.hands[0].x+.13,body.hands[0].y,(body.hands[0].z+body.hands[1].z)*.5);this.hull.add(wheel);const rim=this.mesh(new T.TorusGeometry(.27,.025,8,28),silver,wheel);rim.rotation.y=Math.PI/2;for(let j=0;j<3;j++){const a=j*TAU/3;this.cylinder([0,0,0],[0,.26*Math.cos(a),.26*Math.sin(a)],.015,carbon,wheel);}this.acHelmWheels.push(wheel);}}
+    const stationsCrew=m.crewStations||[],seats=[];for(let i=0;i<stationsCrew.length;i++){const p=stationsCrew[i].position||stationsCrew[i],centre={x:p.x,y:p.y,z:p.z};this.buildSailor();const body=this.seatedCrewPose(centre);this.posePerson(this.person,body);this.person.torso.material.color.set('#c74035');this.foilingCrew.push({group:this.sailor,person:this.person,centre,body});seats.push({at:[body.pelvis.x,body.pelvis.y-.09,body.pelvis.z]});if(i===0||i===Math.floor(stationsCrew.length/2)){this.helmPerson??=this.person;const wheel=new T.Group();wheel.position.set(body.hands[0].x+.13,body.hands[0].y,(body.hands[0].z+body.hands[1].z)*.5);this.hull.add(wheel);const rim=this.mesh(new T.TorusGeometry(.27,.025,8,28),silver,wheel);rim.rotation.y=Math.PI/2;for(let j=0;j<3;j++){const a=j*TAU/3;this.cylinder([0,0,0],[0,.26*Math.cos(a),.26*Math.sin(a)],.015,carbon,wheel);}this.acHelmWheels.push(wheel);this.foilingCrew[i].wheel=wheel;}}
     if(seats.length)this.instances(new T.BoxGeometry(.56,.10,.48),carbon,this.hull,seats);
     for(const [key,side] of [['port',-1],['starboard',1],['rudderPort',-1],['rudderStarboard',1]]){
       const isRudder=key.startsWith('rudder'),span=isRudder?(m.rudderSpan??2.3):(m.foilSpan??3.3),area=isRudder?(m.rudderWingArea??.70):(m.foilArea??2.3),chord=area/span/(1-.34/3),wing=new T.Group();wing.name='foil_'+key;this.hull.add(wing);const blade=this.mesh(this.foilWingGeometry(span,chord,false),carbon,wing),flap=this.mesh(this.foilWingGeometry(span,chord,true),red,wing);flap.position.x=-.19*chord;blade.castShadow=flap.castShadow=true;
@@ -3122,20 +3131,80 @@ class SailingScene {
     const badge=this.mesh(new T.BoxGeometry(.64,.006,.12),carbon,this.hull);badge.position.set(m.mastX+.48,deck+.012,0);
     this.line([[m.mastX+.21,deck+.017,-.055],[m.mastX+.70,deck+.017,-.055]],'#4ac6bb',this.hull);
   }
-  racerHullTexture(){
+  finishTopsides(geometry,finish){
+    const m=this.model,stern=m.hullSections[0][0],length=m.hullSections.at(-1)[0]-stern;
+    const position=geometry.attributes.position,uv=new Float32Array(2*position.count);
+    for(let i=0;i<position.count;i++){
+      uv[2*i]=(position.getX(i)-stern)/length;
+      uv[2*i+1]=1+(position.getY(i)-m.deckY)/m.hullDepth;
+    }
+    geometry.setAttribute('uv',new this.T.BufferAttribute(uv,2));
+    finish.color.set('#ffffff');
+    finish.map=this.hullPaint();
+    finish.roughness=this.isFoiler?.30:.34;
+  }
+  hullPaint(){
     const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=256;
     const paint=canvas.getContext('2d'),tone=paint.createLinearGradient(0,0,0,256);
-    tone.addColorStop(0,'#434b50');tone.addColorStop(.65,'#242e35');tone.addColorStop(1,'#19232a');
-    paint.fillStyle=tone;paint.fillRect(0,0,1024,256);
-    // Paint the wedge directly onto the hull so it follows the waterline and
-    // shares the hull's lighting, wet material and reflection pass.
-    paint.fillStyle='#ec5939';paint.beginPath();
-    paint.moveTo(0,43);paint.lineTo(661,48);paint.quadraticCurveTo(876,48,1005,3);
-    paint.lineTo(1024,6);paint.lineTo(1024,92);paint.quadraticCurveTo(898,101,800,84);
-    paint.lineTo(0,62);paint.closePath();paint.fill();
-    paint.strokeStyle='#eee0c9';paint.lineWidth=3;paint.beginPath();
-    paint.moveTo(170,32);paint.lineTo(662,36);paint.quadraticCurveTo(870,38,975,7);paint.stroke();
+    const m=this.model;
+    if(m.racingYacht){
+      tone.addColorStop(0,'#434b50');tone.addColorStop(.65,'#242e35');tone.addColorStop(1,'#19232a');
+      paint.fillStyle=tone;paint.fillRect(0,0,1024,256);
+      // Paint the wedge directly onto the hull so it follows the waterline and
+      // shares the hull's lighting, wet material and reflection pass.
+      paint.fillStyle='#ec5939';paint.beginPath();
+      paint.moveTo(0,43);paint.lineTo(661,48);paint.quadraticCurveTo(876,48,1005,3);
+      paint.lineTo(1024,6);paint.lineTo(1024,92);paint.quadraticCurveTo(898,101,800,84);
+      paint.lineTo(0,62);paint.closePath();paint.fill();
+      paint.strokeStyle='#eee0c9';paint.lineWidth=3;paint.beginPath();
+      paint.moveTo(170,32);paint.lineTo(662,36);paint.quadraticCurveTo(870,38,975,7);paint.stroke();
+    }else{
+      const cruiser=m.id==='yacht',cat=m.id==='ac72';
+      tone.addColorStop(0,cruiser?'#fbf6e6':cat?'#36454a':'#23505b');
+      tone.addColorStop(1,cruiser?'#cdd9d6':'#101f2b');
+      paint.fillStyle=tone;paint.fillRect(0,0,1024,256);
+      paint.fillStyle=cruiser?'#204c56':cat?'#dc553d':'#67cbbd';
+      paint.beginPath();paint.moveTo(0,24);paint.quadraticCurveTo(650,39,1024,9);
+      paint.lineTo(1024,13);paint.quadraticCurveTo(650,49,0,32);paint.fill();
+      paint.fillRect(0,38,330,2);
+    }
+    // The design waterline is y=0 in the boat frame. Paint the antifouling
+    // and draft graduations once. The moving waterline is shaded separately.
+    const waterline=256*m.deckY/m.hullDepth;
+    if(m.id==='yacht'){
+      paint.fillStyle='#26424a';paint.fillRect(0,waterline-3,1024,259-waterline);
+      paint.fillStyle='#88a89b';paint.fillRect(0,waterline-9,1024,3);
+    }
+    paint.fillStyle=m.id==='yacht'?'#798a89':'#a4bab7';
+    const interval=.1*256/m.hullDepth;
+    for(const u of [.09,.87]){
+      for(let k=-3;k<=5;k++)paint.fillRect(u*1024,waterline+k*interval,k%2===0?9:5,1.6);
+    }
     const texture=new this.T.CanvasTexture(canvas);texture.colorSpace=this.T.SRGBColorSpace;texture.anisotropy=4;return texture;
+  }
+  reinforceSail(ctx){
+    // Canvas UV runs from luff to leech. Each nested patch spreads the
+    // corner load further into the adjoining panels without adding geometry.
+    const {width,height}=ctx.canvas;
+    for(const clew of [false,true]){
+      ctx.save();
+      ctx.translate(clew?width:0,height);
+      ctx.scale(clew?-1:1,-1);
+      const foot=width*(clew?.31:.22),luff=height*(clew?.20:.15);
+      for(const fraction of [1,.69,.40]){
+        ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(foot*fraction,0);
+        ctx.quadraticCurveTo(foot*fraction*.61,luff*fraction*.37,0,luff*fraction);
+        ctx.closePath();
+        ctx.fillStyle='rgba(205,203,178,.10)';ctx.fill();
+        ctx.strokeStyle='rgba(59,73,72,.36)';ctx.lineWidth=2;ctx.stroke();
+      }
+      ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(249,244,216,.60)';ctx.lineWidth=2;
+      for(let n=1;n<6;n++){
+        const t=n/6;ctx.beginPath();ctx.moveTo(3,3);
+        ctx.lineTo(foot*(1-t),luff*t*.91);ctx.stroke();
+      }
+      ctx.restore();
+    }
   }
   yachtSailTexture(jib=false){
     const T=this.T,c=document.createElement('canvas');c.width=1024;c.height=1536;const q=c.getContext('2d');
@@ -3154,6 +3223,7 @@ class SailingScene {
         q.textAlign='center';q.fillStyle='#eee7d9';q.font='italic 700 222px Arial';q.fillText('32',490,688,880);
         q.font='600 52px Arial';q.fillText('TACK RACING',495,765,810);
       }
+      this.reinforceSail(q);
       const tex=new T.CanvasTexture(c);tex.colorSpace=T.SRGBColorSpace;tex.anisotropy=4;return tex;
     }
     q.fillStyle='#efefe4';q.fillRect(0,0,1024,1536);q.strokeStyle='rgba(112,136,139,.42)';q.lineWidth=2;
@@ -3161,6 +3231,7 @@ class SailingScene {
     for(let x=90;x<1024;x+=180){q.strokeStyle='rgba(135,152,152,.20)';q.beginPath();q.moveTo(x,0);q.lineTo(x+120,1536);q.stroke();}
     q.fillStyle='#184b57';q.beginPath();q.moveTo(0,1420);q.lineTo(1024,1160);q.lineTo(1024,1536);q.lineTo(0,1536);q.closePath();q.fill();
     q.fillStyle='#4fbba8';q.fillRect(0,1437,1024,18);q.fillStyle='#254a54';q.textAlign='center';q.font='600 90px Arial';q.fillText('TACK',520,620,900);q.font='500 156px Arial';q.fillText(jib?'40':'DEN 040',515,835);
+    this.reinforceSail(q);
     const tex=new T.CanvasTexture(c);tex.colorSpace=T.SRGBColorSpace;tex.anisotropy=4;return tex;
   }
   buildRacerDeck(bow){
@@ -3425,6 +3496,7 @@ class SailingScene {
     for(let x=0;x<1024;x+=84){q.strokeStyle='rgba(69,96,99,.16)';q.lineWidth=1;q.beginPath();q.moveTo(x,0);q.lineTo(x+155,1536);q.stroke();}
     q.fillStyle='#154452';q.beginPath();q.moveTo(0,1180);q.lineTo(1024,840);q.lineTo(1024,1260);q.lineTo(0,1480);q.closePath();q.fill();q.fillStyle='#78e1cd';q.beginPath();q.moveTo(0,1280);q.lineTo(1024,950);q.lineTo(1024,1000);q.lineTo(0,1335);q.closePath();q.fill();
     q.textAlign='center';q.fillStyle='#143b49';q.font='700 104px Arial';q.fillText('TACK',515,520,900);q.font='700 245px Arial';q.fillText('75',520,785);q.font='500 48px Arial';q.fillText(jib?'FOILING':'FLIGHT / DEVELOPMENT',520,880);q.fillStyle='#f0f3e8';q.font='500 47px Arial';q.fillText('DEN  •  075',515,1220);
+    this.reinforceSail(q);
     const tex=new T.CanvasTexture(c);tex.colorSpace=T.SRGBColorSpace;tex.anisotropy=4;return tex;
   }
   sailGridGeometry(rows,cols){
@@ -3600,6 +3672,7 @@ class SailingScene {
     person.head.quaternion.copy(person.torso.quaternion);
     person.head.rotateY(body.lookYaw??Math.PI/2);
     person.head.rotateX(body.lookDown??0);
+    if(body.horizonRoll)person.head.rotateOnWorldAxis(this.axisFore,body.horizonRoll);
     person.head.userData.model='MakeHuman';
     person.glasses.visible=detailed;
     for(const part of person.vestDetails)part.visible=detailed&&!person.detailedVest;
@@ -3632,10 +3705,10 @@ class SailingScene {
     const stations=m.crewStations||m.crewPositions||Array.from({length:8},(_,i)=>({x:-5.8+(i%4)*1.15,y:m.deckY-.15,z:(i<4?-1:1)*1.20,mass:90}));
     const seats=[];
     for(let i=0;i<stations.length;i++){
-      const raw=stations[i].position||stations[i],centre={x:raw.x,y:raw.y,z:raw.z};this.buildSailor();const body=this.seatedCrewPose(centre);this.posePerson(this.person,body);this.person.torso.material.color.set(i%4===0?'#d1653f':'#51b5aa');this.person.cap.material=this.mat('#eceee7',{roughness:.36});this.foilingCrew.push({group:this.sailor,person:this.person,centre,body});
+      const raw=stations[i].position||stations[i],centre={x:raw.x,y:raw.y,z:raw.z};this.buildSailor();const body=this.seatedCrewPose(centre);this.posePerson(this.person,body);this.person.torso.material.color.set(i%4===0?'#d1653f':'#51b5aa');this.foilingCrew.push({group:this.sailor,person:this.person,centre,body});
       seats.push({at:[body.pelvis.x,body.pelvis.y-.08,body.pelvis.z]});
       const pedal=this.cylinder([body.feet[0].x-.08,body.feet[0].y,body.feet[0].z],[body.feet[1].x-.08,body.feet[1].y,body.feet[1].z],.025,mat.metal,this.hull);
-      if(i>=stations.length-2){this.helmPerson??=this.person;const wheel=new T.Group();wheel.position.set(body.hands[0].x+.06,body.hands[0].y,(body.hands[0].z+body.hands[1].z)/2);this.hull.add(wheel);const rim=this.mesh(new T.TorusGeometry(.20,.024,8,24),mat.black,wheel);rim.rotation.y=Math.PI/2;for(let j=0;j<3;j++){const a=j*TAU/3;this.cylinder([0,0,0],[0,Math.cos(a)*.20,Math.sin(a)*.20],.012,mat.metal,wheel);}this.acHelmWheels.push(wheel);}
+      if(i>=stations.length-2){this.helmPerson??=this.person;const wheel=new T.Group();wheel.position.set(body.hands[0].x+.06,body.hands[0].y,(body.hands[0].z+body.hands[1].z)/2);this.hull.add(wheel);const rim=this.mesh(new T.TorusGeometry(.20,.024,8,24),mat.black,wheel);rim.rotation.y=Math.PI/2;for(let j=0;j<3;j++){const a=j*TAU/3;this.cylinder([0,0,0],[0,Math.cos(a)*.20,Math.sin(a)*.20],.012,mat.metal,wheel);}this.acHelmWheels.push(wheel);this.foilingCrew[i].wheel=wheel;}
     }
     const paint=this.mat('#78e1cd',{roughness:.35,metalness:.18});
     for(const side of [-1,1]){const stripe=this.mesh(new T.BoxGeometry(9.2,.16,.025),paint,this.hull);stripe.position.set(-2.0,m.deckY-.22,side*(m.beam*.5-.14));}
@@ -3719,6 +3792,7 @@ class SailingScene {
       q.strokeStyle='#4ac6bb';q.lineWidth=12;q.beginPath();q.moveTo(0,1451);q.lineTo(1024,1281);q.stroke();
       q.fillStyle='#edf7f5';q.font='600 48px Arial';q.fillText('SPORT',685,1460);
     }
+    this.reinforceSail(q);
     const tex=new T.CanvasTexture(c);tex.colorSpace=T.SRGBColorSpace;tex.anisotropy=4;return tex;
   }
   buildSailor(){
@@ -3752,10 +3826,11 @@ class SailingScene {
     if(this.model.racingYacht)p.harness=this.mesh(new T.TorusGeometry(.028,.006,5,12),this.materials.metal,this.sailor);
     p.neck=this.cylinder([0,0,0],[0,1,0],.048,skin,this.sailor,.046);
     p.head=this.mesh(geometry.head,skin.clone(),this.sailor);p.head.material.vertexColors=true;p.head.name='MakeHuman face';
-    const capMaterial=this.mat(this.crewBuilt%3===1?'#435e66':'#e3e3d7',{roughness:.92});
+    const helmet=this.isFoiler;
+    const capMaterial=this.mat(helmet?'#eaebe0':this.crewBuilt%3===1?'#435e66':'#e3e3d7',{roughness:helmet?.38:.92});
     p.cap=this.mesh(new T.SphereGeometry(.095,15,10,0,TAU,0,Math.PI*.54),capMaterial,this.sailor);
-    p.cap.scale.set(.99,.64,1.12);
-    p.brim=this.mesh(new T.SphereGeometry(1,12,7),capMaterial,this.sailor);p.brim.scale.set(.090,.009,.073);
+    p.cap.scale.set(helmet?1.13:.99,helmet?1.06:.64,helmet?1.25:1.12);
+    p.brim=this.mesh(new T.SphereGeometry(1,12,7),capMaterial,this.sailor);p.brim.scale.set(.090,.009,helmet?.036:.073);
     p.glasses=this.mesh(new T.BoxGeometry(.139,.024,.016),this.mat('#354a50',{roughness:.43,metalness:.14}),this.sailor);
     p.rig=new global.SailingCrewRig(T,this.mat('#34434a',{roughness:.9,vertexColors:true,normalMap:fabric,normalScale:new T.Vector2(.21,.21)}),this.isFoiler);
     this.sailor.add(p.rig.mesh);
@@ -3782,7 +3857,17 @@ class SailingScene {
   updateBoat(s,env,dt){
     const T=this.T;
     if((s.boatId||'laser')!==this.boatId)this.buildBoat(s.boatId||'laser');
-    this.crewBalance=global.SailingCrewMotion.balance(this.crewBalance,s,dt,this.crewDetail===false?null:this.P.bowWaterContact(s,this.model,env));
+    let bow=null;
+    if(this.crewDetail!==false){
+      const offsets=this.isCat?this.model.hullOffsets:[0];
+      let maxLoad=-1;
+      for(const offset of offsets){
+        const sample=this.P.bowWaterContact(s,this.model,env,offset);
+        const load=Math.max(0,sample.closing)*sample.entry;
+        if(load>maxLoad){bow=sample;maxLoad=load;}
+      }
+    }
+    this.crewBalance=global.SailingCrewMotion.balance(this.crewBalance,s,dt,bow);
     if(this.isCat){this.updateCatBoat(s,env);return;}
     if(this.isFoiler){this.updateFoilerBoat(s,env,dt);return;}
     if(this.isYacht){this.updateYachtBoat(s,env,dt);return;}
@@ -3901,14 +3986,15 @@ class SailingScene {
         void main(){if(opacity<.002)discard;
           vec2 drift=vec2(time*.007,-time*.005);
           vec3 cells=texture2D(foamPattern,foamAt*vec2(.31,.27)+drift).rgb;
-          vec3 detail=texture2D(foamPattern,foamAt*.81+cells.rb*.12).rgb;
+          vec3 detail=texture2D(foamPattern,foamAt*.81+cells.rg*.12).rgb;
           float boundary=smoothstep(0.,.35,edge)*smoothstep(0.,.35,1.-edge);
-          float coverage=smoothstep(.32,.67,cells.r*.52+detail.g*.37+boundary*.19);
+          float densitySample=cells.r*.68+detail.g*.32;
+          float coverage=smoothstep(.32,.68,densitySample)*mix(.24+.58*detail.b,1.,smoothstep(.48,.76,densitySample));
           float bubbles=smoothstep(.43,.75,detail.g+cells.r*.21);
           float core=(1.-smoothstep(.17,.49,abs(edge-.5)))*airBubbles;
-          float churn=core*mix(.29,.94,bubbles);
+          float churn=core*mix(.24,.91,bubbles+.09*detail.b);
           float clarity=exp(-pow(density*distanceToEye,2.));
-          vec3 shaded=color*mix(.25,1.13,max(bubbles,churn*.72))*light;
+          vec3 shaded=mix(color*vec3(.60,.76,.80),color,airBubbles)*mix(.52,1.08,max(bubbles,churn))*light;
           gl_FragColor=vec4(shaded,opacity*boundary*max(coverage,churn)*clarity);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
@@ -3948,7 +4034,7 @@ class SailingScene {
     const cg=new T.BufferGeometry(),capacity=2*2*20*6;
     cg.setAttribute('position',new T.BufferAttribute(new Float32Array(capacity*3),3).setUsage(T.DynamicDrawUsage));
     cg.setAttribute('alpha',new T.BufferAttribute(new Float32Array(capacity),1).setUsage(T.DynamicDrawUsage));
-    cg.setAttribute('across',new T.BufferAttribute(new Float32Array(capacity),1));
+    for(const name of ['across','fresh'])cg.setAttribute(name,new T.BufferAttribute(new Float32Array(capacity),1).setUsage(T.DynamicDrawUsage));
     cg.setAttribute('pattern',new T.BufferAttribute(new Float32Array(capacity*2),2).setUsage(T.DynamicDrawUsage));
     cg.setDrawRange(0,0);
     this.contactFoam=this.mesh(cg,material);this.contactFoam.name='Hull waterline foam';
@@ -3960,16 +4046,17 @@ class SailingScene {
     const offset=this.isCat?this.model.hullOffsets.reduce((a,b)=>Math.abs(a-hit.point.z)<Math.abs(b-hit.point.z)?a:b):0;
     const sample=z=>this.P.waterContact(s,{x,y:this.bottomAt(x,z),z:offset+z},env);
     let inner=sample(0),outer=sample(side*beam);
-    if(outer.depth>=0)return {...hit,x:outer.x,y:outer.y,height:outer.height};
+    if(outer.depth>=0)return {...hit,...outer};
     if(inner.depth<0)inner=hit;
     if(inner.depth<0)return hit;
     for(let i=0;i<6;i++){
       const next=sample((inner.point.z+outer.point.z)*.5-offset);
       if(next.depth>=0)inner=next;else outer=next;
     }
-    return {...hit,x:(inner.x+outer.x)*.5,y:(inner.y+outer.y)*.5,height:(inner.height+outer.height)*.5};
+    return {...hit,...inner,x:(inner.x+outer.x)*.5,y:(inner.y+outer.y)*.5,height:(inner.height+outer.height)*.5};
   }
   emitBowSpray(s,hit,side,speed,energy,count,wind){
+    if(hit.kind!=='appendage'&&hit.depth>Math.min(.22,this.model.beam*.09))return;
     const sin=Math.sin(s.theta),cos=Math.cos(s.theta);
     const random=index=>{
       const value=Math.sin(s.time*137.27+side*37.31+index*91.79)*43758.5453;
@@ -4068,7 +4155,7 @@ class SailingScene {
     if(this.isFoiler&&(s.foiling?.hullWetFraction??s.hydro?.hullWetFraction??1)<.014){geometry.setDrawRange(0,0);return;}
     const first=m.hullSections[0][0],last=m.hullSections.at(-1)[0],offsets=this.isCat?m.hullOffsets:[0];
     const out=geometry.attributes.position.array,opacity=geometry.attributes.alpha.array,across=geometry.attributes.across.array,pattern=geometry.attributes.pattern.array;
-    const sea=this.hullWater;
+    const fresh=geometry.attributes.fresh.array,sea=this.hullWater;
     const sample=p=>{
       const w=p.clone().applyMatrix4(this.hull.matrixWorld);
       const height=sea.surfaceHeight(this,w.x,-w.z)??(this.P.waveAt(w.x,-w.z,s.time,env).height+sea.contactHeight(w.x,-w.z));
@@ -4080,11 +4167,12 @@ class SailingScene {
     let count=0;
     const pressure=h=>h.strength*.78+h.impact*.43;
     for(const [hullIndex,offset] of offsets.entries()){
-      let previous=[null,null];
+      let previous=[null,null],previousWash=[1,1];
       const sides=[-1,1].map(side=>stations.filter(h=>h.side===side&&h.hullIndex===hullIndex));
       for(let i=0;i<=resolution;i++){
         const x=first+(last-first)*i/resolution,w=this.halfBeamAt(x),next=[null,null];
         let a=sample(this.V(x,this.bottomAt(x,-w),offset-w));
+        const portRail=a,wash=[1,1];
         for(let j=1;j<=sectionPoints;j++){
           const z=(-1+2*j/sectionPoints)*w;
           const b=sample(this.V(x,this.bottomAt(x,z),offset+z));
@@ -4100,19 +4188,27 @@ class SailingScene {
           a=b;
         }
         for(let side=0;side<2;side++){
+            // As the lower rail washes under, the intersection moves onto the
+            // deck. Fade at the rail to keep white water outside the cockpit.
+            const rail=side===0?portRail:a,band=Math.min(.15,m.beam*.065);
+            if(!next[side]&&rail.d<=0&&rail.d>-band){
+              next[side]=rail.world;
+              wash[side]=1+rail.d/band;
+            }
             if(!previous[side]||!next[side]||sides[side].length<2)continue;
             const [fore,aft]=sides[side],at=clamp((x-aft.point.x)/(fore.point.x-aft.point.x),0,1);
             const strength=clamp(pressure(aft)*(1-at)+pressure(fore)*at,0,.84);
             if(strength<.025)continue;
-            const width=.023+strength*.27;
+            const impact=clamp(aft.impact*(1-at)+fore.impact*at,0,1);
+            const width=.023+strength*(.16+Math.min(.30,w*.13))*(.69+.44*at*at)+.09*impact;
             const direction=side*2-1,outward=this.V(Math.sin(s.theta)*direction,0,Math.cos(s.theta)*direction);
             const points=[previous[side],previous[side].clone().addScaledVector(outward,width),next[side],next[side].clone().addScaledVector(outward,width)];
             for(const corner of [0,1,2,1,3,2]){
               const p=points[corner];out[count*3]=p.x;out[count*3+1]=.024;out[count*3+2]=p.z;
-              opacity[count]=strength;across[count]=corner%2;pattern[count*2]=p.x;pattern[count*2+1]=p.z;count++;
+              opacity[count]=strength*(corner<2?previousWash[side]:wash[side]);fresh[count]=clamp(strength*.92+impact*.65,0,1);across[count]=corner%2;pattern[count*2]=p.x;pattern[count*2+1]=p.z;count++;
             }
         }
-        previous=next;
+        previous=next;previousWash=wash;
       }
     }
     geometry.setDrawRange(0,count);
@@ -4526,8 +4622,11 @@ class SailingScene {
     uniforms.waveFlow.value.set(-Math.sin(opticalBearing),Math.cos(opticalBearing));
     const windBearing=(env.direction??0)*Math.PI/180,drift=uniforms.windChopDrift.value;
     const driftStep=waveDt*(.12+.016*(env.speed??5));
-    if(reset)drift.set(0,0);
-    drift.set((drift.x-Math.sin(windBearing)*driftStep)%1,(drift.y+Math.cos(windBearing)*driftStep)%1);
+    if(reset)drift.set(0,0,0,0);
+    // Wrap each repeat texture in its own UV units so passing a tile edge
+    // advances the sampling point continuously in both wind and cross ripples.
+    const dx=-Math.sin(windBearing)*driftStep,dz=Math.cos(windBearing)*driftStep;
+    drift.set((drift.x+1.88*dx)%1,(drift.y+1.88*dz)%1,(drift.z+.87*dz)%1,(drift.w-.87*dx)%1);
     uniforms.windWaveScale.value=this.P.windWaveAt(s.time,wp,env).scale;
     this.waterUniforms.time.value=s.time;this.waterUniforms.sea.value=env.waveCurrent??env.waves??.4;this.waterUniforms.windSpeed.value=env.speed??5;this.waterUniforms.windDirection.value=env.direction??0;this.waterUniforms.gustStrength.value=env.gusts??.2;
     this.updateAtmosphere(s,env);this.updateBoat(s,env,dt);

@@ -196,12 +196,18 @@ test('remote hulls blend uneven snapshots, snap after rescue and release unused 
       receive(32, 0);
       const rescued = show();
       const actor = fleet.actors.get('remote'), root = actor.boatRoot;
-      let disposed = false;
-      actor.hullMesh.geometry.addEventListener('dispose', () => { disposed = true; });
+      const sharedHull = actor.hullMesh.geometry === scene.hullMesh.geometry;
+      const disposed = {};
+      const resources = { hull: actor.hullMesh.geometry, sail: actor.sailMesh.geometry,
+        paint: actor.hullMesh.material, localPaint: scene.hullMesh.material };
+      for (const [name, resource] of Object.entries(resources)) {
+        disposed[name] = false;
+        resource.addEventListener('dispose', () => { disposed[name] = true; });
+      }
       fleet.roster([]);
       receive(32, 0);
       fleet.render(1 / 60);
-      return { farBoat, middleBoat, before, after, next, rescued, removed: !root.parent, disposed, views: fleet.views.size, actors: fleet.actors.size };
+      return { farBoat, middleBoat, before, after, next, rescued, removed: !root.parent, sharedHull, disposed, views: fleet.views.size, actors: fleet.actors.size };
     } finally {
       performance.now = originalNow;
       fleet.clear();
@@ -215,7 +221,8 @@ test('remote hulls blend uneven snapshots, snap after rescue and release unused 
   expect(result.after).toEqual(result.before);
   expect(result.next.x).toBeGreaterThan(result.after.x);
   expect(result.rescued).toEqual({ x: 32, heading: 0 });
-  expect(result).toMatchObject({ removed: true, disposed: true, views: 0, actors: 0 });
+  expect(result).toMatchObject({ removed: true, views: 0, actors: 0 });
+  expect(result.disposed).toEqual({ hull: !result.sharedHull, sail: true, paint: true, localPaint: false });
 });
 
 test('auto lowers resolution for GPU load and keeps it for CPU load', async ({ page }) => {

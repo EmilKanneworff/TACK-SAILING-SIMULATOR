@@ -67,21 +67,26 @@
     return out;
   }
 
-  function balance(previous,s,dt,bow){
+  function balance(previous,s,_dt,bow){
     const speed=s.vx*Math.cos(s.theta)+s.vy*Math.sin(s.theta),rise=s.heaveVelocity||0;
     if(!previous||s.time<previous.time||s.time-previous.time>.5||distance(previous,{x:s.x,y:s.y,z:0})>30){
-      return {x:s.x,y:s.y,z:0,time:s.time,speed,rise,sheet:s.sheet??0,fore:0,side:0,compression:0,brace:0,trim:0};
+      return {x:s.x,y:s.y,z:0,time:s.time,speed,rise,sheet:s.sheet??0,fore:0,side:0,horizonRoll:0,compression:0,brace:0,trim:0};
     }
     if(s.time===previous.time)return previous;
-    const step=Math.max(.012,s.time-previous.time),mix=1-Math.exp(-clamp(dt||step,.01,.2)*7);
+    const step=s.time-previous.time,mix=1-Math.exp(-step*7);
     const forward=clamp((speed-previous.speed)/step,-5,5),vertical=clamp((rise-previous.rise)/step,-7,7);
-    const fore=clamp(-.014*forward+.11*(s.pitchRate||0),-.088,.088);
-    const side=clamp(-.11*(s.heelRate||0)-.009*speed*(s.omega||0),-.085,.085);
-    const compression=clamp(-.0069*vertical,-.061,.023);
-    const brace=bow?smooth((bow.closing-.34)/1.35)*(1-smooth((Math.abs(bow.depth)-.08)/.29)):0;
+    const fore=clamp(-.018*forward+.10*(s.pitchRate||0)+.05*Math.sin(s.pitch||0),-.095,.095);
+    const side=clamp(-.11*(s.heelRate||0)-.049*Math.sin(s.heel||0)-.010*speed*(s.omega||0),-.10,.10);
+    const horizonRoll=clamp(-.56*(s.heel||0),-.36,.36);
+    const compression=clamp(-.009*vertical,-.070,.025);
+    const bowImpact=bow?smooth((bow.closing-.34)/1.35)*(1-smooth((Math.abs(bow.depth)-.08)/.29)):0;
+    // The crew also feel the load through the deck when the stern or a foil
+    // takes the initial impact before the bow touches.
+    const brace=Math.max(bowImpact,smooth((vertical-1.8)/4.7)*smooth((-previous.rise-.12)/.75));
     const sheet=s.sheet??0,trim=smooth(Math.abs(sheet-previous.sheet)/(step*.44));
     return {x:s.x,y:s.y,z:0,time:s.time,speed,rise,sheet,
       fore:previous.fore+(fore-previous.fore)*mix,side:previous.side+(side-previous.side)*mix,
+      horizonRoll:previous.horizonRoll+(horizonRoll-previous.horizonRoll)*mix,
       compression:previous.compression+(compression-previous.compression)*mix,
       brace:previous.brace+(brace-previous.brace)*(1-Math.exp(-step*(brace>previous.brace?13:5))),
       trim:previous.trim+(trim-previous.trim)*(1-Math.exp(-step*(trim>previous.trim?8:2.4)))};
@@ -112,6 +117,7 @@
     const duck=crossing*Math.pow(clamp(1-Math.abs(side),0,1),1.25);
     const direction=Math.sign(sideRate)||1,transfer=clamp((side*direction+1)*.5,0,1);
     const balance=scene.crewBalance||{fore:0,side:clamp(-.11*(s.heelRate||0),-.08,.08),compression:0,brace:0,trim:0};
+    out.horizonRoll=(balance.horizonRoll||0)*(1-.72*(body.duck||duck));
     if(body.sharedMotion&&scene.laserDetailed)return laserPose(scene,out,body,s,balance,transfer,crossing,side,direction,poseBlend);
     const professional=scene.isFoiler?.50:scene.isYacht?.68:1;
     const breath=Math.sin((s.time||0)*(1.77+index*.023)+index*1.37)*.007;
@@ -189,17 +195,30 @@
       advance(out.hands[1],work*(1-trim*1.7)+loading*.14,loading*(index===1?.12:.045)-.045,-side*.07);
       if(cockpit)hold(0,{x:out.pelvis.x-.22,y:scene.model.deckY+.16,z:side*(cockpit.halfWidth+.04)},.6+loading*.28);
     }else if(scene.isFoiler){
-      const wheel=scene.acHelmWheels?.find(w=>Math.abs(w.position.x-body.pelvis.x)<.66&&Math.abs(w.position.z-body.pelvis.z)<.52);
-      const y=wheel?.position.y??(body.pelvis.y+.27),x=wheel?.position.x??(body.pelvis.x+.39),z=wheel?.position.z??(body.pelvis.z+.20*side);
-      hold(1,{x,y:y+.06,z:z+Math.sin((s.rudder||0)*2)*.10},.68);
-      advance(out.hands[0],(index%3===0?.040:-.023)*Math.sin((s.time||0)*.62+index),balance.compression*.28,0);
+      const wheel=scene.foilingCrew?.[index]?.wheel;
+      if(wheel){
+        const radius=scene.isCat?.27:.20;
+        for(let i=0;i<2;i++){
+          const angle=(i===0?-1:1)*1.18-(s.rudder||0)*4;
+          hold(i,{x:wheel.position.x,y:wheel.position.y+radius*Math.cos(angle),z:wheel.position.z+radius*Math.sin(angle)},1);
+        }
+      }else{
+        // One hand braces at the thigh, the other works inboard as the rig
+        // loads. The feet remain supported during steady flight.
+        const knee=out.knees[0];
+        hold(0,{x:knee.x-.04,y:knee.y+.07,z:knee.z},.52+.44*balance.brace);
+        advance(out.hands[1],-.11*balance.trim,.04*balance.trim,-side*.045*balance.brace);
+      }
     }
 
     for(let i=0;i<2;i++){
       out.knees[i]=solve(out.hips[i],out.feet[i],body.hips[i],body.knees[i],body.feet[i]);
       out.elbows[i]=solve(out.shoulders[i],out.hands[i],body.shoulders[i],body.elbows[i],body.hands[i]);
     }
-    out.lookYaw=Math.PI/2+clamp((s.rudder||0)*.95+sideRate*.30+Math.sin((s.time||0)*.81+index)*.145+(index%3-1)*.11,-.65,.65);
+    const helm=scene.foilingCrew?.[index]?.wheel||(scene.isYacht&&index===0);
+    const sight=helm?clamp((s.omega||0)*.34-(s.rudder||0)*.66,-.45,.45):
+      (index%3-1)*.14+balance.trim*.24*side;
+    out.lookYaw=Math.PI/2+clamp(sight+sideRate*.30,-.65,.65);
     out.lookDown=.05+.32*duck+(index%3)*.10+.15*balance.brace+.12*balance.trim*Number(index%3===1)
       -clamp((s.pitchRate||0)*.25,-.13,.13);
     return out;
