@@ -81,8 +81,7 @@
    shape:[[-.485,.745],[-.390,.876],[-.248,.972],[-.059,1],[.118,.949],[.272,.745],[.390,.438],[.515,.018]],
    hullMass:56,rigMass:10,equipmentMass:2,hullCGX:-.02,hullCGY:-.035,rigCGY:1.65,
    sailArea:7.06,mastX:1.02,mastTop:6.18,mastDragArea:.31,boomY:.98,boomLength:2.73,sailLuff:5.15,sailCPChord:1.04,sailCPHeight:2.66,
-   daggerArea:.245,daggerDepth:1.02,daggerChord:.30,daggerX:.05,rudderArea:.105,rudderDepth:.66,rudderChord:.205,rudderX:-1.95,
-   rudderOffset:.03,rudderRake:.10,
+   daggerArea:.245,daggerDepth:1.02,daggerChord:.30,daggerX:.05,rudderArea:.105,rudderChord:.205,rudderRake:.10,
    yawInertia:182,rollInertia:57,pitchInertia:220,boomInertia:4.8,boomDamping:10,
    sheetCurve:.90,sheetReleaseRate:.85,sheetReleaseKeyRate:1.55,
    hullLinearDrag:2.8,hullQuadraticDrag:2.7,hullWaveDrag:.60,hullWaveRise:{from:.54,to:.70,extra:.40},hullLateralLinear:22,hullCrossflowCD:.82,
@@ -244,10 +243,16 @@
  // Use the same span limits as the drawn blades and split twin-rudder area.
  for(const p of [CONFIGS.laser,CONFIGS.dinghy,CONFIGS.yacht]){
   const taper=.82;
-  const rudderRoot=p.id==='yacht'?hullBottom(p,p.rudderX,0):p.deckY-.10;
-  // The cruiser has a spade rudder. Its planform starts at the underside
-  // of the hull, where the stock ends, and is sized by its area and chord.
-  if(p.id==='yacht')p.rudderDepth=p.deckY-rudderRoot+p.rudderArea/(p.rudderChord*(1+taper)*.5);
+  let rudderRoot=p.deckY-.10;
+  if(p.id==='laser'){
+   // The pintles are on the transom. The submerged blade begins below the
+   // rudder head, with its leading edge aft of the hinge.
+   p.rudderX=p.hullSections[0][0];
+   p.rudderOffset=p.rudderChord*.5;
+   rudderRoot=hullBottom(p,p.rudderX,0);
+  }
+  if(p.id==='yacht')rudderRoot=hullBottom(p,p.rudderX,0);
+  if(p.id==='laser'||p.id==='yacht')p.rudderDepth=p.deckY-rudderRoot+p.rudderArea/(p.rudderChord*(1+taper)*.5);
   p.waterBlades={
    board:{x:p.daggerX,root:p.keelTopY??hullBottom(p,p.daggerX,0),tip:p.keelBottomY??-p.daggerDepth,chord:p.daggerChord,area:p.daggerArea,taper:.78},
    rudder:{x:p.rudderX,root:rudderRoot,tip:p.deckY-p.rudderDepth,chord:p.rudderChord,area:p.rudderArea,taper,steering:true,

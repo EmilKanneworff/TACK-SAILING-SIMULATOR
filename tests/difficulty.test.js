@@ -214,6 +214,55 @@ test('difficulty is remembered and switching to hard restores the manual weight 
  await page.waitForFunction(()=>SAILING_GAME.state.crewDifficulty==='hard'&&SAILING_GAME.state.crewPose===3);
 });
 
+for (const side of [-1, 1]) {
+ test(`Laser keeps steerage as a gust rounds her up on the ${side > 0 ? 'starboard' : 'port'} side of north`, async ({page}) => {
+  await setUpLaserTack(page, -side, {speed: 10});
+  await page.evaluate(side => {
+   const P = SailPhysics, {env, state} = SAILING_GAME;
+   Object.assign(env, {speed: 10, direction: 0, waveHeight: 0, chop: 0,
+    gusts: 0, shelter: false, autoBalance: false, ironsHelp: false, autoRecovery: false});
+   const theta = (90 - side * 60) * P.DEG, sheet = P.sheetFromTrim(.70, 'laser');
+   Object.assign(state, TackSimulation.createBoat('laser', {x: 0, y: -5000, theta,
+    vx: 3.4 * Math.cos(theta), vy: 3.4 * Math.sin(theta), crewPose: 2, crewSide: -side,
+    sheet, boom: side * P.boomLimit(sheet, 'laser')}, env));
+  }, side);
+  await page.locator('#sheetControl').fill('70');
+  await page.locator('#sea').focus();
+  await page.keyboard.press(side > 0 ? 'q' : 'e');
+  await page.keyboard.press('Digit2');
+  const read = () => page.evaluate(side => {
+   const s = SAILING_GAME.state, P = SailPhysics;
+   return {angle: side * P.wrap(Math.PI / 2 - s.theta) / P.DEG, wet: s.forces.rudder.wet,
+    rudder: side * s.rudder / P.DEG, speed: s.speed, pose: s.crewPose, side: s.crewSide,
+    wind: s.wind.tws, capsized: s.capsized, grounded: s.ground.contact, assist: s.forces.yawAssist};
+  }, side);
+  await page.clock.runFor(1000);
+  await page.evaluate(() => { SAILING_GAME.env.speed = 12; });
+  await page.clock.runFor(1000);
+  const gust = await read();
+  expect(gust.angle).toBeGreaterThan(20);
+  expect(gust.angle).toBeLessThan(55);
+  expect(gust.wind).toBeGreaterThan(10);
+  expect(gust.wet).toBeGreaterThan(.02);
+  const helm = side > 0 ? 'ArrowRight' : 'ArrowLeft';
+  await page.keyboard.down(helm);
+  await page.keyboard.press('Digit3');
+  await page.keyboard.down('ArrowDown');
+  await page.clock.runFor(340);
+  await page.keyboard.up('ArrowDown');
+  await page.clock.runFor(660);
+  const helmOn = await read();
+  expect(helmOn.rudder).toBeGreaterThan(10);
+  await page.evaluate(() => { SAILING_GAME.env.speed = 10; });
+  await page.clock.runFor(2000);
+  await page.keyboard.up(helm);
+  const exit = await read();
+  expect(exit).toMatchObject({pose: 3, side: -side, capsized: false, grounded: false, assist: 0});
+  expect(exit.angle).toBeGreaterThan(gust.angle + 15);
+  expect(exit.speed).toBeGreaterThan(2);
+ });
+}
+
 test('Laser on hard responds to side taps, short helm inputs and controlled easing',async({page})=>{
  await setUpLaserTack(page,-1,{speed:0});
  await page.keyboard.press('KeyE');

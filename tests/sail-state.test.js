@@ -135,6 +135,44 @@ test('gust loading updates the same cloth shape and foil rigs count each area on
  const r=await page.evaluate(()=>{const P=SailPhysics,e={...SAILING_GAME.env,boatId:'laser',speed:4,gusts:0,waves:0},s=P.createState({x:0,y:-5000,boatId:'laser',theta:0,vx:0,vy:0,boom:.5,boomRate:0},e),c=SailingBoats.get('laser');for(let i=0;i<120;i++){s.sail=P.aero(s,e);P.updateRig(s,c,1/60)}const before=P.aero(s,e);e.speed=9;for(let i=0;i<120;i++){s.sail=P.aero(s,e);P.updateRig(s,c,1/60)}const after=P.aero(s,e);return{before:{force:Math.hypot(before.drive,before.sideForce),camber:before.main.camber},after:{force:Math.hypot(after.drive,after.sideForce),camber:after.main.camber},foils:['ac75','ac72'].map(id=>{const env={...e,boatId:id},boat=P.createState({boatId:id,x:0,y:-5000},env),config=SailingBoats.get(id),a=P.aero(boat,env);return{id,rigid:!!config.rigidWing,main:a.main.area,jib:a.jib.area,configured:config.sailArea,labels:a.accumulator.items.map(x=>x.label)};})};});
  expect(r.after.force).toBeGreaterThan(r.before.force*2);expect(Math.abs(r.after.camber-r.before.camber)).toBeGreaterThan(.00001);for(const f of r.foils){expect(f.main+f.jib).toBeCloseTo(f.configured,6);expect(f.labels.filter(x=>x==='main')).toHaveLength(1);expect(f.labels.filter(x=>x==='jib')).toHaveLength(1);}expect(r.foils[0].rigid).toBe(false);expect(r.foils[1].rigid).toBe(true);
 });
+test('cloth depth follows pressure across a fixed boom on both tacks',async({page})=>{
+ await page.goto(process.env.TACK_URL||pathToFileURL(path.resolve('index.html')).href);
+ await page.waitForFunction(()=>window.SAILING_GAME?.scene?.sailMesh);
+ const phases=await page.evaluate(()=>{
+  const {scene}=SAILING_GAME,P=SailPhysics,model=SailingBoats.get('laser');
+  const env={...P.DEFAULT_ENV,boatId:'laser',speed:0,gusts:0,shelter:false,waves:0};
+  const s=P.createState({boatId:'laser',x:0,y:-5000,theta:0,vx:0,vy:0,boom:0,boomRate:0,heel:0,pitch:0,omega:0,heelRate:0,pitchRate:0,heaveVelocity:0},env);
+  function advance(windY,steps){
+   for(let i=0;i<steps;i++){
+    s.sail=P.aero(s,env,{vx:0,vy:windY});
+    P.updateRig(s,model,1/60);
+   }
+   scene.updateSailGrid(scene.sailMesh,s,false);
+   const row=scene.laserSailRow(.5,s),v=scene.sailMesh.geometry.attributes.position;
+   const onLuff=(scene.sailRows/2)*(scene.sailCols+1),panel=onLuff+.4*scene.sailCols;
+   return {depth:(v.getX(panel)-row.base.x)*row.sin+(v.getZ(panel)-row.base.z)*row.cos,
+    pressure:s.sail.main.pressurePa,lower:s.rig.mainDraft,upper:s.rig.headDraft,
+    luffError:Math.hypot(v.getX(onLuff)-row.base.x,v.getY(onLuff)-row.base.y,v.getZ(onLuff)-row.base.z),
+    clew:[v.getX(scene.sailCols),v.getY(scene.sailCols),v.getZ(scene.sailCols)]};
+  }
+  return [advance(0,240),advance(8,1),advance(8,180),advance(-8,1),advance(-8,180),advance(0,240)];
+ });
+ const [calm,gust,loaded,reversing,opposite,relaxed]=phases;
+ console.log('Laser cloth, signed depth in metres:',phases.map(p=>+p.depth.toFixed(4)));
+ expect(Math.abs(calm.depth)).toBeLessThan(.001);
+ expect(Math.abs(loaded.depth)).toBeGreaterThan(.07);
+ expect(Math.abs(gust.lower)).toBeGreaterThan(Math.abs(gust.upper));
+ expect(Math.abs(gust.depth)).toBeLessThan(Math.abs(loaded.depth));
+ expect(reversing.pressure*loaded.pressure).toBeLessThan(0);
+ expect(reversing.depth*loaded.depth).toBeGreaterThan(0);
+ expect(opposite.depth*loaded.depth).toBeLessThan(0);
+ for(const phase of [loaded,opposite])expect(phase.depth*phase.pressure).toBeGreaterThan(0);
+ expect(Math.abs(relaxed.depth)).toBeLessThan(.001);
+ for(const phase of phases){
+  expect(phase.luffError).toBeLessThan(.00001);
+  for(let i=0;i<3;i++)expect(phase.clew[i]).toBeCloseTo(calm.clew[i],6);
+ }
+});
 test('rig evolution is independent of rendering frame rate',async({page})=>{
  await page.goto(pathToFileURL(path.resolve('index.html')).href);await page.waitForFunction(()=>window.SAILING_GAME);
  const runs=await page.evaluate(()=>[30,60,120].map(fps=>{const e={...SAILING_GAME.env,boatId:'laser',speed:6,direction:0,gusts:.2,waves:.12},s=SailPhysics.createState({x:0,y:-5000,boatId:'laser'},e);let acc=0;for(let frame=0;frame<fps*8;frame++){acc+=1/fps;while(acc+1e-12>=1/60){SailPhysics.step(s,{steer:s.time<2?.2:0,trim:s.time<2?.3:0,crewPose:2},e,1/60);acc-=1/60}}return{x:s.x,y:s.y,boom:s.boom,camber:s.rig.camber,twist:s.rig.twist,fill:s.rig.fill,side:s.rig.sideBlend};}));for(const r of runs.slice(1))for(const key of Object.keys(r))expect(r[key]).toBeCloseTo(runs[0][key],8);

@@ -17,7 +17,7 @@ function visualPose(view,now){
   'rudder','boom','boomRate','crewPoseBlend','crewSideBlend','crewPoseVelocity','crewSideVelocity','crewForeAft','crewDuck','crewSwim'
  ]);
  if(Number.isFinite(from.theta)&&Number.isFinite(to.theta))draw.theta=from.theta+P.wrap(to.theta-from.theta)*t;
- draw.rig=blendFields(from.rig,to.rig,t,['sideBlend','camber','twist','fill','reef','flutter','jibFlutter','jibFill','flutterPhase','gybeImpact']);
+ draw.rig=blendFields(from.rig,to.rig,t,['sideBlend','camber','mainDraft','headDraft','jibDraft','twist','fill','reef','flutter','jibFlutter','jibFill','flutterPhase','gybeImpact']);
  draw.cruiserRig=blendFields(from.cruiserRig,to.cruiserRig,t,['reef','headsail','jibSheet','extraSheet']);
  draw.wing=blendFields(from.wing,to.wing,t,['angle','flap','twist','jibAngle','load']);
  draw.spinnaker=from.spinnaker?.type===to.spinnaker?.type

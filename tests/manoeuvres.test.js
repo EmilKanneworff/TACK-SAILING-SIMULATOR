@@ -183,7 +183,8 @@ test('the Laser regains rudder force after a heeled turn unloads the blade on bo
   return [-1,1].map(side=>{
    const heading=(90-side*135)*D;
    const s=P.createState({boatId:'laser',x:0,y:-13000,theta:heading,sheet:.30,crewPose:2,crewPoseBlend:2,
-    heel:side*34*D,pitch:8*D,
+    // Pitch the bow into the trough so the transom-mounted blade clears the surface.
+    heel:side*34*D,pitch:-12*D,
     vx:3.2*Math.cos(heading),vy:3.2*Math.sin(heading),crewSide:-side,crewSideBlend:-side},env);
    let minWet=1,rewet=null,rudderImpulse=0,countersteerDegrees=0,maxSlide=0,maxAssist=0,neutral;
    for(let i=0;i<8*60&&!s.capsized;i++){

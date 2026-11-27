@@ -1,6 +1,22 @@
 # TACK · Stagvending og rorgreb i Laserjollen
 
-[Prøv det byggede spil](http://localhost:5177/) · `ce403d458ca7`. Før/efter bruger de lokale kildeversioner `919c6440ddf4` og `1ee6b006d9a9`, med Git-revision `7ad0ecc` som grundlag.
+## Rorgreb i vindstød
+
+I build `5490e0ae7507` sidder Laserjollens rorblad bag agterspejlet. Den tidligere placering gik ind i skroget, og bladet mistede for tidligt kontakten med vandet, når båden krængede og hækken løftede sig. Det nominelle bladareal er 0,105 m². Det tegnede blad og fysikkens vandprøver bruger samme profil. [Prøv den lokale version](http://localhost:5173/)
+
+Optagelsen sammenligner Fri sejlads på Svær før og efter rettelsen. Begge starter på kurs 060° med 3,4 m/s gennem vandet og 70 % skøde på fladt vand. Nordenvinden sættes fra 10 til 12 m/s efter ét sekund og tilbage til 10 m/s efter tre. Efter to sekunder giver spilleren styrbords ror, går fra position 2 til 3 i luv og slækker skødet i 0,34 sekunder. [Se manøvren side om side](ror-i-vindstoed.mp4)
+
+| Måling i optagelsen | Før (`55e96ec`) | Efter |
+|---|---:|---:|
+| Kurs efter tre sekunder | 013° | 038° |
+| Kurs efter fem sekunder | 043° | 064° |
+| Fart gennem vandet efter fem sekunder | 4,4 knob | 7,3 knob |
+
+Den spejlede browserprøve i `tests/difficulty.test.js` kontrollerer rorudslag, vådt blad og afslag på begge halser med almindelige tastetryk. Starttilstanden er sat for at gøre sammenligningen gentagelig. Prøven måler spillets opførsel. De to skærmoptagelser fra spilleren indeholder ingen log over tastetryk eller kræfter, og prøven er derfor en rekonstruktion.
+
+## Tidligere målinger af stagvending og ror
+
+De følgende målinger hører til build `ce403d458ca7`. Før/efter bruger de lokale kildeversioner `919c6440ddf4` og `1ee6b006d9a9`, med Git-revision `7ad0ecc` som grundlag.
 
 ## Hvad blev rettet
 
